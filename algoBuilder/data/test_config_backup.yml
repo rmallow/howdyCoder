@@ -1,0 +1,51 @@
+test:
+    actionList:
+        manip:
+            calcFunc:
+                code: "def testManip(dataSet):\n    return dataSet.iloc[0][0] + 1"
+                import_statements:
+                - import os
+                - from math import *
+                - import pandas as pd
+                - import urllib.request
+                - import re, sys
+                - import json
+                - from yaml import *
+                imports:
+                - sys
+                - pandas
+                - re
+                - math
+                - yaml
+                - urllib
+                - os
+                - json
+                name: testManip
+            input:
+                number: number
+            period: 1
+            type: event
+    dataSources:
+        random:
+            getFunc:
+                code: "def randomNumber(**kwargs):\n    return random.randint(0, 1000)"
+                import_statements:
+                - from praw.models import MoreComments
+                - import random
+                - from datetime import datetime
+                - import pandas
+                - import json
+                - import praw
+                - from urllib.request import urlopen
+                imports:
+                - pandas
+                - datetime
+                - random
+                - urllib
+                - json
+                - praw
+                name: randomNumber
+            output:
+            - number
+            period: 1
+            type: func

@@ -1,0 +1,6 @@
+multiprocess
+aenum
+pandas
+PyYAML
+aioprocessing
+PySide2

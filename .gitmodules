@@ -1,0 +1,6 @@
+[submodule "ezAlgoConfig"]
+	path = ezAlgoConfig
+	url = https://github.com/rmallow/ezAlgoConfig.git
+[submodule "Utility/PySideAutoGenerate"]
+	path = Utility/PySideAutoGenerate
+	url = git@github.com:rmallow/python_qt_ui_generator.git

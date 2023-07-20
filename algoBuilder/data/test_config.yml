@@ -1,0 +1,407 @@
+test2:
+    actionList:
+        both:
+            calcFunc:
+                code: "def function(dataSet):\n    return 3"
+                import_statements: []
+                imports: []
+                name: function
+            input:
+                number1: number1
+                number2: number2
+            period: 2
+            type: event
+    dataSources:
+        testDS1:
+            getFunc:
+                code: "def get():\n    return 1"
+                import_statements: []
+                imports: []
+                name: get
+            output:
+            - number1
+            period: 1
+            type: func
+        testDS2:
+            getFunc:
+                code: "def get():\n    return 2"
+                import_statements: []
+                imports: []
+                name: get
+            output:
+            - number2
+            period: 5
+            type: func
+test:
+    actionList:
+        mean:
+            action_data_type: pandas data frame
+            calcFunc:
+                code: "def sma(dataSet):\n    \"\"\"algoBuilder\"\"\"\n    return\
+                    \ dataSet.iloc[:, 0].mean()"
+                import_statements:
+                - import re, sys
+                - import os
+                - import pandas as pd
+                - from math import *
+                - import urllib.request
+                - import json
+                - from yaml import *
+                imports:
+                - re
+                - json
+                - urllib
+                - pandas
+                - math
+                - yaml
+                - os
+                - sys
+                name: sma
+            flatten: true
+            input_data:
+                random-number: number
+            period: 5
+            requires_new:
+                random-number: false
+            type: event
+        print:
+            action_data_type: pandas data frame
+            calcFunc:
+                code: "def over(dataSet, parameters=None):\n    \"\"\"algoBuilder\"\
+                    \"\"\n    return dataSet.iloc[0, 0] > parameters['factor']"
+                import_statements:
+                - import numpy as np
+                imports:
+                - numpy
+                name: over
+            flatten: true
+            input_data:
+                mean: mean
+            output_func:
+                code: "def printTest(dataSet):\n    print('happy')\n    print(dataSet[0][0])"
+                import_statements:
+                - import numpy as np
+                imports:
+                - numpy
+                name: printTest
+            parameters:
+                factor: 7.0
+            period: 1
+            requires_new:
+                mean: true
+            type: trigger
+    dataSources:
+        random:
+            flatten: true
+            getFunc:
+                code: "def randomNumber(cap=2, **kwargs):\n    return random.randint(0,\
+                    \ cap)"
+                import_statements:
+                - import praw
+                - from urllib.request import urlopen
+                - import random
+                - from praw.models import MoreComments
+                - import pandas
+                - from datetime import datetime
+                - import json
+                imports:
+                - praw
+                - json
+                - urllib
+                - pandas
+                - datetime
+                - random
+                name: randomNumber
+            output:
+            - number
+            parameters:
+                cap: 20.0
+            period: 1
+            type: func
+new_test:
+    actionList:
+        always_true:
+            action_data_type: dictionary of lists
+            calcFunc:
+                code: "def function(dataSet):\n    return True"
+                import_statements: []
+                imports: []
+                name: function
+            flatten: true
+            input_data:
+                random-number: number
+            output_func:
+                code: "def printTest(dataSet, **kwargs):\n    print('happy')"
+                import_statements: []
+                imports: []
+                name: printTest
+            period: 2
+            requires_new:
+                random-number: false
+            type: trigger
+    dataSources:
+        random:
+            flatten: true
+            getFunc:
+                code: "def randomNumber(cap=2, **kwargs):\n    return random.randint(0,\
+                    \ cap)"
+                import_statements:
+                - import pandas
+                - import praw
+                - import json
+                - import random
+                - from datetime import datetime
+                - from praw.models import MoreComments
+                - from urllib.request import urlopen
+                imports:
+                - urllib
+                - json
+                - pandas
+                - datetime
+                - praw
+                - random
+                name: randomNumber
+            output:
+            - number
+            period: 1
+            type: func
+period_test2:
+  actionList:
+    mean-3:
+      action_data_type: pandas data frame
+      calcFunc:
+        code: "def sma(dataSet):\n    \"\"\"algoBuilder\"\"\"\n    return dataSet.iloc[:,\
+          \ 0].mean()"
+        import_statements:
+        - import urllib.request
+        - import json
+        - import re, sys
+        - from math import *
+        - from yaml import *
+        - import pandas as pd
+        - import os
+        imports:
+        - math
+        - urllib
+        - json
+        - pandas
+        - yaml
+        - os
+        - sys
+        - re
+        name: sma
+      flatten: true
+      input_data:
+        number-number: number
+      period: 3
+      requires_new:
+        number-number: false
+      type: event
+    trigger-5:
+      action_data_type: pandas data frame
+      calcFunc:
+        code: "def func(dataSet):\n    return True"
+        import_statements: []
+        imports: []
+        name: func
+      flatten: true
+      input_data:
+        mean-3: mean-3
+        number-number: number
+      output_func:
+        code: "def func(dataSet):\n    print(strftime('%Y-%m-%d %H:%M:%S', gmtime()))"
+        import_statements:
+        - from time import gmtime, strftime
+        imports:
+        - time
+        name: func
+      period: 5
+      requires_new:
+        mean-3: true
+        number-number: false
+      type: trigger
+  dataSources:
+    number:
+      flatten: true
+      getFunc:
+        code: "def randomNumber(cap=2, **kwargs):\n    return random.randint(0, cap)"
+        import_statements:
+        - import json
+        - import pandas
+        - from praw.models import MoreComments
+        - from datetime import datetime
+        - import random
+        - from urllib.request import urlopen
+        - import praw
+        imports:
+        - praw
+        - urllib
+        - random
+        - pandas
+        - json
+        - datetime
+        name: randomNumber
+      output:
+      - number
+      period: 1
+      type: func
+irreg_test:
+    actionList:
+        average:
+            action_data_type: dictionary of lists
+            calcFunc:
+                code: "def combineAvg(dataSet):\n    return sum((sum(v) / len(v) for\
+                    \ v in dataSet.values()))"
+                import_statements:
+                - from urllib.request import urlopen
+                - import json
+                - import re
+                imports:
+                - re
+                - json
+                - urllib
+                name: combineAvg
+            flatten: true
+            input_data:
+                irreg-number: number
+                random-number: number
+            period: 5
+            requires_new:
+                irreg-number: true
+                random-number: false
+            type: event
+    dataSources:
+        irreg:
+            flatten: true
+            getFunc:
+                code: "def irregular(chance=5, passback_dict={}):\n    if random.randint(1,\
+                    \ chance) == 1:\n        passback_dict['num'] = passback_dict.get('num',\
+                    \ 0) + 1\n        return passback_dict['num']\n    else:\n    \
+                    \    return None"
+                import_statements:
+                - import praw
+                - from praw.models import MoreComments
+                - import pandas
+                - import json
+                - import random
+                - from urllib.request import urlopen
+                - from datetime import datetime
+                imports:
+                - datetime
+                - random
+                - pandas
+                - urllib
+                - praw
+                - json
+                name: irregular
+            output:
+            - number
+            period: 3
+            type: func
+        random:
+            flatten: true
+            getFunc:
+                code: "def randomNumber(cap=2, **kwargs):\n    return random.randint(0,\
+                    \ cap)"
+                import_statements:
+                - import praw
+                - from praw.models import MoreComments
+                - import pandas
+                - import json
+                - import random
+                - from urllib.request import urlopen
+                - from datetime import datetime
+                imports:
+                - datetime
+                - random
+                - pandas
+                - urllib
+                - praw
+                - json
+                name: randomNumber
+            output:
+            - number
+            parameters:
+                cap: 10.0
+            period: 10
+            type: func
+irreg_test_string:
+    actionList:
+        combine:
+            action_data_type: dictionary of lists
+            calcFunc:
+                code: "def stringCombine(dataSet):\n    return '   '.join((f\"{k}\
+                    \ - {','.join((str(n) for n in v))}\" for (k, v) in dataSet.items()))"
+                import_statements:
+                - import re
+                - from urllib.request import urlopen
+                - import json
+                imports:
+                - urllib
+                - json
+                - re
+                name: stringCombine
+            flatten: true
+            input_data:
+                irreg-number: irreg
+                random-number: random
+            period: 3
+            requires_new:
+                irreg-number: false
+                random-number: false
+            type: event
+    dataSources:
+        irreg:
+            flatten: true
+            getFunc:
+                code: "def irregular(chance=5, passback_dict={}):\n    if random.randint(1,\
+                    \ chance) == 1:\n        passback_dict['num'] = passback_dict.get('num',\
+                    \ 0) + 1\n        return passback_dict['num']\n    else:\n    \
+                    \    return None"
+                import_statements:
+                - from urllib.request import urlopen
+                - import json
+                - import random
+                - from datetime import datetime
+                - from praw.models import MoreComments
+                - import pandas
+                - import praw
+                imports:
+                - urllib
+                - praw
+                - json
+                - pandas
+                - random
+                - datetime
+                name: irregular
+            output:
+            - number
+            period: 2
+            type: func
+        random:
+            flatten: true
+            getFunc:
+                code: "def randomNumber(cap=2, **kwargs):\n    return random.randint(0,\
+                    \ cap)"
+                import_statements:
+                - from urllib.request import urlopen
+                - import json
+                - import random
+                - from datetime import datetime
+                - from praw.models import MoreComments
+                - import pandas
+                - import praw
+                imports:
+                - urllib
+                - praw
+                - json
+                - pandas
+                - random
+                - datetime
+                name: randomNumber
+            output:
+            - number
+            parameters:
+                cap: 20.0
+            period: 5
+            type: func

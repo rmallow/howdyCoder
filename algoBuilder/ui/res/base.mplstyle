@@ -1,0 +1,6 @@
+text.color:             white
+axes.labelcolor:        white
+xtick.color:            white
+ytick.color:            white
+patch.facecolor:        2a2a2a
+axes.facecolor:         323232
