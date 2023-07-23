@@ -1,14 +1,13 @@
-from abc import ABC
+from .util import abstractQt
+
 import typing
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
-class selectorBaseMeta(type(ABC), type(QtWidgets.QWidget)):
-    pass
-
-
-class SelectorBase(QtWidgets.QWidget, ABC, metaclass=selectorBaseMeta):
+class SelectorBase(
+    QtWidgets.QWidget, metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget)
+):
     itemSelected = QtCore.Signal(object)
 
     def __init__(
@@ -17,3 +16,7 @@ class SelectorBase(QtWidgets.QWidget, ABC, metaclass=selectorBaseMeta):
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
         super().__init__(parent, f)
+
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)

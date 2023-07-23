@@ -8,7 +8,7 @@ from ..commonUtil import astUtil
 import ast
 import typing
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 CODE_ROLE = QtCore.Qt.UserRole + 1
 IMPORT_ROLE = QtCore.Qt.UserRole + 2
@@ -35,7 +35,6 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-
         super().__init__(parent, f)
         self._ui = ui_funcSelectorCodePage.Ui_FuncSelectorCodePage()
         self._ui.setupUi(self)

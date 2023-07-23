@@ -4,7 +4,7 @@ from .qtUiFiles import ui_graphSettingsWidget
 
 from .qtMplPlot import graphSettings
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 import typing
 
 

@@ -3,7 +3,7 @@ from .loggingModel import loggingModel
 from .loggingModel import _loggingColumns
 
 import logging
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 
 def createRegExpFromSet(stringSet):
@@ -61,7 +61,7 @@ class loggingWindow(QtWidgets.QDialog):
 
         self.loggingModel.addKey.connect(self.addKey)
         self.loggingModel.addGroup.connect(self.addGroup)
-    
+
     def getSourceModelIndex(self, index: QtCore.QModelIndex):
         gI = self.severityFilter.mapToSource(index)
         kI = self.groupFilter.mapToSource(gI)

@@ -1,6 +1,6 @@
 import typing
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 import pandas as pd
 
 

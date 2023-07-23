@@ -3,15 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'newBlockWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.2
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPushButton,
+    QSizePolicy, QVBoxLayout, QWidget)
 
 class Ui_NewBlockWidget(object):
     def setupUi(self, NewBlockWidget):
@@ -25,7 +30,7 @@ class Ui_NewBlockWidget(object):
         NewBlockWidget.setSizePolicy(sizePolicy)
         NewBlockWidget.setMaximumSize(QSize(16777215, 16777215))
         font = QFont()
-        font.setFamily(u"Courier")
+        font.setFamilies([u"Courier"])
         NewBlockWidget.setFont(font)
         NewBlockWidget.setStyleSheet(u"")
         self.verticalLayout = QVBoxLayout(NewBlockWidget)
@@ -42,7 +47,7 @@ class Ui_NewBlockWidget(object):
         sizePolicy1.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
         self.label.setSizePolicy(sizePolicy1)
         font1 = QFont()
-        font1.setFamily(u".AppleSystemUIFont")
+        font1.setFamilies([u".AppleSystemUIFont"])
         font1.setPointSize(15)
         self.label.setFont(font1)
         self.label.setStyleSheet(u"")
@@ -70,7 +75,7 @@ class Ui_NewBlockWidget(object):
         self.createButton.setSizePolicy(sizePolicy3)
         self.createButton.setMinimumSize(QSize(102, 102))
         font2 = QFont()
-        font2.setFamily(u".AppleSystemUIFont")
+        font2.setFamilies([u".AppleSystemUIFont"])
         font2.setPointSize(100)
         font2.setKerning(False)
         self.createButton.setFont(font2)

@@ -5,7 +5,7 @@ from ...core.configConstants import (
 )
 import typing
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 
 TYPE_DESCRIPTION = {

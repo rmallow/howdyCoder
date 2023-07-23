@@ -18,7 +18,7 @@ from ...core.commonGlobals import (
 import typing
 
 from aenum import Enum
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 
 class ParameterEnum(Enum):
@@ -73,7 +73,6 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 and value[ParameterEnum.NAME]
                 and value[ParameterEnum.VALUE]
             ):
-
                 if value[ParameterEnum.TYPE] == editableTable.EditorType.FUNC.display:
                     """If it is a setup func add to that section instead of parameters"""
                     configSection = SETUP_FUNCS
@@ -90,7 +89,8 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
 
     def setValues(self, values: typing.Dict[str, typing.Any]):
         """The base class expects values to be a list, if that's what we were passed in then do that
-        But when we output config from this class, it is in dict form, so have special handling for that"""
+        But when we output config from this class, it is in dict form, so have special handling for that
+        """
         self.clear()
         if isinstance(values, list):
             super().setValues(values)
@@ -98,49 +98,54 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
             # it should be a dict, with two top level keys, SETUP_FUNCS and PARAMETERS
             # the config parser handles these separately, but here we lump them all into one list
             for param_section_type, param_section_values in values.items():
-                for param_key, param_value in param_section_values.items():
-                    param_type = editableTable.EditorType.ANY
-                    if PARAMETERS == param_section_type:
-                        # we know these are all not functions, but for the delegate determine the type
-                        try:
-                            float(param_value)
-                            param_type = editableTable.EditorType.NUMBER
-                        except:
-                            # so it's most likely a string but for redundancy
-                            if isinstance(param_value, str):
-                                param_type = editableTable.EditorType.STRING
+                if (
+                    param_section_type == PARAMETERS
+                    or param_section_type == SETUP_FUNCS
+                ):
+                    for param_key, param_value in param_section_values.items():
+                        param_type = editableTable.EditorType.ANY
+                        if PARAMETERS == param_section_type:
+                            # we know these are all not functions, but for the delegate determine the type
+                            try:
+                                float(param_value)
+                                param_type = editableTable.EditorType.NUMBER
+                            except:
+                                # so it's most likely a string but for redundancy
+                                if isinstance(param_value, str):
+                                    param_type = editableTable.EditorType.STRING
 
-                    elif SETUP_FUNCS == param_section_type:
-                        param_type = editableTable.EditorType.FUNC
+                        elif SETUP_FUNCS == param_section_type:
+                            param_type = editableTable.EditorType.FUNC
 
-                    self.appendValue()
-                    self.setData(
-                        self.index(self.rowCount() - 1, ParameterEnum.NAME.value),
-                        param_key,
-                    )
-                    self.setData(
-                        self.index(self.rowCount() - 1, ParameterEnum.TYPE.value),
-                        param_type.display,
-                    )
-                    if param_type == editableTable.EditorType.FUNC:
-                        param_value[ActionFuncEnum.INDEX] = self.index(
-                            self.rowCount() - 1, ParameterEnum.VALUE.value
+                        self.appendValue()
+                        self.setData(
+                            self.index(self.rowCount() - 1, ParameterEnum.NAME.value),
+                            param_key,
+                        )
+                        self.setData(
+                            self.index(self.rowCount() - 1, ParameterEnum.TYPE.value),
+                            param_type.display,
+                        )
+                        if param_type == editableTable.EditorType.FUNC:
+                            param_value[ActionFuncEnum.INDEX] = self.index(
+                                self.rowCount() - 1, ParameterEnum.VALUE.value
+                            )
+
+                        self.setData(
+                            self.index(self.rowCount() - 1, ParameterEnum.VALUE.value),
+                            param_value,
                         )
 
-                    self.setData(
-                        self.index(self.rowCount() - 1, ParameterEnum.VALUE.value),
-                        param_value,
-                    )
-
-                    if param_type == editableTable.EditorType.FUNC:
-                        self.itemSelected(param_value)
+                        if param_type == editableTable.EditorType.FUNC:
+                            self.itemSelected(param_value)
 
 
 def convertToConfig(
     parameter_dict: typing.Dict[ParameterEnum, str]
 ) -> typing.Dict[str, str]:
     """This parameter dict should be the output from parameter table getData
-    This will convert it from data that makes sense to the UI to config for the block manager"""
+    This will convert it from data that makes sense to the UI to config for the block manager
+    """
     return_config = {}
     if PARAMETERS in parameter_dict:
         return_config[PARAMETERS] = parameter_dict[PARAMETERS]

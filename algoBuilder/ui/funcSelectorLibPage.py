@@ -7,7 +7,7 @@ from . import librarySingleton
 import ast
 import typing
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 CODE_ROLE = QtCore.Qt.UserRole + 1
 IMPORT_ROLE = QtCore.Qt.UserRole + 2
@@ -24,7 +24,6 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-
         super().__init__(parent, f)
         self._ui = ui_funcSelectorLibPage.Ui_FuncSelectorLibPage()
         self._ui.setupUi(self)
@@ -145,7 +144,8 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
     def updateData(self) -> None:
         """When the window is called to be shown, (func selector will call this)
         clear the lib model and replace it with what is in the library singleton,
-        this is in case somewhere a library has been loaded since last time this func selector was shown"""
+        this is in case somewhere a library has been loaded since last time this func selector was shown
+        """
         self._libModel.clear()
         self._libModel.appendRow(self._ungrouped_item)
         libraries = librarySingleton.getLibraries()

@@ -4,7 +4,7 @@ from .selectorBase import SelectorBase
 from .funcSelectorPageBase import FuncSelectorPageBase
 
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 
 class FuncSelector(SelectorBase):

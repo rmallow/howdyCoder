@@ -1,16 +1,15 @@
-from PySide2 import QtGui, QtCore
-from abc import ABC, abstractmethod
+from .util import abstractQt
+
+from PySide6 import QtGui, QtCore
+from abc import abstractmethod
 
 
 HIGHLIGHT_ROLE = QtCore.Qt.UserRole + 10  # arbitrary
 
 
-class HighlightBaseModelMeta(type(ABC), type(QtGui.QStandardItemModel)):
-    pass
-
-
 class HighlightBaseModel(
-    QtGui.QStandardItemModel, ABC, metaclass=HighlightBaseModelMeta
+    QtGui.QStandardItemModel,
+    metaclass=abstractQt.getAbstactQtResolver(QtGui.QStandardItemModel),
 ):
     """
     QStandardItemModel that colors specified indexes for trees
@@ -20,6 +19,10 @@ class HighlightBaseModel(
         self.oldIndex: QtCore.QModelIndex = None
         self.color = color
         super().__init__(*args, **kwargs)
+
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
 
     @abstractmethod
     def changeIndexColor(self, index: QtCore.QModelIndex, color: QtGui.QColor):

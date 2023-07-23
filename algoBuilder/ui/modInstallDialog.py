@@ -1,6 +1,6 @@
 from .qtUiFiles import ui_modInstallDialog
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 import typing
 
 

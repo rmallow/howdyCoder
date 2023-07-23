@@ -9,7 +9,7 @@ from .util import animations
 from ..core.commonGlobals import TYPE, ITEM
 from ..commonUtil import mpLogging
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
 class mainOutputView(QtWidgets.QWidget):

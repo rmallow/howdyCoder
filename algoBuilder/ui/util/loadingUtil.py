@@ -1,4 +1,4 @@
-from PySide2 import QtCore, QtUiTools
+from PySide6 import QtCore, QtUiTools
 
 
 def loadUiWidget(uifilename, widgetsToRegister=[], parent=None):

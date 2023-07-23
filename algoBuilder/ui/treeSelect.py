@@ -6,7 +6,7 @@ from ..core.data_structs import StreamSettings, KeyLabelPair
 
 from ..backEnd.util import requestUtil
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 import typing
 

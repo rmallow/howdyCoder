@@ -2,7 +2,7 @@ from .qtUiFiles import ui_configLoader
 
 from ..data.datalocator import SETTINGS_FILE
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 import configparser
 import os
 

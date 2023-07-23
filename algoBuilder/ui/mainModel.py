@@ -14,7 +14,7 @@ from collections import deque, Counter
 import time
 import typing
 import yaml
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 OUTPUT = "Output"
 LOGGING = "Logging"

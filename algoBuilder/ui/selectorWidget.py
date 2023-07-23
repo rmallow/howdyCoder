@@ -1,7 +1,7 @@
 from .selectorBase import SelectorBase
 from .qtUiFiles import ui_selectorWidget
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 
 class SelectorWidget(QtWidgets.QWidget):

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from PySide2.QtGui import QColorConstants
+from PySide6.QtGui import QColorConstants
 
 LOOP_INTERVAL_MSECS = 300
 GUI_REFRESH_INTERVAL = 500

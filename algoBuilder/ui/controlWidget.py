@@ -4,7 +4,7 @@ from .algoData import AlgoDict, AlgoData
 
 from .qtUiFiles import ui_controlWidget
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 import typing
 import math

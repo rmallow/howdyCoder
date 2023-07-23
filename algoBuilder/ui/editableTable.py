@@ -2,6 +2,8 @@ from .funcSelector import FuncSelector
 from .actionUIConstant import ActionFuncEnum
 from .selectorWidget import SelectorWidget
 
+from .util.abstractQt import getAbstactQtResolver, handleAbstractMethods
+
 from ..commonUtil import helpers
 
 from ..core.commonGlobals import (
@@ -11,13 +13,12 @@ from ..core.commonGlobals import (
     ENUM_EDITOR_VALUES,
     ENUM_ENABLED,
 )
-
-from abc import ABC, abstractmethod
 import typing
+from abc import abstractmethod
 
 from aenum import Enum
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 
 class EditorType(Enum):
@@ -92,12 +93,9 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
             model.setData(index, currentText)
 
 
-class EditableTableModelMeta(type(ABC), type(QtCore.QAbstractTableModel)):
-    pass
-
-
 class EditableTableModel(
-    QtCore.QAbstractTableModel, ABC, metaclass=EditableTableModelMeta
+    QtCore.QAbstractTableModel,
+    metaclass=getAbstactQtResolver(QtCore.QAbstractTableModel),
 ):
     """
     Base class for Editable Tables, standardizes modifying values in tables
@@ -140,6 +138,10 @@ class EditableTableModel(
         self.funcSelector.itemSelected.connect(self.itemSelected)
 
         super().__init__(parent=parent)
+
+    def __new__(self, *args, **kwargs):
+        handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
 
     @abstractmethod
     def rowCount(self, parent: QtCore.QModelIndex = QtCore.QModelIndex()) -> int:

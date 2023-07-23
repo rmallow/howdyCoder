@@ -3,7 +3,7 @@ from ..core.message import message
 import time
 import typing
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 _loggingColumns = ["Time", "Severity", "Key", "Group", "Title"]
 _notAvail = "----"

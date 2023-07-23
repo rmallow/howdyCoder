@@ -7,7 +7,7 @@ from ...core.configConstants import PERIOD, FLATTEN
 
 import typing
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 
 class CreateBaseParametersPage(CreateBasePage):
@@ -48,6 +48,16 @@ class CreateBaseParametersPage(CreateBasePage):
         self._parameterModel.clear()
         self._ui.periodSpinBox.setValue(1)
         self._ui.flattenedCheck.setChecked(True)
+
+    def loadPage(self, keys: typing.List[str]) -> None:
+        curr = self.getTempConfigFirstValue()
+        self._parameterModel.setValues(curr)
+        self._ui.periodSpinBox.setValue(curr.get(PERIOD, 1))
+        self._ui.flattenedCheck.setChecked(curr.get(FLATTEN, True))
+        return super().loadPage(keys)
+
+    def getKeysForNextPage(self) -> typing.List:
+        return super().getKeysForNextPage()
 
 
 class CreateDataSourceParametersPage(CreateBaseParametersPage):

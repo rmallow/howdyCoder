@@ -7,7 +7,7 @@ from ...core.configConstants import DATA_SOURCES, TYPE, ACTION_LIST
 
 import typing
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 ACTION_TOP_TEXT = "Actions act on data either from data sources and/or events. There are two types of actions, events which take input data and apply a function to output data, and triggers which take input data and determine if a criteria is met to trigger an output function. "
 
@@ -48,6 +48,12 @@ class CreateAddPageBase(CreateBasePage):
 
     def validate(self) -> bool:
         return True
+
+    def reset(self) -> None:
+        self._ui.skipButton.setEnabled(False)
+        self._dataSourcesModel.setStringList([])
+        self.getTempConfig().clear()
+        return super().reset()
 
     def setGroupModel(self):
         rows = []

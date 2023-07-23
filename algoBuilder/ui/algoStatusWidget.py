@@ -4,7 +4,7 @@ from .algoData import AlgoData, AlgoStatusEnum
 
 from ..commonUtil import helpers
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 import typing
 import yaml

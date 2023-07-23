@@ -1,19 +1,18 @@
+from ..util import abstractQt
 from ...core.commonGlobals import UI_GROUP
 from ..uiConstants import PageKeys
 from ...commonUtil import mpLogging
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import typing
 from enum import Enum
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
-class CreateBasePageMeta(type(ABC), type(QtWidgets.QWidget)):
-    pass
-
-
-class CreateBasePage(QtWidgets.QWidget, ABC, metaclass=CreateBasePageMeta):
+class CreateBasePage(
+    QtWidgets.QWidget, metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget)
+):
     PAGE_KEY: Enum = None
     EXIT: Enum = None
     EXIT_LABEL: str = ""
@@ -37,6 +36,10 @@ class CreateBasePage(QtWidgets.QWidget, ABC, metaclass=CreateBasePageMeta):
         self.next_enabled = True
         self.back_enabled = True
 
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
+
     def getConfigSection(self) -> typing.Dict[str, typing.Any]:
         curr = self.current_config
         for k in self.config_keys:
@@ -53,7 +56,7 @@ class CreateBasePage(QtWidgets.QWidget, ABC, metaclass=CreateBasePageMeta):
     def getTempConfig(self) -> typing.Dict[str, typing.Any]:
         return self.temp_config
 
-    def getTempConfigFirstValue(self):
+    def getTempConfigFirstValue(self) -> typing.Dict[str, typing.Any]:
         return next(iter(self.temp_config.values()))
 
     def enableCheck(self):
@@ -81,7 +84,7 @@ class CreateBasePage(QtWidgets.QWidget, ABC, metaclass=CreateBasePageMeta):
         pass
 
     @abstractmethod
-    def getKeysForNextPage(self) -> typing.Any:
+    def getKeysForNextPage(self) -> typing.List:
         """
         Get keys for the next page in the sequence. By default pass ahead all of the keys
         """

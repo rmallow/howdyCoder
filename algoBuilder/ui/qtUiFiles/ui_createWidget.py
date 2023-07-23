@@ -3,17 +3,22 @@
 ################################################################################
 ## Form generated from reading UI file 'createWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.2
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QPushButton, QScrollArea,
+    QSizePolicy, QVBoxLayout, QWidget)
 
 from ..create.progressSteps import ProgressSteps
-
 
 class Ui_CreateWidget(object):
     def setupUi(self, CreateWidget):
@@ -93,12 +98,12 @@ class Ui_CreateWidget(object):
 
         self.verticalLayout.addWidget(self.scrollArea)
 
-        self.widget_2 = QWidget(CreateWidget)
-        self.widget_2.setObjectName(u"widget_2")
-        self.horizontalLayout_2 = QHBoxLayout(self.widget_2)
+        self.buttonBox = QWidget(CreateWidget)
+        self.buttonBox.setObjectName(u"buttonBox")
+        self.horizontalLayout_2 = QHBoxLayout(self.buttonBox)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(-1, 6, -1, 6)
-        self.backButton = QPushButton(self.widget_2)
+        self.backButton = QPushButton(self.buttonBox)
         self.backButton.setObjectName(u"backButton")
         sizePolicy4 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
         sizePolicy4.setHorizontalStretch(0)
@@ -108,7 +113,7 @@ class Ui_CreateWidget(object):
 
         self.horizontalLayout_2.addWidget(self.backButton)
 
-        self.nextButton = QPushButton(self.widget_2)
+        self.nextButton = QPushButton(self.buttonBox)
         self.nextButton.setObjectName(u"nextButton")
         sizePolicy4.setHeightForWidth(self.nextButton.sizePolicy().hasHeightForWidth())
         self.nextButton.setSizePolicy(sizePolicy4)
@@ -116,7 +121,7 @@ class Ui_CreateWidget(object):
         self.horizontalLayout_2.addWidget(self.nextButton)
 
 
-        self.verticalLayout.addWidget(self.widget_2, 0, Qt.AlignHCenter)
+        self.verticalLayout.addWidget(self.buttonBox, 0, Qt.AlignHCenter)
 
 
         self.retranslateUi(CreateWidget)

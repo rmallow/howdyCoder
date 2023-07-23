@@ -4,7 +4,7 @@ from ..core.commonGlobals import ENUM_DISPLAY, ENUM_VALUE, ENUM_HIDE
 import typing
 
 from aenum import Enum
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 
 class EnumComboBox(QtWidgets.QComboBox):

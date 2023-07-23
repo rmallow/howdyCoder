@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
 def fadeStart(obj, fromWidget, toWidget, layout, finishedSlot=None):

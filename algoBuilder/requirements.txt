@@ -3,4 +3,4 @@ aenum
 pandas
 PyYAML
 aioprocessing
-PySide2
+PySide6

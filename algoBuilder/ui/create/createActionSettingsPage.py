@@ -27,7 +27,7 @@ from ...core.commonGlobals import ENUM_DISPLAY
 from aenum import Enum
 import typing
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore
 
 AVAILABLE_GROUP_COLUMN = 0
 AVAILABLE_NAME_COLUMN = 1
@@ -114,6 +114,9 @@ class CreateActionSettingsPage(CreateBasePage):
                 )
                 self._current_output_settings = settings
             self.enableCheck()
+
+    def getKeysForNextPage(self) -> typing.List:
+        return super().getKeysForNextPage()
 
     def loadPage(self, keys) -> None:
         super().loadPage(keys)

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 import typing
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 
 class AlgoStatusEnum(str, Enum):

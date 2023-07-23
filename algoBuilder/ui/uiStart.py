@@ -1,6 +1,6 @@
 from .mainWindow import mainWindow
 import os
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
 def start(isLocal: bool):

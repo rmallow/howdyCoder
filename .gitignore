@@ -10,7 +10,6 @@ deprecated
 *.code-workspace
 config/
 ezAlgoConfig
-Utility/PySideAutoGenerate
 
 # Distribution / packaging
 .Python

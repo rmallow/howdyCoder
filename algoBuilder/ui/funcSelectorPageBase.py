@@ -1,14 +1,14 @@
-from abc import ABC, abstractmethod
+from .util import abstractQt
+
+from abc import abstractmethod
 import typing
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
-class FuncSelectorPageBaseMeta(type(ABC), type(QtWidgets.QWidget)):
-    pass
-
-
-class FuncSelectorPageBase(QtWidgets.QWidget, ABC, metaclass=FuncSelectorPageBaseMeta):
+class FuncSelectorPageBase(
+    QtWidgets.QWidget, metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget)
+):
     funcSelected = QtCore.Signal(dict)
 
     def __init__(
@@ -17,6 +17,10 @@ class FuncSelectorPageBase(QtWidgets.QWidget, ABC, metaclass=FuncSelectorPageBas
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
         super().__init__(parent, f)
+
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
 
     @abstractmethod
     def updateData(self) -> None:

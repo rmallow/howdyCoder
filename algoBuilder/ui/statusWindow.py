@@ -1,7 +1,7 @@
 from .qtUiFiles import ui_statusWindow
 from .statusModel import statusModel
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
 class statusWindow(QtWidgets.QDialog):

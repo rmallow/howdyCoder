@@ -4,8 +4,10 @@ https://matplotlib.org/3.1.1/gallery/user_interfaces/embedding_in_qt_sgskip.html
 https://bastibe.de/2013-05-30-speeding-up-matplotlib.html
 https://stackoverflow.com/questions/57891219/how-to-make-a-fast-matplotlib-live-plot-in-a-pyqt5-gui
 
-once matplotlib supports Qt6 upgrade from PySide6 -> PySide2 can be made
+once matplotlib supports Qt6 upgrade from PySide2 -> PySide6 can be made
 https://github.com/matplotlib/matplotlib/pull/19255
+
+^^^ The above has been done as we have now migrated to PySide 6 
 """
 from __future__ import annotations
 
@@ -14,7 +16,7 @@ from ..commonUtil.sparseDictList import SparseDictList
 from .uiFilePaths import BASE_MPL_STYLE
 
 # matplotlib imports
-from matplotlib.backends.backend_qt5agg import FigureCanvas
+from matplotlib.backends.backend_qtagg import FigureCanvas
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 

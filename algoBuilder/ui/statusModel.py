@@ -3,7 +3,7 @@ from ..commonUtil import mpLogging, helpers
 
 from ..core.message import message
 
-from PySide2 import QtGui, QtCore
+from PySide6 import QtGui, QtCore
 
 SEND_ROW = 0
 RECEIVE_ROW = 1

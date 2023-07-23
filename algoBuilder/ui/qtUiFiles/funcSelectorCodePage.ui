@@ -29,8 +29,8 @@
      <property name="lineWrapMode">
       <enum>QPlainTextEdit::NoWrap</enum>
      </property>
-     <property name="tabStopWidth">
-      <number>4</number>
+     <property name="tabStopDistance">
+      <double>4.000000000000000</double>
      </property>
      <property name="placeholderText">
       <string>Enter Code Here</string>

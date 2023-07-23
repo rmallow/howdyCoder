@@ -5,7 +5,7 @@ from .qtUiFiles import ui_outputViewFeed
 
 import fnmatch
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 
 class outputViewFeed(outputView):

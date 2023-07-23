@@ -21,7 +21,7 @@ from ...core.commonGlobals import ENUM_DISPLAY
 
 import typing
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 OUTPUT_HELP = """
 Since functions are able to be made outside of this environment, this setup wizard can't tell you what data the function will output, unless the function specifies in docstring. \n
@@ -176,3 +176,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self._ui.removeOutputButton.setEnabled(False)
         self._ui.outputHelpText.setText("")
         self._ui.stackedWidget.currentWidget().resetText()
+
+    def getKeysForNextPage(self) -> typing.List:
+        return super().getKeysForNextPage()

@@ -8,7 +8,7 @@ from .util import animations
 
 from ..core.commonGlobals import TYPE, ITEM, PERIOD, BACKTRACK, GRAPH_SETTINGS
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
 class outputSelect(QtWidgets.QWidget):

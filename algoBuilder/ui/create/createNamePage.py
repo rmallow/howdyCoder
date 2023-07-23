@@ -4,7 +4,7 @@ from ..qtUiFiles import ui_createNamePage
 
 import typing
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 
 class CreateNamePage(CreateBasePage):
@@ -52,6 +52,9 @@ class CreateNamePage(CreateBasePage):
     def reset(self) -> None:
         self.next_enabled = False
         self._ui.nameEdit.clear()
+
+    def loadPage(self, keys: typing.List[str]) -> None:
+        return super().loadPage(keys)
 
     @QtCore.Slot()
     def doesNameExistSlot(self, exists_already: bool) -> None:

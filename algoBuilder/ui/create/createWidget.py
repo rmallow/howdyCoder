@@ -24,7 +24,7 @@ from ..util import animations
 
 from ...commonUtil.helpers import createErrorLabel
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 from dataclasses import dataclass, fields
 import typing

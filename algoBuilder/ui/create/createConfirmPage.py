@@ -4,7 +4,7 @@ from ..uiConstants import PageKeys
 
 import typing
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 import yaml
 
 
@@ -64,6 +64,10 @@ class CreateConfirmBasePage(CreateBasePage):
     def reset(self) -> None:
         self._ui.addButton.setEnabled(True)
         self._ui.confirmButton.setEnabled(True)
+
+    def save(self) -> None:
+        # saving of the temp config to the full config is done via the confirm button
+        pass
 
     def getKeysForNextPage(self) -> typing.Any:
         return [self.config_keys[0]]

@@ -8,7 +8,7 @@ from .algoData import AlgoStatusEnum
 
 # import name page for find children to connect signal
 from .create.createNamePage import CreateNamePage
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class mainWindow(QtWidgets.QMainWindow):

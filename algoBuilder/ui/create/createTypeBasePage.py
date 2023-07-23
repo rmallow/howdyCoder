@@ -4,7 +4,7 @@ from ..qtUiFiles import ui_createDataSourceType
 
 import typing
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore
 
 from ...core.configConstants import (
     TYPE,
@@ -68,3 +68,9 @@ class CreateTypeBasePage(CreateBasePage):
     def reset(self) -> None:
         self._ui.typeView.selectionModel().clearSelection()
         self._ui.nameEdit.setText("")
+
+    def loadPage(self, keys: typing.List[str]) -> None:
+        return super().loadPage(keys)
+    
+    def getKeysForNextPage(self) -> typing.List:
+        return super().getKeysForNextPage()
