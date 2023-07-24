@@ -15,9 +15,11 @@ from ..commonUtil import pathUtil
 from ..commonUtil.sparseDictList import SparseDictList
 from .uiFilePaths import BASE_MPL_STYLE
 
+import PySide6.QtCore
+
 # matplotlib imports
-from matplotlib.backends.backend_qtagg import FigureCanvas
 import matplotlib as mpl
+from matplotlib.backends.backend_qtagg import FigureCanvas
 import matplotlib.pyplot as plt
 
 from dataclasses import dataclass
@@ -67,8 +69,7 @@ class qtMplPlot(FigureCanvas):
 
         """
         # Load Style first
-        dirPath = pathUtil.getFileDirPath(__file__)
-        plt.style.use(dirPath + "/" + BASE_MPL_STYLE)
+        plt.style.use(BASE_MPL_STYLE)
 
         super().__init__(plt.figure())
         # Range settings

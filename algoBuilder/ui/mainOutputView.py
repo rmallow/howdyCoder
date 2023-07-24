@@ -60,10 +60,6 @@ class mainOutputView(QtWidgets.QWidget):
             oView = outputViewFeed(outputViewModel, selectionSettings, dock)
         elif selectionSettings[TYPE] == outputTypesEnum.GRAPH.value:
             oView = outputViewGraph(outputViewModel, selectionSettings, dock)
-            oView.setMaximumSize(
-                int(self.scrollArea.width() * 0.7),
-                int(self.scrollArea.height() * 0.7),
-            )
 
         selector = outputSelect(self.mainOutputViewModel, self)
         selector.selectionFinished.connect(self.onSelectionFinished)
