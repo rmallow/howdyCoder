@@ -45,7 +45,7 @@ class messageRouter(commandProcessor):
 
         self.loop = asyncScheduler()
 
-    def initAndStartLoop(self):
+    def initAndStartLoop(self, isLocal):
         mpLogging.info("Starting Message Roouter", group=ROUTER_GROUP)
         self.loop.init()
         self.loop.addTask(self.mainLoop(), name="Router Main Loop")

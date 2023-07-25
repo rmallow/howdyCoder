@@ -111,23 +111,23 @@ class mainframe(commandProcessor):
         # But it will also be used by objects that are only going to be acessing it by manager
         self.mainframeQueue = mp.Queue(-1)
         qm.QueueManager.register(
-            "getMainframeQueue", callable=lambda: self.mainframeQueue
+            qm.GET_MAINFRAME_QUEUE, callable=lambda: self.mainframeQueue
         )
 
         # This queue will only be used by mainframe and ui main model
         self.uiQueue = mp.Queue(-1)
-        qm.QueueManager.register("getUiQueue", callable=lambda: self.uiQueue)
+        qm.QueueManager.register(qm.GET_UI_QUEUE, callable=lambda: self.uiQueue)
+
+        # This queue will be accessed by all processes started with logged process
+        self.loggingQueue = mp.Queue(-1)
+        qm.QueueManager.register(
+            qm.GET_LOGGING_QUEUE, callable=lambda: self.loggingQueue
+        )
 
         # start up the manager thread for serving its objects
         threading.Thread(
             target=self.clientSeverManager.get_server().serve_forever
         ).start()
-
-        # we use regular multiprocessing here because otherwise the Dill queue will send to log which
-        # causes an infinite loop in our mpLogging module
-        # we don't need dill for this queue so it's okay to just use regular multiprocessing queue
-        # this queue is only used "locally" so it won't need to be connected to the manager
-        self.loggingQueue = mp.Queue(-1)
 
         # set up flag variables
         self.uiConnected = False
@@ -353,7 +353,7 @@ class mainframe(commandProcessor):
     def startRouter(self):
         self.routerProcess = dill_mp.Process(
             target=mpLogging.loggedProcess,
-            args=(self.loggingQueue, "router", self.messageRouter.initAndStartLoop),
+            args=(self.isLocal, "router", self.messageRouter.initAndStartLoop),
             name="Router",
         )
 
@@ -390,7 +390,7 @@ class mainframe(commandProcessor):
         processName = "Block-" + str(code)
         blockProcess = dill_mp.Process(
             target=mpLogging.loggedProcess,
-            args=(self.loggingQueue, code, block.start, self.isLocal),
+            args=(self.isLocal, code, block.start),
             name=processName,
         )
 

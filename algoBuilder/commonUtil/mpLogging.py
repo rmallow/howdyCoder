@@ -1,3 +1,5 @@
+from . import queueManager
+
 import logging
 
 _extraKwargs = ["group", "source", "description"]
@@ -71,8 +73,11 @@ class MPLogger(logging.Logger):
         self.log(logging.DEBUG, msg, *args, **kwargs)
 
 
-def makeMpLogged(queue, mpKey):
-    MPLogger.log_queue = queue
+def makeMpLogged(isLocal, mpKey):
+    clientServerManager = queueManager.createQueueManager(isLocal)
+    clientServerManager.connect()
+    assert hasattr(clientServerManager, queueManager.GET_LOGGING_QUEUE)
+    MPLogger.log_queue = getattr(clientServerManager, queueManager.GET_LOGGING_QUEUE)()
     MPLogger.mpKey = mpKey
     logging.setLoggerClass(MPLogger)
     # monkey patch root logger and already defined loggers
@@ -82,9 +87,9 @@ def makeMpLogged(queue, mpKey):
             logger.__class__ = MPLogger
 
 
-def loggedProcess(queue, mpKey, func, *args, **kwargs):
-    makeMpLogged(queue, mpKey)
-    func(*args, **kwargs)
+def loggedProcess(isLocal, mpKey, func, *args, **kwargs):
+    makeMpLogged(isLocal, mpKey)
+    func(isLocal, *args, **kwargs)
 
 
 # Basic functions to mimic logging.debug type functions but for mpLogging

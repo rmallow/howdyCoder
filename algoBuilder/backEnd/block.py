@@ -123,7 +123,11 @@ class block(commandProcessor):
         # Connect to clientServerManager
         self._clientSeverManager = qm.createQueueManager(isLocal)
         self._clientSeverManager.connect()
-        self._mainframeQueue = self._clientSeverManager.getMainframeQueue()
+        assert hasattr(self._clientSeverManager, qm.GET_MAINFRAME_QUEUE)
+        self._mainframeQueue = getattr(
+            self._clientSeverManager, qm.GET_MAINFRAME_QUEUE
+        )()
+
         self.start_time = time.time()
         self.check_block_status_event = self.checkBlockQueue(timer=True)
         # can only set the interval time when we get the period off feed obj

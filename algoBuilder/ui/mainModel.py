@@ -42,9 +42,12 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.clientSeverManager.connect()
 
         # Get the necessary queues from the manager
-        self.mainframeQueue = self.clientSeverManager.getMainframeQueue()
+        assert hasattr(self.clientSeverManager, qm.GET_MAINFRAME_QUEUE)
+        self.mainframeQueue = getattr(self.clientSeverManager, qm.GET_MAINFRAME_QUEUE)()
         self.pending_queue = deque()
-        self.uiQueue = self.clientSeverManager.getUiQueue()
+        assert hasattr(self.clientSeverManager, qm.GET_UI_QUEUE)
+
+        self.uiQueue = getattr(self.clientSeverManager, qm.GET_UI_QUEUE)()
         self._module_status = {}
 
         # Send a startup command to the mainframe queue

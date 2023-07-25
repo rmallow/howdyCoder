@@ -13,8 +13,13 @@ class QueueManager(BaseManager):
     pass
 
 
-QueueManager.register("getMainframeQueue")
-QueueManager.register("getUiQueue")
+GET_MAINFRAME_QUEUE = "getMainframeQueue"
+GET_UI_QUEUE = "getUiQueue"
+GET_LOGGING_QUEUE = "getLoggingQueue"
+
+QueueManager.register(GET_MAINFRAME_QUEUE)
+QueueManager.register(GET_UI_QUEUE)
+QueueManager.register(GET_LOGGING_QUEUE)
 
 
 def createQueueManager(isLocal: bool):

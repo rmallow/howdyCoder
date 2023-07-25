@@ -63,7 +63,7 @@ class ModInstallDialog(QtWidgets.QDialog):
             or QtWidgets.QMessageBox.warning(
                 self,
                 "Override Warning",
-                "Are you sure want to override and install all modules? This could cause crashes or unintended consequences when running.",
+                "Are you sure want to override and not install all modules? This could cause crashes or unintended consequences when running.",
                 QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
             )
             == QtWidgets.QMessageBox.Ok

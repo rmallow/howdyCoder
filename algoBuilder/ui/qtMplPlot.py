@@ -10,8 +10,6 @@ https://github.com/matplotlib/matplotlib/pull/19255
 ^^^ The above has been done as we have now migrated to PySide 6 
 """
 from __future__ import annotations
-
-from ..commonUtil import pathUtil
 from ..commonUtil.sparseDictList import SparseDictList
 from .uiFilePaths import BASE_MPL_STYLE
 
