@@ -4,3 +4,4 @@ pandas
 PyYAML
 aioprocessing
 PySide6
+matplotlib
