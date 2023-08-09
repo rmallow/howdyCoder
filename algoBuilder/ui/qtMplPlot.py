@@ -13,6 +13,7 @@ from __future__ import annotations
 from ..commonUtil.sparseDictList import SparseDictList
 from .uiFilePaths import BASE_MPL_STYLE
 
+import PySide6
 import PySide6.QtCore
 
 # matplotlib imports

@@ -125,9 +125,10 @@ class mainframe(commandProcessor):
         )
 
         # start up the manager thread for serving its objects
-        threading.Thread(
-            target=self.clientSeverManager.get_server().serve_forever
-        ).start()
+        self._manager_thread = threading.Thread(
+            target=self.clientSeverManager.get_server().serve_forever, daemon=True
+        )
+        self._manager_thread.start()
 
         # set up flag variables
         self.uiConnected = False
@@ -171,6 +172,8 @@ class mainframe(commandProcessor):
         self.ui_status_check_event = None
         self.item_status_check_event = None
 
+        self._is_running = True
+
         mpLogging.info("Finished initializing mainframe")
 
     def sendToUi(self, message):
@@ -209,7 +212,7 @@ class mainframe(commandProcessor):
         This function is run on a timer, when the function ends it will
         run the function again on a predetermined timer
         """
-        while not self.mainframeQueue.empty():
+        while self._is_running and not self.mainframeQueue.empty():
             message = self.mainframeQueue.get()
             if isinstance(message, msg.message):
                 if message.isCommand():
@@ -233,7 +236,7 @@ class mainframe(commandProcessor):
     @setInterval(LOGGING_QUEUE_CHECK_TIMER)
     def checkLoggingQueue(self):
         # Check what's in the logging queue, if the ui queue exists send to that
-        while not self.loggingQueue.empty():
+        while self._is_running and not self.loggingQueue.empty():
             recordData = self.loggingQueue.get()
             if recordData:
                 uiLoggingMessage = msg.message(
@@ -329,7 +332,7 @@ class mainframe(commandProcessor):
         # if we're not already repeatedly calling this function, then call it otherwise continue as normal
         if self.ui_status_check_event is None:
             self.ui_status_check_event = self.isUiConnected(timer=True)
-        elif self.ui_status_check_event.set():
+        elif self.ui_status_check_event.is_set():
             self.ui_status_check_event.clear()
 
     @setInterval(UI_STATUS_CHECK_TIMER)
@@ -347,7 +350,7 @@ class mainframe(commandProcessor):
             # if we're not already repeatedly calling this function, then call it otherwise continue as normal
             if self.ui_status_check_event is None:
                 self.ui_status_check_event = self.isUiConnected(timer=True)
-            elif self.ui_status_check_event.set():
+            elif self.ui_status_check_event.is_set():
                 self.ui_status_check_event.clear()
 
     def startRouter(self):
@@ -383,7 +386,7 @@ class mainframe(commandProcessor):
         # if we're not already repeatedly calling this function, then call it otherwise continue as normal
         if self.item_status_check_event is None:
             self.item_status_check_event = self.checkItemStatus(timer=True)
-        elif self.item_status_check_event.set():
+        elif self.item_status_check_event.is_set():
             self.item_status_check_event.clear()
 
     def startBlockProcess(self, code, block):
@@ -400,12 +403,12 @@ class mainframe(commandProcessor):
     def cmdEnd(self, _, details=None):
         # Called by command processor on receiving the end command message
         if details is None:
-            for k in self.processDict.keys():
+            for k in list(self.processDict.keys()):
                 self.endBlock(k)
         else:
             if isinstance(details, str):
                 self.endBlock(details)
-        if not self.processDict:
+        if not self.processDict and self.routerProcess:
             self.routerProcess.join()
 
     def endBlock(self, code, timeout=None):
@@ -423,6 +426,10 @@ class mainframe(commandProcessor):
                     key=msg.messageKey(code, None),
                 )
             )
+
+    def cmdAbort(self, _, details=None):
+        self._is_running = False
+        self.cmdEnd(None)
 
     def loadAlgoConfigFile(self, config: str):
         """Load an algo based on a config file"""

@@ -226,6 +226,11 @@ class mainModel(commandProcessor, QtCore.QObject):
             )
         )
 
+    def shutdown(self):
+        self.messageMainframe(
+            msg.message(msg.MessageType.COMMAND, msg.CommandType.ABORT)
+        )
+
     def testing(self):
         from ..data import datalocator
 

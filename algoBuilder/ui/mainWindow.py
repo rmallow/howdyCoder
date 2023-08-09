@@ -1,3 +1,4 @@
+import PySide6.QtGui
 from .configWindow import configWindow
 from .loggingWindow import loggingWindow
 from .statusWindow import statusWindow
@@ -179,3 +180,15 @@ class mainWindow(QtWidgets.QMainWindow):
                 self._module_install_window.current_code,
                 self._main_model.getModules(self._module_install_window.current_code),
             )
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        button_response = QtWidgets.QMessageBox.question(
+            self,
+            "Are you sure you want to shutdown?",
+            "Are you sure you want to shutdown? Shutting down will close this window and the currently running programs.",
+        )
+        if button_response == QtWidgets.QMessageBox.StandardButton.Yes:
+            self._main_model.shutdown()
+            event.accept()
+        else:
+            event.ignore()
