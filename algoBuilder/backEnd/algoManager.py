@@ -23,10 +23,12 @@ import copy
 
 
 class AlgoManager:
-    def __init__(self, messageRouter: mRModule.messageRouter):
+    # TODO: Either remove or reimplement message router / handlers
+    # def __init__(self, messageRouter: mRModule.messageRouter):
+    def __init__(self):
         self.blocks = {}
         self.dataMangerList = {}
-        self.messageRouter = messageRouter
+        # self.messageRouter = messageRouter
         self.columnNames = []
 
     def loadItem(self, configDict: dict) -> None:
@@ -49,10 +51,19 @@ class AlgoManager:
         dataSources = self._loadDataSources(func_replaced_config[DATA_SOURCES])
         feed = self._loadFeed(dataSources)
         actionList = self._loadActionList(func_replaced_config[ACTION_LIST], feed)
+        # TODO: Either remove or reimplement message router / handlers
+        """
         blk = block(
             actionList,
             feed,
             self.messageRouter,
+            original_config,
+            user_funcs,
+            code=code,
+        )"""
+        blk = block(
+            actionList,
+            feed,
             original_config,
             user_funcs,
             code=code,

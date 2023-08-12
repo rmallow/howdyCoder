@@ -1,8 +1,9 @@
 from .uiConstants import GUI_REFRESH_INTERVAL
 from .qtUiFiles import ui_algoStatusWidget
-from .algoData import AlgoData, AlgoStatusEnum
+from .algoData import AlgoWidgetData
 
 from ..commonUtil import helpers
+from ..core.commonGlobals import Modes
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
@@ -10,22 +11,22 @@ import typing
 import yaml
 
 COLOR_MAP = {
-    AlgoStatusEnum.STANDBY: QtCore.Qt.GlobalColor.gray,
-    AlgoStatusEnum.STARTED: QtCore.Qt.GlobalColor.green,
-    AlgoStatusEnum.STOPPED: QtCore.Qt.GlobalColor.red,
+    Modes.STANDBY: QtCore.Qt.GlobalColor.gray,
+    Modes.STARTED: QtCore.Qt.GlobalColor.green,
+    Modes.STOPPED: QtCore.Qt.GlobalColor.red,
 }
 
 
 class AlgoStatusWidget(QtWidgets.QWidget):
     def __init__(
         self,
-        data: AlgoData,
+        data: AlgoWidgetData,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
         super().__init__(parent, f)
 
-        self._data: AlgoData = data
+        self._data: AlgoWidgetData = data
         self._ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()
         self._ui.setupUi(self)
         self._ui.name_label.setText(self._data.name)
@@ -38,14 +39,14 @@ class AlgoStatusWidget(QtWidgets.QWidget):
     def refresh(self):
         """Refresh the widgets displayed valued based on what's in the stored data object"""
         pal = QtGui.QPalette()
-        pal.setColor(QtGui.QPalette.Window, QtGui.QColor(COLOR_MAP[self._data.status]))
+        pal.setColor(QtGui.QPalette.Window, QtGui.QColor(COLOR_MAP[self._data.mode]))
         self._ui.status_label.setPalette(pal)
-        self._ui.status_label.setText(self._data.status.value)
+        self._ui.status_label.setText(self._data.mode.value)
         self._ui.data_count_value.setText(str(self._data.data_count))
         self._ui.runtime_value.setText(helpers.getStrElapsedTime(self._data.runtime))
-        self._ui.remove_button.setEnabled(self._data.status != AlgoStatusEnum.STARTED)
+        self._ui.remove_button.setEnabled(self._data.mode != Modes.STARTED)
         self._ui.start_button.setText(
-            "Stop" if self._data.status == AlgoStatusEnum.STARTED else "Start"
+            "Stop" if self._data.mode == Modes.STARTED else "Start"
         )
 
     @QtCore.Slot()

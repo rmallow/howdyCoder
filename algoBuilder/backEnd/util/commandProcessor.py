@@ -1,11 +1,12 @@
 from ...core import message as msg
+from ...core.commonGlobals import Modes
 
 from ...commonUtil import mpLogging
 from ...commonUtil.multiBase import multiBase
 
 """
 used by classes that need to process commands
-default commands are start, end, abort and resume
+default commands are start, end, abort
 these funcs will need to be overwritten by child class
 """
 
@@ -15,6 +16,7 @@ class commandProcessor(multiBase):
         super().__init__(*args, **kwargs)
         # get copy of the dict so can make changes later
         self.cmdDict = dict(CMD_DICT)
+        self._current_mode = Modes.STANDBY
 
         # set default command function for unrecognized commands
         if defaultCmdFunc is not None:
@@ -55,36 +57,31 @@ class commandProcessor(multiBase):
         )
 
     def cmdStart(self, command, details=None):
-        """
-        @brief: default function for start command, will call overwritten function in child class
+        """overwritten in child for special instructions"""
+        pass
 
-        @param: command -   command passed into command func
-        """
+    def _cmdStart(self, command, details=None):
+        """intro for command, handles mode"""
+        self._current_mode = Modes.STARTED
         self.cmdStart(command, details=details)
 
     def cmdEnd(self, command, details=None):
-        """
-        @brief: default function for endt command, will call overwritten function in child class
+        """overwritten in child for special instructions"""
+        pass
 
-        @param: command -   command passed into command func
-        """
+    def _cmdEnd(self, command, details=None):
+        """intro for command, handles mode"""
+        self._current_mode = Modes.STOPPED
         self.cmdEnd(command, details=details)
 
     def cmdAbort(self, command, details=None):
-        """
-        @brief: default function for abort command, will call overwritten function in child class
+        """overwritten in child for special instructions"""
+        pass
 
-        @param: command -   command passed into command func
-        """
+    def _cmdAbort(self, command, details=None):
+        """intro for command, handles mode"""
+        self._current_mode = Modes.STANDBY
         self.cmdAbort(command, details=details)
-
-    def cmdResume(self, command, details=None):
-        """
-        @brief: default function for resume command, will call overwritten function in child class
-
-        @param: command -   command passed into command func
-        """
-        self.cmdResume(command, details=details)
 
     def processCommand(self, command, details=None):
         """
@@ -106,8 +103,7 @@ class commandProcessor(multiBase):
 Default command dict, copied on commandProcessor initalization
 """
 CMD_DICT = {
-    msg.CommandType.START: commandProcessor.cmdStart,
-    msg.CommandType.END: commandProcessor.cmdEnd,
-    msg.CommandType.ABORT: commandProcessor.cmdAbort,
-    msg.CommandType.RESUME: commandProcessor.cmdResume,
+    msg.CommandType.START: commandProcessor._cmdStart,
+    msg.CommandType.END: commandProcessor._cmdEnd,
+    msg.CommandType.ABORT: commandProcessor._cmdAbort,
 }

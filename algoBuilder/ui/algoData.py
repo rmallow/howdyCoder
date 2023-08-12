@@ -1,28 +1,24 @@
 from ..core.message import message
 
-from ..core.commonGlobals import DATA_LENGTH, RUNTIME, RECEIVE_TIME
+from ..core.commonGlobals import (
+    Modes,
+    AlgoStatusData,
+)
 
 from dataclasses import dataclass
-from enum import Enum
 import typing
 
 from PySide6 import QtCore
 
 
-class AlgoStatusEnum(str, Enum):
-    STARTED = "Started"
-    STOPPED = "Stopped"
-    STANDBY = "Standby"
-
-
 @dataclass
-class AlgoData:
+class AlgoWidgetData:
     name: str
     config: typing.Dict
     uid: int
     runtime: float = 0.0
     data_count: int = 0
-    status: AlgoStatusEnum = AlgoStatusEnum.STANDBY
+    mode: Modes = Modes.STANDBY
 
 
 class AlgoDict(QtCore.QObject):
@@ -32,7 +28,7 @@ class AlgoDict(QtCore.QObject):
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
         """Dict for algo data to faciliate safe interaction with data"""
         super().__init__(parent)
-        self._algos: typing.Dict[str, AlgoData] = {}
+        self._algos: typing.Dict[str, AlgoWidgetData] = {}
         self._current_id_set: typing.Dict[int, str] = {}
         self._current_uid: int = 0
 
@@ -45,11 +41,11 @@ class AlgoDict(QtCore.QObject):
             return self._algos[name]
         return None
 
-    def getDataById(self, uid: int) -> AlgoData:
+    def getDataById(self, uid: int) -> AlgoWidgetData:
         if uid in self._current_id_set and self._current_id_set[uid] in self._algos:
             return self._algos[self._current_id_set[uid]]
 
-    def setData(self, name: str, data: AlgoData):
+    def setData(self, name: str, data: AlgoWidgetData):
         self._algos[name] = data
         self.dataChanged.emit()
 
@@ -67,7 +63,7 @@ class AlgoDict(QtCore.QObject):
     @QtCore.Slot()
     def addAlgo(self, code: str, algo_config: typing.Dict):
         self.remove(code)  # shouldn't already exist, but for safety
-        self._algos[code] = AlgoData(code, algo_config, self._current_uid)
+        self._algos[code] = AlgoWidgetData(code, algo_config, self._current_uid)
         self._current_id_set[self._current_uid] = code
         self._current_uid += 1
         self.dataChanged.emit()
@@ -81,14 +77,8 @@ class AlgoDict(QtCore.QObject):
             [o_id for o_id in other.keys() if o_id not in self._current_id_set],
         ]
 
-    def updateAlgoStatus(self, m: message):
-        if m.key.sourceCode in self._algos:
-            if DATA_LENGTH in m.details:
-                self._algos[m.key.sourceCode].data_count = m.details[DATA_LENGTH]
-            if RUNTIME in m.details:
-                self._algos[m.key.sourceCode].runtime = m.details[RUNTIME]
-            self._algos[m.key.sourceCode].status = (
-                AlgoStatusEnum.STARTED
-                if RECEIVE_TIME in m.details
-                else AlgoStatusEnum.STOPPED
-            )
+    def updateAlgoStatus(self, code: str, data: AlgoStatusData):
+        if code in self._algos:
+            self._algos[code].data_count = data.data_length
+            self._algos[code].runtime = data.runtime
+            self._algos[code].mode = data.mode

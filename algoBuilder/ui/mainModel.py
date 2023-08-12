@@ -1,7 +1,7 @@
 from .uiConstants import LOOP_INTERVAL_MSECS
-from .algoData import AlgoDict, AlgoStatusEnum
+from .algoData import AlgoDict
 
-from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, COLUMNS, BLOCK
+from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, AlgoStatusData
 from ..commonUtil import queueManager as qm
 from ..commonUtil.helpers import getStrTime
 from ..commonUtil import mpLogging
@@ -147,12 +147,11 @@ class mainModel(commandProcessor, QtCore.QObject):
         If the message is status type need to do special processing
         """
         self.trackMessage(details)
-
-        if COLUMNS in details.details:
+        data = AlgoStatusData(**details.details)
+        if data.columns:
             self.updateColumnsSignal.emit(details)
-            del details.details[COLUMNS]
         self.updateStatusSignal.emit(details)
-        self.algo_dict.updateAlgoStatus(details)
+        self.algo_dict.updateAlgoStatus(details.key.sourceCode, data)
 
     def handleBlockUpdate(self, _, details: msg.message = None):
         """

@@ -2,7 +2,7 @@ from .uiConstants import outputTypesEnum
 from .sparseDictListModel import SparseDictListModel
 from .algoData import AlgoDict
 
-from ..core.commonGlobals import ITEM, COLUMNS
+from ..core.commonGlobals import ITEM, AlgoStatusData
 from ..core.configConstants import (
     DATA_SOURCES,
     ACTION_LIST,
@@ -75,12 +75,13 @@ class mainOutputViewModel(QtCore.QObject):
         """
         From a status signal, updating what columns are avaialable for a block
         """
-        if len(message.details[COLUMNS]) > 0:
+        data = AlgoStatusData(**message.details)
+        if data.columns:
             # only override columns in there if there are any
             findList = self.blockComboModel.findItems(message.key.sourceCode)
             if len(findList) == 1:
                 # there should be only one that matches
-                findList[0].setData(message.details[COLUMNS])
+                findList[0].setData(data.columns)
 
     def setupOutputView(self, selectionDict):
         """

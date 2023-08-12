@@ -5,10 +5,12 @@ from .statusWindow import statusWindow
 from .qtUiFiles import ui_mainWindow
 from .mainModel import mainModel
 from .modInstallDialog import ModInstallDialog
-from .algoData import AlgoStatusEnum
 
 # import name page for find children to connect signal
 from .create.createNamePage import CreateNamePage
+
+from ..core.commonGlobals import Modes
+
 from PySide6 import QtWidgets, QtCore, QtGui
 
 
@@ -148,7 +150,7 @@ class mainWindow(QtWidgets.QMainWindow):
     def algoStartControlBox(self, code):
         data = self._main_model.algo_dict.getData(code)
         if data is not None:
-            if data.status == AlgoStatusEnum.STARTED:
+            if data.mode == Modes.STARTED:
                 self._main_model.sendCmdEnd(code)
             else:
                 self.checkModules(code)

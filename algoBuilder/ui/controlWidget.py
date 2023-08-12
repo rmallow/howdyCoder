@@ -1,6 +1,6 @@
 from .newBlockWidget import NewBlockWidget
 from .algoStatusWidget import AlgoStatusWidget
-from .algoData import AlgoDict, AlgoData
+from .algoData import AlgoDict, AlgoWidgetData
 
 from .qtUiFiles import ui_controlWidget
 
@@ -94,7 +94,7 @@ class ControlWidget(QtWidgets.QWidget):
         if self.algo_dict is not None:
             missing_ids, to_remove_ids = self.algo_dict.compareIds(self._algo_widgets)
             for m in missing_ids:
-                data: AlgoData = self.algo_dict.getDataById(m)
+                data: AlgoWidgetData = self.algo_dict.getDataById(m)
                 w = AlgoStatusWidget(data)
                 w._ui.start_button.released.connect(
                     lambda: self.startAlgo.emit(data.name)

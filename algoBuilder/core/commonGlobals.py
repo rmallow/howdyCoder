@@ -1,3 +1,6 @@
+from enum import Enum
+from dataclasses import dataclass, field
+
 # Dict Keys
 BLOCK = "block"
 HANDLER = "handler"
@@ -5,15 +8,9 @@ TYPE = "type"
 ITEM = "item"
 KEY = "key"
 BACKTRACK = "backtrack"
-COLUMNS = "columns"
 GRAPH_SETTINGS = "graph settings"
 PERIOD = "period"
-SEND_TIME = "send time"
 RECEIVE_TIME = "receive time"
-BACK_TIME = "back time"
-DATA_LENGTH = "Data length"
-FEED_LAST_UPDATE_TIME = "Feed last update time"
-RUNTIME = "Runtime"
 FIRST = "first"
 DATA_SET = "dataSet"
 PASSBACK_DICT = "passback_dict"
@@ -42,3 +39,22 @@ ENUM_ENABLED = "enabled"
 
 LOCAL_AUTH = b"abcAuth"
 LOCAL_PORT = 50000
+
+
+class Modes(str, Enum):
+    NONE = ""
+    STANDBY = "Standby"
+    STARTED = "Started"
+    STOPPED = "Stopped"
+
+
+@dataclass
+class AlgoStatusData:
+    send_time: float = 0.0
+    receive_time: float = 0.0
+    data_length: int = 0
+    feed_last_update_time: float = 0.0
+    runtime: float = 0.0
+    columns: list = field(default_factory=list)
+    mode: Modes = Modes.STANDBY
+    back_time: float = 0.0

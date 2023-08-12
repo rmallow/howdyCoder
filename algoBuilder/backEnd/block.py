@@ -11,18 +11,14 @@ from ..commonUtil.repeatTimer import setInterval
 from ..commonUtil import userFuncCaller
 from ..core.commonGlobals import (
     BLOCK_GROUP,
-    COLUMNS,
-    SEND_TIME,
-    RECEIVE_TIME,
-    NOT_AVAIL_STR,
     BACKTRACK,
-    DATA_LENGTH,
-    FEED_LAST_UPDATE_TIME,
-    RUNTIME,
     FUNC_GROUP,
+    AlgoStatusData,
+    Modes,
 )
 from ..commonUtil import queueManager as qm
 
+from dataclasses import asdict
 import time
 import typing
 import threading
@@ -36,7 +32,6 @@ class block(commandProcessor):
         self,
         actionList,
         feedObj,
-        messageRouter,
         config,
         user_funcs,
         *args,
@@ -46,16 +41,17 @@ class block(commandProcessor):
         super().__init__(*args, **kwargs)
         self.code = code
         self.end = False
-        self.keepUpdating = True
         self.feedObj: feed = feedObj
-        self.messageRouter = messageRouter
-        self.pool = actionPool(actionList, messageRouter, self.code)
+        # TODO: Either remove or reimplement message router / handlers
+        # self.messageRouter = messageRouter
+        # self.pool = actionPool(actionList, messageRouter, self.code)
+        self.pool = actionPool(actionList, self.code)
         self.config = config
         self._user_funcs: typing.List[userFuncCaller.userFuncCaller] = user_funcs
-        self._mainframeQueue = None
-        self.blockQueue = None
+        self._mainframe_queue = None
+        self.block_queue = None
         self.track = False
-        self.feedLastUpdateTime = 0
+        self.feed_last_update_time = 0
         self.check_block_status_event: threading.Event = None
         self.feed_update_event: threading.Event = None
         self.start_time: float = None
@@ -64,14 +60,14 @@ class block(commandProcessor):
         self.addCmdFunc(msg.CommandType.CHECK_STATUS, block.checkStatus)
 
     @setInterval(BLOCK_QUEUE_CHECK_TIMER)
-    def checkBlockQueue(self):
+    def checkblock_queue(self):
         # Check if there are messages for the block to process
-        if self.blockQueue is not None:
+        if self.block_queue is not None:
             # This will block the block until the queue is cleared so need to avoid
             # spamming this with commands
-            while not self.blockQueue.empty():
+            while not self.block_queue.empty():
                 # Use the command processor way of handling command messages
-                commandMessage = self.blockQueue.get()
+                commandMessage = self.block_queue.get()
                 if commandMessage.messageType == msg.MessageType.COMMAND:
                     self.processCommand(
                         commandMessage.content, details=commandMessage.details
@@ -79,9 +75,9 @@ class block(commandProcessor):
 
     @setInterval(1)
     def updateFeed(self):
-        if self.keepUpdating:
+        if self._current_mode == Modes.STARTED:
             feed_ret_val = self.feedObj.update()
-            self.feedLastUpdateTime = time.time()
+            self.feed_last_update_time = time.time()
             if feed_ret_val is not None:
                 if feed_ret_val == con.FeedRetValues.VALID_VALUES:
                     self.pool.doActions()
@@ -96,7 +92,7 @@ class block(commandProcessor):
                     pass
                 elif feed_ret_val != con.DataSourceReturnEnum.END_DATA:
                     # Feed is at end of data so don't want to keep calling it
-                    self.keepUpdating = False
+                    self._current_mode = Modes.STOPPED
                 else:
                     # Feeds should not be returning None, issue a warning and stop updating
                     mpLogging.warning(
@@ -106,7 +102,7 @@ class block(commandProcessor):
                         group=BLOCK_GROUP,
                         description="Return recognized enum value for feed status",
                     )
-                    self.keepUpdating = False
+                    self._current_mode = Modes.STOPPED
 
     def start(self, isLocal):
         # call user funcs setup now that we are in our own process
@@ -124,12 +120,12 @@ class block(commandProcessor):
         self._clientSeverManager = qm.createQueueManager(isLocal)
         self._clientSeverManager.connect()
         assert hasattr(self._clientSeverManager, qm.GET_MAINFRAME_QUEUE)
-        self._mainframeQueue = getattr(
+        self._mainframe_queue = getattr(
             self._clientSeverManager, qm.GET_MAINFRAME_QUEUE
         )()
-
+        self._current_mode = Modes.STARTED
         self.start_time = time.time()
-        self.check_block_status_event = self.checkBlockQueue(timer=True)
+        self.check_block_status_event = self.checkblock_queue(timer=True)
         # can only set the interval time when we get the period off feed obj
         self.feed_update_event = self.updateFeed(
             timer=True, on_runtime_time=self.feedObj.period
@@ -150,7 +146,9 @@ class block(commandProcessor):
             msg.CommandType.CLEAR,
             key=msgKey.messageKey(self.code, None),
         )
-        self.messageRouter.receive(message)
+
+        # TODO: Either remove or reimplement message router / handlers
+        # self.messageRouter.receive(message)
 
     def addOutputView(self, _, details=None):
         self.track = True
@@ -178,28 +176,28 @@ class block(commandProcessor):
             details=self.feedObj.getNewCombinedDataOfLength(length),
             key=msgKey.messageKey(self.code, None),
         )
-        self._mainframeQueue.put(m)
+        self._mainframe_queue.put(m)
 
     def checkStatus(self, _, details):
         """
         Aside from special cases like COLUMNS, the details on this message will be displayed on the status window
         """
+        status_data = AlgoStatusData(
+            0.0,
+            time.time(),
+            self.feedObj.getDataLength(),
+            self.feed_last_update_time,
+            time.time() - self.start_time,
+            list(self.feedObj.data.keys()) + list(self.feedObj.calcData.keys()),
+            self._current_mode,
+        )
+        if details is not None and isinstance(details, dict):
+            status_data.send_time = AlgoStatusData(**details).send_time
+
         returnMessage = msg.message(
             msg.MessageType.UI_UPDATE,
             msg.UiUpdateType.STATUS,
             key=msgKey.messageKey(self.code, None),
-            details={},
+            details=asdict(status_data),
         )
-        sendTime = NOT_AVAIL_STR
-        if details is not None and isinstance(details, dict):
-            if SEND_TIME in details:
-                sendTime = details[SEND_TIME]
-        returnMessage.details[SEND_TIME] = sendTime
-        returnMessage.details[RECEIVE_TIME] = time.time()
-        returnMessage.details[DATA_LENGTH] = self.feedObj.getDataLength()
-        returnMessage.details[FEED_LAST_UPDATE_TIME] = self.feedLastUpdateTime
-        returnMessage.details[RUNTIME] = time.time() - self.start_time
-        returnMessage.details[COLUMNS] = list(self.feedObj.data.keys()) + list(
-            self.feedObj.calcData.keys()
-        )
-        self._mainframeQueue.put(returnMessage)
+        self._mainframe_queue.put(returnMessage)

@@ -2,10 +2,10 @@
 from .data.datalocator import SETTINGS_FILE
 from .core.commonGlobals import (
     ITEM,
-    SEND_TIME,
-    BACK_TIME,
     LOCAL_AUTH,
     LOCAL_PORT,
+    AlgoStatusData,
+    Modes,
 )
 from .core.configConstants import IMPORTS
 
@@ -18,10 +18,7 @@ from .commonUtil.repeatTimer import setInterval
 # Back End includes
 from .core import message as msg
 from .core import messageKey as msgKey
-from .backEnd.messageRouter import messageRouter
 from .backEnd.algoManager import AlgoManager
-from .backEnd.handlerManager import handlerManager
-from .backEnd.handlerData import handlerData
 from .commonUtil import configLoader
 from .backEnd.util.commandProcessor import commandProcessor
 
@@ -31,8 +28,9 @@ import multiprocessing as mp
 # multiprocess is Dill version of multiprocessing
 import multiprocess as dill_mp
 
+# TODO: Either remove or reimplement message router / handlers
 # https://github.com/dano/aioprocessing
-import aioprocessing
+# import aioprocessing
 import threading
 
 # python lib includes
@@ -44,6 +42,7 @@ import time
 import subprocess
 import sys
 import traceback
+from dataclasses import asdict
 
 MAINFRAME_QUEUE_CHECK_TIMER = 0.3
 LOGGING_QUEUE_CHECK_TIMER = 0.5
@@ -69,19 +68,22 @@ class mainframe(commandProcessor):
         logging.getLogger().setLevel(logging.INFO)
 
         # Set up item managers, unrelated to multiprocessing managers
-        self.handlerManager = None
         self.algo_manager = None
-        self.sharedData = handlerData()
+
+        # TODO: Either remove or reimplement message router / handlers
+        # self.handlerManager = None
+        # self.sharedData = handlerData()
 
         # Load defaults
         self.loader = configLoader.configLoader(SETTINGS_FILE)
 
         # Set up multiprocessing items
-        self.processDict = {}
+        self.process_dict = {}
         self.statusDict = {}
-        self.routerProcess = None
+        # TODO: Either remove or reimplement message router / handlers
+        # self.routerProcess = None
         # This manager is for providing queues for the Router process
-        self.AioManager = aioprocessing.AioManager()
+        # self.AioManager = aioprocessing.AioManager()
 
         # This manager is for providing dill queues for the block processes
         self.dill_algo_manager = dill_mp.Manager()
@@ -145,29 +147,28 @@ class mainframe(commandProcessor):
         # Get other config files to load
         config = configparser.ConfigParser()
         config.read(SETTINGS_FILE)
-        blockConfigFile = ""
-        handlerConfigFile = ""
-        if "Configs" in config:
-            blockConfigFile = config.get("Configs", "Block", fallback="")
-            handlerConfigFile = config.get("Configs", "Handler", fallback="")
 
+        # TODO: Either remove or reimplement message router / handlers
         # init handler manager
-        self.handlerManager = handlerManager(self.sharedData)
-        self.loadHandlerConfig(handlerConfigFile)
+        # self.handlerManager = handlerManager(self.sharedData)
+        # self.loadHandlerConfig(handlerConfigFile)
 
         # init message router
         # we use an aio queue here as it needs to be compatible with asyncio
         # router and handlers use asyncio as handlers could have a lot of output operations
         # that are best suited to asyncio
+        # TODO: Either remove or reimplement message router / handlers
+        """
         self.messageRouter = messageRouter(
             self.handlerManager.messageSubscriptions,
             self.handlerManager.aggregateMessageSubscriptions,
             self.sharedData,
             self.AioManager.AioQueue(),
         )
-
-        # init block manager
         self.algo_manager = AlgoManager(self.messageRouter)
+        """
+        # init block manager
+        self.algo_manager = AlgoManager()
 
         self.ui_status_check_event = None
         self.item_status_check_event = None
@@ -224,7 +225,9 @@ class mainframe(commandProcessor):
                         code = message.key.sourceCode
                         if code in self.statusDict:
                             del self.statusDict[code]
-                            message.details[BACK_TIME] = getStrTime(time.time())
+                            data = AlgoStatusData(**message.details)
+                            data.back_time = getStrTime(time.time())
+                            message.details = asdict(data)
                         else:
                             mpLogging.error(
                                 "Trying to remove code from status dict that isn't present",
@@ -266,28 +269,28 @@ class mainframe(commandProcessor):
     def checkItemStatus(self):
         # Check the status of the current running blocks
         for code, block in self.algo_manager.blocks.items():
-            if code in self.processDict:
+            if code in self.process_dict:
                 # algo process was started at one point
                 if (
-                    self.processDict[code] is not None
-                    and self.processDict[code].exitcode is not None
+                    self.process_dict[code] is not None
+                    and self.process_dict[code].exitcode is not None
                 ):
                     # try to see if it's run its course, theres no need to wait long for it
                     # if the process is done, we'll clean it up eventually
-                    self.processDict[code].join(0.001)
-                    if self.processDict[code].is_alive():
-                        del self.processDict[code]
+                    self.process_dict[code].join(0.001)
+                    if self.process_dict[code].is_alive():
+                        del self.process_dict[code]
 
-            if code not in self.statusDict and code in self.processDict:
-                sendTimeFloat = time.time()
-                block.blockQueue.put(
+            if code not in self.statusDict and code in self.process_dict:
+                send_time_float = time.time()
+                block.block_queue.put(
                     msg.message(
                         msg.MessageType.COMMAND,
                         content=msg.CommandType.CHECK_STATUS,
-                        details={SEND_TIME: sendTimeFloat},
+                        details=asdict(AlgoStatusData(send_time_float)),
                     )
                 )
-                self.statusDict[code] = sendTimeFloat
+                self.statusDict[code] = send_time_float
             elif code in self.statusDict:
                 if time.time() - self.statusDict[code] > 30:
                     # block has not responded for more than 60 seconds to we're assuming it's not responsive
@@ -295,7 +298,11 @@ class mainframe(commandProcessor):
                     m = msg.message(
                         msg.MessageType.UI_UPDATE,
                         content=msg.UiUpdateType.STATUS,
-                        details={SEND_TIME: self.statusDict[code]},
+                        details=asdict(
+                            AlgoStatusData(
+                                send_time=self.statusDict[code], mode=Modes.STANDBY
+                            )
+                        ),
                         key=msgKey.messageKey(code, None),
                     )
                     self.sendToUi(m)
@@ -308,11 +315,14 @@ class mainframe(commandProcessor):
         """
         self.checkMainframeQueue(timer=True)
         self.checkLoggingQueue(timer=True)
+        while self._is_running:
+            """Keep the non daemon thread open"""
+            time.sleep(5)
 
     def addOutputView(self, command, details):
         if details[ITEM] in self.algo_manager.blocks:
             block = self.algo_manager.blocks[details[ITEM]]
-            block.blockQueue.put(
+            block.block_queue.put(
                 msg.message(msg.MessageType.COMMAND, command, details=details)
             )
 
@@ -353,6 +363,8 @@ class mainframe(commandProcessor):
             elif self.ui_status_check_event.is_set():
                 self.ui_status_check_event.clear()
 
+    # TODO: Either remove or reimplement message router / handlers
+    """
     def startRouter(self):
         self.routerProcess = dill_mp.Process(
             target=mpLogging.loggedProcess,
@@ -361,6 +373,7 @@ class mainframe(commandProcessor):
         )
 
         self.routerProcess.start()
+    """
 
     def cmdStart(self, _, details=None):
         # Called by command processor on receiving the start command message
@@ -374,12 +387,22 @@ class mainframe(commandProcessor):
                 self.runBlock(details)
 
     def runBlock(self, code):
-        if self.routerProcess is None:
-            self.startRouter()
+        # TODO: Either remove or reimplement message router / handlers
+        # if self.routerProcess is None:
+        #    self.startRouter()
 
-        if code in self.algo_manager.blocks and code not in self.processDict:
-            block = self.algo_manager.blocks[code]
-            self.startBlockProcess(code, block)
+        if code in self.algo_manager.blocks:
+            if code not in self.process_dict:
+                block = self.algo_manager.blocks[code]
+                self.startBlockProcess(code, block)
+            elif self.algo_manager.blocks[code].block_queue is not None:
+                self.algo_manager.blocks[code].block_queue.put(
+                    msg.message(msg.MessageType.COMMAND, msg.CommandType.START)
+                )
+            else:
+                mpLogging.error(
+                    f"Got start message for block with a process that exists but no valid queue"
+                )
         else:
             mpLogging.error(f"Error finding block with code: {code}")
 
@@ -397,39 +420,57 @@ class mainframe(commandProcessor):
             name=processName,
         )
 
-        self.processDict[code] = blockProcess
+        self.process_dict[code] = blockProcess
         blockProcess.start()
 
     def cmdEnd(self, _, details=None):
         # Called by command processor on receiving the end command message
         if details is None:
-            for k in list(self.processDict.keys()):
+            for k in list(self.process_dict.keys()):
                 self.endBlock(k)
         else:
             if isinstance(details, str):
                 self.endBlock(details)
-        if not self.processDict and self.routerProcess:
-            self.routerProcess.join()
 
-    def endBlock(self, code, timeout=None):
-        if code in self.processDict:
+        # TODO: Either remove or reimplement message router / handlers
+        # if not self.process_dict and self.routerProcess:
+        #    self.routerProcess.join()
+
+    def endBlock(self, code):
+        if (
+            code in self.process_dict
+            and self.algo_manager.blocks[code].block_queue is not None
+        ):
+            self.algo_manager.blocks[code].block_queue.put(
+                msg.message(msg.MessageType.COMMAND, msg.CommandType.END)
+            )
+
+    def shutdownBlock(self, code, timeout=None):
+        if code in self.process_dict:
             if timeout is not None:
-                self.processDict[code].join(timeout)
+                self.process_dict[code].join(timeout)
             else:
-                self.processDict[code].terminate()
-            del self.processDict[code]
+                self.process_dict[code].terminate()
+            del self.process_dict[code]
+            data = AlgoStatusData()
+            data.mode = Modes.STANDBY
             self.sendToUi(
                 msg.message(
                     msg.MessageType.UI_UPDATE,
                     msg.UiUpdateType.STATUS,
-                    details={},
+                    details=data,
                     key=msg.messageKey(code, None),
                 )
             )
 
     def cmdAbort(self, _, details=None):
-        self._is_running = False
-        self.cmdEnd(None)
+        if details is None:
+            self.cmdEnd(None)
+            self._is_running = False
+        elif isinstance(details, str):
+            self.shutdownBlock(details)
+        else:
+            mpLogging.error(f"Invalid details to abort command in mainframe: {details}")
 
     def loadAlgoConfigFile(self, config: str):
         """Load an algo based on a config file"""
@@ -441,7 +482,7 @@ class mainframe(commandProcessor):
         """Load the algos and assign the queues they need for mainframe communication"""
         self.checkModules(config_dict)
         for algo in self.algo_manager.loadBlocks(config_dict):
-            algo.blockQueue = self.dill_algo_manager.Queue()
+            algo.block_queue = self.dill_algo_manager.Queue()
 
         self.sendCreated(config_dict.keys())
 
@@ -459,10 +500,13 @@ class mainframe(commandProcessor):
                 )
             )
 
+    # TODO: Either remove or reimplement message router / handlers
+    """
     def loadHandlerConfig(self, config):
         if config:
             # configDict = self.loader.loadAndReplaceYamlFile(config)
             self.handlerManager.loadHandlers({})
+    """
 
     def checkModules(self, config_dict):
         for code, config in config_dict.items():

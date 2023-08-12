@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto, IntEnum
 from dataclasses import dataclass
 from .messageKey import messageKey
 
@@ -13,21 +13,21 @@ class MessageType(Enum):
     MESSAGE_LIST = 5
 
 
-class CommandType(Enum):
+class CommandType(IntEnum):
     # general commands
-    START = 1
-    END = 2
-    ABORT = 3
-    RESUME = 4
-    CLEAR = 5
+    START = auto()
+    END = auto()
+    ABORT = auto()
+    CLEAR = auto()
     # specific use case commands
-    ADD_OUTPUT_VIEW = 6
-    CHECK_STATUS = 7
-    CHECK_UI_STATUS = 8
-    UI_STARTUP = 9
-    CREATE_ALGO = 10
-    CHECK_MODULES = 11
-    INSTALL_PACKAGE = 12
+    ADD_OUTPUT_VIEW = auto()
+    CHECK_STATUS = auto()
+    CHECK_UI_STATUS = auto()
+    UI_STARTUP = auto()
+    CREATE_ALGO = auto()
+    CHECK_MODULES = auto()
+    INSTALL_PACKAGE = auto()
+    EXPORT = auto()
 
 
 class UiUpdateType(Enum):

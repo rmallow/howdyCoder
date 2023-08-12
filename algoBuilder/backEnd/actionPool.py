@@ -26,19 +26,26 @@ class actionPool:
             int number of times update called
     """
 
+    # TODO: Either remove or reimplement message router / handlers
+    """
     def __init__(
         self,
         actions: list[act],
         messageRouter: mRModule.messageRouter,
         code: str,
     ):
-        self.messageRouter: mRModule.messageRouter = messageRouter
+    """
+
+    def __init__(
+        self,
+        actions: list[act],
+        code: str,
+    ):
+        # self.messageRouter: mRModule.messageRouter = messageRouter
         self.code: str = code
         self.events: list[event] = []
         self.triggers: list[trigger] = []
         self.count: int = 0
-
-        # TODO: Finish requiremental setup and include here
 
         for action in actions:
             self.addAction(action)
@@ -51,9 +58,11 @@ class actionPool:
         """
         for event in self.events:
             event.update()
-
+        for trigger in self.triggers:
+            trigger.update()
+        # TODO: Either remove or reimplement message router / handlers
+        """
         if len(self.triggers) > 0:
-
             # tell message router tha triggers are going to start sending messages
             startKey = messageKey(self.code, self.count)
             startCmd = msg.message(
@@ -69,7 +78,6 @@ class actionPool:
                 rawMessageList = trigger.update()
                 if rawMessageList:
                     for sentMessage in rawMessageList:
-
                         sentMessage.key = startKey
                         if sentMessage.name is None:
                             sentMessage.name = trigger.name
@@ -94,6 +102,7 @@ class actionPool:
             )
             self.messageRouter.receive(endCmd)
             self.count += 1
+        """
 
     def addAction(self, action: act) -> None:
         """Seperate action out into trigger or event list"""

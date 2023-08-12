@@ -175,15 +175,6 @@ class messageRouter(commandProcessor):
         """
         self.end = True
 
-    def cmdResume(self, command, details=None):
-        """
-        @brief: called from command processor super class when Resume command is received
-
-        @param: command - command being executed
-        @param: details - rest of message command came on
-        """
-        self.end = False
-
     def cmdClear(self, command, details=None):
         """
         @brief: called from command processor super class when Clear command is received
