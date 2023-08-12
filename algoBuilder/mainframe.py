@@ -28,9 +28,6 @@ import multiprocessing as mp
 # multiprocess is Dill version of multiprocessing
 import multiprocess as dill_mp
 
-# TODO: Either remove or reimplement message router / handlers
-# https://github.com/dano/aioprocessing
-# import aioprocessing
 import threading
 
 # python lib includes
@@ -70,20 +67,12 @@ class mainframe(commandProcessor):
         # Set up item managers, unrelated to multiprocessing managers
         self.algo_manager = None
 
-        # TODO: Either remove or reimplement message router / handlers
-        # self.handlerManager = None
-        # self.sharedData = handlerData()
-
         # Load defaults
         self.loader = configLoader.configLoader(SETTINGS_FILE)
 
         # Set up multiprocessing items
         self.process_dict = {}
         self.statusDict = {}
-        # TODO: Either remove or reimplement message router / handlers
-        # self.routerProcess = None
-        # This manager is for providing queues for the Router process
-        # self.AioManager = aioprocessing.AioManager()
 
         # This manager is for providing dill queues for the block processes
         self.dill_algo_manager = dill_mp.Manager()
@@ -149,25 +138,6 @@ class mainframe(commandProcessor):
         config = configparser.ConfigParser()
         config.read(SETTINGS_FILE)
 
-        # TODO: Either remove or reimplement message router / handlers
-        # init handler manager
-        # self.handlerManager = handlerManager(self.sharedData)
-        # self.loadHandlerConfig(handlerConfigFile)
-
-        # init message router
-        # we use an aio queue here as it needs to be compatible with asyncio
-        # router and handlers use asyncio as handlers could have a lot of output operations
-        # that are best suited to asyncio
-        # TODO: Either remove or reimplement message router / handlers
-        """
-        self.messageRouter = messageRouter(
-            self.handlerManager.messageSubscriptions,
-            self.handlerManager.aggregateMessageSubscriptions,
-            self.sharedData,
-            self.AioManager.AioQueue(),
-        )
-        self.algo_manager = AlgoManager(self.messageRouter)
-        """
         # init block manager
         self.algo_manager = AlgoManager()
 
@@ -374,18 +344,6 @@ class mainframe(commandProcessor):
             elif self.ui_status_check_event.is_set():
                 self.ui_status_check_event.clear()
 
-    # TODO: Either remove or reimplement message router / handlers
-    """
-    def startRouter(self):
-        self.routerProcess = dill_mp.Process(
-            target=mpLogging.loggedProcess,
-            args=(self.isLocal, "router", self.messageRouter.initAndStartLoop),
-            name="Router",
-        )
-
-        self.routerProcess.start()
-    """
-
     def cmdStart(self, _, details=None):
         # Called by command processor on receiving the start command message
         if details is None:
@@ -398,10 +356,6 @@ class mainframe(commandProcessor):
                 self.runBlock(details)
 
     def runBlock(self, code):
-        # TODO: Either remove or reimplement message router / handlers
-        # if self.routerProcess is None:
-        #    self.startRouter()
-
         if code in self.algo_manager.blocks:
             if code not in self.process_dict:
                 block = self.algo_manager.blocks[code]
@@ -442,10 +396,6 @@ class mainframe(commandProcessor):
         else:
             if isinstance(details, str):
                 self.endBlock(details)
-
-        # TODO: Either remove or reimplement message router / handlers
-        # if not self.process_dict and self.routerProcess:
-        #    self.routerProcess.join()
 
     def endBlock(self, code):
         if (
@@ -510,14 +460,6 @@ class mainframe(commandProcessor):
                     details=created_details,
                 )
             )
-
-    # TODO: Either remove or reimplement message router / handlers
-    """
-    def loadHandlerConfig(self, config):
-        if config:
-            # configDict = self.loader.loadAndReplaceYamlFile(config)
-            self.handlerManager.loadHandlers({})
-    """
 
     def checkModules(self, config_dict):
         for code, config in config_dict.items():

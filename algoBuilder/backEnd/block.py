@@ -42,9 +42,6 @@ class block(commandProcessor):
         self.code = code
         self.end = False
         self.feed_obj: feed = feed_obj
-        # TODO: Either remove or reimplement message router / handlers
-        # self.messageRouter = messageRouter
-        # self.pool = actionPool(actionList, messageRouter, self.code)
         self.pool = actionPool(actionList, self.code)
         self.config = config
         self._user_funcs: typing.List[userFuncCaller.userFuncCaller] = user_funcs
@@ -147,9 +144,6 @@ class block(commandProcessor):
             msg.CommandType.CLEAR,
             key=msgKey.messageKey(self.code, None),
         )
-
-        # TODO: Either remove or reimplement message router / handlers
-        # self.messageRouter.receive(message)
 
     def addOutputView(self, _, details=None):
         self.track = True
