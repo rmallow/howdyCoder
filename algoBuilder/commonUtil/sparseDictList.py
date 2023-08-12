@@ -2,6 +2,8 @@ from __future__ import annotations
 from typing import Any
 import typing
 from dataclasses import dataclass
+import csv
+from collections import defaultdict
 
 
 @dataclass(frozen=True)
@@ -110,3 +112,21 @@ class SparseDictList(dict):
         if key not in self:
             self[key] = []
         self[key].append(SparseData(index, value))
+
+    def writeToCsv(self, file_path):
+        with open(file_path, "w") as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(self.keys())
+            current_indexes = defaultdict(int)
+            for x in range(self.longest_list):
+                row = []
+                for k in self.keys():
+                    if (
+                        current_indexes[k] < len(self[k])
+                        and self[k][current_indexes[k]].index == x
+                    ):
+                        row.append(self[k][current_indexes[k]].value)
+                        current_indexes[k] += 1
+                    else:
+                        row.append("")
+                writer.writerow(row)

@@ -45,6 +45,7 @@ class AlgoStatusWidget(QtWidgets.QWidget):
         self._ui.data_count_value.setText(str(self.data.data_count))
         self._ui.runtime_value.setText(helpers.getStrElapsedTime(self.data.runtime))
         self._ui.remove_button.setEnabled(self.data.mode != Modes.STARTED)
+        self._ui.export_button.setEnabled(self.data.mode != Modes.STANDBY)
         self._ui.start_button.setText(
             "Stop" if self.data.mode == Modes.STARTED else "Start"
         )

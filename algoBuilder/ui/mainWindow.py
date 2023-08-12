@@ -87,6 +87,7 @@ class mainWindow(QtWidgets.QMainWindow):
         )
         self._ui.controlPage.startAlgo.connect(self.algoStartControlBox)
         self._ui.controlPage.shutdownAlgo.connect(self.algoShutdownControlBox)
+        self._ui.controlPage.exportData.connect(self.algoExportControlBox)
         self._main_model.algo_dict.dataChanged.connect(
             self._ui.controlPage.compareDataToCurrentWidgets
         )
@@ -159,6 +160,11 @@ class mainWindow(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def algoShutdownControlBox(self, code):
         self._main_model.shutdownAlgo(code)
+
+    @QtCore.Slot()
+    def algoExportControlBox(self, code):
+        if file_path := QtWidgets.QFileDialog.getSaveFileName(filter="CSV (*.csv)")[0]:
+            self._main_model.exportData(code, file_path)
 
     @QtCore.Slot()
     def checkModules(self, code=None):

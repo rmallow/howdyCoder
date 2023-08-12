@@ -16,8 +16,6 @@ class actionPool:
     Attributes:
         triggers/events:
             main data structures for actionPool, contains all actions split into event/triggers
-        feedObj:
-            source of data for the actions to act on
         messageRouter:
             where the output from triggers are sent to
         code:

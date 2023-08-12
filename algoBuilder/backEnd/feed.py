@@ -93,5 +93,11 @@ class feed:
         ret.appendDictList(getNewData(self.calcData))
         return ret
 
+    def getAllData(self):
+        ret = SparseDictList()
+        ret.appendDictList(self.data)
+        ret.appendDictList(self.calcData)
+        return ret
+
     def appendCalcData(self, key: str, index: int, value: typing.Any):
         self.calcData.appendData(key, index, value)

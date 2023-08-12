@@ -30,15 +30,16 @@ class CommandType(IntEnum):
     EXPORT = auto()
 
 
-class UiUpdateType(Enum):
-    OUTPUT = 1
-    BLOCK = 2
-    HANDLER = 3
-    LOGGING = 4
-    STATUS = 5
-    STARTUP = 6
-    CREATED = 7
-    MOD_STATUS = 8
+class UiUpdateType(IntEnum):
+    OUTPUT = auto()
+    BLOCK = auto()
+    HANDLER = auto()
+    LOGGING = auto()
+    STATUS = auto()
+    STARTUP = auto()
+    CREATED = auto()
+    MOD_STATUS = auto()
+    EXPORT = auto()
 
 
 """

@@ -143,6 +143,7 @@ class mainframe(commandProcessor):
         self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, mainframe.sendStatusCheck)
         self.addCmdFunc(msg.CommandType.CREATE_ALGO, mainframe.createAlgoCommand)
         self.addCmdFunc(msg.CommandType.INSTALL_PACKAGE, mainframe.installPackages)
+        self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToBlock)
 
         # Get other config files to load
         config = configparser.ConfigParser()
@@ -324,6 +325,16 @@ class mainframe(commandProcessor):
             block = self.algo_manager.blocks[details[ITEM]]
             block.block_queue.put(
                 msg.message(msg.MessageType.COMMAND, command, details=details)
+            )
+
+    def passCommandToBlock(self, command, details):
+        if details in self.algo_manager.blocks:
+            self.algo_manager.blocks[details].block_queue.put(
+                msg.message(msg.MessageType.COMMAND, command, details=details)
+            )
+        else:
+            mpLogging.warning(
+                f"Attempted to pass command to block, but didn't find code {details}"
             )
 
     def sendStartupData(self, _):

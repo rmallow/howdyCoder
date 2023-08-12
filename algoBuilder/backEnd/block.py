@@ -31,7 +31,7 @@ class block(commandProcessor):
     def __init__(
         self,
         actionList,
-        feedObj,
+        feed_obj,
         config,
         user_funcs,
         *args,
@@ -41,7 +41,7 @@ class block(commandProcessor):
         super().__init__(*args, **kwargs)
         self.code = code
         self.end = False
-        self.feedObj: feed = feedObj
+        self.feed_obj: feed = feed_obj
         # TODO: Either remove or reimplement message router / handlers
         # self.messageRouter = messageRouter
         # self.pool = actionPool(actionList, messageRouter, self.code)
@@ -58,6 +58,7 @@ class block(commandProcessor):
 
         self.addCmdFunc(msg.CommandType.ADD_OUTPUT_VIEW, block.addOutputView)
         self.addCmdFunc(msg.CommandType.CHECK_STATUS, block.checkStatus)
+        self.addCmdFunc(msg.CommandType.EXPORT, block.exportData)
 
     @setInterval(BLOCK_QUEUE_CHECK_TIMER)
     def checkblock_queue(self):
@@ -76,7 +77,7 @@ class block(commandProcessor):
     @setInterval(1)
     def updateFeed(self):
         if self._current_mode == Modes.STARTED:
-            feed_ret_val = self.feedObj.update()
+            feed_ret_val = self.feed_obj.update()
             self.feed_last_update_time = time.time()
             if feed_ret_val is not None:
                 if feed_ret_val == con.FeedRetValues.VALID_VALUES:
@@ -128,7 +129,7 @@ class block(commandProcessor):
         self.check_block_status_event = self.checkblock_queue(timer=True)
         # can only set the interval time when we get the period off feed obj
         self.feed_update_event = self.updateFeed(
-            timer=True, on_runtime_time=self.feedObj.period
+            timer=True, on_runtime_time=self.feed_obj.period
         )
 
         while not self.end:
@@ -139,7 +140,7 @@ class block(commandProcessor):
             time.sleep(10)
 
     def clear(self):
-        self.feedObj.clear()
+        self.feed_obj.clear()
         # time is set as None as it won't be needed by message router
         message = msg.message(
             msg.MessageType.COMMAND,
@@ -153,14 +154,14 @@ class block(commandProcessor):
     def addOutputView(self, _, details=None):
         self.track = True
         # can only backtrack if data already exists
-        if self.feedObj.data is not None:
+        if self.feed_obj.data is not None:
             if details and BACKTRACK in details and details[BACKTRACK] != 0:
                 # if backtrack is present and is not 0 then send back to mainframed
                 # the desired amount of data
                 backtrackLength = details[BACKTRACK]
                 if backtrackLength == -1:
                     # if back track is -1 then send all of the data available
-                    backtrackLength = self.feedObj.getDataLength()
+                    backtrackLength = self.feed_obj.getDataLength()
                 self.sendCombinedData(backtrackLength)
 
     def sendCombinedData(self, length=None):
@@ -168,12 +169,12 @@ class block(commandProcessor):
         Combine the data of calc and data member objects and pack into a message to send
         """
         # need to check lengths on both, we want length to the be the shorter of the two
-        if length is not None and length > self.feedObj.getDataLength():
-            length = self.feedObj.getDataLength()
+        if length is not None and length > self.feed_obj.getDataLength():
+            length = self.feed_obj.getDataLength()
         m = msg.message(
             msg.MessageType.UI_UPDATE,
             content=msg.UiUpdateType.BLOCK,
-            details=self.feedObj.getNewCombinedDataOfLength(length),
+            details=self.feed_obj.getNewCombinedDataOfLength(length),
             key=msgKey.messageKey(self.code, None),
         )
         self._mainframe_queue.put(m)
@@ -185,10 +186,10 @@ class block(commandProcessor):
         status_data = AlgoStatusData(
             0.0,
             time.time(),
-            self.feedObj.getDataLength(),
+            self.feed_obj.getDataLength(),
             self.feed_last_update_time,
             time.time() - self.start_time,
-            list(self.feedObj.data.keys()) + list(self.feedObj.calcData.keys()),
+            list(self.feed_obj.data.keys()) + list(self.feed_obj.calcData.keys()),
             self._current_mode,
         )
         if details is not None and isinstance(details, dict):
@@ -201,3 +202,13 @@ class block(commandProcessor):
             details=asdict(status_data),
         )
         self._mainframe_queue.put(returnMessage)
+
+    def exportData(self, _, details):
+        self._mainframe_queue.put(
+            msg.message(
+                msg.MessageType.UI_UPDATE,
+                msg.UiUpdateType.EXPORT,
+                key=msgKey.messageKey(self.code, None),
+                details=self.feed_obj.getAllData(),
+            )
+        )

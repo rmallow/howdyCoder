@@ -36,6 +36,7 @@ class EmtpyBox(QtWidgets.QWidget):
 class ControlWidget(QtWidgets.QWidget):
     startAlgo = QtCore.Signal(str)
     shutdownAlgo = QtCore.Signal(str)
+    exportData = QtCore.Signal(str)
 
     def __init__(
         self,
@@ -101,6 +102,9 @@ class ControlWidget(QtWidgets.QWidget):
                 w = AlgoStatusWidget(data)
                 w._ui.start_button.released.connect(
                     lambda: self.startAlgo.emit(data.name)
+                )
+                w._ui.export_button.released.connect(
+                    lambda: self.exportData.emit(data.name)
                 )
                 w._ui.remove_button.released.connect(lambda: self.removeWidget(m))
                 self._algo_widgets[m] = w

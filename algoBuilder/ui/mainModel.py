@@ -10,7 +10,7 @@ from ..core import message as msg
 from ..core import messageKey
 from ..backEnd.util.commandProcessor import commandProcessor
 
-from collections import deque, Counter
+from collections import deque, Counter, defaultdict
 import time
 import typing
 import yaml
@@ -50,6 +50,8 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.uiQueue = getattr(self.clientSeverManager, qm.GET_UI_QUEUE)()
         self._module_status = {}
 
+        self._export_mapping_cache = defaultdict(deque)
+
         # Send a startup command to the mainframe queue
         m = msg.message(msg.MessageType.COMMAND, msg.CommandType.UI_STARTUP)
         self.messageMainframe(m)
@@ -63,6 +65,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.addCmdFunc(msg.UiUpdateType.STARTUP, mainModel.handleStartup)
         self.addCmdFunc(msg.UiUpdateType.CREATED, mainModel.handleCreated)
         self.addCmdFunc(msg.UiUpdateType.MOD_STATUS, mainModel.handleModStatus)
+        self.addCmdFunc(msg.UiUpdateType.EXPORT, mainModel.handleExport)
         self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, self.checkStatus)
 
         self.timer = QtCore.QTimer(self)
@@ -234,6 +237,24 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.messageMainframe(
             msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN)
         )
+
+    def exportData(self, code, file_path):
+        self._export_mapping_cache[code].append(file_path)
+        self.messageMainframe(
+            msg.message(msg.MessageType.COMMAND, msg.CommandType.EXPORT, code)
+        )
+
+    def handleExport(self, _, details: msg.message = None):
+        code = details.key.sourceCode
+        if self._export_mapping_cache[code]:
+            try:
+                details.details.writeToCsv(self._export_mapping_cache[code][0])
+            except AttributeError as _:
+                mpLogging.error(
+                    "Sparse Dict List not passed in export Ui Update message details"
+                )
+            else:
+                self._export_mapping_cache[code].popleft()
 
     def testing(self):
         from ..data import datalocator
