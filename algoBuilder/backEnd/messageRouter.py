@@ -166,9 +166,9 @@ class messageRouter(commandProcessor):
         for handlerToUpdate in updateSet:
             self.loop.addTaskArgs(handlerToUpdate.update, details.key)
 
-    def cmdAbort(self, command, details=None):
+    def cmdShutdown(self, command, details=None):
         """
-        @brief: called from command processor super class when Abort command is received
+        @brief: called from command processor super class when Shutdown command is received
 
         @param: command - command being executed
         @param: details - rest of message command came on

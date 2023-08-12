@@ -86,6 +86,7 @@ class mainWindow(QtWidgets.QMainWindow):
             lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
         )
         self._ui.controlPage.startAlgo.connect(self.algoStartControlBox)
+        self._ui.controlPage.shutdownAlgo.connect(self.algoShutdownControlBox)
         self._main_model.algo_dict.dataChanged.connect(
             self._ui.controlPage.compareDataToCurrentWidgets
         )
@@ -154,6 +155,10 @@ class mainWindow(QtWidgets.QMainWindow):
                 self._main_model.sendCmdEnd(code)
             else:
                 self.checkModules(code)
+
+    @QtCore.Slot()
+    def algoShutdownControlBox(self, code):
+        self._main_model.shutdownAlgo(code)
 
     @QtCore.Slot()
     def checkModules(self, code=None):

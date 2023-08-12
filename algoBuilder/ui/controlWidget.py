@@ -4,6 +4,8 @@ from .algoData import AlgoDict, AlgoWidgetData
 
 from .qtUiFiles import ui_controlWidget
 
+from ..core.commonGlobals import Modes
+
 from PySide6 import QtWidgets, QtCore, QtGui
 
 import typing
@@ -33,6 +35,7 @@ class EmtpyBox(QtWidgets.QWidget):
 
 class ControlWidget(QtWidgets.QWidget):
     startAlgo = QtCore.Signal(str)
+    shutdownAlgo = QtCore.Signal(str)
 
     def __init__(
         self,
@@ -108,7 +111,10 @@ class ControlWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def removeWidget(self, uid: int, refresh=True) -> None:
         if uid in self._algo_widgets:
-            self._algo_widgets[uid].deleteLater()
-            del self._algo_widgets[uid]
-            if refresh:
-                self.addWidgets()
+            if self._algo_widgets[uid].data.mode == Modes.STOPPED:
+                self.shutdownAlgo.emit(self._algo_widgets[uid].data.name)
+            else:
+                self._algo_widgets[uid].deleteLater()
+                del self._algo_widgets[uid]
+                if refresh:
+                    self.addWidgets()

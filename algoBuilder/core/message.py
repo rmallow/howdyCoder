@@ -17,7 +17,7 @@ class CommandType(IntEnum):
     # general commands
     START = auto()
     END = auto()
-    ABORT = auto()
+    SHUTDOWN = auto()
     CLEAR = auto()
     # specific use case commands
     ADD_OUTPUT_VIEW = auto()

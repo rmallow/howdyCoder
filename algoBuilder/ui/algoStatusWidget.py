@@ -26,10 +26,10 @@ class AlgoStatusWidget(QtWidgets.QWidget):
     ) -> None:
         super().__init__(parent, f)
 
-        self._data: AlgoWidgetData = data
+        self.data: AlgoWidgetData = data
         self._ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()
         self._ui.setupUi(self)
-        self._ui.name_label.setText(self._data.name)
+        self._ui.name_label.setText(self.data.name)
         self._ui.save_button.released.connect(self.saveConfig)
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.refresh)
@@ -39,14 +39,17 @@ class AlgoStatusWidget(QtWidgets.QWidget):
     def refresh(self):
         """Refresh the widgets displayed valued based on what's in the stored data object"""
         pal = QtGui.QPalette()
-        pal.setColor(QtGui.QPalette.Window, QtGui.QColor(COLOR_MAP[self._data.mode]))
+        pal.setColor(QtGui.QPalette.Window, QtGui.QColor(COLOR_MAP[self.data.mode]))
         self._ui.status_label.setPalette(pal)
-        self._ui.status_label.setText(self._data.mode.value)
-        self._ui.data_count_value.setText(str(self._data.data_count))
-        self._ui.runtime_value.setText(helpers.getStrElapsedTime(self._data.runtime))
-        self._ui.remove_button.setEnabled(self._data.mode != Modes.STARTED)
+        self._ui.status_label.setText(self.data.mode.value)
+        self._ui.data_count_value.setText(str(self.data.data_count))
+        self._ui.runtime_value.setText(helpers.getStrElapsedTime(self.data.runtime))
+        self._ui.remove_button.setEnabled(self.data.mode != Modes.STARTED)
         self._ui.start_button.setText(
-            "Stop" if self._data.mode == Modes.STARTED else "Start"
+            "Stop" if self.data.mode == Modes.STARTED else "Start"
+        )
+        self._ui.remove_button.setText(
+            "Shutdown" if self.data.mode == Modes.STOPPED else "Remove"
         )
 
     @QtCore.Slot()
@@ -54,7 +57,7 @@ class AlgoStatusWidget(QtWidgets.QWidget):
         file_path = QtWidgets.QFileDialog.getSaveFileName(filter="Config (*.yml)")
         with open(file_path[0], "w") as yaml_file:
             yaml.dump(
-                {self._data.name: self._data.config},
+                {self.data.name: self.data.config},
                 yaml_file,
                 default_flow_style=False,
             )

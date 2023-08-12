@@ -6,7 +6,7 @@ from ...commonUtil.multiBase import multiBase
 
 """
 used by classes that need to process commands
-default commands are start, end, abort
+default commands are start, end, shutdown
 these funcs will need to be overwritten by child class
 """
 
@@ -74,14 +74,14 @@ class commandProcessor(multiBase):
         self._current_mode = Modes.STOPPED
         self.cmdEnd(command, details=details)
 
-    def cmdAbort(self, command, details=None):
+    def cmdShutdown(self, command, details=None):
         """overwritten in child for special instructions"""
         pass
 
-    def _cmdAbort(self, command, details=None):
+    def _cmdShutdown(self, command, details=None):
         """intro for command, handles mode"""
         self._current_mode = Modes.STANDBY
-        self.cmdAbort(command, details=details)
+        self.cmdShutdown(command, details=details)
 
     def processCommand(self, command, details=None):
         """
@@ -105,5 +105,5 @@ Default command dict, copied on commandProcessor initalization
 CMD_DICT = {
     msg.CommandType.START: commandProcessor._cmdStart,
     msg.CommandType.END: commandProcessor._cmdEnd,
-    msg.CommandType.ABORT: commandProcessor._cmdAbort,
+    msg.CommandType.SHUTDOWN: commandProcessor._cmdShutdown,
 }

@@ -452,25 +452,25 @@ class mainframe(commandProcessor):
             else:
                 self.process_dict[code].terminate()
             del self.process_dict[code]
-            data = AlgoStatusData()
-            data.mode = Modes.STANDBY
             self.sendToUi(
                 msg.message(
                     msg.MessageType.UI_UPDATE,
                     msg.UiUpdateType.STATUS,
-                    details=data,
+                    details=asdict(AlgoStatusData(mode=Modes.STANDBY)),
                     key=msg.messageKey(code, None),
                 )
             )
 
-    def cmdAbort(self, _, details=None):
+    def cmdShutdown(self, _, details=None):
         if details is None:
             self.cmdEnd(None)
             self._is_running = False
         elif isinstance(details, str):
             self.shutdownBlock(details)
         else:
-            mpLogging.error(f"Invalid details to abort command in mainframe: {details}")
+            mpLogging.error(
+                f"Invalid details to shutdown command in mainframe: {details}"
+            )
 
     def loadAlgoConfigFile(self, config: str):
         """Load an algo based on a config file"""

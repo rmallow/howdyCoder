@@ -225,9 +225,14 @@ class mainModel(commandProcessor, QtCore.QObject):
             )
         )
 
+    def shutdownAlgo(self, code):
+        self.messageMainframe(
+            msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN, details=code)
+        )
+
     def shutdown(self):
         self.messageMainframe(
-            msg.message(msg.MessageType.COMMAND, msg.CommandType.ABORT)
+            msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN)
         )
 
     def testing(self):
