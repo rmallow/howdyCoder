@@ -74,6 +74,12 @@ class Ui_CreateDataSourceParametersPage(object):
 
         self.horizontalLayout_9.addWidget(self.periodSpinBox)
 
+        self.single_shot_check = QCheckBox(self.widget_11)
+        self.single_shot_check.setObjectName(u"single_shot_check")
+        self.single_shot_check.setLayoutDirection(Qt.RightToLeft)
+
+        self.horizontalLayout_9.addWidget(self.single_shot_check)
+
 
         self.verticalLayout_2.addWidget(self.widget_11)
 
@@ -192,8 +198,9 @@ class Ui_CreateDataSourceParametersPage(object):
 
     def retranslateUi(self, CreateDataSourceParametersPage):
         CreateDataSourceParametersPage.setWindowTitle(QCoreApplication.translate("CreateDataSourceParametersPage", u"CreateDataSourceParametersPage", None))
-        self.periodLabel.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set the period for the data source. The period is how often the data source will query the input.  IE if it is a stream data source, it will call the API URL every period number of seconds.", None))
+        self.periodLabel.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set the period for the data source. The period is how often the data source will query the input.  IE if it is a stream data source, it will call the API URL every period number of seconds. Or set singleshot which will make the data source run only once, regardless of period.", None))
         self.label_3.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Period", None))
+        self.single_shot_check.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Single Shot", None))
         self.label.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set if the output should be flattened. If any of the output is lists, flattening will cause each data point to be counted as individual data. If the ouput is a dict and contains multiple lists, flattening will only happen if all lists are the same length.", None))
         self.flattenedCheck.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Flatten", None))
         self.label_4.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"(Advanced) Set extra parameters to be used.  This is for if your function requires any extra values set or your api url needs values filled in.  Use the buttons beneath the table to add, remove or clear all parameters. Once added, click in the name, type and value columns to modify.", None))

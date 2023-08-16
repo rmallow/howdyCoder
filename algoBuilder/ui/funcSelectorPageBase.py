@@ -9,7 +9,8 @@ from PySide6 import QtWidgets, QtCore
 class FuncSelectorPageBase(
     QtWidgets.QWidget, metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget)
 ):
-    funcSelected = QtCore.Signal(dict)
+    # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
+    funcSelected = QtCore.Signal(object)
 
     def __init__(
         self,

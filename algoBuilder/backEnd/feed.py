@@ -3,18 +3,7 @@ from .dataBase import dataBase
 from ..commonUtil.sparseDictList import SparseDictList
 from .constants import FeedRetValues
 
-import collections
 import typing
-
-
-def safeLength(value):
-    """
-    use this for values that could be an unknown type
-    """
-    if isinstance(value, collections.Iterable) and not isinstance(value, str):
-        return len(value)
-    else:
-        return 1
 
 
 class feed:
@@ -101,3 +90,7 @@ class feed:
 
     def appendCalcData(self, key: str, index: int, value: typing.Any):
         self.calcData.appendData(key, index, value)
+
+    def started(self):
+        for data_source in self.dataSources:
+            data_source.just_started = True

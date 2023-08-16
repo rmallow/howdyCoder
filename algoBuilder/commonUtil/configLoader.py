@@ -11,7 +11,7 @@ import re
 VALUES_SECTION = "Values"
 
 
-class configLoader:
+class ConfigLoader:
     def __init__(self, settingsFile=None):
         # can look up full key value or just further in
         # Only using section name if it exists, otherwise not including

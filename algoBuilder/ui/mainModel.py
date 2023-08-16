@@ -4,7 +4,7 @@ from .algoData import AlgoDict
 from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, AlgoStatusData
 from ..commonUtil import queueManager as qm
 from ..commonUtil.helpers import getStrTime
-from ..commonUtil import mpLogging
+from ..commonUtil import mpLogging, configLoader
 
 from ..core import message as msg
 from ..core import messageKey
@@ -36,6 +36,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.clientSeverManager = None
         self.incomingMessageCount = Counter()
         self.algo_dict = AlgoDict()
+        self._config_loader = configLoader.ConfigLoader()
 
         # Connect to clientServerManager
         self.clientSeverManager = qm.createQueueManager(isLocal)
@@ -183,6 +184,14 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.trackMessage(details)
         self.messageMainframe(details)
 
+    def addAlgoFile(self, algo_config_file_path: str):
+        """This will only verify that the file is found, and can be turned into a dict, doesn't determine valid file"""
+        if algo_config_file_path:
+            if config := self._config_loader.loadAndReplaceYamlFile(
+                algo_config_file_path
+            ):
+                self.addAlgo(config)
+
     @QtCore.Slot()
     def addAlgo(self, algo_config: typing.Dict):
         """
@@ -210,7 +219,7 @@ class mainModel(commandProcessor, QtCore.QObject):
 
     def getModules(self, code=None):
         module_status = []
-        if code is not None:
+        if code is None:
             module_status = set()
             for v in self._module_status.values():
                 module_status.update(v)

@@ -115,7 +115,7 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
                         ActionFuncEnum.IMPORT_STATEMENTS
                     ] = self._selectedIndex.data(IMPORT_STATEMENT_ROLE)
 
-                    self.funcSelected.emit(func_config_dict)
+                    self.funcSelected.emit(func_config_dict.copy())
                     return
         self._ui.funcDescription.document().setPlainText("Not a valid function!!!")
 

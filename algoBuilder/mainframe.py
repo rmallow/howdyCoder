@@ -68,7 +68,7 @@ class mainframe(commandProcessor):
         self.algo_manager = None
 
         # Load defaults
-        self.loader = configLoader.configLoader(SETTINGS_FILE)
+        self.loader = configLoader.ConfigLoader(SETTINGS_FILE)
 
         # Set up multiprocessing items
         self.process_dict = {}

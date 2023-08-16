@@ -4,11 +4,13 @@ from functools import cache
 
 
 @cache
-def getAbstactQtResolver(base_class: QtCore.QObject):
-    class _ShibokenObjectTypeFence(type(base_class)):
+def getAbstactQtResolver(base_qt_class: QtCore.QObject, base_abstract_class=ABC):
+    class _ShibokenObjectTypeFence(type(base_qt_class)):
         pass
 
-    class _ResolverMeta(_ShibokenObjectTypeFence, type(ABC), type(base_class)):
+    class _ResolverMeta(
+        _ShibokenObjectTypeFence, type(base_abstract_class), type(base_qt_class)
+    ):
         pass
 
     return _ResolverMeta

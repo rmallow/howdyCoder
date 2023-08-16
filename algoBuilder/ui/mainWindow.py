@@ -1,22 +1,33 @@
-import PySide6.QtGui
-from .configWindow import configWindow
+from .configWindow import ConfigWindow
 from .loggingWindow import loggingWindow
 from .statusWindow import statusWindow
 from .qtUiFiles import ui_mainWindow
 from .mainModel import mainModel
 from .modInstallDialog import ModInstallDialog
+from .tutorialOverlay import AbstractTutorialClass
+
+from .util import abstractQt
 
 # import name page for find children to connect signal
 from .create.createNamePage import CreateNamePage
 
 from ..core.commonGlobals import Modes
 
+import typing
+
 from PySide6 import QtWidgets, QtCore, QtGui
 
 
-class mainWindow(QtWidgets.QMainWindow):
-    runAllSignal = QtCore.Signal()
-    endAllSignal = QtCore.Signal()
+class MainWindow(
+    AbstractTutorialClass,
+    QtWidgets.QMainWindow,
+    metaclass=abstractQt.getAbstactQtResolver(
+        QtWidgets.QMainWindow, AbstractTutorialClass
+    ),
+):
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
 
     def __init__(self, isLocal: bool, parent=None):
         super().__init__(parent)
@@ -55,23 +66,33 @@ class mainWindow(QtWidgets.QMainWindow):
         self._ui.actionStatus.triggered.connect(self.statusWindow.show)
 
         # Create config window
-        self.configWindow = configWindow(self)
+        self.config_window = ConfigWindow(self)
 
         # Set up signal and slots
-        # For mysterious reasons this signal slot cannot be deleted for the rest of the UI to work
-        # After brief investigation I have no idea why this is the case
-        self._ui.actionLoad_Config.triggered.connect(lambda: self.configWindow.show())
-        # Spooky, noted to fix in later development
 
+        self._ui.actionLoad_Config.triggered.connect(self.config_window.show)
         self._ui.actionStart_All.triggered.connect(self.checkModules)
-        self._ui.actionEnd_All.triggered.connect(self.endAllSignal)
-        self.runAllSignal.connect(self._main_model.sendCmdStartAll)
-        self.endAllSignal.connect(self._main_model.sendCmdEndAll)
-        self.configWindow._ui.loadConfigsButton.clicked.connect(self.slotLoadConfigs)
+        self._ui.controlPage.ui.controlAllButton.released.connect(self.checkModules)
+        self._ui.actionEnd_All.triggered.connect(self._main_model.sendCmdEndAll)
+        self.config_window.accepted.connect(self.loadConfig)
         self._ui.controlPage.new_block_widget.ui.createButton.pressed.connect(
             lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.createPage)
         )
 
+        w = QtWidgets.QWidget()
+        w.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Preferred,
+        )
+        self._ui.toolBar.insertWidget(self._ui.invisible_action, w)
+        self.menu = QtWidgets.QMenu("Help", self)
+        self.menu.addAction(self._ui.action_tutorial)
+        self.menu.addAction(self._ui.action_documentation)
+        self._ui.action_help_menu.setMenu(self.menu)
+        # as this action is on the menu it's a tool button
+        self._ui.toolBar.widgetForAction(self._ui.action_help_menu).setPopupMode(
+            QtWidgets.QToolButton.ToolButtonPopupMode.InstantPopup
+        )
         # the create name page needs to check if the name already exists before letting the user proceed
         # to do this it will send a signal to the main model's algo dict to see if it is there
         # then that will return back if it is in there
@@ -116,8 +137,8 @@ class mainWindow(QtWidgets.QMainWindow):
         self.show()
 
     @QtCore.Slot()
-    def slotLoadConfigs(self):
-        pass
+    def loadConfig(self):
+        self._main_model.addAlgoFile(self.config_window.getFile())
 
     @QtCore.Slot()
     def pageChanged(self, new_page_index: int):
@@ -168,6 +189,8 @@ class mainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot()
     def checkModules(self, code=None):
+        """QAction triggered will make code False, instead of expected None for all"""
+        code = code if code else None
         modules = self._main_model.getModules(code)
         if any(not status for _, status in modules):
             self._module_install_window.updateTable(code, modules)
@@ -205,3 +228,9 @@ class mainWindow(QtWidgets.QMainWindow):
             event.accept()
         else:
             event.ignore()
+
+    def getSubTutorialClasses(self) -> typing.List:
+        return []
+
+    def register(self):
+        pass

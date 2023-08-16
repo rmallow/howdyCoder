@@ -28,7 +28,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Set the period for the data source. The period is how often the data source will query the input.  IE if it is a stream data source, it will call the API URL every period number of seconds.</string>
+            <string>Set the period for the data source. The period is how often the data source will query the input.  IE if it is a stream data source, it will call the API URL every period number of seconds. Or set singleshot which will make the data source run only once, regardless of period.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -76,6 +76,16 @@
               </property>
               <property name="maximum">
                <number>999999</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="single_shot_check">
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>Single Shot</string>
               </property>
              </widget>
             </item>

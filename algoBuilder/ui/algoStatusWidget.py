@@ -27,10 +27,10 @@ class AlgoStatusWidget(QtWidgets.QWidget):
         super().__init__(parent, f)
 
         self.data: AlgoWidgetData = data
-        self._ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()
-        self._ui.setupUi(self)
-        self._ui.name_label.setText(self.data.name)
-        self._ui.save_button.released.connect(self.saveConfig)
+        self.ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()
+        self.ui.setupUi(self)
+        self.ui.name_label.setText(self.data.name)
+        self.ui.save_button.released.connect(self.saveConfig)
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.refresh)
         self._timer.start(GUI_REFRESH_INTERVAL)
@@ -40,16 +40,16 @@ class AlgoStatusWidget(QtWidgets.QWidget):
         """Refresh the widgets displayed valued based on what's in the stored data object"""
         pal = QtGui.QPalette()
         pal.setColor(QtGui.QPalette.Window, QtGui.QColor(COLOR_MAP[self.data.mode]))
-        self._ui.status_label.setPalette(pal)
-        self._ui.status_label.setText(self.data.mode.value)
-        self._ui.data_count_value.setText(str(self.data.data_count))
-        self._ui.runtime_value.setText(helpers.getStrElapsedTime(self.data.runtime))
-        self._ui.remove_button.setEnabled(self.data.mode != Modes.STARTED)
-        self._ui.export_button.setEnabled(self.data.mode != Modes.STANDBY)
-        self._ui.start_button.setText(
+        self.ui.status_label.setPalette(pal)
+        self.ui.status_label.setText(self.data.mode.value)
+        self.ui.data_count_value.setText(str(self.data.data_count))
+        self.ui.runtime_value.setText(helpers.getStrElapsedTime(self.data.runtime))
+        self.ui.remove_button.setEnabled(self.data.mode != Modes.STARTED)
+        self.ui.export_button.setEnabled(self.data.mode != Modes.STANDBY)
+        self.ui.start_button.setText(
             "Stop" if self.data.mode == Modes.STARTED else "Start"
         )
-        self._ui.remove_button.setText(
+        self.ui.remove_button.setText(
             "Shutdown" if self.data.mode == Modes.STOPPED else "Remove"
         )
 

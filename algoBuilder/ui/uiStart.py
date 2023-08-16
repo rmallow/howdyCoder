@@ -1,4 +1,5 @@
-from .mainWindow import mainWindow
+from .mainWindow import MainWindow
+from . import tutorialOverlay
 import os
 from PySide6 import QtWidgets, QtCore
 
@@ -13,6 +14,8 @@ def start(isLocal: bool):
     )
     with open(path) as f:
         app.setStyleSheet(f.read())
-    mainWindow(isLocal)
-
+    main = MainWindow(isLocal)
+    event_filter = tutorialOverlay.TutorialEventFilter(main)
+    main._ui.action_tutorial.triggered.connect(event_filter.tutorial_started)
+    app.installEventFilter(event_filter)
     app.exec_()

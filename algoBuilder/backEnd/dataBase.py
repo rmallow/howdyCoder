@@ -29,6 +29,7 @@ class dataBase(abc.ABC):
         parameters={},
         output=None,
         flatten=True,
+        single_shot=False,
         **kwargs,
     ):
         super().__init__()
@@ -44,6 +45,7 @@ class dataBase(abc.ABC):
         self.parameters: typing.Dict[typing.Any] = parameters
         self.output: typing.Union[typing.List, typing.Dict[str, str]] = output
         self.flatten: bool = flatten
+        self.single_shot: bool = single_shot
         # Convert data type to enum
         if dataType is not None:
             try:
@@ -63,6 +65,7 @@ class dataBase(abc.ABC):
         else:
             self.columnFilter = None
         self.last_time = 0
+        self.just_started = True
 
     def dataModifications(self, raw_data: typing.Any) -> dict:
         """
@@ -145,8 +148,11 @@ class dataBase(abc.ABC):
         return
 
     def readyToGet(self):
-        if time.time() - self.last_time > self.period:
+        if (not self.single_shot and time.time() - self.last_time > self.period) or (
+            self.single_shot and self.just_started
+        ):
             self.last_time = time.time()
+            self.just_started = False
             return True
         return False
 

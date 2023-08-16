@@ -22,8 +22,6 @@ from ..qtUiFiles import ui_createWidget
 
 from ..util import animations
 
-from ...commonUtil.helpers import createErrorLabel
-
 from PySide6 import QtWidgets, QtCore
 
 from dataclasses import dataclass, fields
@@ -57,7 +55,8 @@ CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
 
 
 class CreateWidget(QtWidgets.QWidget):
-    addAlgo = QtCore.Signal(dict)
+    # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
+    addAlgo = QtCore.Signal(object)
 
     def __init__(
         self,

@@ -206,3 +206,6 @@ class block(commandProcessor):
                 details=self.feed_obj.getAllData(),
             )
         )
+
+    def cmdStart(self, command, details=None):
+        self.feed_obj.started()

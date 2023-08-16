@@ -12,7 +12,8 @@ from PySide6 import QtWidgets, QtCore
 
 
 class outputSelect(QtWidgets.QWidget):
-    selectionFinished = QtCore.Signal(dict)
+    # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
+    selectionFinished = QtCore.Signal(object)
 
     def __init__(self, model, parent=None):
         super().__init__(parent=parent)

@@ -102,7 +102,8 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     @QtCore.Slot()
     def sendFunctionConfig(self):
-        self.funcSelected.emit(self._current_function_config)
+        pass
+        # self.funcSelected.emit(self._current_function_config)
 
     @QtCore.Slot()
     def saveCode(self):

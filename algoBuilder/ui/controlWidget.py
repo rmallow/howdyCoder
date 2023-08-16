@@ -45,14 +45,14 @@ class ControlWidget(QtWidgets.QWidget):
     ) -> None:
         super().__init__(parent, f)
 
-        self._ui = ui_controlWidget.Ui_ControlWidget()
-        self._ui.setupUi(self)
+        self.ui = ui_controlWidget.Ui_ControlWidget()
+        self.ui.setupUi(self)
 
-        self.grid_layout = QtWidgets.QGridLayout(self._ui.mainWidget)
-        self.new_block_widget = NewBlockWidget(self._ui.mainWidget)
+        self.grid_layout = QtWidgets.QGridLayout(self.ui.mainWidget)
+        self.new_block_widget = NewBlockWidget(self.ui.mainWidget)
         self.current_width = 2
 
-        self._ui.mainWidget.setLayout(self.grid_layout)
+        self.ui.mainWidget.setLayout(self.grid_layout)
 
         """This is the main model's algo dict class set by the main window"""
         self.algo_dict: AlgoDict = None
@@ -100,13 +100,13 @@ class ControlWidget(QtWidgets.QWidget):
             for m in missing_ids:
                 data: AlgoWidgetData = self.algo_dict.getDataById(m)
                 w = AlgoStatusWidget(data)
-                w._ui.start_button.released.connect(
+                w.ui.start_button.released.connect(
                     lambda: self.startAlgo.emit(data.name)
                 )
-                w._ui.export_button.released.connect(
+                w.ui.export_button.released.connect(
                     lambda: self.exportData.emit(data.name)
                 )
-                w._ui.remove_button.released.connect(lambda: self.removeWidget(m))
+                w.ui.remove_button.released.connect(lambda: self.removeWidget(m))
                 self._algo_widgets[m] = w
             for r in to_remove_ids:
                 self.removeWidget(r, refresh=False)
