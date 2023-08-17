@@ -5,17 +5,17 @@ from .messageKey import messageKey
 import typing
 
 
-class MessageType(Enum):
-    COMMAND = 1
-    NORMAL = 2
-    PRIORITY = 3
-    UI_UPDATE = 4
-    MESSAGE_LIST = 5
+class MessageType(IntEnum):
+    COMMAND = auto()
+    NORMAL = auto()
+    PRIORITY = auto()
+    UI_UPDATE = auto()
+    MESSAGE_LIST = auto()
 
 
 class CommandType(IntEnum):
     # general commands
-    START = auto()
+    START = max(e.value for e in MessageType) + 1
     END = auto()
     SHUTDOWN = auto()
     CLEAR = auto()
@@ -31,7 +31,7 @@ class CommandType(IntEnum):
 
 
 class UiUpdateType(IntEnum):
-    OUTPUT = auto()
+    OUTPUT = max(e.value for e in CommandType) + 1
     BLOCK = auto()
     HANDLER = auto()
     LOGGING = auto()

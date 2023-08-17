@@ -67,11 +67,17 @@ class feed:
     def getDataLength(self) -> int:
         return self.data.getLengthOfLongestList()
 
-    def getNewCombinedDataOfLength(self, length: int = None) -> SparseDictList:
+    def getNewCombinedDataOfLength(
+        self, length: int = None, ignore_last_sent=False
+    ) -> SparseDictList:
         def getNewData(data: SparseDictList):
             res = {}
             for k, v in data.items():
-                res[k] = v[self.last_sent_data.get(k, 0) : len(v)]
+                res[k] = (
+                    v[::]
+                    if ignore_last_sent
+                    else v[self.last_sent_data.get(k, 0) : len(v)]
+                )
                 if length is not None:
                     res[k] = res[k][-length:]
                 self.last_sent_data[k] = len(v)

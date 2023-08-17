@@ -1,5 +1,5 @@
 from .outputSelect import outputSelect
-from .outputViewFeed import outputViewFeed
+from .outputViewFeed import OutputViewFeed
 from .outputViewGraph import outputViewGraph
 from .uiConstants import outputTypesEnum
 from .mainOutputViewModel import mainOutputViewModel
@@ -57,7 +57,7 @@ class mainOutputView(QtWidgets.QWidget):
         self._title_set.add(title)
         dock = QtWidgets.QDockWidget(title, self._sub_main_window)
         if selectionSettings[TYPE] == outputTypesEnum.FEED.value:
-            oView = outputViewFeed(outputViewModel, selectionSettings, dock)
+            oView = OutputViewFeed(outputViewModel, selectionSettings, dock)
         elif selectionSettings[TYPE] == outputTypesEnum.GRAPH.value:
             oView = outputViewGraph(outputViewModel, selectionSettings, dock)
 

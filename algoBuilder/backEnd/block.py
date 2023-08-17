@@ -152,13 +152,13 @@ class block(commandProcessor):
             if details and BACKTRACK in details and details[BACKTRACK] != 0:
                 # if backtrack is present and is not 0 then send back to mainframed
                 # the desired amount of data
-                backtrackLength = details[BACKTRACK]
-                if backtrackLength == -1:
+                backtrack_length = details[BACKTRACK]
+                if backtrack_length == -1:
                     # if back track is -1 then send all of the data available
-                    backtrackLength = self.feed_obj.getDataLength()
-                self.sendCombinedData(backtrackLength)
+                    backtrack_length = self.feed_obj.getDataLength()
+                self.sendCombinedData(length=backtrack_length, ignore_last_sent=True)
 
-    def sendCombinedData(self, length=None):
+    def sendCombinedData(self, length=None, ignore_last_sent=False):
         """
         Combine the data of calc and data member objects and pack into a message to send
         """
@@ -168,7 +168,7 @@ class block(commandProcessor):
         m = msg.message(
             msg.MessageType.UI_UPDATE,
             content=msg.UiUpdateType.BLOCK,
-            details=self.feed_obj.getNewCombinedDataOfLength(length),
+            details=self.feed_obj.getNewCombinedDataOfLength(length, ignore_last_sent),
             key=msgKey.messageKey(self.code, None),
         )
         self._mainframe_queue.put(m)

@@ -74,9 +74,9 @@ class SparseDictListModel(QtCore.QAbstractTableModel):
 
     @QtCore.Slot()
     def changeState(self, state: int):
-        if self.show_index != (state == QtCore.Qt.CheckState.Checked):
+        if self.show_index != (state == QtCore.Qt.CheckState.Checked.value):
             self.beginResetModel()
-            self.show_index = state == QtCore.Qt.CheckState.Checked
+            self.show_index = state == QtCore.Qt.CheckState.Checked.value
             self.endResetModel()
 
     def removeRows(self, rowStart, count, beginRemove=True):

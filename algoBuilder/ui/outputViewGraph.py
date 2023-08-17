@@ -27,7 +27,3 @@ class outputViewGraph(outputView):
         )
         self.plot.resize(300, 300)
         self.layout.addWidget(self.plot)
-
-    @QtCore.Slot()
-    def updateOnLoad(self):
-        pass

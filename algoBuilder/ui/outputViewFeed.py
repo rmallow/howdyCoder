@@ -8,7 +8,7 @@ import fnmatch
 from PySide6 import QtCore
 
 
-class outputViewFeed(outputView):
+class OutputViewFeed(outputView):
     def __init__(self, outputViewModel, selectionSettings, parent=None):
         super().__init__(outputViewModel, parent)
 
@@ -21,10 +21,6 @@ class outputViewFeed(outputView):
         self._ui.tableView.setModel(self.outputViewModel)
         self._ui.filterButton.clicked.connect(self.applyFilter)
         self._ui.showIndexBox.stateChanged.connect(self.outputViewModel.changeState)
-
-    @QtCore.Slot()
-    def updateOnLoad(self):
-        pass
 
     @QtCore.Slot()
     def applyFilter(self, _) -> None:

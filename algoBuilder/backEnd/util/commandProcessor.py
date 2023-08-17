@@ -41,10 +41,11 @@ class commandProcessor(multiBase):
             rather than passing in self.xyz must pass in className.xyz
         @param: overwrite - bool, whether to overwrite if key already exists
         """
-        if key not in self.cmdDict or overwrite:
-            self.cmdDict[key] = func
-            if overwrite:
-                mpLogging.warning("Overwriting command processor for key: " + str(key))
+        if not overwrite:
+            assert key not in self.cmdDict, "Conflicting command key value"
+        elif key in self.cmdDict:
+            mpLogging.warning("Overwriting command processor for key: " + str(key))
+        self.cmdDict[key] = func
 
     def cmdNotFound(self, command, details=None):
         """
