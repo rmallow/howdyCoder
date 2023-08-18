@@ -1,6 +1,9 @@
 from .uiConstants import GUI_REFRESH_INTERVAL
 from .qtUiFiles import ui_algoStatusWidget
 from .algoData import AlgoWidgetData
+from .tutorialOverlay import AbstractTutorialClass
+
+from .util import abstractQt
 
 from ..commonUtil import helpers
 from ..core.commonGlobals import Modes
@@ -17,14 +20,18 @@ COLOR_MAP = {
 }
 
 
-class AlgoStatusWidget(QtWidgets.QWidget):
+class AlgoStatusWidget(
+    AbstractTutorialClass,
+    QtWidgets.QWidget,
+    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+):
     def __init__(
         self,
         data: AlgoWidgetData,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__(parent, f)
+        super().__init__("test", parent, f)
 
         self.data: AlgoWidgetData = data
         self.ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()
@@ -62,3 +69,6 @@ class AlgoStatusWidget(QtWidgets.QWidget):
                 yaml_file,
                 default_flow_style=False,
             )
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

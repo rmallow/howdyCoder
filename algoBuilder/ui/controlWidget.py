@@ -136,4 +136,12 @@ class ControlWidget(
                     self.addWidgets()
 
     def getTutorialClasses(self) -> typing.List:
-        return [self]
+        return (
+            [self]
+            + (
+                next(iter(self._algo_widgets.values())).getTutorialClasses()
+                if self._algo_widgets
+                else []
+            )
+            + self.new_block_widget.getTutorialClasses()
+        )
