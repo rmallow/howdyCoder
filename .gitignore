@@ -11,6 +11,7 @@ deprecated
 config/
 ezAlgoConfig
 installer/installer_output/
+installer/HowdyCoder.app/
 
 # Distribution / packaging
 .Python
