@@ -1,40 +1,49 @@
 from .qtUiFiles import ui_outputSelectItem, ui_outputSelectType, ui_outputSelectSettings
-
 from .graphSettingsWidget import graphSettingsWidget
-
 from .uiConstants import outputTypesEnum
+from .tutorialOverlay import AbstractTutorialClass
 
-from .util import animations
+from .util import animations, abstractQt
 
 from ..core.commonGlobals import TYPE, ITEM, PERIOD, BACKTRACK, GRAPH_SETTINGS
+
+import typing
 
 from PySide6 import QtWidgets, QtCore
 
 
-class outputSelect(QtWidgets.QWidget):
+class outputSelect(
+    AbstractTutorialClass,
+    QtWidgets.QWidget,
+    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+):
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
     selectionFinished = QtCore.Signal(object)
 
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
+
     def __init__(self, model, parent=None):
-        super().__init__(parent=parent)
+        super().__init__("test", parent=parent)
 
         self.model = model
         # Load select item UI
         self._selectItemUI = ui_outputSelectItem.Ui_OutputSelectItem()
-        self._selectItemWidget = QtWidgets.QWidget()
-        self._selectItemUI.setupUi(self._selectItemWidget)
+        self._select_item_widget = QtWidgets.QWidget()
+        self._selectItemUI.setupUi(self._select_item_widget)
         # handlers aren't currently supported but don't want to remove code pertaining to them
         self._selectItemUI.handlerBox.setHidden(True)
 
         # Load select type UI
         self._selectTypeUI = ui_outputSelectType.Ui_OutputSelectType()
-        self._selectTypeWidget = QtWidgets.QWidget()
-        self._selectTypeUI.setupUi(self._selectTypeWidget)
+        self._select_type_widget = QtWidgets.QWidget()
+        self._selectTypeUI.setupUi(self._select_type_widget)
 
         # Load select settings UI
         self._selectSettingsUI = ui_outputSelectSettings.Ui_OutputSelectSettings()
-        self._selectSettingsWidget = QtWidgets.QWidget()
-        self._selectSettingsUI.setupUi(self._selectSettingsWidget)
+        self._select_settings_widget = QtWidgets.QWidget()
+        self._selectSettingsUI.setupUi(self._select_settings_widget)
 
         self.graphSettingsWidget: graphSettingsWidget = graphSettingsWidget()
 
@@ -45,14 +54,14 @@ class outputSelect(QtWidgets.QWidget):
         self.initSelectType()
         self.initSelectSettings()
 
-        self.mainLayout = QtWidgets.QVBoxLayout()
+        self._main_layout = QtWidgets.QVBoxLayout()
 
         self.backButtonSetup()
 
-        self.mainLayout.addWidget(self._selectItemWidget)
-        self.mainLayout.setSpacing(0)
+        self._main_layout.addWidget(self._select_item_widget)
+        self._main_layout.setSpacing(0)
 
-        self.setLayout(self.mainLayout)
+        self.setLayout(self._main_layout)
         self.show()
 
         self.item = None
@@ -106,22 +115,25 @@ class outputSelect(QtWidgets.QWidget):
         backWidget.setSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum
         )
-        self.mainLayout.addWidget(backWidget)
+        self._main_layout.addWidget(backWidget)
 
     def backButtonClicked(self):
-        if self.mainLayout.indexOf(self._selectItemWidget) != -1:
+        if self._main_layout.indexOf(self._select_item_widget) != -1:
             pass
-        elif self.mainLayout.indexOf(self._selectTypeWidget) != -1:
+        elif self._main_layout.indexOf(self._select_type_widget) != -1:
             self.selectionSettings = {}
             animations.fadeStart(
-                self, self._selectTypeWidget, self._selectItemWidget, self.mainLayout
+                self,
+                self._select_type_widget,
+                self._select_item_widget,
+                self._main_layout,
             )
-        elif self.mainLayout.indexOf(self._selectSettingsWidget) != -1:
+        elif self._main_layout.indexOf(self._select_settings_widget) != -1:
             animations.fadeStart(
                 self,
-                self._selectSettingsWidget,
-                self._selectTypeWidget,
-                self.mainLayout,
+                self._select_settings_widget,
+                self._select_type_widget,
+                self._main_layout,
             )
 
     @QtCore.Slot()
@@ -140,7 +152,7 @@ class outputSelect(QtWidgets.QWidget):
 
         self.selectionSettings[ITEM] = text
         animations.fadeStart(
-            self, self._selectItemWidget, self._selectTypeWidget, self.mainLayout
+            self, self._select_item_widget, self._select_type_widget, self._main_layout
         )
 
     @QtCore.Slot()
@@ -155,7 +167,10 @@ class outputSelect(QtWidgets.QWidget):
         else:
             self._selectSettingsUI.typeSpecificStackedWidget.hide()
         animations.fadeStart(
-            self, self._selectTypeWidget, self._selectSettingsWidget, self.mainLayout
+            self,
+            self._select_type_widget,
+            self._select_settings_widget,
+            self._main_layout,
         )
 
     @QtCore.Slot()
@@ -192,3 +207,13 @@ class outputSelect(QtWidgets.QWidget):
             self._selectSettingsUI.errorLabel.setStyleSheet("QLabel {color : red; }")
             self._selectSettingsUI.errorLabel.show()
         return isValid
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self] + (
+            self._main_layout.widget().getTutorialClasses()
+            if (
+                self._main_layout.widget()
+                and isinstance(self._main_layout.widget(), AbstractTutorialClass)
+            )
+            else []
+        )

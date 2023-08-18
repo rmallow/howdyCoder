@@ -30,7 +30,7 @@ class MainWindow(
         return super().__new__(self, *args, **kwargs)
 
     def __init__(self, isLocal: bool, parent=None):
-        super().__init__(parent)
+        super().__init__("test", parent)
         # Load UI
         self._ui = ui_mainWindow.Ui_AlgoBuilder()
         self._ui.setupUi(self)
@@ -229,8 +229,5 @@ class MainWindow(
         else:
             event.ignore()
 
-    def getSubTutorialClasses(self) -> typing.List:
-        return []
-
-    def register(self):
-        pass
+    def getTutorialClasses(self) -> typing.List:
+        return [self] + self._ui.stackedWidget.currentWidget().getTutorialClasses()

@@ -19,7 +19,7 @@ class CreateNamePage(CreateBasePage):
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, parent=parent)
+        super().__init__(current_config, "test", parent=parent)
 
         self.next_enabled = False
         self._ui = ui_createNamePage.Ui_CreateNamePage()
@@ -60,3 +60,6 @@ class CreateNamePage(CreateBasePage):
     def doesNameExistSlot(self, exists_already: bool) -> None:
         self.next_enabled = not exists_already
         self.enableNext.emit(self.next_enabled)
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

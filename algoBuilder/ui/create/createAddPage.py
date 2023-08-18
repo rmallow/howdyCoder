@@ -21,7 +21,7 @@ class CreateAddPageBase(CreateBasePage):
         top_text="",
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, parent=parent)
+        super().__init__(current_config, "test", parent=parent)
 
         self._ui = ui_createDataSourceAdd.Ui_CreateDataSourceAdd()
         self._ui.setupUi(self)
@@ -77,6 +77,9 @@ class CreateAddPageBase(CreateBasePage):
                 if strings[index.row()] in self.getConfigSection().get(self._group, {}):
                     del self.getConfigSection()[self._group][strings[index.row()]]
                     self.setGroupModel()
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]
 
 
 class CreateDataSourceAddPage(CreateAddPageBase):

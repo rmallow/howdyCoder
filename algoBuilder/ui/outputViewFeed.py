@@ -1,3 +1,4 @@
+import typing
 from .outputView import outputView
 from .sparseDictListModel import SparseDictListModel
 
@@ -9,8 +10,8 @@ from PySide6 import QtCore
 
 
 class OutputViewFeed(outputView):
-    def __init__(self, outputViewModel, selectionSettings, parent=None):
-        super().__init__(outputViewModel, parent)
+    def __init__(self, outputViewModel, _, parent=None):
+        super().__init__(outputViewModel, "test", parent)
 
         # Load UI file
         self._ui = ui_outputViewFeed.Ui_OutputViewFeed()
@@ -42,3 +43,6 @@ class OutputViewFeed(outputView):
                 self._ui.tableView.showColumn(i)
             else:
                 self._ui.tableView.hideColumn(i)
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

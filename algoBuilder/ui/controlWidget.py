@@ -1,8 +1,12 @@
 from .newBlockWidget import NewBlockWidget
 from .algoStatusWidget import AlgoStatusWidget
 from .algoData import AlgoDict, AlgoWidgetData
+from .tutorialOverlay import AbstractTutorialClass
+
+from .util import abstractQt
 
 from .qtUiFiles import ui_controlWidget
+
 
 from ..core.commonGlobals import Modes
 
@@ -33,17 +37,25 @@ class EmtpyBox(QtWidgets.QWidget):
         # self.setPalette(pal)
 
 
-class ControlWidget(QtWidgets.QWidget):
+class ControlWidget(
+    AbstractTutorialClass,
+    QtWidgets.QWidget,
+    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+):
     startAlgo = QtCore.Signal(str)
     shutdownAlgo = QtCore.Signal(str)
     exportData = QtCore.Signal(str)
+
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
 
     def __init__(
         self,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__(parent, f)
+        super().__init__("test", parent, f)
 
         self.ui = ui_controlWidget.Ui_ControlWidget()
         self.ui.setupUi(self)
@@ -122,3 +134,6 @@ class ControlWidget(QtWidgets.QWidget):
                 del self._algo_widgets[uid]
                 if refresh:
                     self.addWidgets()
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

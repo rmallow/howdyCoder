@@ -21,7 +21,7 @@ class CreateTypeBasePage(CreateBasePage):
         type_dict: typing.Dict[str, str],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, parent=parent)
+        super().__init__(current_config, "test", parent=parent)
 
         # accessing ui from base page
         self._ui = ui_createDataSourceType.Ui_CreateDataSourceType()
@@ -71,6 +71,9 @@ class CreateTypeBasePage(CreateBasePage):
 
     def loadPage(self, keys: typing.List[str]) -> None:
         return super().loadPage(keys)
-    
+
     def getKeysForNextPage(self) -> typing.List:
         return super().getKeysForNextPage()
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

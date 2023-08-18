@@ -1,4 +1,5 @@
 from .util import tutorialResourceManager
+from .util import abstractQt
 
 from abc import abstractmethod, ABC
 import typing
@@ -22,6 +23,7 @@ class OverlayWidget(QtWidgets.QWidget):
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self.changeParent()
+        self.setStyleSheet("background-color:red")
 
     def changeParent(self):
         if self.parent():
@@ -53,22 +55,19 @@ class OverlayWidget(QtWidgets.QWidget):
 class AbstractTutorialClass(ABC):
     """Used in conjunction with Overlay Widget, manages images for overlay as well as for finding sub widgets"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, resource_prefix: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert isinstance(self, QtCore.QObject)
         self._overlay = OverlayWidget(self)
-        self._resource_prefix = ""
+        self._resource_prefix = resource_prefix
         self._current_index = None
+        self.registerPrefix(self._resource_prefix)
 
     @abstractmethod
-    def getSubTutorialClasses(self) -> typing.List:
+    def getTutorialClasses(self) -> typing.List:
         return []
 
-    @abstractmethod
-    def register(self):
-        pass
-
-    def registerPrefix(self, prefix):
+    def registerPrefix(self, prefix: str):
         """Register for a resource theme that has the tutorial pictures to display"""
         self._resource_prefix = prefix
         tutorialResourceManager.registerPrefix(self._resource_prefix)
@@ -81,6 +80,8 @@ class AbstractTutorialClass(ABC):
 
 
 class TutorialEventFilter(QtCore.QObject):
+    PAUSE_BETWEEN_OVERLAYS = 0.6
+
     def __init__(
         self,
         top_level_filter_object: AbstractTutorialClass,
@@ -117,7 +118,8 @@ class TutorialEventFilter(QtCore.QObject):
             self._tutorial_started
             and event.type() == QtCore.QEvent.Type.MouseButtonPress
         ):
-            if time.time() - self._last_button_press > 1:
+            # arbitrary pause time
+            if time.time() - self._last_button_press > self.PAUSE_BETWEEN_OVERLAYS:
                 if self._resource_index < len(
                     tutorialResourceManager.getFilesInPrefix(
                         self._objs[self._obj_index].getPrefix()
@@ -127,22 +129,25 @@ class TutorialEventFilter(QtCore.QObject):
                     self.setCurrentOverlayPicture()
                 else:
                     self._objs[self._obj_index].changeOverlayPicture(None)
+                    self._obj_index += 1
                     self.getNextValidObjIndex()
                     self._resource_index = 0
                     if self._obj_index < len(self._objs):
                         self.setCurrentOverlayPicture()
                         self._resource_index += 1
                     else:
-                        self.tutorial_started = False
+                        self._obj_index = self._resource_index = 0
+                        self._tutorial_started = False
                 self._last_button_press = time.time()
                 self._top_level_filter_object.repaint()
+            return True
         else:
             return super().eventFilter(watched, event)
 
     @QtCore.Slot()
     def tutorial_started(self):
         self._obj_index = self._resource_index = 0
-        self._objs = self._top_level_filter_object.getSubTutorialClasses()
+        self._objs = self._top_level_filter_object.getTutorialClasses()
         self.getNextValidObjIndex()
         self._tutorial_started = self._obj_index < len(self._objs)
         if self._tutorial_started:

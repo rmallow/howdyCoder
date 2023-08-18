@@ -18,7 +18,7 @@ def getFilesInPrefix(prefix: str):
 
 @cache
 def getResourceByIndex(prefix: str, index: int) -> str:
-    resources = QtCore.QDir(getPrefStr(prefix))
+    resources = QtCore.QDir(getPrefStr(prefix)).entryList()
     if index < len(resources):
         return QtGui.QPixmap(f"{getPrefStr(prefix)}/{resources[index]}")
     assert False, "invalid res index"
@@ -27,7 +27,8 @@ def getResourceByIndex(prefix: str, index: int) -> str:
 
 def registerPrefix(prefix: str):
     if prefix in _registered_prefixes:
-        assert False, f"prefix: {prefix} already registered"
+        pass  # TODO: uncomment below
+        # assert False, f"prefix: {prefix} already registered"
     _registered_prefixes.add(prefix)
 
 

@@ -2,4 +2,10 @@
   <qresource prefix="icons">
     <file>help.png</file>
   </qresource>
+  <qresource prefix="test">
+    <file>red_square_test.png</file>
+  </qresource>
+  <qresource prefix="mainWindow">
+    <file>mainWindowToolbar.png</file>
+  </qresource>
 </RCC>

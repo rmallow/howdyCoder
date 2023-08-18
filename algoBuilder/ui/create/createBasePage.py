@@ -1,3 +1,4 @@
+from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
 from ...core.commonGlobals import UI_GROUP
 from ..uiConstants import PageKeys
@@ -11,7 +12,9 @@ from PySide6 import QtWidgets, QtCore
 
 
 class CreateBasePage(
-    QtWidgets.QWidget, metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget)
+    AbstractTutorialClass,
+    QtWidgets.QWidget,
+    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
     PAGE_KEY: Enum = None
     EXIT: Enum = None
@@ -25,10 +28,11 @@ class CreateBasePage(
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
+        resource_prefix: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__(parent, f)
+        super().__init__(resource_prefix, parent, f)
         assert self.PAGE_KEY, "PAGE_KEY not assigned by sub class"
         self.current_config: typing.Dict[str, typing.Any] = current_config
         self.temp_config: typing.Dict[str, typing.Any] = None  # assigned after the fact

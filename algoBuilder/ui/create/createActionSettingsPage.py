@@ -51,7 +51,7 @@ class CreateActionSettingsPage(CreateBasePage):
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, parent=parent)
+        super().__init__(current_config, "test", parent=parent)
 
         self._ui = ui_createActionSettingsPage.Ui_CreateActionSettingsPage()
         self._ui.setupUi(self)
@@ -292,3 +292,6 @@ class CreateActionSettingsPage(CreateBasePage):
             config_section[OUTPUT_FUNC] = helpers.getConfigFromEnumDict(
                 self._current_output_settings
             )
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

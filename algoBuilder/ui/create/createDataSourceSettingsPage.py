@@ -39,7 +39,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, parent=parent)
+        super().__init__(current_config, "test", parent=parent)
 
         self._ui = ui_createDataSourceSettingsPage.Ui_CreateDataSourceSettingsPage()
         self._ui.setupUi(self)
@@ -179,3 +179,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
 
     def getKeysForNextPage(self) -> typing.List:
         return super().getKeysForNextPage()
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

@@ -16,7 +16,7 @@ class CreateConfirmBasePage(CreateBasePage):
         add_start_page: PageKeys,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, parent=parent)
+        super().__init__(current_config, "test", parent=parent)
 
         self._ui = ui_createDataSourceConfirmPage.Ui_CreateDataSourceConfirmPage()
         self._ui.setupUi(self)
@@ -71,6 +71,9 @@ class CreateConfirmBasePage(CreateBasePage):
 
     def getKeysForNextPage(self) -> typing.Any:
         return [self.config_keys[0]]
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]
 
 
 class CreateDataSourceConfirmPage(CreateConfirmBasePage):

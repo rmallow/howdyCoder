@@ -1,20 +1,33 @@
+import typing
 from .outputSelect import outputSelect
 from .outputViewFeed import OutputViewFeed
 from .outputViewGraph import outputViewGraph
 from .uiConstants import outputTypesEnum
 from .mainOutputViewModel import mainOutputViewModel
+from .tutorialOverlay import AbstractTutorialClass
 
-from .util import animations
+from .util import animations, abstractQt
 
 from ..core.commonGlobals import TYPE, ITEM
 from ..commonUtil import mpLogging
 
+import typing
+
 from PySide6 import QtWidgets, QtCore
 
 
-class mainOutputView(QtWidgets.QWidget):
+# this class is used in a generated file
+class mainOutputView(
+    AbstractTutorialClass,
+    QtWidgets.QWidget,
+    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+):
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
+
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__("test", parent)
         self.mainOutputViewModel: mainOutputViewModel = mainOutputViewModel(self)
 
         """
@@ -29,9 +42,9 @@ class mainOutputView(QtWidgets.QWidget):
         self.setLayout(self._outer_layout)
         self._outer_layout.setSpacing(0)
 
-        selector = outputSelect(self.mainOutputViewModel)
-        selector.selectionFinished.connect(self.onSelectionFinished)
-        self._outer_layout.addWidget(selector)
+        self._current_selector = outputSelect(self.mainOutputViewModel)
+        self._current_selector.selectionFinished.connect(self.onSelectionFinished)
+        self._outer_layout.addWidget(self._current_selector)
 
         self._sub_main_window = QtWidgets.QMainWindow()
         w = QtWidgets.QWidget(self._sub_main_window)
@@ -61,10 +74,12 @@ class mainOutputView(QtWidgets.QWidget):
         elif selectionSettings[TYPE] == outputTypesEnum.GRAPH.value:
             oView = outputViewGraph(outputViewModel, selectionSettings, dock)
 
-        selector = outputSelect(self.mainOutputViewModel, self)
-        selector.selectionFinished.connect(self.onSelectionFinished)
+        self._current_selector = outputSelect(self.mainOutputViewModel, self)
+        self._current_selector.selectionFinished.connect(self.onSelectionFinished)
 
-        animations.fadeStart(self, self.sender(), selector, self._outer_layout)
+        animations.fadeStart(
+            self, self.sender(), self._current_selector, self._outer_layout
+        )
 
         if oView is not None:
             dock.setWidget(oView)
@@ -73,3 +88,10 @@ class mainOutputView(QtWidgets.QWidget):
             )
         else:
             mpLogging.error("Output View was supposed to be made but was not")
+
+    def getTutorialClasses(self) -> typing.List:
+        res = [self] + self._current_selector.getTutorialClasses()
+        for view_type in [outputViewGraph, OutputViewFeed]:
+            if find_res := self._sub_main_window.findChild(view_type):
+                res.extend(find_res.getTutorialClasses())
+        return res

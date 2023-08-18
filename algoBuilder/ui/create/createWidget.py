@@ -19,8 +19,9 @@ from .createActionSettingsPage import CreateActionSettingsPage
 
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createWidget
+from ..tutorialOverlay import AbstractTutorialClass
 
-from ..util import animations
+from ..util import animations, abstractQt
 
 from PySide6 import QtWidgets, QtCore
 
@@ -54,16 +55,24 @@ CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
 ]
 
 
-class CreateWidget(QtWidgets.QWidget):
+class CreateWidget(
+    AbstractTutorialClass,
+    QtWidgets.QWidget,
+    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+):
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
     addAlgo = QtCore.Signal(object)
+
+    def __new__(self, *args, **kwargs):
+        abstractQt.handleAbstractMethods(self)
+        return super().__new__(self, *args, **kwargs)
 
     def __init__(
         self,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__(parent, f)
+        super().__init__("test", parent, f)
 
         # Load UI file
         self._ui = ui_createWidget.Ui_CreateWidget()
@@ -260,3 +269,8 @@ class CreateWidget(QtWidgets.QWidget):
             if index is not None:
                 self.resetPages(index)
                 self.changePage(index)
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self] + self._create_widgets_list[
+            self._current_index
+        ].page.getTutorialClasses()

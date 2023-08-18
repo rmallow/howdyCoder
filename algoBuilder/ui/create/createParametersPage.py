@@ -17,7 +17,7 @@ class CreateBaseParametersPage(CreateBasePage):
         period_text: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, parent=parent)
+        super().__init__(current_config, "test", parent=parent)
 
         self._ui = ui_createDataSourceParametersPage.Ui_CreateDataSourceParametersPage()
         self._ui.setupUi(self)
@@ -64,6 +64,9 @@ class CreateBaseParametersPage(CreateBasePage):
 
     def getKeysForNextPage(self) -> typing.List:
         return super().getKeysForNextPage()
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]
 
 
 class CreateDataSourceParametersPage(CreateBaseParametersPage):
