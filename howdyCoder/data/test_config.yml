@@ -37,7 +37,7 @@ test:
         mean:
             action_data_type: pandas data frame
             calcFunc:
-                code: "def sma(dataSet):\n    \"\"\"algoBuilder\"\"\"\n    return\
+                code: "def sma(dataSet):\n    \"\"\"howdyCoder\"\"\"\n    return\
                     \ dataSet.iloc[:, 0].mean()"
                 import_statements:
                 - import re, sys
@@ -67,7 +67,7 @@ test:
         print:
             action_data_type: pandas data frame
             calcFunc:
-                code: "def over(dataSet, parameters=None):\n    \"\"\"algoBuilder\"\
+                code: "def over(dataSet, parameters=None):\n    \"\"\"howdyCoder\"\
                     \"\"\n    return dataSet.iloc[0, 0] > parameters['factor']"
                 import_statements:
                 - import numpy as np
@@ -170,7 +170,7 @@ period_test2:
     mean-3:
       action_data_type: pandas data frame
       calcFunc:
-        code: "def sma(dataSet):\n    \"\"\"algoBuilder\"\"\"\n    return dataSet.iloc[:,\
+        code: "def sma(dataSet):\n    \"\"\"howdyCoder\"\"\"\n    return dataSet.iloc[:,\
           \ 0].mean()"
         import_statements:
         - import urllib.request

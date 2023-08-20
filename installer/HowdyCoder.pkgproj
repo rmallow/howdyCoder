@@ -480,7 +480,7 @@
 				<key>POSTINSTALL_PATH</key>
 				<dict>
 					<key>PATH</key>
-					<string>/Users/rmallow/Documents/stonks/algoBuilder/installer/setup_script_mac.sh</string>
+					<string>/Users/rmallow/Documents/stonks/howdyCoder/installer/setup_script_mac.sh</string>
 					<key>PATH_TYPE</key>
 					<integer>0</integer>
 				</dict>

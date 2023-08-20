@@ -1,7 +1,7 @@
-## ***algoBuilder***: a no-code/low-code algorithim builder
+## ***howdyCoder***: a no-code/low-code algorithim builder
 Create your own algorithims with limited technical knowledge.
 
-Use prepared algoBuilder functions and configurations to create your own algoithims.
+Use prepared howdyCoder functions and configurations to create your own algorithims.
 
 Our functions don't match your needs? Make your own functions and easily mix them in.
 

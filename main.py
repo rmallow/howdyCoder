@@ -8,6 +8,6 @@ if __name__ == "__main__":
     if platform.system() == "Darwin":
         info = AppKit.NSBundle.mainBundle().infoDictionary()
         info["LSBackgroundOnly"] = "1"
-    from algoBuilder.start import start
+    from howdyCoder.start import start
 
     start()

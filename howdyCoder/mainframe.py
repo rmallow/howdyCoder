@@ -51,7 +51,7 @@ UI_SEND_STATUS_CHECK = 1
 class mainframe(commandProcessor):
     def __init__(self, isLocal: bool):
         """
-        This is the main initializing function for all of algoBuilder except for the UI
+        This is the main initializing function for all of howdyCoder except for the UI
         The mainframe is intended to be the main control center for all of the blocks
         and the message router / handlers
 

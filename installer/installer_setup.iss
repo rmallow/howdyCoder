@@ -38,7 +38,7 @@ Name: "{group}\Howdy Coder"; Filename: "powershell.exe"; WorkingDir: "{app}"; Pa
 [Files]
 Source: "..\main.py"; DestDir: "{app}"; BeforeInstall: SetProgressMax(10)
 Source: "..\requirements.txt"; DestDir: "{app}"
-Source: "..\algoBuilder\*"; DestDir: "{app}\algoBuilder"; Excludes: "*\__pycache__\*, \__pycache__\*, *.ui"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\howdyCoder\*"; DestDir: "{app}\howdyCoder"; Excludes: "*\__pycache__\*, \__pycache__\*, *.ui"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "setup_script*.ps1"; DestDir: "{tmp}"
 Source: "start.ps1"; DestDir: "{app}"
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -46,7 +46,7 @@ Source: "start.ps1"; DestDir: "{app}"
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\__pycache__"
 Type: filesandordirs; Name: "*.pyc"
-Type: filesandordirs; Name: "{app}\algoBuilder"
+Type: filesandordirs; Name: "{app}\howdyCoder"
 Type: filesandordirs; Name: "{app}\env"
 Type: filesandordirs; Name: "{app}\python-*"
 Type: files; Name: "{app}\get-pip.py"

@@ -32,7 +32,7 @@ class MainWindow(
     def __init__(self, isLocal: bool, parent=None):
         super().__init__("test", parent)
         # Load UI
-        self._ui = ui_mainWindow.Ui_AlgoBuilder()
+        self._ui = ui_mainWindow.Ui_HowdyCoder()
         self._ui.setupUi(self)
 
         screen = self.screen()

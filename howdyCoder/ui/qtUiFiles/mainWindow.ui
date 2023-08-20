@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AlgoBuilder</class>
- <widget class="QMainWindow" name="AlgoBuilder">
+ <class>HowdyCoder</class>
+ <widget class="QMainWindow" name="HowdyCoder">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>algoBuilder</string>
+   <string>Howdy Coder</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -40,7 +40,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="ControlWidget" name="controlPage"/>
          <widget class="CreateWidget" name="createPage"/>

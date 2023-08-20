@@ -1,4 +1,4 @@
-from algoBuilder.ui.actionUIConstant import ActionFuncEnum
+from ..actionUIConstant import ActionFuncEnum
 from .. import editableTable
 
 from ...commonUtil import helpers
