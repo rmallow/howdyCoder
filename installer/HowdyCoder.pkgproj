@@ -38,9 +38,9 @@
 									<key>GID</key>
 									<integer>12</integer>
 									<key>PATH</key>
-									<string>/Users/rmallow/Documents/stonks/algoBuilder/installer/HowdyCoder.app</string>
+									<string>HowdyCoder.app</string>
 									<key>PATH_TYPE</key>
-									<integer>0</integer>
+									<integer>1</integer>
 									<key>PERMISSIONS</key>
 									<integer>493</integer>
 									<key>TYPE</key>

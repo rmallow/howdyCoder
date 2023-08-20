@@ -4,3 +4,4 @@ pandas
 PyYAML
 PySide6
 matplotlib
+PyObjC
