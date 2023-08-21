@@ -1,4 +1,4 @@
-from .util import tutorialResourceManager
+from .util import qtResourceManager
 from .util import abstractQt
 
 from abc import abstractmethod, ABC
@@ -70,7 +70,7 @@ class AbstractTutorialClass(ABC):
     def registerPrefix(self, prefix: str):
         """Register for a resource theme that has the tutorial pictures to display"""
         self._resource_prefix = prefix
-        tutorialResourceManager.registerPrefix(self._resource_prefix)
+        qtResourceManager.registerPrefix(self._resource_prefix)
 
     def getPrefix(self):
         return self._resource_prefix
@@ -99,7 +99,7 @@ class TutorialEventFilter(QtCore.QObject):
     def getNextValidObjIndex(self):
         while self._obj_index < len(self._objs) and (
             self._objs[self._obj_index].getPrefix() in self._last_displayed
-            or not tutorialResourceManager.getFilesInPrefix(
+            or not qtResourceManager.getFilesInPrefix(
                 self._objs[self._obj_index].getPrefix()
             )
         ):
@@ -107,7 +107,7 @@ class TutorialEventFilter(QtCore.QObject):
 
     def setCurrentOverlayPicture(self):
         self._objs[self._obj_index].changeOverlayPicture(
-            tutorialResourceManager.getResourceByIndex(
+            qtResourceManager.getResourceByIndex(
                 self._objs[self._obj_index].getPrefix(),
                 self._resource_index,
             )
@@ -121,7 +121,7 @@ class TutorialEventFilter(QtCore.QObject):
             # arbitrary pause time
             if time.time() - self._last_button_press > self.PAUSE_BETWEEN_OVERLAYS:
                 if self._resource_index < len(
-                    tutorialResourceManager.getFilesInPrefix(
+                    qtResourceManager.getFilesInPrefix(
                         self._objs[self._obj_index].getPrefix()
                     )
                 ):
@@ -152,7 +152,7 @@ class TutorialEventFilter(QtCore.QObject):
         self._tutorial_started = self._obj_index < len(self._objs)
         if self._tutorial_started:
             self._objs[self._obj_index].changeOverlayPicture(
-                tutorialResourceManager.getResourceByIndex(
+                qtResourceManager.getResourceByIndex(
                     self._objs[self._obj_index].getPrefix(), self._resource_index
                 )
             )

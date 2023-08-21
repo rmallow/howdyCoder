@@ -2,6 +2,9 @@
   <qresource prefix="icons">
     <file>help.png</file>
   </qresource>
+  <qresource prefix="app-icons">
+    <file>1024.png</file>
+  </qresource>
   <qresource prefix="test">
     <file>red_square_test.png</file>
   </qresource>

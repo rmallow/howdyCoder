@@ -13,3 +13,5 @@ source /Users/${USER}/Library/Application\ Support/HowdyCoder/env/bin/activate
 python -m pip install -r ${DSTROOT}/HowdyCoder.app/Contents/Resources/requirements.txt
 
 chmod -R 775 /Users/${USER}/Library/Application\ Support/HowdyCoder/
+cd /Users/${USER}/Library/Application\ Support/HowdyCoder/env/bin/
+ln -s python3.10 HowdyCoder

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainWindow.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.1
+## Created by: Qt User Interface Compiler version 6.5.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -35,6 +35,9 @@ class Ui_HowdyCoder(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(HowdyCoder.sizePolicy().hasHeightForWidth())
         HowdyCoder.setSizePolicy(sizePolicy)
+        icon = QIcon()
+        icon.addFile(u":/app-icons/1024.png", QSize(), QIcon.Normal, QIcon.Off)
+        HowdyCoder.setWindowIcon(icon)
         self.actionStart_All = QAction(HowdyCoder)
         self.actionStart_All.setObjectName(u"actionStart_All")
         self.actionStart_All.setCheckable(False)
@@ -53,10 +56,10 @@ class Ui_HowdyCoder(object):
         self.actionEnd_All.setMenuRole(QAction.NoRole)
         self.action_help_menu = QAction(HowdyCoder)
         self.action_help_menu.setObjectName(u"action_help_menu")
-        icon = QIcon()
-        icon.addFile(u":/images/help.png", QSize(), QIcon.Normal, QIcon.Off)
-        icon.addFile(u":/icons/help.png", QSize(), QIcon.Normal, QIcon.On)
-        self.action_help_menu.setIcon(icon)
+        icon1 = QIcon()
+        icon1.addFile(u":/images/help.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/icons/help.png", QSize(), QIcon.Normal, QIcon.On)
+        self.action_help_menu.setIcon(icon1)
         self.action_help_menu.setMenuRole(QAction.TextHeuristicRole)
         self.invisible_action = QAction(HowdyCoder)
         self.invisible_action.setObjectName(u"invisible_action")
@@ -123,7 +126,7 @@ class Ui_HowdyCoder(object):
 
         self.retranslateUi(HowdyCoder)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(HowdyCoder)
