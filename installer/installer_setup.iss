@@ -33,7 +33,7 @@ InfoBeforeFile=internet_readme.txt
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Icons]
-Name: "{group}\Howdy Coder"; Filename: "powershell.exe"; WorkingDir: "{app}"; Parameters: "-ExecutionPolicy Bypass -WindowStyle hidden -File ""{app}\start.ps1""";
+Name: "{group}\Howdy Coder"; Filename: "powershell.exe"; IconFilename: "{app}\howdyCoder\ui\res\icon.ico"; WorkingDir: "{app}"; Parameters: "-ExecutionPolicy Bypass -WindowStyle hidden -File ""{app}\start.ps1""";
 
 [Files]
 Source: "..\main.py"; DestDir: "{app}"; BeforeInstall: SetProgressMax(10)
