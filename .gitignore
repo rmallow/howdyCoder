@@ -9,7 +9,6 @@ log
 deprecated
 *.code-workspace
 config/
-ezAlgoConfig
 installer/installer_output/
 installer/HowdyCoder.app/
 
