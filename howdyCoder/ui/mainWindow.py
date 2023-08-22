@@ -221,7 +221,7 @@ class MainWindow(
         button_response = QtWidgets.QMessageBox.question(
             self,
             "Are you sure you want to shutdown?",
-            "Are you sure you want to shutdown? Shutting down will close this window and the currently running programs.",
+            "Are you sure you want to shutdown? Shutting down will close this window and the currently blocks.",
         )
         if button_response == QtWidgets.QMessageBox.StandardButton.Yes:
             self._main_model.shutdown()

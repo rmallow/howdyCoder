@@ -40,7 +40,7 @@ class block(commandProcessor):
     ):
         super().__init__(*args, **kwargs)
         self.code = code
-        self.end = False
+        self._end = False
         self.feed_obj: feed = feed_obj
         self.pool = actionPool(actionList, self.code)
         self.config = config
@@ -60,15 +60,18 @@ class block(commandProcessor):
     @setInterval(BLOCK_QUEUE_CHECK_TIMER)
     def checkblock_queue(self):
         # Check if there are messages for the block to process
-        if self.block_queue is not None:
+        if not self._end and self.block_queue is not None:
             # This will block the block until the queue is cleared so need to avoid
             # spamming this with commands
-            while not self.block_queue.empty():
+            while not self._end and not self.block_queue.empty():
                 # Use the command processor way of handling command messages
-                commandMessage = self.block_queue.get()
-                if commandMessage.messageType == msg.MessageType.COMMAND:
+                command_message = self.block_queue.get()
+                if (
+                    command_message
+                    and command_message.messageType == msg.MessageType.COMMAND
+                ):
                     self.processCommand(
-                        commandMessage.content, details=commandMessage.details
+                        command_message.content, details=command_message.details
                     )
 
     @setInterval(1)
@@ -112,7 +115,7 @@ class block(commandProcessor):
                     description=f"userFunc: {uF.name}, block: {self.code}",
                     group=FUNC_GROUP,
                 )
-                self.end = True
+                self._end = True
                 return
         # Connect to clientServerManager
         self._clientSeverManager = qm.createQueueManager(isLocal)
@@ -129,7 +132,7 @@ class block(commandProcessor):
             timer=True, on_runtime_time=self.feed_obj.period
         )
 
-        while not self.end:
+        while not self._end:
             """
             Need to keep the main thread open, so we'll sleep here and make sure it's supposed to still
             be open every 10 seconds, if we close this thread, it will cut off communication with mainframe
@@ -138,12 +141,6 @@ class block(commandProcessor):
 
     def clear(self):
         self.feed_obj.clear()
-        # time is set as None as it won't be needed by message router
-        message = msg.message(
-            msg.MessageType.COMMAND,
-            msg.CommandType.CLEAR,
-            key=msgKey.messageKey(self.code, None),
-        )
 
     def addOutputView(self, _, details=None):
         self.track = True
@@ -209,3 +206,6 @@ class block(commandProcessor):
 
     def cmdStart(self, command, details=None):
         self.feed_obj.started()
+
+    def cmdShutdown(self, command, details=None):
+        self._end = True

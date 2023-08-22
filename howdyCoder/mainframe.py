@@ -383,6 +383,7 @@ class mainframe(commandProcessor):
             target=mpLogging.loggedProcess,
             args=(self.isLocal, code, block.start),
             name=processName,
+            daemon=True,
         )
 
         self.process_dict[code] = blockProcess
@@ -406,11 +407,16 @@ class mainframe(commandProcessor):
                 msg.message(msg.MessageType.COMMAND, msg.CommandType.END)
             )
 
-    def shutdownBlock(self, code, timeout=None):
+    def shutdownBlock(self, code, timeout=2):
+        """Send the shutdown message, then try to end process nicely and then if still alive forcibly end it"""
         if code in self.process_dict:
+            if self.algo_manager.blocks[code].block_queue is not None:
+                self.algo_manager.blocks[code].block_queue.put(
+                    msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN)
+                )
             if timeout is not None:
                 self.process_dict[code].join(timeout)
-            else:
+            if self.process_dict[code].is_alive():
                 self.process_dict[code].terminate()
             del self.process_dict[code]
             self.sendToUi(
@@ -423,10 +429,14 @@ class mainframe(commandProcessor):
             )
 
     def cmdShutdown(self, _, details=None):
+        """End the blocks first and then shutdown"""
         if details is None:
             self.cmdEnd(None)
+            for k in list(self.process_dict.keys()):
+                self.shutdownBlock(k)
             self._is_running = False
         elif isinstance(details, str):
+            self.endBlock(details)
             self.shutdownBlock(details)
         else:
             mpLogging.error(

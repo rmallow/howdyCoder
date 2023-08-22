@@ -9,10 +9,6 @@ from PySide6 import QtWidgets
 
 
 TYPE_DESCRIPTION = {
-    DataSourcesTypeEnum.STREAM.display: """
-    Use an API URL Path to get data for the algo. \n
-    On the next page you can choose what data you want from the URL results.
-    """,
     DataSourcesTypeEnum.FUNC.display: """
     Use a given function call as the source of the data. \n
     On the next page you can choose what function to use.
