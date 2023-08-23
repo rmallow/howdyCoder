@@ -41,7 +41,14 @@ class CreateBaseParametersPage(CreateBasePage):
         self._ui.periodSpinBox.setEnabled(not self._ui.single_shot_check.isChecked())
 
     def validate(self) -> bool:
-        return True
+        """
+        Checking if temp config exists gets around an issue with exiting from a section
+        If exit is hit, it will try to save the parameters page, this is becuase the parameters page
+        at the time of writing this is ALWAYS valid even without input. Issue is temp config has been reset
+        when we exit, so when the save is called on this page (because it's technically valid) it throws
+        an error trying to save to a temp config that doesn't exist
+        """
+        return self.getTempConfig()
 
     def save(self) -> None:
         curr = self.getTempConfigFirstValue()
@@ -98,4 +105,9 @@ class CreateActionParametersPage(CreateBaseParametersPage):
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(current_config, self.ACTION_TEXT, parent=parent)
+        policy = self._ui.periodWidgetBox.sizePolicy()
+        policy.setHorizontalStretch(
+            self._ui.flattenWidgetBox.sizePolicy().horizontalStretch()
+        )
+        self._ui.periodWidgetBox.setSizePolicy(policy)
         self._ui.single_shot_check.hide()

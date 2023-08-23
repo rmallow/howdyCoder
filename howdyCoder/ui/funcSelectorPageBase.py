@@ -1,3 +1,4 @@
+from .tutorialOverlay import AbstractTutorialClass
 from .util import abstractQt
 
 from abc import abstractmethod
@@ -7,17 +8,20 @@ from PySide6 import QtWidgets, QtCore
 
 
 class FuncSelectorPageBase(
-    QtWidgets.QWidget, metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget)
+    AbstractTutorialClass,
+    QtWidgets.QWidget,
+    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
     funcSelected = QtCore.Signal(object)
 
     def __init__(
         self,
+        resource_prefix: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__(parent, f)
+        super().__init__(resource_prefix, parent, f)
 
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
@@ -26,3 +30,6 @@ class FuncSelectorPageBase(
     @abstractmethod
     def updateData(self) -> None:
         pass
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

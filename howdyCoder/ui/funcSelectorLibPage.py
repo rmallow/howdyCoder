@@ -24,7 +24,7 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__(parent, f)
+        super().__init__("test", parent, f)
         self._ui = ui_funcSelectorLibPage.Ui_FuncSelectorLibPage()
         self._ui.setupUi(self)
 

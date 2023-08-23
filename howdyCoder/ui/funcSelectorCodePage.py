@@ -22,6 +22,7 @@ COMPILE_ERROR_STATUS = "Error encountered: Code Compilation"
 TOO_MANY_FUNCTIONS_ERROR_STATUS = (
     "Error encountered: Too many functions, only one allowed"
 )
+TOO_FEW_FUNCTIONS_STATUS = "Error encountered: Must be at least one function"
 GOOD_STATUS = "No errors found, Code good to go"
 
 
@@ -35,7 +36,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__(parent, f)
+        super().__init__("test", parent, f)
         self._ui = ui_funcSelectorCodePage.Ui_FuncSelectorCodePage()
         self._ui.setupUi(self)
 
@@ -81,12 +82,14 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                 functions = astUtil.getFunctions(root)
                 if len(functions) > 1:
                     self._ui.statusLabel.setText(TOO_MANY_FUNCTIONS_ERROR_STATUS)
-                else:
+                elif functions:
                     self._current_function_config = self.createFunctionConfig(
                         functions[0], *astUtil.getImportsUnique(root)
                     )
                     self.enableControls(True)
                     self._ui.statusLabel.setText(GOOD_STATUS)
+                else:
+                    self._ui.statusLabel.setText(TOO_FEW_FUNCTIONS_STATUS)
 
             self._ui.codeEdit.setEnabled(True)
 

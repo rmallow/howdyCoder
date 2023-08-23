@@ -45,4 +45,6 @@ class FuncSelector(SelectorBase):
         self.hide()
 
     def getTutorialClasses(self) -> typing.List:
-        return [self]
+        return [self] + self._ui.tabWidget.currentWidget().findChild(
+            FuncSelectorPageBase
+        ).getTutorialClasses()
