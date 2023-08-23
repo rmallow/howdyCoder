@@ -2,13 +2,21 @@ from .newBlockWidget import NewBlockWidget
 from .algoStatusWidget import AlgoStatusWidget
 from .algoData import AlgoDict, AlgoWidgetData
 from .tutorialOverlay import AbstractTutorialClass
+from .inputBox import InputBox
+from .inputWindow import InputWindow
 
 from .util import abstractQt
 
 from .qtUiFiles import ui_controlWidget
 
-
-from ..core.commonGlobals import Modes
+from ..core.configConstants import (
+    DATA_SOURCES,
+    TYPE,
+    DataSourcesTypeEnum,
+    ENUM_DISPLAY,
+    INPUT_TYPE,
+)
+from ..core.commonGlobals import Modes, InputData
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
@@ -47,6 +55,7 @@ class ControlWidget(
     startAlgo = QtCore.Signal(str)
     shutdownAlgo = QtCore.Signal(str)
     exportData = QtCore.Signal(str)
+    inputEntered = QtCore.Signal(InputData)
 
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
@@ -72,6 +81,8 @@ class ControlWidget(
         self.algo_dict: AlgoDict = None
         """This is a mapping of uid's to status widgets"""
         self._algo_widgets: typing.Dict[int, AlgoStatusWidget] = {}
+        """Mapping of uid's to input windows"""
+        self._algo_input_windows: typing.Dict[int, InputWindow] = {}
         """Do it once before anyhting is in there to position create new button right"""
         self.addWidgets()
 
@@ -121,6 +132,7 @@ class ControlWidget(
                     lambda: self.exportData.emit(data.name)
                 )
                 w.ui.remove_button.released.connect(lambda: self.removeWidget(m))
+                w.ui.input_button.released.connect(lambda: self.createInputWindow(m))
                 self._algo_widgets[m] = w
             for r in to_remove_ids:
                 self.removeWidget(r, refresh=False)
@@ -147,3 +159,29 @@ class ControlWidget(
             )
             + self.new_block_widget.getTutorialClasses()
         )
+
+    @QtCore.Slot()
+    def createInputWindow(self, uid: int):
+        if uid not in self._algo_input_windows:
+            inputs = []
+            if uid in self._algo_widgets and (data := self.algo_dict.getDataById(uid)):
+                for key, data_source in data.config[DATA_SOURCES].items():
+                    if data_source.get(TYPE, "") == getattr(
+                        DataSourcesTypeEnum.INPUT, ENUM_DISPLAY
+                    ):
+                        w = InputBox(key, data_source[INPUT_TYPE])
+                        w.inputEntered.connect(
+                            lambda input_data: self.inputPassThrough(
+                                input_data, data.name
+                            )
+                        )
+                        inputs.append(w)
+            if inputs:
+                self._algo_input_windows[uid] = InputWindow(inputs, data.name, self)
+        if uid in self._algo_input_windows:
+            self._algo_input_windows[uid].show()
+
+    @QtCore.Slot()
+    def inputPassThrough(self, input_data: InputData, code: str):
+        input_data.code = code
+        self.inputEntered.emit(input_data)

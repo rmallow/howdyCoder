@@ -11,6 +11,12 @@ class outputTypesEnum(Enum):
     GRAPH = "Graph"
 
 
+class InputTypesEnum(Enum):
+    SHORT_TEXT = "Short Text"
+    LONG_TEXT = "Long Text"
+    NUMBER = "Number"
+
+
 GRAPH_TYPES = ["line", "bar"]
 GRAPH_COLORS = [
     "blue",

@@ -24,6 +24,7 @@ INPUT = "input_data"  # not using input as it is a reserved keyword
 REQUIRES_NEW = "requires_new"
 OUTPUT = "output"
 AGGREGATE = "aggregate"
+INPUT_TYPE = "input_type"
 
 FUNC_LOCAITON = "location"
 FUNC_NAME = "name"
@@ -46,7 +47,8 @@ class DataSourcesTypeEnum(Enum):
     THREADED = 0, "threaded", False
     FUNC = 1, "func", False
     STREAM = 2, "stream", False
-    SIM = 3, "sim", True
+    INPUT = 3, "input", False
+    SIM = 4, "sim", True
 
 
 class ActionTypeEnum(Enum):
@@ -62,3 +64,11 @@ class ActionDataType(Enum):
     DATA_FRAME = 0, "pandas data frame"
     DICTIONARY_OF_LISTS = 1, "dictionary of lists"
     LISTS_OF_LISTS = 2, "lists of lists"
+
+
+class InputType(Enum):
+    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
+
+    SHORT_TEXT = 0, "short text"
+    LONG_TEXT = 1, "long text"
+    NUMBER = 2, "number"

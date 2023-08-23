@@ -32,6 +32,7 @@ class Ui_AlgoStatusWidget(object):
         AlgoStatusWidget.setStyleSheet(u"")
         self.verticalLayout_3 = QVBoxLayout(AlgoStatusWidget)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, -1, 0, -1)
         self.widget_4 = QWidget(AlgoStatusWidget)
         self.widget_4.setObjectName(u"widget_4")
         self.horizontalLayout_2 = QHBoxLayout(self.widget_4)
@@ -123,7 +124,6 @@ class Ui_AlgoStatusWidget(object):
         self.widget.setObjectName(u"widget")
         self.horizontalLayout_3 = QHBoxLayout(self.widget)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.start_button = QPushButton(self.widget)
         self.start_button.setObjectName(u"start_button")
         sizePolicy4 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -131,7 +131,7 @@ class Ui_AlgoStatusWidget(object):
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.start_button.sizePolicy().hasHeightForWidth())
         self.start_button.setSizePolicy(sizePolicy4)
-        self.start_button.setMinimumSize(QSize(110, 40))
+        self.start_button.setMinimumSize(QSize(100, 40))
         self.start_button.setMaximumSize(QSize(110, 40))
 
         self.horizontalLayout_3.addWidget(self.start_button)
@@ -140,7 +140,7 @@ class Ui_AlgoStatusWidget(object):
         self.remove_button.setObjectName(u"remove_button")
         sizePolicy4.setHeightForWidth(self.remove_button.sizePolicy().hasHeightForWidth())
         self.remove_button.setSizePolicy(sizePolicy4)
-        self.remove_button.setMinimumSize(QSize(110, 40))
+        self.remove_button.setMinimumSize(QSize(100, 40))
         self.remove_button.setMaximumSize(QSize(110, 40))
 
         self.horizontalLayout_3.addWidget(self.remove_button)
@@ -152,16 +152,25 @@ class Ui_AlgoStatusWidget(object):
         sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.save_button.sizePolicy().hasHeightForWidth())
         self.save_button.setSizePolicy(sizePolicy5)
-        self.save_button.setMinimumSize(QSize(110, 40))
+        self.save_button.setMinimumSize(QSize(100, 40))
         self.save_button.setMaximumSize(QSize(110, 40))
 
         self.horizontalLayout_3.addWidget(self.save_button)
+
+        self.input_button = QPushButton(self.widget)
+        self.input_button.setObjectName(u"input_button")
+        sizePolicy5.setHeightForWidth(self.input_button.sizePolicy().hasHeightForWidth())
+        self.input_button.setSizePolicy(sizePolicy5)
+        self.input_button.setMinimumSize(QSize(100, 40))
+        self.input_button.setMaximumSize(QSize(110, 40))
+
+        self.horizontalLayout_3.addWidget(self.input_button)
 
         self.export_button = QPushButton(self.widget)
         self.export_button.setObjectName(u"export_button")
         sizePolicy5.setHeightForWidth(self.export_button.sizePolicy().hasHeightForWidth())
         self.export_button.setSizePolicy(sizePolicy5)
-        self.export_button.setMinimumSize(QSize(110, 40))
+        self.export_button.setMinimumSize(QSize(100, 40))
         self.export_button.setMaximumSize(QSize(110, 40))
 
         self.horizontalLayout_3.addWidget(self.export_button)
@@ -186,6 +195,7 @@ class Ui_AlgoStatusWidget(object):
         self.start_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Start", None))
         self.remove_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Remove", None))
         self.save_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Save Config", None))
+        self.input_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Input", None))
         self.export_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Export", None))
     # retranslateUi
 

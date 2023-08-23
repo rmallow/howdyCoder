@@ -1,5 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass, field
+import typing
 
 # Dict Keys
 BLOCK = "block"
@@ -58,3 +59,10 @@ class AlgoStatusData:
     columns: list = field(default_factory=list)
     mode: Modes = Modes.STANDBY
     back_time: float = 0.0
+
+
+@dataclass
+class InputData:
+    code: str = ""
+    data_source_name: str = ""
+    val: typing.Any = None
