@@ -25,13 +25,15 @@ class AlgoStatusWidget(
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
+    TUTORIAL_RESOURCE_PREFIX = "AlgoStatusWidget"
+
     def __init__(
         self,
         data: AlgoWidgetData,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__("test", parent, f)
+        super().__init__("AlgoStatusWidget", parent, f)
 
         self.data: AlgoWidgetData = data
         self.ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()

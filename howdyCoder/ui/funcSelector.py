@@ -13,7 +13,7 @@ class FuncSelector(SelectorBase):
     Dialog with widget selection pages
     """
 
-    TUTORIAL_RESOURCE_PREFIX = "test"
+    TUTORIAL_RESOURCE_PREFIX = "FuncSelector"
 
     def __init__(self, parent=None):
         super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent)

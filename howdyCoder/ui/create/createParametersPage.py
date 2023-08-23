@@ -15,9 +15,10 @@ class CreateBaseParametersPage(CreateBasePage):
         self,
         current_config: typing.Dict[str, typing.Any],
         period_text: str,
+        resource_preifx: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, "test", parent=parent)
+        super().__init__(current_config, resource_preifx, parent=parent)
 
         self._ui = ui_createDataSourceParametersPage.Ui_CreateDataSourceParametersPage()
         self._ui.setupUi(self)
@@ -79,13 +80,19 @@ class CreateBaseParametersPage(CreateBasePage):
 class CreateDataSourceParametersPage(CreateBaseParametersPage):
     PAGE_KEY = PageKeys.DATA_SOURCE_PARAMETERS
     DATA_SOURCE_TEXT = "Set the period for the data source. The period is how often the data source will query the input.  IE if it is a stream data source, it will call the API URL every period number of seconds. Or set singleshot which will make the data source run only once, regardless of period."
+    TUTORIAL_RESOURCE_PREFIX = "CreateParameterDataSource"
 
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, self.DATA_SOURCE_TEXT, parent=parent)
+        super().__init__(
+            current_config,
+            self.DATA_SOURCE_TEXT,
+            self.TUTORIAL_RESOURCE_PREFIX,
+            parent=parent,
+        )
 
     def save(self):
         super().save()
@@ -99,12 +106,19 @@ class CreateActionParametersPage(CreateBaseParametersPage):
     This determines how much data will be pulled in for the calculating function.
     For example if the calcuating function detrmines an average and the period is set to 5, then it will be performing an average of the last 5 pieces of data in the input."""
 
+    TUTORIAL_RESOURCE_PREFIX = "CreateParameterAction"
+
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, self.ACTION_TEXT, parent=parent)
+        super().__init__(
+            current_config,
+            self.ACTION_TEXT,
+            self.TUTORIAL_RESOURCE_PREFIX,
+            parent=parent,
+        )
         policy = self._ui.periodWidgetBox.sizePolicy()
         policy.setHorizontalStretch(
             self._ui.flattenWidgetBox.sizePolicy().horizontalStretch()

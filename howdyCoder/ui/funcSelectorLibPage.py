@@ -19,12 +19,14 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
     Widget for selecting a function from a library
     """
 
+    TUTORIAL_RESOURCE_PREFIX = "FuncSelectorLibrary"
+
     def __init__(
         self,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__("test", parent, f)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
         self._ui = ui_funcSelectorLibPage.Ui_FuncSelectorLibPage()
         self._ui.setupUi(self)
 

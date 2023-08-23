@@ -12,6 +12,70 @@
     <file>Tutorial/CreateSettingsEvent_2.png</file>
     <file>Tutorial/CreateSettingsEvent_1.png</file>
   </qresource>
+  <qresource prefix="AlgoStatusWidget">
+    <file>Tutorial/AlgoStatusWidget_5.png</file>
+    <file>Tutorial/AlgoStatusWidget_4.png</file>
+    <file>Tutorial/AlgoStatusWidget_3.png</file>
+    <file>Tutorial/AlgoStatusWidget_2.png</file>
+    <file>Tutorial/AlgoStatusWidget_1.png</file>
+  </qresource>
+  <qresource prefix="CreateAdd">
+    <file>Tutorial/CreateAdd_4.png</file>
+    <file>Tutorial/CreateAdd_3.png</file>
+    <file>Tutorial/CreateAdd_2.png</file>
+    <file>Tutorial/CreateAdd_1.png</file>
+  </qresource>
+  <qresource prefix="CreateConfirm">
+    <file>Tutorial/CreateConfirm_2.png</file>
+    <file>Tutorial/CreateConfirm_1.png</file>
+  </qresource>
+  <qresource prefix="CreateFinalConfirm">
+    <file>Tutorial/CreateFinalConfirm_1.png</file>
+  </qresource>
+  <qresource prefix="CreateParameterAction">
+    <file>Tutorial/CreateParameterAction_11.png</file>
+    <file>Tutorial/CreateParameterAction_10.png</file>
+    <file>Tutorial/CreateParameterAction_9.png</file>
+    <file>Tutorial/CreateParameterAction_8.png</file>
+    <file>Tutorial/CreateParameterAction_7.png</file>
+    <file>Tutorial/CreateParameterAction_6.png</file>
+    <file>Tutorial/CreateParameterAction_5.png</file>
+    <file>Tutorial/CreateParameterAction_4.png</file>
+    <file>Tutorial/CreateParameterAction_3.png</file>
+    <file>Tutorial/CreateParameterAction_2.png</file>
+    <file>Tutorial/CreateParameterAction_1.png</file>
+  </qresource>
+  <qresource prefix="CreateParameterDataSource">
+    <file>Tutorial/CreateParameterDataSource_12.png</file>
+    <file>Tutorial/CreateParameterDataSource_11.png</file>
+    <file>Tutorial/CreateParameterDataSource_10.png</file>
+    <file>Tutorial/CreateParameterDataSource_9.png</file>
+    <file>Tutorial/CreateParameterDataSource_8.png</file>
+    <file>Tutorial/CreateParameterDataSource_7.png</file>
+    <file>Tutorial/CreateParameterDataSource_6.png</file>
+    <file>Tutorial/CreateParameterDataSource_5.png</file>
+    <file>Tutorial/CreateParameterDataSource_4.png</file>
+    <file>Tutorial/CreateParameterDataSource_3.png</file>
+    <file>Tutorial/CreateParameterDataSource_2.png</file>
+    <file>Tutorial/CreateParameterDataSource_1.png</file>
+  </qresource>
+  <qresource prefix="FuncSelector">
+    <file>Tutorial/FuncSelector_2.png</file>
+    <file>Tutorial/FuncSelector_1.png</file>
+  </qresource>
+  <qresource prefix="FuncSelectorCode">
+    <file>Tutorial/FuncSelectorCode_5.png</file>
+    <file>Tutorial/FuncSelectorCode_4.png</file>
+    <file>Tutorial/FuncSelectorCode_3.png</file>
+    <file>Tutorial/FuncSelectorCode_2.png</file>
+    <file>Tutorial/FuncSelectorCode_1.png</file>
+  </qresource>
+  <qresource prefix="FuncSelectorLibrary">
+    <file>Tutorial/FuncSelectorLibrary_4.png</file>
+    <file>Tutorial/FuncSelectorLibrary_3.png</file>
+    <file>Tutorial/FuncSelectorLibrary_2.png</file>
+    <file>Tutorial/FuncSelectorLibrary_1.png</file>
+  </qresource>
   <qresource prefix="CreateSettingsDataSource">
     <file>Tutorial/CreateSettingsDataSource_1.png</file>
     <file>Tutorial/CreateSettingsDataSource_3.png</file>

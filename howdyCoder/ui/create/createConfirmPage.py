@@ -13,15 +13,14 @@ class CreateConfirmBasePage(CreateBasePage):
         self,
         current_config: typing.Dict[str, typing.Any],
         top_text: str,
-        add_start_page: PageKeys,
+        resouce_prefix: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, "test", parent=parent)
+        super().__init__(current_config, resouce_prefix, parent=parent)
 
         self._ui = ui_createDataSourceConfirmPage.Ui_CreateDataSourceConfirmPage()
         self._ui.setupUi(self)
         self._ui.label.setText(top_text)
-        self.add_start_page = add_start_page
         self.next_enabled = False
 
         self._ui.addButton.released.connect(lambda: self.manualExit.emit(self.EXIT))
@@ -80,24 +79,32 @@ class CreateDataSourceConfirmPage(CreateConfirmBasePage):
     PAGE_KEY = PageKeys.CONFRIM_DATA_SOURCE
     TOP_TEXT = "The final config for your data source. Confirm to add or use the back buttons to go back and modify."
 
+    TUTORIAL_RESOURCE_PREFIX = "CreateConfirm"
+
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, self.TOP_TEXT, parent)
+        super().__init__(
+            current_config, self.TOP_TEXT, self.TUTORIAL_RESOURCE_PREFIX, parent
+        )
 
 
 class CreateActionConfirmPage(CreateConfirmBasePage):
     PAGE_KEY = PageKeys.CONFIRM_ACTION
     TOP_TEXT = "The final config for your action. Confirm to add or use the back buttons to go back and modify."
 
+    TUTORIAL_RESOURCE_PREFIX = "CreateConfirm"
+
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, self.TOP_TEXT, parent)
+        super().__init__(
+            current_config, self.TOP_TEXT, self.TUTORIAL_RESOURCE_PREFIX, parent
+        )
 
 
 class CreateFinalConfirmPage(CreateConfirmBasePage):
@@ -106,12 +113,16 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
     EXIT_LABEL = "Exit Creator"
     TOP_TEXT = "The final config for the algo. Select start over to erase your create or click finish to add this algo to the control page."
 
+    TUTORIAL_RESOURCE_PREFIX = "CreateFinalConfirm"
+
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, self.TOP_TEXT, parent)
+        super().__init__(
+            current_config, self.TOP_TEXT, self.TUTORIAL_RESOURCE_PREFIX, parent
+        )
         # there's no confirm/add another next is finish and back is start over
         self.next_enabled = True
         self.back_enabled = False

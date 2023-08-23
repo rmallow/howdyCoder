@@ -56,7 +56,11 @@ class AbstractTutorialClass(ABC):
 
     def __init__(self, resource_prefix: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        """Make sure the current class is a qt object and that the resource is either intentionally none or has resources"""
         assert isinstance(self, QtCore.QObject)
+        assert resource_prefix == "None" or qtResourceManager.getFilesInPrefix(
+            resource_prefix, folder="Tutorial"
+        )
         self._overlay = OverlayWidget(self)
         self.resource_prefix = resource_prefix
         self._current_index = None

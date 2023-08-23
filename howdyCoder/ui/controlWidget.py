@@ -42,6 +42,8 @@ class ControlWidget(
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
+    TUTORIAL_RESOURCE_PREFIX = "None"
+
     startAlgo = QtCore.Signal(str)
     shutdownAlgo = QtCore.Signal(str)
     exportData = QtCore.Signal(str)
@@ -55,7 +57,7 @@ class ControlWidget(
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__("test", parent, f)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
 
         self.ui = ui_controlWidget.Ui_ControlWidget()
         self.ui.setupUi(self)

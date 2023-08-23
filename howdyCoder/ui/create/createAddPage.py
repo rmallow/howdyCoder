@@ -13,6 +13,8 @@ ACTION_TOP_TEXT = "Actions act on data either from data sources and/or events. T
 
 
 class CreateAddPageBase(CreateBasePage):
+    TUTORIAL_RESOURCE_PREFIX = "CreateAdd"
+
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
@@ -21,7 +23,7 @@ class CreateAddPageBase(CreateBasePage):
         top_text="",
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, "test", parent=parent)
+        super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
 
         self._ui = ui_createDataSourceAdd.Ui_CreateDataSourceAdd()
         self._ui.setupUi(self)
