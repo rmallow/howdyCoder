@@ -63,6 +63,8 @@ class CreateWidget(
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
     addAlgo = QtCore.Signal(object)
 
+    TUTORIAL_RESOURCE_PREFIX = "CreateWidget"
+
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
         return super().__new__(self, *args, **kwargs)
@@ -72,7 +74,7 @@ class CreateWidget(
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__("test", parent, f)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
 
         # Load UI file
         self._ui = ui_createWidget.Ui_CreateWidget()

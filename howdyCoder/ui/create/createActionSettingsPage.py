@@ -45,13 +45,17 @@ class FuncType(Enum):
 
 class CreateActionSettingsPage(CreateBasePage):
     PAGE_KEY = PageKeys.ACTION_SETTINGS
+    TUTORIAL_RESOURCE_PREFIX_TRIGGER = "CreateSettingsTrigger"
+    TUTORIAL_RESOURCE_PREFIX_EVENT = "CreateSettingsEvent"
 
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, "test", parent=parent)
+        super().__init__(
+            current_config, self.TUTORIAL_RESOURCE_PREFIX_EVENT, parent=parent
+        )
 
         self._ui = ui_createActionSettingsPage.Ui_CreateActionSettingsPage()
         self._ui.setupUi(self)
@@ -131,8 +135,10 @@ class CreateActionSettingsPage(CreateBasePage):
                 self.reset()
             self._action_type = enumType
             if self._action_type == ActionTypeEnum.EVENT:
+                self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_EVENT
                 self._ui.triggerWidget.setHidden(True)
             else:
+                self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_TRIGGER
                 self._ui.triggerWidget.setHidden(False)
 
         self.loadAvailableInputTable()

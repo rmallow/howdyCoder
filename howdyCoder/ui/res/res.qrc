@@ -2,13 +2,40 @@
   <qresource prefix="icons">
     <file>help.png</file>
   </qresource>
+  <qresource prefix="CreateTypeAction">
+    <file>Tutorial/CreateTypeAction_1.png</file>
+    <file>Tutorial/CreateTypeAction_2.png</file>
+  </qresource>
+  <qresource prefix="CreateSettingsEvent">
+    <file>Tutorial/CreateSettingsEvent_4.png</file>
+    <file>Tutorial/CreateSettingsEvent_3.png</file>
+    <file>Tutorial/CreateSettingsEvent_2.png</file>
+    <file>Tutorial/CreateSettingsEvent_1.png</file>
+  </qresource>
+  <qresource prefix="CreateSettingsDataSource">
+    <file>Tutorial/CreateSettingsDataSource_1.png</file>
+    <file>Tutorial/CreateSettingsDataSource_3.png</file>
+    <file>Tutorial/CreateSettingsDataSource_2.png</file>
+  </qresource>
+  <qresource prefix="CreateTypeDataSource">
+    <file>Tutorial/CreateTypeDataSource_2.png</file>
+    <file>Tutorial/CreateTypeDataSource_1.png</file>
+  </qresource>
+  <qresource prefix="NewBlockWidget">
+    <file>Tutorial/NewBlockWidget_1.png</file>
+  </qresource>
+  <qresource prefix="CreateWidget">
+    <file>Tutorial/CreateWidget_1.png</file>
+    <file>Tutorial/CreateWidget_3.png</file>
+    <file>Tutorial/CreateWidget_2.png</file>
+  </qresource>
+  <qresource prefix="MainWindow">
+    <file>Tutorial/MainWindow_1.png</file>
+  </qresource>
   <qresource prefix="app-icons">
     <file>1024.png</file>
   </qresource>
   <qresource prefix="test">
-    <file>red_square_test.png</file>
-  </qresource>
-  <qresource prefix="mainWindow">
-    <file>mainWindowToolbar.png</file>
+    <file>Tutorial/red_square_test.png</file>
   </qresource>
 </RCC>

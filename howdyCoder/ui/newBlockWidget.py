@@ -14,12 +14,14 @@ class NewBlockWidget(
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
+    TUTORIAL_RESOURCE_PREFIX = "NewBlockWidget"
+
     def __init__(
         self,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__("test", parent, f)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent=parent, f=f)
         # accessed by main window
         self.ui = ui_newBlockWidget.Ui_NewBlockWidget()
         self.ui.setupUi(self)

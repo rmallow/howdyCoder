@@ -12,6 +12,8 @@ class CreateNamePage(CreateBasePage):
     EXIT = PageKeys.NO_PAGE
     EXIT_LABEL = "Exit Creator"
 
+    TUTORIAL_RESOURCE_PREFIX = "None"
+
     doesAlgoNameExist = QtCore.Signal(str)
 
     def __init__(
@@ -19,7 +21,7 @@ class CreateNamePage(CreateBasePage):
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, "test", parent=parent)
+        super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
 
         self.next_enabled = False
         self._ui = ui_createNamePage.Ui_CreateNamePage()

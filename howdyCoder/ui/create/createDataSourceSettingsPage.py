@@ -34,12 +34,14 @@ For further questions, consult documentation.
 class CreateDataSourceSettingsPage(CreateBasePage):
     PAGE_KEY = PageKeys.DATA_SOURCE_SETTINGS
 
+    TUTORIAL_RESOURCE_PREFIX = "CreateSettingsDataSource"
+
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, "test", parent=parent)
+        super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
 
         self._ui = ui_createDataSourceSettingsPage.Ui_CreateDataSourceSettingsPage()
         self._ui.setupUi(self)
@@ -181,4 +183,15 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         return super().getKeysForNextPage()
 
     def getTutorialClasses(self) -> typing.List:
-        return [self]
+        if (
+            self._dataSourceType == DataSourcesTypeEnum.FUNC
+            or self._dataSourceType == DataSourcesTypeEnum.STREAM
+        ):
+            self._funcSelector.show()
+            self._funcSelector.showNormal()
+        return [self] + (
+            self._funcSelector.getTutorialClasses()
+            if self._dataSourceType == DataSourcesTypeEnum.FUNC
+            or self._dataSourceType == DataSourcesTypeEnum.STREAM
+            else self._urlTreeSelect.getTutorialClasses()
+        )

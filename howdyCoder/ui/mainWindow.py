@@ -25,12 +25,14 @@ class MainWindow(
         QtWidgets.QMainWindow, AbstractTutorialClass
     ),
 ):
+    TUTORIAL_RESOURCE_PREFIX = "MainWindow"
+
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
         return super().__new__(self, *args, **kwargs)
 
     def __init__(self, isLocal: bool, parent=None):
-        super().__init__("test", parent)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent)
         # Load UI
         self._ui = ui_mainWindow.Ui_HowdyCoder()
         self._ui.setupUi(self)

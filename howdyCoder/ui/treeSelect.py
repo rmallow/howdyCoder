@@ -40,8 +40,10 @@ class UrlTreeSelect(SelectorBase):
     Widget that allows for users to test a url and select what fields they want
     """
 
+    TUTORIAL_RESOURCE_PREFIX = "None"
+
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent)
 
         # Load UI file
         self._ui = ui_urlTreeSelect.Ui_UrlTreeSelect()
@@ -166,3 +168,6 @@ class UrlTreeSelect(SelectorBase):
                 )
             self.itemSelected.emit(streamSettings)
             self.hide()
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]

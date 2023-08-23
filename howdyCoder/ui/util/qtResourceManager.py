@@ -12,33 +12,30 @@ def getPrefStr(prefix):
 
 
 @cache
-def getFilesInPrefix(prefix: str):
-    return QtCore.QDir(getPrefStr(prefix)).entryList()
+def getFilesInPrefix(prefix: str, folder=None):
+    path = getPrefStr(prefix) + ("" if folder is None else f"/{folder}")
+    resources = QtCore.QDir(path).entryList()
+    return resources
 
 
 @cache
-def getResourceByIndex(prefix: str, index: int) -> QtGui.QPixmap:
-    resources = QtCore.QDir(getPrefStr(prefix)).entryList()
+def getResourceByIndex(prefix: str, index: int, folder=None) -> QtGui.QPixmap:
+    path = f"{getPrefStr(prefix)}/{'' if folder is None else folder}"
+    resources = QtCore.QDir(path).entryList()
     if index < len(resources):
-        return QtGui.QPixmap(f"{getPrefStr(prefix)}/{resources[index]}")
+        return QtGui.QPixmap(f"{path}/{resources[index]}")
     assert False, "invalid res index"
     return QtGui.QPixmap()
 
 
 @cache
-def getResourceByName(prefix: str, name: str) -> QtGui.QPixmap:
-    resources = QtCore.QDir(getPrefStr(prefix))
-    if resources.exists(name):
-        return QtGui.QPixmap(f"{getPrefStr(prefix)}/{name}")
+def getResourceByName(prefix: str, name: str, folder=None) -> QtGui.QPixmap:
+    path = f"{getPrefStr(prefix)}/{'' if folder is None else folder}"
+    resources = QtCore.QDir(path).entryList()
+    if name in resources:
+        return QtGui.QPixmap(f"{path}/{name}")
     assert False, "invalid res name"
     return QtGui.QPixmap()
-
-
-def registerPrefix(prefix: str):
-    if prefix in _registered_prefixes:
-        pass  # TODO: uncomment below
-        # assert False, f"prefix: {prefix} already registered"
-    _registered_prefixes.add(prefix)
 
 
 """Singleton Module"""

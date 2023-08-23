@@ -19,9 +19,10 @@ class CreateTypeBasePage(CreateBasePage):
         current_config: typing.Dict[str, typing.Any],
         type_label: str,
         type_dict: typing.Dict[str, str],
+        resource_prefix: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, "test", parent=parent)
+        super().__init__(current_config, resource_prefix, parent=parent)
 
         # accessing ui from base page
         self._ui = ui_createDataSourceType.Ui_CreateDataSourceType()

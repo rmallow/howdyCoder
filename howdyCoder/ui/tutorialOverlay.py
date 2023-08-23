@@ -23,7 +23,6 @@ class OverlayWidget(QtWidgets.QWidget):
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self.changeParent()
-        self.setStyleSheet("background-color:red")
 
     def changeParent(self):
         if self.parent():
@@ -59,21 +58,12 @@ class AbstractTutorialClass(ABC):
         super().__init__(*args, **kwargs)
         assert isinstance(self, QtCore.QObject)
         self._overlay = OverlayWidget(self)
-        self._resource_prefix = resource_prefix
+        self.resource_prefix = resource_prefix
         self._current_index = None
-        self.registerPrefix(self._resource_prefix)
 
     @abstractmethod
     def getTutorialClasses(self) -> typing.List:
         return []
-
-    def registerPrefix(self, prefix: str):
-        """Register for a resource theme that has the tutorial pictures to display"""
-        self._resource_prefix = prefix
-        qtResourceManager.registerPrefix(self._resource_prefix)
-
-    def getPrefix(self):
-        return self._resource_prefix
 
     def changeOverlayPicture(self, new_pixmap: QtGui.QPixmap) -> None:
         self._overlay.changePixmap(new_pixmap)
@@ -98,9 +88,9 @@ class TutorialEventFilter(QtCore.QObject):
 
     def getNextValidObjIndex(self):
         while self._obj_index < len(self._objs) and (
-            self._objs[self._obj_index].getPrefix() in self._last_displayed
+            self._objs[self._obj_index].resource_prefix in self._last_displayed
             or not qtResourceManager.getFilesInPrefix(
-                self._objs[self._obj_index].getPrefix()
+                self._objs[self._obj_index].resource_prefix, folder="Tutorial"
             )
         ):
             self._obj_index += 1
@@ -108,8 +98,9 @@ class TutorialEventFilter(QtCore.QObject):
     def setCurrentOverlayPicture(self):
         self._objs[self._obj_index].changeOverlayPicture(
             qtResourceManager.getResourceByIndex(
-                self._objs[self._obj_index].getPrefix(),
+                self._objs[self._obj_index].resource_prefix,
                 self._resource_index,
+                folder="Tutorial",
             )
         )
 
@@ -122,11 +113,11 @@ class TutorialEventFilter(QtCore.QObject):
             if time.time() - self._last_button_press > self.PAUSE_BETWEEN_OVERLAYS:
                 if self._resource_index < len(
                     qtResourceManager.getFilesInPrefix(
-                        self._objs[self._obj_index].getPrefix()
+                        self._objs[self._obj_index].resource_prefix, folder="Tutorial"
                     )
                 ):
-                    self._resource_index += 1
                     self.setCurrentOverlayPicture()
+                    self._resource_index += 1
                 else:
                     self._objs[self._obj_index].changeOverlayPicture(None)
                     self._obj_index += 1
@@ -153,7 +144,9 @@ class TutorialEventFilter(QtCore.QObject):
         if self._tutorial_started:
             self._objs[self._obj_index].changeOverlayPicture(
                 qtResourceManager.getResourceByIndex(
-                    self._objs[self._obj_index].getPrefix(), self._resource_index
+                    self._objs[self._obj_index].resource_prefix,
+                    self._resource_index,
+                    folder="Tutorial",
                 )
             )
             self._resource_index += 1
