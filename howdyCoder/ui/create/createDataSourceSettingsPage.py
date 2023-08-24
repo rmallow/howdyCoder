@@ -14,6 +14,8 @@ from ...core.configConstants import (
     KEY,
     OUTPUT,
     DataSourcesTypeEnum,
+    INPUT_TYPE,
+    InputType,
 )
 
 from ...commonUtil import helpers
@@ -47,7 +49,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self._ui.setupUi(self)
         self.next_enabled = False
         self._current_settings = None
-        self._dataSourceType = None
+        self._data_source_type = None
         self._outputModel = editableTable.PartialReadOnlyList()
         self._ui.outputView.setModel(self._outputModel)
 
@@ -84,6 +86,14 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             DataSourcesTypeEnum.STREAM.value, self._streamPage
         )
 
+        self._input_combo = QtWidgets.QComboBox(self._ui.stackedWidget)
+        for e in InputType:
+            self._input_combo.addItem(e.value)
+        self._input_combo.currentTextChanged.connect(self.onSpecificSettingsSelected)
+        self._ui.stackedWidget.insertWidget(
+            DataSourcesTypeEnum.INPUT.value, self._input_combo
+        )
+
         # add in an empty widget to switch to when no type is selected
         self._ui.stackedWidget.insertWidget(
             self._ui.stackedWidget.count(),
@@ -96,7 +106,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         """Selector has made a selection, store this in the dict and then update the wiget"""
         self._current_settings = settings
         output_strings = []
-        if self._dataSourceType == DataSourcesTypeEnum.STREAM:
+        if self._data_source_type == DataSourcesTypeEnum.STREAM:
             self._ui.stackedWidget.currentWidget().updateText(
                 self._current_settings.url
             )
@@ -105,8 +115,8 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 for item in self._current_settings.key_label_list
             ]
         elif (
-            self._dataSourceType == DataSourcesTypeEnum.FUNC
-            or self._dataSourceType == DataSourcesTypeEnum.THREADED
+            self._data_source_type == DataSourcesTypeEnum.FUNC
+            or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
             self._ui.stackedWidget.currentWidget().updateText(
                 self._current_settings.get(ActionFuncEnum.NAME, "")
@@ -114,6 +124,9 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self._ui.stackedWidget.currentWidget().updateExtraDescription(
                 self._current_settings.get(ActionFuncEnum.CODE, "")
             )
+        elif self._data_source_type == DataSourcesTypeEnum.INPUT:
+            """Nothing more to do with settings, but make sure that we keep output to name of data source"""
+            output_strings = [next(iter(self.getTempConfig().keys()))]
         self._outputModel.setStringList(output_strings)
         self._outputModel.setReadOnlyNum(len(output_strings))
         self.enableCheck()
@@ -126,11 +139,17 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             enumType = helpers.findEnumByAttribute(
                 DataSourcesTypeEnum, ENUM_DISPLAY, currSettings[TYPE]
             )
-            if self._dataSourceType is not None and self._dataSourceType != enumType:
+            if (
+                self._data_source_type is not None
+                and self._data_source_type != enumType
+            ):
                 self.reset()
-            self._dataSourceType = enumType
+            self._data_source_type = enumType
             self._ui.stackedWidget.setCurrentIndex(enumType.value)
-            if self._dataSourceType == DataSourcesTypeEnum.STREAM:
+            if (
+                self._data_source_type == DataSourcesTypeEnum.STREAM
+                or self._data_source_type == DataSourcesTypeEnum.INPUT
+            ):
                 self._ui.addOutputButton.setEnabled(False)
                 self._ui.removeOutputButton.setEnabled(False)
                 self._ui.outputHelpText.setText("")
@@ -138,6 +157,12 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 self._ui.addOutputButton.setEnabled(True)
                 self._ui.removeOutputButton.setEnabled(True)
                 self._ui.outputHelpText.setText(OUTPUT_HELP)
+
+            if self._data_source_type == DataSourcesTypeEnum.INPUT:
+                """If it's input, there's only one output and that is the name of the data source"""
+                self._outputModel.setStringList(
+                    [next(iter(self.getTempConfig().keys()))]
+                )
 
     def removeOutput(self):
         selection = self._ui.outputView.selectionModel().selectedIndexes()
@@ -153,10 +178,15 @@ class CreateDataSourceSettingsPage(CreateBasePage):
 
     def save(self) -> None:
         curr = self.getTempConfigFirstValue()
-        if self._dataSourceType == DataSourcesTypeEnum.STREAM:
+        if self._data_source_type == DataSourcesTypeEnum.STREAM:
             curr[KEY] = self._current_settings.url
-        else:
+        elif (
+            self._data_source_type == DataSourcesTypeEnum.FUNC
+            or self._data_source_type == DataSourcesTypeEnum.THREADED
+        ):
             curr[GET_FUNC] = helpers.getConfigFromEnumDict(self._current_settings)
+        elif self._data_source_type == DataSourcesTypeEnum.INPUT:
+            curr[INPUT_TYPE] = self._current_settings
         strings = self._outputModel.stringList()
         if strings:
             if ":" in strings[0]:
@@ -171,27 +201,32 @@ class CreateDataSourceSettingsPage(CreateBasePage):
     def reset(self) -> None:
         self.next_enabled = False
         self._current_settings = None
-        self._dataSourceType = None
+        self._data_source_type = None
         self._outputModel.setStringList([])
         self._outputModel.setReadOnlyNum(0)
         self._ui.addOutputButton.setEnabled(False)
         self._ui.removeOutputButton.setEnabled(False)
         self._ui.outputHelpText.setText("")
-        self._ui.stackedWidget.currentWidget().resetText()
+        try:
+            self._ui.stackedWidget.currentWidget().resetText()
+        except AttributeError as e:
+            """Not all have this, it's ok"""
+            pass
+        self._input_combo.setCurrentIndex(-1)
 
     def getKeysForNextPage(self) -> typing.List:
         return super().getKeysForNextPage()
 
     def getTutorialClasses(self) -> typing.List:
         if (
-            self._dataSourceType == DataSourcesTypeEnum.FUNC
-            or self._dataSourceType == DataSourcesTypeEnum.STREAM
+            self._data_source_type == DataSourcesTypeEnum.FUNC
+            or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
             self._funcSelector.show()
             self._funcSelector.showNormal()
         return [self] + (
             self._funcSelector.getTutorialClasses()
-            if self._dataSourceType == DataSourcesTypeEnum.FUNC
-            or self._dataSourceType == DataSourcesTypeEnum.STREAM
+            if self._data_source_type == DataSourcesTypeEnum.FUNC
+            or self._data_source_type == DataSourcesTypeEnum.THREADED
             else self._urlTreeSelect.getTutorialClasses()
         )

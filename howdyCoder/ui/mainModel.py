@@ -1,7 +1,7 @@
 from .uiConstants import LOOP_INTERVAL_MSECS
 from .algoData import AlgoDict
 
-from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, AlgoStatusData
+from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, AlgoStatusData, InputData
 from ..commonUtil import queueManager as qm
 from ..commonUtil.helpers import getStrTime
 from ..commonUtil import mpLogging, configLoader
@@ -10,6 +10,7 @@ from ..core import message as msg
 from ..core import messageKey
 from ..backEnd.util.commandProcessor import commandProcessor
 
+from dataclasses import asdict
 from collections import deque, Counter, defaultdict
 import time
 import typing
@@ -250,7 +251,11 @@ class mainModel(commandProcessor, QtCore.QObject):
     def exportData(self, code, file_path):
         self._export_mapping_cache[code].append(file_path)
         self.messageMainframe(
-            msg.message(msg.MessageType.COMMAND, msg.CommandType.EXPORT, code)
+            msg.message(
+                msg.MessageType.COMMAND,
+                msg.CommandType.EXPORT,
+                key=msg.messageKey(code, None),
+            )
         )
 
     def handleExport(self, _, details: msg.message = None):
@@ -264,6 +269,16 @@ class mainModel(commandProcessor, QtCore.QObject):
                 )
             else:
                 self._export_mapping_cache[code].popleft()
+
+    def inputEntered(self, input_data: InputData):
+        self.messageMainframe(
+            msg.message(
+                msg.MessageType.COMMAND,
+                msg.CommandType.ADD_INPUT_DATA,
+                details=asdict(input_data),
+                key=msg.messageKey(input_data.code, None),
+            )
+        )
 
     def testing(self):
         from ..data import datalocator

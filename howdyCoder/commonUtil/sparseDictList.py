@@ -93,7 +93,7 @@ class SparseDictList(dict):
 
     def appendDataList(self, data_list: typing.List) -> None:
         max_len = 1 if data_list else 0
-        for data, code, flatten in data_list:
+        for data, code, flatten, _ in data_list:
             for key, value in data.items():
                 valid_key = f"{code}-{key}" if code else key
                 if valid_key not in self:
@@ -118,7 +118,8 @@ class SparseDictList(dict):
             writer = csv.writer(csv_file)
             writer.writerow(self.keys())
             current_indexes = defaultdict(int)
-            for x in range(self.longest_list):
+            max_index = max(v[-1].index for v in self.values())
+            for x in range(max_index + 1):
                 row = []
                 for k in self.keys():
                     if (

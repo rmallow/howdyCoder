@@ -6,6 +6,7 @@ from .tutorialOverlay import AbstractTutorialClass
 from .util import abstractQt
 
 from ..commonUtil import helpers
+from ..core.configConstants import DATA_SOURCES, TYPE, DataSourcesTypeEnum, ENUM_DISPLAY
 from ..core.commonGlobals import Modes
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -40,6 +41,11 @@ class AlgoStatusWidget(
         self.ui.setupUi(self)
         self.ui.name_label.setText(self.data.name)
         self.ui.save_button.released.connect(self.saveConfig)
+        self._input_found = False
+        if DATA_SOURCES in data.config:
+            for v in data.config[DATA_SOURCES].values():
+                if v[TYPE] == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY):
+                    self._input_found = True
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.refresh)
         self._timer.start(GUI_REFRESH_INTERVAL)
@@ -55,6 +61,9 @@ class AlgoStatusWidget(
         self.ui.runtime_value.setText(helpers.getStrElapsedTime(self.data.runtime))
         self.ui.remove_button.setEnabled(self.data.mode != Modes.STARTED)
         self.ui.export_button.setEnabled(self.data.mode != Modes.STANDBY)
+        self.ui.input_button.setEnabled(
+            self._input_found and self.data.mode != Modes.STANDBY
+        )
         self.ui.start_button.setText(
             "Stop" if self.data.mode == Modes.STARTED else "Start"
         )
@@ -64,13 +73,15 @@ class AlgoStatusWidget(
 
     @QtCore.Slot()
     def saveConfig(self):
-        file_path = QtWidgets.QFileDialog.getSaveFileName(filter="Config (*.yml)")
-        with open(file_path[0], "w") as yaml_file:
-            yaml.dump(
-                {self.data.name: self.data.config},
-                yaml_file,
-                default_flow_style=False,
-            )
+        if file_path := QtWidgets.QFileDialog.getSaveFileName(filter="Config (*.yml)")[
+            0
+        ]:
+            with open(file_path, "w") as yaml_file:
+                yaml.dump(
+                    {self.data.name: self.data.config},
+                    yaml_file,
+                    default_flow_style=False,
+                )
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

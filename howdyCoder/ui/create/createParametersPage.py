@@ -42,6 +42,9 @@ class CreateBaseParametersPage(CreateBasePage):
         self._ui.periodSpinBox.setEnabled(not self._ui.single_shot_check.isChecked())
 
     def validate(self) -> bool:
+        return True
+
+    def save(self) -> None:
         """
         Checking if temp config exists gets around an issue with exiting from a section
         If exit is hit, it will try to save the parameters page, this is becuase the parameters page
@@ -49,13 +52,11 @@ class CreateBaseParametersPage(CreateBasePage):
         when we exit, so when the save is called on this page (because it's technically valid) it throws
         an error trying to save to a temp config that doesn't exist
         """
-        return self.getTempConfig()
-
-    def save(self) -> None:
-        curr = self.getTempConfigFirstValue()
-        curr |= parameterTable.convertToConfig(self._parameterModel.getData())
-        curr[PERIOD] = self._ui.periodSpinBox.value()
-        curr[FLATTEN] = self._ui.flattenedCheck.isChecked()
+        if self.getTempConfig():
+            curr = self.getTempConfigFirstValue()
+            curr |= parameterTable.convertToConfig(self._parameterModel.getData())
+            curr[PERIOD] = self._ui.periodSpinBox.value()
+            curr[FLATTEN] = self._ui.flattenedCheck.isChecked()
 
     def reset(self) -> None:
         self._parameterModel.clear()

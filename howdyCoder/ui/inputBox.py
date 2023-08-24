@@ -15,7 +15,7 @@ class InputBox(QtWidgets.QWidget):
 
     INPUT_TYPE_TO_GETTER = {
         InputType.SHORT_TEXT: QtWidgets.QLineEdit.text,
-        InputType.LONG_TEXT: QtWidgets.QLineEdit.text,
+        InputType.LONG_TEXT: QtWidgets.QPlainTextEdit.toPlainText,
         InputType.NUMBER: QtWidgets.QDoubleSpinBox.value,
     }
 

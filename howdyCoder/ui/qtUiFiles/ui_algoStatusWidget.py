@@ -159,6 +159,7 @@ class Ui_AlgoStatusWidget(object):
 
         self.input_button = QPushButton(self.widget)
         self.input_button.setObjectName(u"input_button")
+        self.input_button.setEnabled(False)
         sizePolicy5.setHeightForWidth(self.input_button.sizePolicy().hasHeightForWidth())
         self.input_button.setSizePolicy(sizePolicy5)
         self.input_button.setMinimumSize(QSize(100, 40))

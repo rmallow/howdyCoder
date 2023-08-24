@@ -13,9 +13,10 @@ class InputWindow(QtWidgets.QDialog):
         parent: QtWidgets.QWidget | None = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
+        super().__init__(parent, f)
         layout = QtWidgets.QVBoxLayout()
         label = QtWidgets.QLabel(f"Input for {code}")
         layout.addWidget(label)
         for w in inputs:
-            layout.add(w)
+            layout.addWidget(w)
         self.setLayout(layout)

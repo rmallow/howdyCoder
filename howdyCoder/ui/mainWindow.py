@@ -111,6 +111,7 @@ class MainWindow(
         self._ui.controlPage.startAlgo.connect(self.algoStartControlBox)
         self._ui.controlPage.shutdownAlgo.connect(self.algoShutdownControlBox)
         self._ui.controlPage.exportData.connect(self.algoExportControlBox)
+        self._ui.controlPage.inputEntered.connect(self._main_model.inputEntered)
         self._main_model.algo_dict.dataChanged.connect(
             self._ui.controlPage.compareDataToCurrentWidgets
         )

@@ -133,6 +133,7 @@ class mainframe(commandProcessor):
         self.addCmdFunc(msg.CommandType.CREATE_ALGO, mainframe.createAlgoCommand)
         self.addCmdFunc(msg.CommandType.INSTALL_PACKAGE, mainframe.installPackages)
         self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToBlock)
+        self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, mainframe.passCommandToBlock)
 
         # Get other config files to load
         config = configparser.ConfigParser()
@@ -188,7 +189,7 @@ class mainframe(commandProcessor):
             message = self.mainframeQueue.get()
             if isinstance(message, msg.message):
                 if message.isCommand():
-                    self.processCommand(message.content, details=message.details)
+                    self.processCommand(message.content, details=message)
                 elif message.isUIUpdate():
                     if message.content == msg.UiUpdateType.STATUS:
                         # Extra handling for status, adding back time and removing from status dict
@@ -220,7 +221,7 @@ class mainframe(commandProcessor):
                 )
                 self.sendToUi(uiLoggingMessage)
 
-    def sendStatusCheck(self, content, details=None):
+    def sendStatusCheck(self, _1, _2=None):
         self.uiLastTime = time.time()
         if not self.uiConnected:
             # So we got a status message back after we thought the ui was disconnected, so start it back up again
@@ -291,23 +292,23 @@ class mainframe(commandProcessor):
             time.sleep(5)
 
     def addOutputView(self, command, details):
-        if details[ITEM] in self.algo_manager.blocks:
-            block = self.algo_manager.blocks[details[ITEM]]
+        if details.details[ITEM] in self.algo_manager.blocks:
+            block = self.algo_manager.blocks[details.details[ITEM]]
             block.block_queue.put(
-                msg.message(msg.MessageType.COMMAND, command, details=details)
+                msg.message(msg.MessageType.COMMAND, command, details=details.details)
             )
 
     def passCommandToBlock(self, command, details):
-        if details in self.algo_manager.blocks:
-            self.algo_manager.blocks[details].block_queue.put(
-                msg.message(msg.MessageType.COMMAND, command, details=details)
+        if details.key.sourceCode in self.algo_manager.blocks:
+            self.algo_manager.blocks[details.key.sourceCode].block_queue.put(
+                msg.message(msg.MessageType.COMMAND, command, details=details.details)
             )
         else:
             mpLogging.warning(
                 f"Attempted to pass command to block, but didn't find code {details}"
             )
 
-    def sendStartupData(self, _):
+    def sendStartupData(self, _1, _2):
         mpLogging.info("Sending startup data to the UI that was connected")
         self.uiConnected = True
 
@@ -352,8 +353,8 @@ class mainframe(commandProcessor):
         else:
             # run block will check if code exists, and log if not,
             # but at least check that the message details is a string
-            if isinstance(details, str):
-                self.runBlock(details)
+            if isinstance(details.details, str):
+                self.runBlock(details.details)
 
     def runBlock(self, code):
         if code in self.algo_manager.blocks:
@@ -430,14 +431,14 @@ class mainframe(commandProcessor):
 
     def cmdShutdown(self, _, details=None):
         """End the blocks first and then shutdown"""
-        if details is None:
+        if details.details is None:
             self.cmdEnd(None)
             for k in list(self.process_dict.keys()):
                 self.shutdownBlock(k)
             self._is_running = False
-        elif isinstance(details, str):
-            self.endBlock(details)
-            self.shutdownBlock(details)
+        elif isinstance(details.details, str):
+            self.endBlock(details.details)
+            self.shutdownBlock(details.details)
         else:
             mpLogging.error(
                 f"Invalid details to shutdown command in mainframe: {details}"
@@ -493,13 +494,13 @@ class mainframe(commandProcessor):
 
     def createAlgoCommand(self, _, details=None):
         """Wrapper for creating an algo from a command message"""
-        if details is not None:
-            self.loadAlgos(details)
+        if details.details is not None:
+            self.loadAlgos(details.details)
 
     def installPackages(self, _, details=None):
         """Receive install pacakge command from UI, must send mod status response after"""
-        if details is not None:
-            for package in details:
+        if details.details is not None:
+            for package in details.details:
                 try:
                     subprocess.check_call(
                         [sys.executable, "-m", "pip", "install", package]

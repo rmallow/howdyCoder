@@ -1,6 +1,7 @@
 from .commonGlobals import ENUM_VALUE, ENUM_DISPLAY, ENUM_HIDE
 
-from aenum import Enum
+from aenum import Enum as AdvancedEnum
+from enum import Enum
 
 """Constants for fields used in configuraiton files"""
 NAME = "name"
@@ -39,7 +40,7 @@ KEY = "key"
 LABEL = "label"
 
 
-class DataSourcesTypeEnum(Enum):
+class DataSourcesTypeEnum(AdvancedEnum):
     """For indexing to work, all hides go to end"""
 
     _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY} {ENUM_HIDE}"
@@ -51,14 +52,14 @@ class DataSourcesTypeEnum(Enum):
     SIM = 4, "sim", True
 
 
-class ActionTypeEnum(Enum):
+class ActionTypeEnum(AdvancedEnum):
     _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
 
     EVENT = 0, "event"
     TRIGGER = 1, "trigger"
 
 
-class ActionDataType(Enum):
+class ActionDataType(AdvancedEnum):
     _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
 
     DATA_FRAME = 0, "pandas data frame"
@@ -67,8 +68,6 @@ class ActionDataType(Enum):
 
 
 class InputType(Enum):
-    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
-
-    SHORT_TEXT = 0, "short text"
-    LONG_TEXT = 1, "long text"
-    NUMBER = 2, "number"
+    SHORT_TEXT = "short text"
+    LONG_TEXT = "long text"
+    NUMBER = "number"

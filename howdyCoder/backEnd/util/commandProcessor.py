@@ -92,12 +92,7 @@ class commandProcessor(multiBase):
                     command determines what func to call
         @param: details (None)  - extra details for command processing
         """
-        if details is None:
-            self.cmdDict.get(command, commandProcessor.cmdNotFound)(self, command)
-        else:
-            self.cmdDict.get(command, commandProcessor.cmdNotFound)(
-                self, command, details
-            )
+        self.cmdDict.get(command, commandProcessor.cmdNotFound)(self, command, details)
 
 
 """

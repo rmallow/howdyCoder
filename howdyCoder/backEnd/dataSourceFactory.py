@@ -3,6 +3,7 @@ from .dataSim import dataSim
 from .dataFunc import dataFunc
 from .dataStream import dataStream
 from .dataThreaded import dataThreaded
+from .dataInput import dataInput
 
 from ..core.configConstants import DataSourcesTypeEnum
 
@@ -16,6 +17,7 @@ _DATA_SOURCE_FACTORY_TYPES = {
     DataSourcesTypeEnum.STREAM.display: dataStream,
     DataSourcesTypeEnum.FUNC.display: dataFunc,
     DataSourcesTypeEnum.THREADED.display: dataThreaded,
+    DataSourcesTypeEnum.INPUT.display: dataInput,
 }
 
 

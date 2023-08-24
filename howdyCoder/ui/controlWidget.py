@@ -15,6 +15,7 @@ from ..core.configConstants import (
     DataSourcesTypeEnum,
     ENUM_DISPLAY,
     INPUT_TYPE,
+    InputType,
 )
 from ..core.commonGlobals import Modes, InputData
 
@@ -169,7 +170,7 @@ class ControlWidget(
                     if data_source.get(TYPE, "") == getattr(
                         DataSourcesTypeEnum.INPUT, ENUM_DISPLAY
                     ):
-                        w = InputBox(key, data_source[INPUT_TYPE])
+                        w = InputBox(key, InputType(data_source[INPUT_TYPE]))
                         w.inputEntered.connect(
                             lambda input_data: self.inputPassThrough(
                                 input_data, data.name
@@ -180,6 +181,8 @@ class ControlWidget(
                 self._algo_input_windows[uid] = InputWindow(inputs, data.name, self)
         if uid in self._algo_input_windows:
             self._algo_input_windows[uid].show()
+            self._algo_input_windows[uid].raise_()
+            self._algo_input_windows[uid].activateWindow()
 
     @QtCore.Slot()
     def inputPassThrough(self, input_data: InputData, code: str):

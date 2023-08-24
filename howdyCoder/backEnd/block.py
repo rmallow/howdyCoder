@@ -15,6 +15,7 @@ from ..core.commonGlobals import (
     FUNC_GROUP,
     AlgoStatusData,
     Modes,
+    InputData,
 )
 from ..commonUtil import queueManager as qm
 
@@ -56,6 +57,7 @@ class block(commandProcessor):
         self.addCmdFunc(msg.CommandType.ADD_OUTPUT_VIEW, block.addOutputView)
         self.addCmdFunc(msg.CommandType.CHECK_STATUS, block.checkStatus)
         self.addCmdFunc(msg.CommandType.EXPORT, block.exportData)
+        self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, block.addInputData)
 
     @setInterval(BLOCK_QUEUE_CHECK_TIMER)
     def checkblock_queue(self):
@@ -209,3 +211,8 @@ class block(commandProcessor):
 
     def cmdShutdown(self, command, details=None):
         self._end = True
+
+    def addInputData(self, _, details=None):
+        if details is not None:
+            input_data = InputData(**details)
+            self.feed_obj.addInputData(input_data.data_source_name, input_data.val)

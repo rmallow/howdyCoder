@@ -18,6 +18,11 @@ class CreateDataSourceTypePage(CreateTypeBasePage):
     A more advanced version of Func data source. \n
     Only necessary if the funciton would normally be used in a multithreaded environment.
     """,
+        DataSourcesTypeEnum.INPUT.display: """
+    Take user input data as the source of the data. \n
+    When this option is used, after the program is created, a window can be opened that has the selected input option for inputting user data. \n
+    Useful for if you need to tell the program dynamically your own data.
+    """,
     }
     PAGE_KEY = PageKeys.DATA_SOURCE_TYPE
     EXIT = PageKeys.ADD_DATA_SOURCE
