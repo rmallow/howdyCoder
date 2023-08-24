@@ -501,7 +501,7 @@
 				<key>FOLLOW_SYMBOLIC_LINKS</key>
 				<false/>
 				<key>IDENTIFIER</key>
-				<string>com.mygreatcompany.pkg.HowdyCoder</string>
+				<string>com.rmallow.pkg.HowdyCoder</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -731,6 +731,13 @@
 				<string>installer_output</string>
 				<key>PATH_TYPE</key>
 				<integer>1</integer>
+			</dict>
+			<key>CERTIFICATE</key>
+			<dict>
+				<key>NAME</key>
+				<string>Developer ID Installer: Robert Mallow (CWTJD862BJ)</string>
+				<key>PATH</key>
+				<string>/Users/rmallow/Library/Keychains/login.keychain</string>
 			</dict>
 			<key>EXCLUDED_FILES</key>
 			<array>

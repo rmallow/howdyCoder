@@ -10,8 +10,10 @@ from PySide6 import QtCore, QtWidgets
 
 
 class outputViewGraph(outputView):
+    TUTORIAL_RESOURCE_PREFIX = "None"
+
     def __init__(self, outputViewModel, selectionSettings, parent=None):
-        super().__init__(outputViewModel, "test", parent)
+        super().__init__(outputViewModel, self.TUTORIAL_RESOURCE_PREFIX, parent)
 
         # Load UI file
         self._ui = ui_outputViewGraph.Ui_OutputViewGraph()

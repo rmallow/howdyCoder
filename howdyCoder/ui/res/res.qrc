@@ -2,6 +2,26 @@
   <qresource prefix="icons">
     <file>help.png</file>
   </qresource>
+  <qresource prefix="MainOutputView">
+    <file>Tutorial/MainOutputView_1.png</file>
+    <file>Tutorial/MainOutputView_2.png</file>
+  </qresource>
+  <qresource prefix="OutputViewFeed">
+    <file>Tutorial/OutputViewFeed_3.png</file>
+    <file>Tutorial/OutputViewFeed_2.png</file>
+    <file>Tutorial/OutputViewFeed_1.png</file>
+  </qresource>
+  <qresource prefix="CreateSettingsInput">
+    <file>Tutorial/CreateSettingsInput_2.png</file>
+    <file>Tutorial/CreateSettingsInput_1.png</file>
+  </qresource>
+  <qresource prefix="CreateSettingsTrigger">
+    <file>Tutorial/CreateSettingsTrigger_5.png</file>
+    <file>Tutorial/CreateSettingsTrigger_4.png</file>
+    <file>Tutorial/CreateSettingsTrigger_3.png</file>
+    <file>Tutorial/CreateSettingsTrigger_2.png</file>
+    <file>Tutorial/CreateSettingsTrigger_1.png</file>
+  </qresource>
   <qresource prefix="CreateTypeAction">
     <file>Tutorial/CreateTypeAction_1.png</file>
     <file>Tutorial/CreateTypeAction_2.png</file>
@@ -13,6 +33,7 @@
     <file>Tutorial/CreateSettingsEvent_1.png</file>
   </qresource>
   <qresource prefix="AlgoStatusWidget">
+    <file>Tutorial/AlgoStatusWidget_6.png</file>
     <file>Tutorial/AlgoStatusWidget_5.png</file>
     <file>Tutorial/AlgoStatusWidget_4.png</file>
     <file>Tutorial/AlgoStatusWidget_3.png</file>

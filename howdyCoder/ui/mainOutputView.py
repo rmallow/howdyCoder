@@ -22,12 +22,14 @@ class mainOutputView(
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
+    TUTORIAL_RESOURCE_PREFIX = "MainOutputView"
+
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
         return super().__new__(self, *args, **kwargs)
 
     def __init__(self, parent=None):
-        super().__init__("test", parent)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent)
         self.mainOutputViewModel: mainOutputViewModel = mainOutputViewModel(self)
 
         """

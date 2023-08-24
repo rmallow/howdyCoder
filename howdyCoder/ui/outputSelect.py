@@ -20,12 +20,14 @@ class outputSelect(
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
     selectionFinished = QtCore.Signal(object)
 
+    TUTORIAL_RESOURCE_PREFIX = "None"
+
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
         return super().__new__(self, *args, **kwargs)
 
     def __init__(self, model, parent=None):
-        super().__init__("test", parent=parent)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
 
         self.model = model
         # Load select item UI

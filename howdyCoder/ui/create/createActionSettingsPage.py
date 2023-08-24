@@ -45,7 +45,7 @@ class FuncType(Enum):
 
 class CreateActionSettingsPage(CreateBasePage):
     PAGE_KEY = PageKeys.ACTION_SETTINGS
-    TUTORIAL_RESOURCE_PREFIX_TRIGGER = "test"
+    TUTORIAL_RESOURCE_PREFIX_TRIGGER = "CreateSettingsTrigger"
     TUTORIAL_RESOURCE_PREFIX_EVENT = "CreateSettingsEvent"
 
     def __init__(

@@ -34,7 +34,7 @@ class AlgoStatusWidget(
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
-        super().__init__("AlgoStatusWidget", parent, f)
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
 
         self.data: AlgoWidgetData = data
         self.ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()

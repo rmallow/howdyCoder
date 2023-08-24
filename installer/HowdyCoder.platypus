@@ -33,7 +33,7 @@
 	<key>IconPath</key>
 	<string>/Users/rmallow/Library/Application Support/Platypus/PlatypusIcon-99216.icns</string>
 	<key>Identifier</key>
-	<string>org.rmallow.HowdyCoder</string>
+	<string>com.rmallow.HowdyCoder</string>
 	<key>InterfaceType</key>
 	<string>None</string>
 	<key>InterpreterArgs</key>

@@ -84,6 +84,7 @@ class TutorialEventFilter(QtCore.QObject):
         super().__init__(parent)
         self._top_level_filter_object: AbstractTutorialClass = top_level_filter_object
         self._last_displayed = set()
+        self._current_displayed = set()
         self._objs: typing.List[AbstractTutorialClass] = []
         self._obj_index = 0
         self._resource_index = 0
@@ -133,6 +134,7 @@ class TutorialEventFilter(QtCore.QObject):
                     else:
                         self._obj_index = self._resource_index = 0
                         self._tutorial_started = False
+                        self._last_displayed = self._current_displayed
                 self._last_button_press = time.time()
                 self._top_level_filter_object.repaint()
             return True
@@ -143,6 +145,9 @@ class TutorialEventFilter(QtCore.QObject):
     def tutorial_started(self):
         self._obj_index = self._resource_index = 0
         self._objs = self._top_level_filter_object.getTutorialClasses()
+        self._current_displayed = set(obj.resource_prefix for obj in self._objs)
+        if self._last_displayed == self._current_displayed:
+            self._last_displayed = set()
         self.getNextValidObjIndex()
         self._tutorial_started = self._obj_index < len(self._objs)
         if self._tutorial_started:

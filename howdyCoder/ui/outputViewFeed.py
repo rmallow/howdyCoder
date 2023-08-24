@@ -10,8 +10,10 @@ from PySide6 import QtCore
 
 
 class OutputViewFeed(outputView):
+    TUTORIAL_RESOURCE_PREFIX = "OutputViewFeed"
+
     def __init__(self, outputViewModel, _, parent=None):
-        super().__init__(outputViewModel, "test", parent)
+        super().__init__(outputViewModel, self.TUTORIAL_RESOURCE_PREFIX, parent)
 
         # Load UI file
         self._ui = ui_outputViewFeed.Ui_OutputViewFeed()

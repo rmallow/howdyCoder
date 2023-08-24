@@ -4,8 +4,6 @@ from functools import cache
 
 from PySide6 import QtCore, QtGui
 
-_registered_prefixes = set()
-
 
 def getPrefStr(prefix):
     return f":/{prefix}"
@@ -14,14 +12,14 @@ def getPrefStr(prefix):
 @cache
 def getFilesInPrefix(prefix: str, folder=None):
     path = getPrefStr(prefix) + ("" if folder is None else f"/{folder}")
-    resources = QtCore.QDir(path).entryList()
+    resources = sorted(QtCore.QDir(path).entryList())
     return resources
 
 
 @cache
 def getResourceByIndex(prefix: str, index: int, folder=None) -> QtGui.QPixmap:
     path = f"{getPrefStr(prefix)}/{'' if folder is None else folder}"
-    resources = QtCore.QDir(path).entryList()
+    resources = sorted(QtCore.QDir(path).entryList())
     if index < len(resources):
         return QtGui.QPixmap(f"{path}/{resources[index]}")
     assert False, "invalid res index"
@@ -31,7 +29,7 @@ def getResourceByIndex(prefix: str, index: int, folder=None) -> QtGui.QPixmap:
 @cache
 def getResourceByName(prefix: str, name: str, folder=None) -> QtGui.QPixmap:
     path = f"{getPrefStr(prefix)}/{'' if folder is None else folder}"
-    resources = QtCore.QDir(path).entryList()
+    resources = sorted(QtCore.QDir(path).entryList())
     if name in resources:
         return QtGui.QPixmap(f"{path}/{name}")
     assert False, "invalid res name"

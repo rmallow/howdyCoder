@@ -36,14 +36,17 @@ For further questions, consult documentation.
 class CreateDataSourceSettingsPage(CreateBasePage):
     PAGE_KEY = PageKeys.DATA_SOURCE_SETTINGS
 
-    TUTORIAL_RESOURCE_PREFIX = "CreateSettingsDataSource"
+    TUTORIAL_RESOURCE_PREFIX_FUNC = "CreateSettingsDataSource"
+    TUTORIAL_RESOURCE_PREFIX_INPUT = "CreateSettingsInput"
 
     def __init__(
         self,
         current_config: typing.Dict[str, typing.Any],
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
+        super().__init__(
+            current_config, self.TUTORIAL_RESOURCE_PREFIX_FUNC, parent=parent
+        )
 
         self._ui = ui_createDataSourceSettingsPage.Ui_CreateDataSourceSettingsPage()
         self._ui.setupUi(self)
@@ -89,6 +92,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self._input_combo = QtWidgets.QComboBox(self._ui.stackedWidget)
         for e in InputType:
             self._input_combo.addItem(e.value)
+        self._input_combo.setCurrentIndex(-1)
         self._input_combo.currentTextChanged.connect(self.onSpecificSettingsSelected)
         self._ui.stackedWidget.insertWidget(
             DataSourcesTypeEnum.INPUT.value, self._input_combo
@@ -157,9 +161,10 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 self._ui.addOutputButton.setEnabled(True)
                 self._ui.removeOutputButton.setEnabled(True)
                 self._ui.outputHelpText.setText(OUTPUT_HELP)
-
+            self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_FUNC
             if self._data_source_type == DataSourcesTypeEnum.INPUT:
                 """If it's input, there's only one output and that is the name of the data source"""
+                self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_INPUT
                 self._outputModel.setStringList(
                     [next(iter(self.getTempConfig().keys()))]
                 )
