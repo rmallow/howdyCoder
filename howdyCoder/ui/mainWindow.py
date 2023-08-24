@@ -95,6 +95,11 @@ class MainWindow(
         self._ui.toolBar.widgetForAction(self._ui.action_help_menu).setPopupMode(
             QtWidgets.QToolButton.ToolButtonPopupMode.InstantPopup
         )
+        self._ui.action_documentation.triggered.connect(
+            lambda: QtGui.QDesktopServices.openUrl(
+                QtCore.QUrl("https://howdycoder.io/documentation")
+            )
+        )
         # the create name page needs to check if the name already exists before letting the user proceed
         # to do this it will send a signal to the main model's algo dict to see if it is there
         # then that will return back if it is in there

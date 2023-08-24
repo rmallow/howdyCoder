@@ -14,7 +14,6 @@ from dataclasses import asdict
 from collections import deque, Counter, defaultdict
 import time
 import typing
-import yaml
 from PySide6 import QtCore
 
 OUTPUT = "Output"
@@ -73,8 +72,6 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.checkQueue)
         self.timer.start(LOOP_INTERVAL_MSECS)
-
-        self.testing()
 
     @QtCore.Slot()
     def messageMainframe(self, message):
@@ -279,9 +276,3 @@ class mainModel(commandProcessor, QtCore.QObject):
                 key=msg.messageKey(input_data.code, None),
             )
         )
-
-    def testing(self):
-        from ..data import datalocator
-
-        with open(datalocator.TEST_FILE) as f:
-            self.addAlgo(yaml.safe_load(f))

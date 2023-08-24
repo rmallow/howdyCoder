@@ -59,7 +59,7 @@ class Ui_FuncSelector(object):
 
         self.retranslateUi(FuncSelector)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(FuncSelector)
