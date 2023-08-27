@@ -3,8 +3,7 @@ from .createBasePage import CreateBasePage
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createDataSourceAdd
 
-from ...core.configConstants import DATA_SOURCES, TYPE, ACTION_LIST
-
+from ...core.commonGlobals import AlgoSettings, DATA_SOURCES, ACTION_LIST
 import typing
 
 from PySide6 import QtWidgets, QtCore
@@ -17,8 +16,7 @@ class CreateAddPageBase(CreateBasePage):
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
-        group: str,
+        current_config: AlgoSettings,
         skip_page: PageKeys,
         top_text="",
         parent: typing.Optional[QtWidgets.QWidget] = None,
@@ -32,7 +30,6 @@ class CreateAddPageBase(CreateBasePage):
         self._dataSourcesModel = QtCore.QStringListModel()
         self._ui.dataSourcesView.setModel(self._dataSourcesModel)
         self.next_enabled = False
-        self._group = group
         self._skip_page: PageKeys = skip_page
         self._ui.addButton.released.connect(self.nextPage)
         self._ui.skipButton.released.connect(
@@ -41,12 +38,7 @@ class CreateAddPageBase(CreateBasePage):
         self._ui.removeButton.released.connect(self.removeSelected)
 
     def save(self) -> None:
-        curr = self.getConfigSection()
-        if self._group not in curr:
-            curr[self._group] = {}
-
-    def getKeysForNextPage(self) -> typing.Any:
-        return [self.config_keys[0], self._group]
+        pass
 
     def validate(self) -> bool:
         return True
@@ -59,9 +51,8 @@ class CreateAddPageBase(CreateBasePage):
 
     def setGroupModel(self):
         rows = []
-        for k, v in self.getConfigSection().get(self._group, {}).items():
-            if TYPE in v:
-                rows.append(f"{k} : {v[TYPE]}")
+        for k, v in self.getConfigGroup().items():
+            rows.append(f"{k} : {v.type_}")
         self._ui.skipButton.setEnabled(len(rows) > 0)
         self._dataSourcesModel.setStringList(rows)
 
@@ -76,8 +67,8 @@ class CreateAddPageBase(CreateBasePage):
             index = selection[0]
             strings = self._dataSourcesModel.stringList()
             if index.row() >= 0 and index.row() < len(strings):
-                if strings[index.row()] in self.getConfigSection().get(self._group, {}):
-                    del self.getConfigSection()[self._group][strings[index.row()]]
+                if strings[index.row()] in self.getConfigGroup():
+                    del self.getConfigGroup()[strings[index.row()]]
                     self.setGroupModel()
 
     def getTutorialClasses(self) -> typing.List:
@@ -88,30 +79,29 @@ class CreateDataSourceAddPage(CreateAddPageBase):
     PAGE_KEY = PageKeys.ADD_DATA_SOURCE
     EXIT = PageKeys.NO_PAGE
     EXIT_LABEL = "Exit Creator"
+    GROUP = DATA_SOURCES
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
-        super().__init__(
-            current_config, DATA_SOURCES, PageKeys.ADD_ACTION, parent=parent
-        )
+        super().__init__(current_config, PageKeys.ADD_ACTION, parent=parent)
 
 
 class CreateActionAddPage(CreateAddPageBase):
     PAGE_KEY = PageKeys.ADD_ACTION
     EXIT = PageKeys.ADD_DATA_SOURCE
     EXIT_LABEL = "Exit Action Creator"
+    GROUP = ACTION_LIST
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
             current_config,
-            ACTION_LIST,
             PageKeys.FINAL_CONFIRM,
             top_text=ACTION_TOP_TEXT,
             parent=parent,

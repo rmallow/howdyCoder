@@ -23,6 +23,14 @@ from ..tutorialOverlay import AbstractTutorialClass
 
 from ..util import animations, abstractQt
 
+from ...core.commonGlobals import (
+    AlgoSettings,
+    ActionSettings,
+    DataSourceSettings,
+    DATA_SOURCES,
+    ACTION_LIST,
+)
+
 from PySide6 import QtWidgets, QtCore
 
 from dataclasses import dataclass, fields
@@ -79,8 +87,11 @@ class CreateWidget(
         # Load UI file
         self._ui = ui_createWidget.Ui_CreateWidget()
         self._ui.setupUi(self)
-        self.current_config = {}
-        self.temp_config = {}
+        self.current_config = AlgoSettings()
+        self._sub_configs = {
+            DATA_SOURCES: DataSourceSettings(),
+            ACTION_LIST: ActionSettings(),
+        }
 
         self._createWidgetBoxLayout = QtWidgets.QVBoxLayout(self._ui.createWidgetBox)
         self._createWidgetBoxLayout.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
@@ -115,7 +126,7 @@ class CreateWidget(
             p = createWidgetPage(
                 widget_class.PAGE_KEY.value, widget_class(self.current_config, self)
             )
-            p.page.temp_config = self.temp_config
+            p.page.temp_config = self._sub_configs.get(p.page.GROUP, {})
             self._create_widgets_list.append(p)
         self._current_index: int = 0
 
@@ -159,8 +170,7 @@ class CreateWidget(
                 currentPage.save()
             # Get keys from the page before the page we are loading and put it in the page we are loading
             if newIndex > 0:
-                keys = self._create_widgets_list[newIndex - 1].page.getKeysForNextPage()
-                self._create_widgets_list[newIndex].page.loadPage(keys)
+                self._create_widgets_list[newIndex].page.loadPage()
             animations.fadeStart(
                 self._ui.createWidgetBox,
                 self._create_widgets_list[self._current_index].page,
@@ -255,7 +265,8 @@ class CreateWidget(
         self.changePage(0)
         self._ui.progressSteps.reset()
         self.current_config.clear()
-        self.temp_config.clear()
+        for v in self._sub_configs.values():
+            v.clear()
 
     def exitPressed(self, exit_page=None):
         if exit_page is None:

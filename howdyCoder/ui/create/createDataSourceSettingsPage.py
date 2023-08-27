@@ -9,17 +9,17 @@ from ..funcSelector import FuncSelector
 from ..treeSelect import UrlTreeSelect
 
 from ...core.configConstants import (
-    TYPE,
-    GET_FUNC,
-    KEY,
-    OUTPUT,
     DataSourcesTypeEnum,
-    INPUT_TYPE,
     InputType,
 )
 
 from ...commonUtil import helpers
-from ...core.commonGlobals import ENUM_DISPLAY
+from ...core.commonGlobals import (
+    ENUM_DISPLAY,
+    AlgoSettings,
+    DATA_SOURCES,
+    DataSourceSettings,
+)
 
 import typing
 
@@ -39,9 +39,11 @@ class CreateDataSourceSettingsPage(CreateBasePage):
     TUTORIAL_RESOURCE_PREFIX_FUNC = "CreateSettingsDataSource"
     TUTORIAL_RESOURCE_PREFIX_INPUT = "CreateSettingsInput"
 
+    GROUP = DATA_SOURCES
+
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -137,11 +139,11 @@ class CreateDataSourceSettingsPage(CreateBasePage):
 
     def loadPage(self, keys) -> None:
         super().loadPage(keys)
-        currSettings = self.getTempConfigFirstValue()
+        currSettings = self.getTempConfig()
         self._current_settings = None
-        if TYPE in currSettings:
+        if currSettings.type_:
             enumType = helpers.findEnumByAttribute(
-                DataSourcesTypeEnum, ENUM_DISPLAY, currSettings[TYPE]
+                DataSourcesTypeEnum, ENUM_DISPLAY, currSettings.type_
             )
             if (
                 self._data_source_type is not None
@@ -182,23 +184,23 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self.enableCheck()
 
     def save(self) -> None:
-        curr = self.getTempConfigFirstValue()
+        curr: DataSourceSettings = self.getTempConfig()
         if self._data_source_type == DataSourcesTypeEnum.STREAM:
-            curr[KEY] = self._current_settings.url
+            curr.key = self._current_settings.url
         elif (
             self._data_source_type == DataSourcesTypeEnum.FUNC
             or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
-            curr[GET_FUNC] = helpers.getConfigFromEnumDict(self._current_settings)
+            curr.get_func = helpers.getConfigFromEnumDict(self._current_settings)
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
-            curr[INPUT_TYPE] = self._current_settings
+            curr.input_type = self._current_settings
         strings = self._outputModel.stringList()
         if strings:
             if ":" in strings[0]:
                 splits = [s.split(":") for s in strings]
-                curr[OUTPUT] = {split[0].strip(): split[1].strip() for split in splits}
+                curr.output = {split[0].strip(): split[1].strip() for split in splits}
             else:
-                curr[OUTPUT] = strings
+                curr.output = strings
 
     def validate(self) -> bool:
         return self._current_settings is not None and self._outputModel.rowCount()
@@ -218,9 +220,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             """Not all have this, it's ok"""
             pass
         self._input_combo.setCurrentIndex(-1)
-
-    def getKeysForNextPage(self) -> typing.List:
-        return super().getKeysForNextPage()
 
     def getTutorialClasses(self) -> typing.List:
         if (

@@ -2,8 +2,12 @@ from .createBasePage import CreateBasePage
 from ..qtUiFiles import ui_createDataSourceConfirmPage
 from ..uiConstants import PageKeys
 
-import typing
+from ...core.commonGlobals import AlgoSettings, DATA_SOURCES, ACTION_LIST, NONE_GROUP
 
+import typing
+import copy
+
+from dataclass_wizard import asdict
 from PySide6 import QtWidgets, QtCore
 import yaml
 
@@ -11,7 +15,7 @@ import yaml
 class CreateConfirmBasePage(CreateBasePage):
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         top_text: str,
         resouce_prefix: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
@@ -29,21 +33,16 @@ class CreateConfirmBasePage(CreateBasePage):
     @QtCore.Slot()
     def confirmConfig(self) -> None:
         # add temp config to full config, enable next and disable back
-        self.getConfigSection().update(self.getTempConfig())
+        self.getConfigGroup()[self.getTempConfig().name] = copy.deepcopy(
+            self.getTempConfig()
+        )
         self.getTempConfig().clear()
         self.enableNext.emit(True)
         self.enableBack.emit(False)
         self._ui.confirmButton.setEnabled(False)
 
-    def getConfig(self, keys: typing.List[str]):
-        def helper(i, curr):
-            """For each key in keys go one level deeper in the dict, add the full config section at the end"""
-            if i >= len(keys):
-                return self.getTempConfig()
-            curr[keys[i]] = helper(i + 1, {})
-            return curr
-
-        return helper(0, {})
+    def getConfigForView(self):
+        return self.getTempConfig()
 
     def loadPage(self, keys: typing.List[str]) -> None:
         """
@@ -54,7 +53,9 @@ class CreateConfirmBasePage(CreateBasePage):
         super().loadPage(keys)
 
         self._ui.configTextView.setPlainText(
-            yaml.dump(self.getConfig(keys), default_flow_style=False, indent=4)
+            yaml.dump(
+                asdict(self.getConfigForView()), default_flow_style=False, indent=4
+            )
         )
 
     def validate(self) -> bool:
@@ -68,9 +69,6 @@ class CreateConfirmBasePage(CreateBasePage):
         # saving of the temp config to the full config is done via the confirm button
         pass
 
-    def getKeysForNextPage(self) -> typing.Any:
-        return [self.config_keys[0]]
-
     def getTutorialClasses(self) -> typing.List:
         return [self]
 
@@ -83,7 +81,7 @@ class CreateDataSourceConfirmPage(CreateConfirmBasePage):
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -99,7 +97,7 @@ class CreateActionConfirmPage(CreateConfirmBasePage):
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -117,7 +115,7 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -130,5 +128,5 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
         self._ui.confirmButton.setEnabled(False)
         self._ui.buttonWidget.hide()
 
-    def getConfig(self, keys: typing.List[str]):
-        return self.current_config
+    def getConfigForView(self):
+        return self.getConfig()

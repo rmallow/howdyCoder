@@ -7,22 +7,25 @@ from .. import highlightModel
 from ..selectorWidget import SelectorWidget
 from ..funcSelector import FuncSelector
 
+from ..util.spinBoxDelegate import SpinBoxDelegate
+
 from ...core.configConstants import (
     TYPE,
-    DATA_SOURCES,
     OUTPUT,
     ActionTypeEnum,
-    ACTION_LIST,
     INPUT,
-    CALC_FUNC,
-    OUTPUT_FUNC,
-    REQUIRES_NEW,
-    ACTION_DATA_TYPE,
     ActionDataType,
 )
 
 from ...commonUtil import helpers
-from ...core.commonGlobals import ENUM_DISPLAY
+from ...core.commonGlobals import (
+    ENUM_DISPLAY,
+    ActionSettings,
+    InputSettings,
+    AlgoSettings,
+    DATA_SOURCES,
+    ACTION_LIST,
+)
 
 from aenum import Enum
 import typing
@@ -36,6 +39,7 @@ AVAILABLE_SOURCE_COLUMN = 2
 SELECTED_SOURCE_COLUMN = 0
 SELECTED_NAME_COLUMN = 1
 SELECTED_REQUIRES_NEW_COLUMN = 2
+SELECTED_PERIOD_COLUMN = 3
 
 
 class FuncType(Enum):
@@ -50,7 +54,7 @@ class CreateActionSettingsPage(CreateBasePage):
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -65,13 +69,16 @@ class CreateActionSettingsPage(CreateBasePage):
         self._current_output_settings = None
         self._selected_input_table_model = QtGui.QStandardItemModel()
         self._selected_input_table_model.setHorizontalHeaderLabels(
-            ["Source", "Name", "Requires New"]
+            ["Source", "Name", "Requires New", "Period"]
         )
         self._available_input_table_model = highlightModel.HighlightTableModel()
         self._available_input_table_model.setHorizontalHeaderLabels(
             ["Group", "Name", "Source"]
         )
         self._ui.selectedInputTable.setModel(self._selected_input_table_model)
+        self._ui.selectedInputTable.setItemDelegateForColumn(
+            SELECTED_PERIOD_COLUMN, SpinBoxDelegate(-1, 99999)
+        )
         self._ui.availableInputTable.setModel(self._available_input_table_model)
         self._ui.availableInputTable.setMouseTracking(True)
 
@@ -119,17 +126,14 @@ class CreateActionSettingsPage(CreateBasePage):
                 self._current_output_settings = settings
             self.enableCheck()
 
-    def getKeysForNextPage(self) -> typing.List:
-        return super().getKeysForNextPage()
-
     def loadPage(self, keys) -> None:
         super().loadPage(keys)
-        currSettings = self.getTempConfigFirstValue()
+        currSettings: ActionSettings = self.getTempConfig()
         self._current_calc_settings = None
         self._current_output_settings = None
-        if TYPE in currSettings:
+        if currSettings.type_:
             enumType = helpers.findEnumByAttribute(
-                ActionTypeEnum, ENUM_DISPLAY, currSettings[TYPE]
+                ActionTypeEnum, ENUM_DISPLAY, currSettings.type_
             )
             if self._action_type is not None and self._action_type != enumType:
                 self.reset()
@@ -150,9 +154,7 @@ class CreateActionSettingsPage(CreateBasePage):
         while events are single output (for now?)
         """
         cur_row = 0
-        for k, v in (
-            self.current_config[self.config_keys[0]].get(DATA_SOURCES, {}).items()
-        ):
+        for k, v in self.getConfig().getGroupDict(DATA_SOURCES).items():
             ds_group = QtGui.QStandardItem(f"{k}")
             self._available_input_table_model.setItem(
                 cur_row, AVAILABLE_GROUP_COLUMN, ds_group
@@ -160,9 +162,9 @@ class CreateActionSettingsPage(CreateBasePage):
             # output could be a list or dict, if dict we want keys
             output = []
             try:
-                output = list(v[OUTPUT].values())
+                output = list(v.output.values())
             except AttributeError:
-                output = v[OUTPUT]
+                output = v.output
             n = self._available_input_table_model.rowCount()
             for x in range(len(output)):
                 if x != 0:
@@ -177,26 +179,22 @@ class CreateActionSettingsPage(CreateBasePage):
                     n - 1 + x, AVAILABLE_NAME_COLUMN, QtGui.QStandardItem(output[x])
                 )
                 self._available_input_table_model.setItem(
-                    n - 1 + x, AVAILABLE_SOURCE_COLUMN, QtGui.QStandardItem(v[TYPE])
+                    n - 1 + x, AVAILABLE_SOURCE_COLUMN, QtGui.QStandardItem(v.type_)
                 )
             if len(output) > 1:
                 self._ui.availableInputTable.setSpan(
                     cur_row, AVAILABLE_GROUP_COLUMN, len(output), 1
                 )
             cur_row += len(output)
-        for k, v in (
-            self.current_config[self.config_keys[0]].get(ACTION_LIST, {}).items()
-        ):
-            if k != self.config_keys[-1] and v[TYPE] == getattr(
-                ActionTypeEnum.EVENT, ENUM_DISPLAY
-            ):
+        for k, v in self.getConfig().getGroupDict(ACTION_LIST).items():
+            if v.type_ == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
                 self._available_input_table_model.appendRow(
                     [
                         QtGui.QStandardItem(
                             getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY).capitalize()
                         ),
                         QtGui.QStandardItem(k),
-                        QtGui.QStandardItem(", ".join(v.get(INPUT, []))),
+                        QtGui.QStandardItem(", ".join(v.input_.keys())),
                     ]
                 )
 
@@ -229,7 +227,13 @@ class CreateActionSettingsPage(CreateBasePage):
             name_item.setEditable(True)
             source_item.setData(index.row(), QtCore.Qt.UserRole)
             self._selected_input_table_model.appendRow(
-                [source_item, name_item, requires_new_item]
+                [source_item, name_item, requires_new_item, QtGui.QStandardItem(1)]
+            )
+            self._ui.selectedInputTable.openPersistentEditor(
+                self._selected_input_table_model.index(
+                    self._selected_input_table_model.rowCount() - 1,
+                    SELECTED_PERIOD_COLUMN,
+                )
             )
             self.enableCheck()
 
@@ -266,38 +270,39 @@ class CreateActionSettingsPage(CreateBasePage):
         selection = self._ui.selectedInputTable.selectionModel().selectedIndexes()
         if len(selection) == 1:
             self._curr_selected.discard(selection[0].row())
-            self._selected_input_table_model.removeRow(selection[0].row(), 1)
+            self._selected_input_table_model.removeRow(selection[0].row())
             self.enableCheck()
 
     def save(self) -> None:
-        config_section = self.getTempConfigFirstValue()
-        # get from data, because if it's an event we don't want to get the "Event" tag before it
-        # this has been stored in the data when the selected table was populated
-        config_section[INPUT] = {
-            self._selected_input_table_model.item(row, SELECTED_SOURCE_COLUMN)
-            .data(QtCore.Qt.UserRole + 1): self._selected_input_table_model.item(
-                row, SELECTED_NAME_COLUMN
-            )
-            .data(QtCore.Qt.DisplayRole)
-            for row in range(self._selected_input_table_model.rowCount())
-        }
-        config_section[REQUIRES_NEW] = {
-            self._selected_input_table_model.item(row, SELECTED_SOURCE_COLUMN)
-            .data(QtCore.Qt.UserRole + 1): self._selected_input_table_model.item(
-                row, SELECTED_REQUIRES_NEW_COLUMN
-            )
-            .checkState()
-            == QtCore.Qt.CheckState.Checked
-            for row in range(self._selected_input_table_model.rowCount())
-        }
-        config_section[CALC_FUNC] = helpers.getConfigFromEnumDict(
+        action_settings: ActionSettings = self.getTempConfig()
+        action_settings.type_ = self._ui.dataTypeCombo.currentText()
+        action_settings.calc_func = helpers.getConfigFromEnumDict(
             self._current_calc_settings
         )
-        config_section[ACTION_DATA_TYPE] = self._ui.dataTypeCombo.currentText()
         if self._action_type == ActionTypeEnum.TRIGGER:
-            config_section[OUTPUT_FUNC] = helpers.getConfigFromEnumDict(
+            action_settings.output_func = helpers.getConfigFromEnumDict(
                 self._current_output_settings
             )
+        # get from data, because if it's an event we don't want to get the "Event" tag before it
+        # this has been stored in the data when the selected table was populated
+        for row in range(self._selected_input_table_model.rowCount()):
+            input_settings = InputSettings()
+            input_settings.name = self._selected_input_table_model.item(
+                row, SELECTED_NAME_COLUMN
+            ).data(QtCore.Qt.DisplayRole)
+            input_settings.requires_new = (
+                self._selected_input_table_model.item(
+                    row, SELECTED_REQUIRES_NEW_COLUMN
+                ).checkState()
+                == QtCore.Qt.CheckState.Checked
+            )
+            input_settings.period = self._selected_input_table_model.item(
+                row, SELECTED_NAME_COLUMN
+            ).data(QtCore.Qt.ItemDataRole.EditRole)
+            source = self._selected_input_table_model.item(
+                row, SELECTED_SOURCE_COLUMN
+            ).data(QtCore.Qt.UserRole + 1)
+            action_settings.input_[source] = input_settings
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

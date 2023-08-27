@@ -45,7 +45,7 @@ class block(commandProcessor):
         self.feed_obj: feed = feed_obj
         self.pool = actionPool(actionList, self.code)
         self.config = config
-        self._user_funcs: typing.List[userFuncCaller.userFuncCaller] = user_funcs
+        self._user_funcs: typing.List[userFuncCaller.UserFuncCaller] = user_funcs
         self._mainframe_queue = None
         self.block_queue = None
         self.track = False

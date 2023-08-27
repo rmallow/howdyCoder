@@ -1,6 +1,6 @@
 from .dataBase import dataBase
 
-from ..commonUtil.userFuncCaller import userFuncCaller
+from ..commonUtil.userFuncCaller import UserFuncCaller
 from ..core.commonGlobals import PASSBACK_DICT
 
 import typing
@@ -10,8 +10,8 @@ class dataFunc(dataBase):
     def __init__(self, *args, getFunc=None, setupFuncs={}, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.getFunc: userFuncCaller = getFunc
-        self.setupFuncs: typing.Dict[str, userFuncCaller] = setupFuncs
+        self.getFunc: UserFuncCaller = getFunc
+        self.setupFuncs: typing.Dict[str, UserFuncCaller] = setupFuncs
 
         # add the pass back dict so that the func can add data here and continue to use it if so desired
         passback_dict = {}

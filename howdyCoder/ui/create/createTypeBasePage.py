@@ -10,13 +10,15 @@ from ...core.configConstants import (
     TYPE,
 )
 
+from ...core.commonGlobals import AlgoSettings
+
 NO_SELECTION_TEXT = "Select a type to the left to view its description"
 
 
 class CreateTypeBasePage(CreateBasePage):
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         type_label: str,
         type_dict: typing.Dict[str, str],
         resource_prefix: str,
@@ -56,15 +58,16 @@ class CreateTypeBasePage(CreateBasePage):
             len(self._ui.typeView.selectionModel().selectedIndexes()) > 0
             and self._ui.typeView.selectionModel().selectedIndexes()[0].isValid()
             and self.validateText(self._ui.nameEdit.text())
-            and self._ui.nameEdit.text().strip() not in self.getConfigSection()
+            and self._ui.nameEdit.text().strip() not in self.getConfigGroup()
         )
 
     def save(self) -> None:
         """Set the name as a new dict with the type"""
         self.getTempConfig().clear()
-        self.getTempConfig()[self._ui.nameEdit.text().strip()] = {
-            TYPE: self._ui.typeView.selectionModel().selectedIndexes()[0].data()
-        }
+        self.getTempConfig().name = self._ui.nameEdit.text().strip()
+        self.getTempConfig().type_ = (
+            self._ui.typeView.selectionModel().selectedIndexes()[0].data()
+        )
 
     def reset(self) -> None:
         self._ui.typeView.selectionModel().clearSelection()
@@ -72,9 +75,6 @@ class CreateTypeBasePage(CreateBasePage):
 
     def loadPage(self, keys: typing.List[str]) -> None:
         return super().loadPage(keys)
-
-    def getKeysForNextPage(self) -> typing.List:
-        return super().getKeysForNextPage()
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

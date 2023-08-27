@@ -7,7 +7,7 @@ import inspect
 import traceback
 
 
-class userFuncCaller:
+class UserFuncCaller:
     """
     Used to call user inputted functions
 

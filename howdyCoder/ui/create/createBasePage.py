@@ -1,6 +1,6 @@
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
-from ...core.commonGlobals import UI_GROUP
+from ...core.commonGlobals import UI_GROUP, ItemSettings, AlgoSettings, GROUP_SET
 from ..uiConstants import PageKeys
 from ...commonUtil import mpLogging
 
@@ -19,6 +19,7 @@ class CreateBasePage(
     PAGE_KEY: Enum = None
     EXIT: Enum = None
     EXIT_LABEL: str = ""
+    GROUP = ""
 
     nextPage = QtCore.Signal()
     manualExit = QtCore.Signal(PageKeys)
@@ -27,16 +28,18 @@ class CreateBasePage(
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         resource_prefix: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
         super().__init__(resource_prefix, parent, f)
         assert self.PAGE_KEY, "PAGE_KEY not assigned by sub class"
-        self.current_config: typing.Dict[str, typing.Any] = current_config
-        self.temp_config: typing.Dict[str, typing.Any] = None  # assigned after the fact
-        self.config_keys = []
+        assert (
+            self.GROUP and self.GROUP in GROUP_SET
+        ), "GROUP not correctly assigned by sub class"
+        self.current_config: AlgoSettings = current_config
+        self.temp_config: ItemSettings = None  # assigned after the fact
         self.next_enabled = True
         self.back_enabled = True
 
@@ -44,24 +47,14 @@ class CreateBasePage(
         abstractQt.handleAbstractMethods(self)
         return super().__new__(self, *args, **kwargs)
 
-    def getConfigSection(self) -> typing.Dict[str, typing.Any]:
-        curr = self.current_config
-        for k in self.config_keys:
-            if k not in curr:
-                mpLogging.critical(
-                    f"Key not found in current config",
-                    group=UI_GROUP,
-                    description=f"Keys: {self.config_keys}, config: {self.current_config}",
-                )
-                return {}
-            curr = curr[k]
-        return curr
+    def getConfig(self) -> AlgoSettings:
+        return self.current_config
 
-    def getTempConfig(self) -> typing.Dict[str, typing.Any]:
+    def getTempConfig(self) -> ItemSettings:
         return self.temp_config
 
-    def getTempConfigFirstValue(self) -> typing.Dict[str, typing.Any]:
-        return next(iter(self.temp_config.values()))
+    def getConfigGroup(self):
+        return self.getConfig().getGroupDict(self.GROUP)
 
     def enableCheck(self):
         """Can be used as a slot for changing inputs on each page"""
@@ -78,21 +71,9 @@ class CreateBasePage(
         return False
 
     @abstractmethod
-    def loadPage(self, keys: typing.List[str]) -> None:
-        """Pass in settings to load the page"""
-        self.config_keys = keys
-
-    @abstractmethod
     def save(self) -> None:
         """Save the page's values into the config or for UI only info into data structures"""
         pass
-
-    @abstractmethod
-    def getKeysForNextPage(self) -> typing.List:
-        """
-        Get keys for the next page in the sequence. By default pass ahead all of the keys
-        """
-        return self.config_keys
 
     @abstractmethod
     def reset(self) -> None:

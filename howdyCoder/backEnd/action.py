@@ -1,7 +1,7 @@
 from . import constants as con
 from . import feed as feedModule
 
-from ..commonUtil.userFuncCaller import userFuncCaller
+from ..commonUtil.userFuncCaller import UserFuncCaller
 from ..commonUtil import mpLogging, helpers
 from ..core.commonGlobals import ACTION_GROUP, FIRST, DATA_SET
 from ..core.configConstants import PERIOD, ActionDataType, ENUM_DISPLAY
@@ -72,11 +72,11 @@ class action:
         **kwargs,
     ):
         self.actionType: str = type
-        self.calcFunc: userFuncCaller = calcFunc
+        self.calcFunc: UserFuncCaller = calcFunc
         self.name: str = name.lower()
         self.period: int = period
         self.parameters: dict = parameters if parameters else {}
-        self.setupFuncs: typing.Dict[str, userFuncCaller] = (
+        self.setupFuncs: typing.Dict[str, UserFuncCaller] = (
             setupFuncs if setupFuncs else {}
         )
         self.aggregate: bool = aggregate

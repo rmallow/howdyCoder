@@ -1,6 +1,7 @@
 from .createTypeBasePage import CreateTypeBasePage
 from ..uiConstants import PageKeys
 from ...core.configConstants import ActionTypeEnum
+from ...core.commonGlobals import AlgoSettings
 
 import typing
 
@@ -27,7 +28,7 @@ class CreateActionTypePage(CreateTypeBasePage):
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(

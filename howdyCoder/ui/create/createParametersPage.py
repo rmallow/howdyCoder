@@ -5,6 +5,14 @@ from . import parameterTable
 
 from ...core.configConstants import PERIOD, FLATTEN, SINGLE_SHOT
 
+from ...core.commonGlobals import (
+    AlgoSettings,
+    DATA_SOURCES,
+    ACTION_LIST,
+    DataSourceSettings,
+    ActionSettings,
+)
+
 import typing
 
 from PySide6 import QtWidgets, QtCore
@@ -13,7 +21,7 @@ from PySide6 import QtWidgets, QtCore
 class CreateBaseParametersPage(CreateBasePage):
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         period_text: str,
         resource_preifx: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
@@ -53,10 +61,9 @@ class CreateBaseParametersPage(CreateBasePage):
         an error trying to save to a temp config that doesn't exist
         """
         if self.getTempConfig():
-            curr = self.getTempConfigFirstValue()
+            curr = self.getTempConfig()
             curr |= parameterTable.convertToConfig(self._parameterModel.getData())
-            curr[PERIOD] = self._ui.periodSpinBox.value()
-            curr[FLATTEN] = self._ui.flattenedCheck.isChecked()
+            curr.flatten = self._ui.flattenedCheck.isChecked()
 
     def reset(self) -> None:
         self._parameterModel.clear()
@@ -65,14 +72,11 @@ class CreateBaseParametersPage(CreateBasePage):
         self._ui.single_shot_check.setChecked(False)
 
     def loadPage(self, keys: typing.List[str]) -> None:
-        curr = self.getTempConfigFirstValue()
+        curr = self.getTempConfig()
         self._parameterModel.setValues(curr)
         self._ui.periodSpinBox.setValue(curr.get(PERIOD, 1))
         self._ui.flattenedCheck.setChecked(curr.get(FLATTEN, True))
         return super().loadPage(keys)
-
-    def getKeysForNextPage(self) -> typing.List:
-        return super().getKeysForNextPage()
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
@@ -82,10 +86,11 @@ class CreateDataSourceParametersPage(CreateBaseParametersPage):
     PAGE_KEY = PageKeys.DATA_SOURCE_PARAMETERS
     DATA_SOURCE_TEXT = "Set the period for the data source. The period is how often the data source will query the input.  IE if it is a stream data source, it will call the API URL every period number of seconds. Or set singleshot which will make the data source run only once, regardless of period."
     TUTORIAL_RESOURCE_PREFIX = "CreateParameterDataSource"
+    GROUP = DATA_SOURCES
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -97,8 +102,9 @@ class CreateDataSourceParametersPage(CreateBaseParametersPage):
 
     def save(self):
         super().save()
-        curr = self.getTempConfigFirstValue()
-        curr[SINGLE_SHOT] = self._ui.single_shot_check.isChecked()
+        curr: DataSourceSettings = self.getTempConfig()
+        curr.period = self._ui.periodSpinBox.value()
+        curr.single_shot = self._ui.single_shot_check.isChecked()
 
 
 class CreateActionParametersPage(CreateBaseParametersPage):
@@ -108,10 +114,11 @@ class CreateActionParametersPage(CreateBaseParametersPage):
     For example if the calcuating function detrmines an average and the period is set to 5, then it will be performing an average of the last 5 pieces of data in the input."""
 
     TUTORIAL_RESOURCE_PREFIX = "CreateParameterAction"
+    GROUP = ACTION_LIST
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(

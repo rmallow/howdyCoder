@@ -18,8 +18,10 @@ from ..core.configConstants import (
     SETUP_FUNCS,
     ActionTypeEnum,
 )
+from ..core.commonGlobals import ActionSettings
 
 import copy
+import typing
 
 
 class AlgoManager:
@@ -79,20 +81,23 @@ class AlgoManager:
         factory = dF.dataSourceFactory()
         return factory.create(dataSourceConfig, dataSourceType)
 
-    def _loadActionList(self, actionListConfig: dict, feed) -> list:
+    def _loadActionList(
+        self, action_list_config: typing.Dict[str, typing.Any], feed
+    ) -> list:
         actionList = []
         factory = aF.actionFactory()
-        for name, actionConfig in actionListConfig.items():
-            creatorType = actionConfig[TYPE]
-            if AGGREGATE in actionConfig:
-                creatorType = AGGREGATE + actionConfig[AGGREGATE]
-            actionConfig[NAME] = name
-            action = factory.create(actionConfig, creatorType)
+        for name, action_config in action_list_config.items():
+            action_settings = ActionSettings(**action_config)
+            creator_type = action_settings.type_
+            if action_settings.aggregate:
+                creator_type = action_settings.aggregate + action_settings.type_
+            action_settings.name = name
+            action = factory.create(action_settings, creator_type)
             # if it is an event but not an aggregate then add the name to column names
             # so it can be selected later
             if (
-                creatorType == ActionTypeEnum.EVENT.display
-                and AGGREGATE not in actionConfig
+                creator_type == ActionTypeEnum.EVENT.display
+                and AGGREGATE not in action_settings
             ):
                 self.columnNames.append(name)
             action.feed = feed
@@ -107,8 +112,8 @@ class AlgoManager:
 
         def assignUserFuncCaller(c, k, v):
             nonlocal user_funcs
-            user_funcs.append(userFuncCaller.userFuncCaller(**v))
-            c[k] = user_funcs[-1]
+            user_funcs.append(userFuncCaller.UserFuncCaller(**v))
+            c[k]["user_func"] = user_funcs[-1]
 
         configLoader.dfsConfigDict(
             config_copy,

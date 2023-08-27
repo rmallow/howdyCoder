@@ -3,6 +3,8 @@ from ..uiConstants import PageKeys
 from ...core.configConstants import (
     DataSourcesTypeEnum,
 )
+from ...core.commonGlobals import AlgoSettings, DATA_SOURCES
+
 import typing
 
 from PySide6 import QtWidgets
@@ -30,9 +32,11 @@ class CreateDataSourceTypePage(CreateTypeBasePage):
 
     TUTORIAL_RESOURCE_PREFIX = "CreateTypeDataSource"
 
+    GROUP = DATA_SOURCES
+
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(

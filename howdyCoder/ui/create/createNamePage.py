@@ -2,6 +2,8 @@ from .createBasePage import CreateBasePage
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createNamePage
 
+from ...core.commonGlobals import AlgoSettings, NONE_GROUP
+
 import typing
 
 from PySide6 import QtWidgets, QtCore
@@ -14,11 +16,13 @@ class CreateNamePage(CreateBasePage):
 
     TUTORIAL_RESOURCE_PREFIX = "None"
 
+    GROUP = NONE_GROUP
+
     doesAlgoNameExist = QtCore.Signal(str)
 
     def __init__(
         self,
-        current_config: typing.Dict[str, typing.Any],
+        current_config: AlgoSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
@@ -40,16 +44,8 @@ class CreateNamePage(CreateBasePage):
         return True
 
     def save(self) -> None:
-        """We don't want to keep adding keys to the dict so make sure there is only one"""
-        old_value = {}
-        if len(self.current_config):
-            old_value = self.current_config[next(iter(self.current_config.keys()))]
-            # clear out the config just to be safe
-            self.current_config.clear()
-        self.current_config[self._ui.nameEdit.text().strip()] = old_value
-
-    def getKeysForNextPage(self) -> typing.Any:
-        return [next(iter(self.current_config.keys()))]
+        """Replace the name in the settings"""
+        self.getConfig().name = self._ui.nameEdit.text().strip()
 
     def reset(self) -> None:
         self.next_enabled = False

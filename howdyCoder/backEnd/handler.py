@@ -2,7 +2,7 @@ from .handlerData import handlerData
 
 from .util import wrappers as wrap
 
-from ..commonUtil.userFuncCaller import userFuncCaller
+from ..commonUtil.userFuncCaller import UserFuncCaller
 
 import typing
 
@@ -40,12 +40,12 @@ class handler:
         **kwargs
     ):
         self.code: str = code
-        self.calcFunc: userFuncCaller = calcFunc
+        self.calcFunc: UserFuncCaller = calcFunc
         self.period: int = period
         self.name: str = name
         self.parameters: typing.Dict[str, typing.Any] = parameters
-        self.setupFuncs: typing.Dict[str, userFuncCaller] = setupFuncs
-        self.outputFunc: userFuncCaller = outputFunc
+        self.setupFuncs: typing.Dict[str, UserFuncCaller] = setupFuncs
+        self.outputFunc: UserFuncCaller = outputFunc
         self.aggregate: bool = aggregate
         self.handlerData: handlerData = None
         self.personalData: typing.Dict = {}
