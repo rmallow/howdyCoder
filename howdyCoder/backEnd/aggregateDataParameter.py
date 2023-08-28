@@ -1,5 +1,4 @@
 from .aggregateData import aggregateData
-from ..core.configConstants import INPUT
 
 
 class aggregateDataParameter(aggregateData):
@@ -13,5 +12,5 @@ class aggregateDataParameter(aggregateData):
 
     def update(self):
         # should this be INPUT_PARAMETER? revisit when aggregates are added back
-        self.input = self.parameters.get(INPUT, [])
+        # self.input = self.parameters.get(INPUT, [])
         super().update()

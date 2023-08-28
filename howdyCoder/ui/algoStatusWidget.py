@@ -6,13 +6,14 @@ from .tutorialOverlay import AbstractTutorialClass
 from .util import abstractQt
 
 from ..commonUtil import helpers
-from ..core.configConstants import DATA_SOURCES, TYPE, DataSourcesTypeEnum, ENUM_DISPLAY
-from ..core.commonGlobals import Modes
+from ..core.configConstants import DataSourcesTypeEnum, ENUM_DISPLAY
+from ..core.commonGlobals import Modes, AlgoSettings
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
 import typing
 import yaml
+from dataclass_wizard import asdict
 
 COLOR_MAP = {
     Modes.STANDBY: QtCore.Qt.GlobalColor.gray,
@@ -42,10 +43,9 @@ class AlgoStatusWidget(
         self.ui.name_label.setText(self.data.name)
         self.ui.save_button.released.connect(self.saveConfig)
         self._input_found = False
-        if DATA_SOURCES in data.config:
-            for v in data.config[DATA_SOURCES].values():
-                if v[TYPE] == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY):
-                    self._input_found = True
+        for v in data.config.data_sources.values():
+            if v.type_ == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY):
+                self._input_found = True
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.refresh)
         self._timer.start(GUI_REFRESH_INTERVAL)
@@ -78,7 +78,7 @@ class AlgoStatusWidget(
         ]:
             with open(file_path, "w") as yaml_file:
                 yaml.dump(
-                    {self.data.name: self.data.config},
+                    asdict(AlgoSettings, self.data.config),
                     yaml_file,
                     default_flow_style=False,
                 )

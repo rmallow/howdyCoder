@@ -3,8 +3,6 @@ from ..qtUiFiles import ui_createDataSourceParametersPage
 from ..uiConstants import PageKeys
 from . import parameterTable
 
-from ...core.configConstants import PERIOD, FLATTEN, SINGLE_SHOT
-
 from ...core.commonGlobals import (
     AlgoSettings,
     DATA_SOURCES,
@@ -62,7 +60,7 @@ class CreateBaseParametersPage(CreateBasePage):
         """
         if self.getTempConfig():
             curr = self.getTempConfig()
-            parameterTable.addToConfig(curr, self._parameterModel.getData())
+            self._parameterModel.getData(curr)
             curr.flatten = self._ui.flattenedCheck.isChecked()
 
     def reset(self) -> None:

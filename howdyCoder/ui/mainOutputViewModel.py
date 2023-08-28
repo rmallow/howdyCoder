@@ -4,10 +4,6 @@ from .algoData import AlgoDict
 
 from ..core.commonGlobals import ITEM, AlgoStatusData
 from ..core.configConstants import (
-    DATA_SOURCES,
-    ACTION_LIST,
-    OUTPUT,
-    TYPE,
     ActionTypeEnum,
     ENUM_DISPLAY,
 )
@@ -109,15 +105,14 @@ class mainOutputViewModel(QtCore.QObject):
         self.blockComboModel.clear()
         # add data from algo dict here
         for config in self.algo_dict.getConfigs():
-            key = next(iter(config.keys()))
             columns = []
-            for ds_key, ds_config in config[key].get(DATA_SOURCES, {}).items():
+            for ds_key, ds_config in config.data_sources.items():
                 try:
-                    columns.extend(list(ds_config[OUTPUT].values()))
+                    columns.extend(list(ds_config.output.values()))
                 except AttributeError:
-                    columns.extend(ds_config[OUTPUT])
+                    columns.extend(ds_config.output)
 
-            for act_key, act_config in config[key].get(ACTION_LIST, {}).items():
-                if act_config[TYPE] == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
+            for act_key, act_config in config.action_list.items():
+                if act_config.type_ == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
                     columns.append(act_key)
-            self.addItem(self.blockComboModel, key, columns)
+            self.addItem(self.blockComboModel, config.name, columns)

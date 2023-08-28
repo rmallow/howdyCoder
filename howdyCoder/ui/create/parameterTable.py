@@ -1,12 +1,6 @@
-from ..actionUIConstant import ActionFuncEnum
+from ..actionUIConstant import functionDictToFunctionSettings
 from .. import editableTable
 
-from ...commonUtil import helpers
-
-from ...core.configConstants import (
-    SETUP_FUNCS,
-    PARAMETERS,
-)
 from ...core.commonGlobals import (
     ENUM_VALUE,
     ENUM_DISPLAY,
@@ -15,7 +9,6 @@ from ...core.commonGlobals import (
     ENUM_ENABLED,
     ItemSettings,
     Parameter,
-    FunctionSettings,
 )
 
 import typing
@@ -64,7 +57,7 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 return self.values[valueKey][ParameterEnum.DESCRIPTION]
         return super().data(index, role)
 
-    def getData(self) -> typing.Dict[str, typing.Any]:
+    def getData(self, config: ItemSettings) -> typing.Dict[str, typing.Any]:
         """Return a dict that is the config of the parameter table"""
         returnConfig = {}
         for value in self.values:
@@ -78,36 +71,13 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
             ):
                 if value[ParameterEnum.TYPE] == editableTable.EditorType.FUNC.display:
                     """If it is a setup func add to that section instead of parameters"""
-                    configSection = SETUP_FUNCS
+                    config.setup_funcs[
+                        value[ParameterEnum.NAME]
+                    ] = functionDictToFunctionSettings(value[ParameterEnum.VALUE])
                 else:
                     """else add to parameter section as normal"""
-                    configSection = PARAMETERS
-                if configSection not in returnConfig:
-                    returnConfig[configSection] = {}
-                returnConfig[configSection][value[ParameterEnum.NAME]] = value[
-                    ParameterEnum.VALUE
-                ]
+                    config.parameters[value[ParameterEnum.NAME]] = Parameter(
+                        value[ParameterEnum.NAME], value[ParameterEnum.VALUE]
+                    )
 
         return returnConfig
-
-
-def addToConfig(
-    config: ItemSettings, parameter_dict: typing.Dict[ParameterEnum, str]
-) -> typing.Dict[str, str]:
-    """This parameter dict should be the output from parameter table getData
-    This will convert it from data that makes sense to the UI to config for the block manager
-    """
-    return_config = {}
-
-    for k, v in parameter_dict.get(PARAMETERS, {}):
-        config.parameters[k] = Parameter(k, v)
-
-    for k, v in parameter_dict.get(SETUP_FUNCS, {}):
-        config.setup_funcs[k] = FunctionSettings(
-            v[ActionFuncEnum.CODE],
-            v[ActionFuncEnum.NAME],
-            v[ActionFuncEnum.IMPORTS],
-            v[ActionFuncEnum.IMPORT_STATEMENTS],
-        )
-
-    return return_config

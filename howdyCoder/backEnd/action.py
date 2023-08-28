@@ -3,8 +3,8 @@ from . import feed as feedModule
 
 from ..commonUtil.userFuncCaller import UserFuncCaller
 from ..commonUtil import mpLogging, helpers
-from ..core.commonGlobals import ACTION_GROUP, FIRST, DATA_SET
-from ..core.configConstants import PERIOD, ActionDataType, ENUM_DISPLAY
+from ..core.commonGlobals import FIRST, DATA_SET, ActionSettings
+from ..core.configConstants import ActionDataType, ENUM_DISPLAY
 from ..commonUtil import sparseDictList
 
 import bisect
@@ -57,55 +57,25 @@ class action:
 
     def __init__(
         self,
-        type,
-        calcFunc,
+        action_settings: ActionSettings,
         *args,
-        period=1,
-        name="defaultActionName",
-        parameters=None,
-        setupFuncs=None,
-        aggregate=False,
-        input_data=None,
-        requires_new=None,
-        action_data_type="",
-        flatten=True,
         **kwargs,
     ):
-        self.actionType: str = type
-        self.calcFunc: UserFuncCaller = calcFunc
-        self.name: str = name.lower()
-        self.period: int = period
-        self.parameters: dict = parameters if parameters else {}
-        self.setupFuncs: typing.Dict[str, UserFuncCaller] = (
-            setupFuncs if setupFuncs else {}
-        )
-        self.aggregate: bool = aggregate
+        self.actionType: str = action_settings.type_
+        self.calcFunc: UserFuncCaller = action_settings.calc_func.user_func
+        self.name: str = action_settings.name.lower()
+        self.parameters: dict = action_settings.parameters
+        self.setupFuncs: typing.Dict[str, UserFuncCaller] = action_settings.setup_funcs
+        self.aggregate: bool = action_settings.aggregate
+        self.input_info_map = action_settings.input_
 
         self.action_data_type: ActionDataType = helpers.findEnumByAttribute(
-            ActionDataType, ENUM_DISPLAY, action_data_type
+            ActionDataType, ENUM_DISPLAY, action_settings.input_data_type
         )
-        self.flatten: bool = flatten
-        if PERIOD not in self.parameters:
-            self.parameters[PERIOD] = self.period
+        self.flatten: bool = action_settings.flatten
 
-        """
-        Manually set up input columns, if labels are provided the input will be a dict, where
-        input cols are the keys and labels are the value else, it will be a list of input cols
-        """
-        if input_data is not None:
-            try:
-                self.input = [x.lower() for x in input_data.keys()]
-                self.labels = input_data
-            except AttributeError:
-                self.input = [x.lower() for x in input_data]
-                self.labels = None
-        else:
-            mpLogging.debug(f"No input value provided for action: {self.name}")
-            self.input = []
+        self.input = [x.lower() for x in self.input_info_map.keys()]
 
-        self.requires_new: typing.Set[str] = (
-            set(k for k, v in requires_new.items() if v) if requires_new else set()
-        )
         self.last_used = {i: None for i in self.input}
 
         self.dataSet: pd.DataFrame = None

@@ -7,6 +7,7 @@ from ..core.configConstants import (
     IMPORT_STATEMENTS,
 )
 
+import typing
 from aenum import Enum
 
 INVALID_ACTION_KEY = "__INVALID_ACTION__"
@@ -35,6 +36,17 @@ class ActionFuncEnum(Enum):
     IMPORTS = 2, IMPORTS
     IMPORT_STATEMENTS = 3, IMPORT_STATEMENTS
     INDEX = 4, ""
+
+
+def functionDictToFunctionSettings(
+    function_dict: typing.Dict[ActionFuncEnum, typing.Any]
+):
+    return FunctionSettings(
+        function_dict[ActionFuncEnum.CODE],
+        function_dict[ActionFuncEnum.NAME],
+        function_dict[ActionFuncEnum.IMPORTS],
+        function_dict[ActionFuncEnum.IMPORT_STATEMENTS],
+    )
 
 
 class DataSetEnum(Enum):

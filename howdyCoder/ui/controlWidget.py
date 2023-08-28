@@ -10,11 +10,8 @@ from .util import abstractQt
 from .qtUiFiles import ui_controlWidget
 
 from ..core.configConstants import (
-    DATA_SOURCES,
-    TYPE,
     DataSourcesTypeEnum,
     ENUM_DISPLAY,
-    INPUT_TYPE,
     InputType,
 )
 from ..core.commonGlobals import Modes, InputData
@@ -166,11 +163,11 @@ class ControlWidget(
         if uid not in self._algo_input_windows:
             inputs = []
             if uid in self._algo_widgets and (data := self.algo_dict.getDataById(uid)):
-                for key, data_source in data.config[DATA_SOURCES].items():
-                    if data_source.get(TYPE, "") == getattr(
+                for key, data_source in data.config.data_sources.items():
+                    if data_source.type_ == getattr(
                         DataSourcesTypeEnum.INPUT, ENUM_DISPLAY
                     ):
-                        w = InputBox(key, InputType(data_source[INPUT_TYPE]))
+                        w = InputBox(key, InputType(data_source.input_type))
                         w.inputEntered.connect(
                             lambda input_data: self.inputPassThrough(
                                 input_data, data.name

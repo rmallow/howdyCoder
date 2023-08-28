@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass, field
-from dataclass_wizard import property_wizard
+from dataclass_wizard import property_wizard, JSONWizard
 import typing
 
 # Dict Keys
@@ -63,14 +63,20 @@ class AlgoStatusData:
 
 
 @dataclass
-class InputData(metaclass=property_wizard):
+class InputData(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     code: str = ""
     data_source_name: str = ""
     val: typing.Any = None
 
 
 @dataclass
-class FunctionSettings(metaclass=property_wizard):
+class FunctionSettings(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     code: str = ""
     name: str = ""
     imports: typing.List[str] = field(default_factory=list)
@@ -79,20 +85,29 @@ class FunctionSettings(metaclass=property_wizard):
 
 
 @dataclass
-class InputSettings(metaclass=property_wizard):
+class InputSettings(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     name: str = ""
     requires_new: bool = False
     period: int = 1
 
 
 @dataclass
-class Parameter(metaclass=property_wizard):
+class Parameter(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     name: str = ""
     value: typing.Any = None
 
 
 @dataclass
-class ItemSettings(metaclass=property_wizard):
+class ItemSettings(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     name: str = ""
     type_: str = ""
     flatten: bool = False
@@ -106,18 +121,27 @@ class ItemSettings(metaclass=property_wizard):
 
 
 @dataclass
-class ActionSettings(ItemSettings, metaclass=property_wizard):
+class ActionSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     input_: typing.Dict[str, InputSettings] = field(default_factory=dict)
+    input_data_type: str = ""
     aggregate: str = ""
-    calc_func: FunctionSettings = None
-    output_func: FunctionSettings = None
+    calc_func: FunctionSettings | None = None
+    output_func: FunctionSettings | None = None
 
 
 @dataclass
-class DataSourceSettings(ItemSettings, metaclass=property_wizard):
-    output: typing.Union[typing.List[str], typing.Dict[str, str]] = field(default_factory=list)
+class DataSourceSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
+    output: typing.Union[typing.List[str], typing.Dict[str, str]] = field(
+        default_factory=list
+    )
     # type specific
-    get_func: FunctionSettings = None
+    get_func: FunctionSettings | None = None
     input_type: str = ""
     key: str = ""
 
@@ -128,9 +152,15 @@ ACTION_LIST = "action_list"
 
 GROUP_SET = set([NONE_GROUP, DATA_SOURCES, ACTION_LIST])
 
+# for DFS purposes this must match the setup_funcs field
+SETUP_FUNCS = "setup_funcs"
+
 
 @dataclass
-class AlgoSettings(metaclass=property_wizard):
+class AlgoSettings(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     name: str = ""
     data_sources: typing.Dict[str, DataSourceSettings] = field(default_factory=dict)
     action_list: typing.Dict[str, ActionSettings] = field(default_factory=dict)

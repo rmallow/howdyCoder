@@ -10,94 +10,79 @@ from ..commonUtil import configLoader
 from ..commonUtil import userFuncCaller
 
 from ..core.configConstants import (
-    DATA_SOURCES,
-    NAME,
-    TYPE,
-    ACTION_LIST,
-    AGGREGATE,
-    SETUP_FUNCS,
     ActionTypeEnum,
 )
-from ..core.commonGlobals import ActionSettings
+from ..core.commonGlobals import (
+    ActionSettings,
+    AlgoSettings,
+    SETUP_FUNCS,
+    DataSourceSettings,
+)
 
 import copy
 import typing
+
+from dataclass_wizard import fromdict
 
 
 class AlgoManager:
     def __init__(self):
         self.blocks = {}
-        self.dataMangerList = {}
         # self.messageRouter = messageRouter
         self.columnNames = []
 
-    def loadItem(self, configDict: dict) -> None:
-        self.loadBlocks(configDict)
+    def loadBlock(self, config_dict: dict) -> None:
+        return [self._loadBlockAndDataSource(config_dict)]
 
-    def loadBlocks(self, configDict: dict) -> None:
-        mpLogging.info("---- Block Manager Loading Blocks ----")
-        ret_blocks = []
-        for code, config in configDict.items():
-            mpLogging.info("Loading Block with code: " + code)
-            ret_blocks.append(self._loadBlockAndDataSource(config, code))
-            self.columnNames = []
-        mpLogging.info("---- Block Manager Done Loading ----")
-        return ret_blocks
-
-    def _loadBlockAndDataSource(self, original_config: dict, code: str) -> block:
+    def _loadBlockAndDataSource(self, original_config: dict) -> block:
         dataSources = []
         func_replaced_config = copy.deepcopy(original_config)
         user_funcs = self.replaceFunctions(func_replaced_config)
-        dataSources = self._loadDataSources(func_replaced_config[DATA_SOURCES])
+        algo_settings = fromdict(AlgoSettings, func_replaced_config)
+        dataSources = self._loadDataSources(algo_settings.data_sources)
         feed = self._loadFeed(dataSources)
-        actionList = self._loadActionList(func_replaced_config[ACTION_LIST], feed)
+        actionList = self._loadActionList(algo_settings.action_list, feed)
         blk = block(
             actionList,
             feed,
-            original_config,
+            algo_settings,
             user_funcs,
-            code=code,
+            code=algo_settings.name,
         )
         # we're setting up the column names in action list and we use that for sending to the ui
         # so the column names can be selected for viewing there, should change later
         blk.columnNames = self.columnNames
-        self.blocks[code] = blk
-        self.dataMangerList[code] = dataSources
+        self.blocks[algo_settings.name] = blk
         return blk
 
-    def _loadDataSources(self, dataSourcesConfig: dict) -> list[dataBase]:
+    def _loadDataSources(
+        self, data_source_settings: typing.Dict[str, DataSourceSettings]
+    ) -> list[dataBase]:
         dataSources = []
-        for code, config in dataSourcesConfig.items():
-            config["code"] = code
+        for _, config in data_source_settings.items():
             dataSources.append(self._loadDataSource(config))
         return dataSources
 
-    def _loadDataSource(self, dataSourceConfig: dict) -> dataBase:
-        dataSourceType = dataSourceConfig[TYPE]
-        if "constraint" in dataSourceConfig:
-            dataSourceConfig |= dataSourceConfig["constraint"]
-
+    def _loadDataSource(self, data_source_settings: DataSourceSettings) -> dataBase:
         # use the dataSourceFactory with the type to create the dataSource
         factory = dF.dataSourceFactory()
-        return factory.create(dataSourceConfig, dataSourceType)
+        return factory.create(data_source_settings, data_source_settings.type_)
 
     def _loadActionList(
-        self, action_list_config: typing.Dict[str, typing.Any], feed
+        self, action_list_settings: typing.Dict[str, ActionSettings], feed
     ) -> list:
         actionList = []
         factory = aF.actionFactory()
-        for name, action_config in action_list_config.items():
-            action_settings = ActionSettings(**action_config)
+        for name, action_settings in action_list_settings.items():
             creator_type = action_settings.type_
             if action_settings.aggregate:
                 creator_type = action_settings.aggregate + action_settings.type_
-            action_settings.name = name
             action = factory.create(action_settings, creator_type)
             # if it is an event but not an aggregate then add the name to column names
             # so it can be selected later
             if (
                 creator_type == ActionTypeEnum.EVENT.display
-                and AGGREGATE not in action_settings
+                and not action_settings.aggregate
             ):
                 self.columnNames.append(name)
             action.feed = feed
@@ -112,8 +97,9 @@ class AlgoManager:
 
         def assignUserFuncCaller(c, k, v):
             nonlocal user_funcs
-            user_funcs.append(userFuncCaller.UserFuncCaller(**v))
-            c[k]["user_func"] = user_funcs[-1]
+            if v is not None:
+                user_funcs.append(userFuncCaller.UserFuncCaller(**v))
+                c[k]["user_func"] = user_funcs[-1]
 
         configLoader.dfsConfigDict(
             config_copy,

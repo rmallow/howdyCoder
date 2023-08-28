@@ -1,6 +1,6 @@
 from .createBasePage import CreateBasePage
 from ..uiConstants import PageKeys
-from ..actionUIConstant import ActionFuncEnum
+from ..actionUIConstant import ActionFuncEnum, functionDictToFunctionSettings
 from ..qtUiFiles import ui_createActionSettingsPage
 
 from .. import highlightModel
@@ -273,14 +273,14 @@ class CreateActionSettingsPage(CreateBasePage):
 
     def save(self) -> None:
         action_settings: ActionSettings = self.getTempConfig()
-        action_settings.type_ = self._ui.dataTypeCombo.currentText()
-        action_settings.calc_func = helpers.getConfigFromEnumDict(
+        action_settings.calc_func = functionDictToFunctionSettings(
             self._current_calc_settings
         )
         if self._action_type == ActionTypeEnum.TRIGGER:
-            action_settings.output_func = helpers.getConfigFromEnumDict(
+            action_settings.output_func = functionDictToFunctionSettings(
                 self._current_output_settings
             )
+        action_settings.input_data_type = self._ui.dataTypeCombo.currentText()
         # get from data, because if it's an event we don't want to get the "Event" tag before it
         # this has been stored in the data when the selected table was populated
         for row in range(self._selected_input_table_model.rowCount()):
@@ -295,7 +295,7 @@ class CreateActionSettingsPage(CreateBasePage):
                 == QtCore.Qt.CheckState.Checked
             )
             input_settings.period = self._selected_input_table_model.item(
-                row, SELECTED_NAME_COLUMN
+                row, SELECTED_PERIOD_COLUMN
             ).data(QtCore.Qt.ItemDataRole.EditRole)
             source = self._selected_input_table_model.item(
                 row, SELECTED_SOURCE_COLUMN

@@ -6,10 +6,6 @@ import typing
 
 from PySide6 import QtWidgets, QtGui, QtCore
 
-from ...core.configConstants import (
-    TYPE,
-)
-
 from ...core.commonGlobals import AlgoSettings
 
 NO_SELECTION_TEXT = "Select a type to the left to view its description"

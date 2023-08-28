@@ -1,7 +1,6 @@
 from .action import action
 from . import actionFactory as aF
 
-from ..core.configConstants import TYPE
 
 from collections.abc import Iterable
 from typing import List
@@ -32,7 +31,7 @@ class aggregate(action):
 
     def createChildAction(self, doSetupFunc: bool = True):
         config = self.getConfig()
-        actionType = config[TYPE]
+        actionType = config.type_
         factory = aF.actionFactory()
         newAction = factory.create(config, actionType, doSetupFunc=doSetupFunc)
         newAction.feed = self.feed

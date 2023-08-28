@@ -1,9 +1,6 @@
 from ..core.message import message
 
-from ..core.commonGlobals import (
-    Modes,
-    AlgoStatusData,
-)
+from ..core.commonGlobals import Modes, AlgoStatusData, AlgoSettings
 
 from dataclasses import dataclass
 import typing
@@ -14,7 +11,7 @@ from PySide6 import QtCore
 @dataclass
 class AlgoWidgetData:
     name: str
-    config: typing.Dict
+    config: AlgoSettings
     uid: int
     runtime: float = 0.0
     data_count: int = 0
@@ -32,9 +29,9 @@ class AlgoDict(QtCore.QObject):
         self._current_id_set: typing.Dict[int, str] = {}
         self._current_uid: int = 0
 
-    def getConfigs(self) -> typing.Dict:
+    def getConfigs(self) -> typing.List[AlgoSettings]:
         for key, algo in self._algos.items():
-            yield {key: algo.config}
+            yield {algo.config}
 
     def getData(self, name: str):
         if name in self._algos:

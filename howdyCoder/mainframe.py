@@ -453,7 +453,7 @@ class mainframe(commandProcessor):
     def loadAlgos(self, config_dict: typing.Dict[str, typing.Any]) -> None:
         """Load the algos and assign the queues they need for mainframe communication"""
         self.checkModules(config_dict)
-        for algo in self.algo_manager.loadBlocks(config_dict):
+        for algo in self.algo_manager.loadBlock(config_dict):
             algo.block_queue = self.dill_algo_manager.Queue()
 
         self.sendCreated(config_dict.keys())
