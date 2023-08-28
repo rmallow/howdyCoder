@@ -101,7 +101,9 @@ class SparseDictList(dict):
                 if isinstance(value, list) and flatten:
                     max_len = max(max_len, len(value))
                     for x in range(len(value)):
-                        self[valid_key].append(SparseData(self.longest_list + x, value))
+                        self[valid_key].append(
+                            SparseData(self.longest_list + x, value[x])
+                        )
                 else:
                     self[valid_key].append(
                         SparseData(self.longest_list + max_len - 1, value)

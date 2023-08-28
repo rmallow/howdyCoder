@@ -38,7 +38,9 @@ class AlgoManager:
         dataSources = []
         func_replaced_config = copy.deepcopy(original_config)
         user_funcs = self.replaceFunctions(func_replaced_config)
-        algo_settings = fromdict(AlgoSettings, func_replaced_config)
+        algo_settings = fromdict(
+            AlgoSettings, next(iter(func_replaced_config.values()))
+        )
         dataSources = self._loadDataSources(algo_settings.data_sources)
         feed = self._loadFeed(dataSources)
         actionList = self._loadActionList(algo_settings.action_list, feed)

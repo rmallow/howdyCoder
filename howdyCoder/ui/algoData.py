@@ -30,8 +30,8 @@ class AlgoDict(QtCore.QObject):
         self._current_uid: int = 0
 
     def getConfigs(self) -> typing.List[AlgoSettings]:
-        for key, algo in self._algos.items():
-            yield {algo.config}
+        for _, algo in self._algos.items():
+            yield algo.config
 
     def getData(self, name: str):
         if name in self._algos:

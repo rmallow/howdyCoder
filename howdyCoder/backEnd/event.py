@@ -1,7 +1,4 @@
 from . import action as act
-from . import constants as con
-
-from ..commonUtil import mpLogging
 
 
 class event(act.action):

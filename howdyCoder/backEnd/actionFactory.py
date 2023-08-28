@@ -40,7 +40,7 @@ class actionFactory:
                 some copied actions dont need to rerun setup funcs
         """
         actionCreator = self._getCreator(creatorType)
-        actionObj = actionCreator(**config)
+        actionObj = actionCreator(config)
         if doSetupFunc:
             actionObj.setup()
         return actionObj

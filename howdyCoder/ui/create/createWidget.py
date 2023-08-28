@@ -190,7 +190,7 @@ class CreateWidget(
         """Go forward a page, if it's the last page then check for any error and save config"""
         if self._current_index == len(self._create_widgets_list) - 1:
             # The main window will change from the create widget to control
-            self.addAlgo.emit(asdict(self.current_config))
+            self.addAlgo.emit({self.current_config.name: asdict(self.current_config)})
             self.reset()
         else:
             self.changePage(self._current_index + 1)

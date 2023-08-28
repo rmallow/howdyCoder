@@ -78,7 +78,7 @@ class AlgoStatusWidget(
         ]:
             with open(file_path, "w") as yaml_file:
                 yaml.dump(
-                    asdict(AlgoSettings, self.data.config),
+                    {self.data.config.name: asdict(self.data.config)},
                     yaml_file,
                     default_flow_style=False,
                 )

@@ -1,7 +1,7 @@
 from .constants import DataSourceTypeEnum, DataSourceReturnEnum
 
 from ..commonUtil import mpLogging
-from ..core.commonGlobals import DATA_GROUP
+from ..core.commonGlobals import DATA_GROUP, DataSourceSettings
 
 import abc
 import pandas as pd
@@ -16,37 +16,31 @@ class dataBase(abc.ABC):
 
     def __init__(
         self,
+        data_source_settings: DataSourceSettings,
         *args,
-        code=None,
-        key=None,
-        dataType=None,
-        indexName=None,
-        period=1,
-        columnFilter=None,
-        upperConstraint=None,
-        lowerConstraint=None,
-        dayFirst=None,
-        parameters={},
-        output=None,
-        flatten=True,
-        single_shot=False,
         **kwargs,
     ):
         super().__init__()
 
-        self.code: str = code
-        self.key: str = key
-        self.indexName: str = indexName
-        self.period: int = period
-        self.columnFilter: typing.List[str] = columnFilter
-        self.upperConstraint = upperConstraint
-        self.lowerConstraint = lowerConstraint
-        self.dayFirst: bool = dayFirst
-        self.parameters: typing.Dict[typing.Any] = parameters
-        self.output: typing.Union[typing.List, typing.Dict[str, str]] = output
-        self.flatten: bool = flatten
-        self.single_shot: bool = single_shot
+        self.code: str = data_source_settings.name
+        self.key: str = data_source_settings.key
+        self.period: int = data_source_settings.period
+        # TODO: Adding back in dataSim
+        # self.indexName: str = indexName
+        self.columnFilter: typing.List[str] = None
+        self.upperConstraint = None
+        self.lowerConstraint = None
+        self.dayFirst: bool = False
+        self.parameters: typing.Dict[typing.Any] = {
+            k: v.value for k, v in data_source_settings.parameters.items()
+        }
+        self.output: typing.Union[
+            typing.List[str], typing.Dict[str, str]
+        ] = data_source_settings.output
+        self.flatten: bool = data_source_settings.flatten
+        self.single_shot: bool = data_source_settings.single_shot
         # Convert data type to enum
+        """ TODO: this dataType is actually type of data NOT type of data source
         if dataType is not None:
             try:
                 self.dataType: DataSourceTypeEnum = DataSourceTypeEnum[dataType]
@@ -56,6 +50,7 @@ class dataBase(abc.ABC):
                     description=f"Data Type: {dataType}",
                     group=DATA_GROUP,
                 )
+        """
         self.end: bool = False
         self.newCycle: bool = False
         if self.columnFilter is not None and len(self.columnFilter) > 0:

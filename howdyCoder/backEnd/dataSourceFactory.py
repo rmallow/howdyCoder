@@ -24,7 +24,7 @@ _DATA_SOURCE_FACTORY_TYPES = {
 class dataSourceFactory:
     def create(self, config: dict, creatorType: str) -> dataBase:
         dataSourceCreator = self._getCreator(creatorType)
-        return dataSourceCreator(**config)
+        return dataSourceCreator(config)
 
     def validType(self, creatorType: str) -> bool:
         return creatorType.lower() in _DATA_SOURCE_FACTORY_TYPES

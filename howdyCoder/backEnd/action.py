@@ -1,9 +1,8 @@
-from . import constants as con
 from . import feed as feedModule
 
 from ..commonUtil.userFuncCaller import UserFuncCaller
-from ..commonUtil import mpLogging, helpers
-from ..core.commonGlobals import FIRST, DATA_SET, ActionSettings
+from ..commonUtil import helpers
+from ..core.commonGlobals import FIRST, DATA_SET, ActionSettings, InputSettings
 from ..core.configConstants import ActionDataType, ENUM_DISPLAY
 from ..commonUtil import sparseDictList
 
@@ -36,23 +35,6 @@ def findData(feed: feedModule.feed, col: str) -> typing.List[sparseDictList.Spar
 class action:
     """
     Base virtual class for actions used by action pool
-
-    Attributes:
-        actionType:
-            used for easier recreation of action, details which of child classes the action is
-            passed in as type, as it makes more sense in the config files to be listed as type
-        calcFunc:
-            called to produce ouptut values for the action
-        period:
-            interger number of data units to use for data set in calc func
-        name:
-            string given to the action from the config
-        parameters:
-            values passed into calcfunc, come from config or setupFuncs
-        setupFuncs:
-            add to parameters, run one time on startup
-        aggregate:
-            bool for if action is aggregate or not
     """
 
     def __init__(
@@ -67,7 +49,10 @@ class action:
         self.parameters: dict = action_settings.parameters
         self.setupFuncs: typing.Dict[str, UserFuncCaller] = action_settings.setup_funcs
         self.aggregate: bool = action_settings.aggregate
-        self.input_info_map = action_settings.input_
+        self.input_info_map: typing.Dict[str, InputSettings] = action_settings.input_
+        self.any_requires_new = any(
+            v.requires_new for v in self.input_info_map.values()
+        )
 
         self.action_data_type: ActionDataType = helpers.findEnumByAttribute(
             ActionDataType, ENUM_DISPLAY, action_settings.input_data_type
@@ -107,17 +92,25 @@ class action:
         for input_name in self.input:
             if data := findData(self.feed, input_name):
                 after_old = 0
-                if self.last_used[input_name] is None:
-                    if len(data) < self.period:
+                if self.input_info_map[input_name].period == -1:
+                    if len(data) > 0:
+                        after_old = 1
+                    else:
                         return "", 0
-                    after_old = len(data) - self.period + 1
-                elif len(data) > self.last_used[input_name]:
-                    after_old = len(data) - self.last_used[input_name]
+                else:
+                    if self.last_used[input_name] is None:
+                        if len(data) < self.input_info_map[input_name].period:
+                            return "", 0
+                        after_old = (
+                            len(data) - self.input_info_map[input_name].period + 1
+                        )
+                    elif len(data) > self.last_used[input_name]:
+                        after_old = len(data) - self.last_used[input_name]
                 if (
-                    input_name in self.requires_new
+                    self.input_info_map[input_name].requires_new
                     and (cur_index_length is None or after_old < cur_index_length)
                 ) or (
-                    not self.requires_new
+                    not self.any_requires_new
                     and (cur_index_length is None or after_old > cur_index_length)
                 ):
                     indexing_input = input_name
@@ -134,15 +127,13 @@ class action:
             data_arr_index = bisect.bisect_right(
                 data, end_index, key=lambda sparse_data: sparse_data.index
             )
-            value_only_data = [
-                data[x].value
-                for x in range(
-                    max(data_arr_index - self.period, 0),
-                    max(data_arr_index, self.period),
-                )
-            ]
+            lo = max(data_arr_index - self.input_info_map[col].period, 0)
+            hi = max(data_arr_index, self.input_info_map[col].period)
+            if self.input_info_map[col].period == -1:
+                lo, hi = 0, data_arr_index
+            value_only_data = [data[x].value for x in range(lo, hi)]
             temp_data_set[
-                self.labels[col] if col in self.labels else col
+                self.input_info_map[col].name if self.input_info_map[col].name else col
             ] = value_only_data
             self.last_used[col] = max(
                 self.last_used[col] if self.last_used[col] is not None else 0,
