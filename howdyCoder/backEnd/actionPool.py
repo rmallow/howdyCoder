@@ -11,13 +11,13 @@ from ..core.configConstants import ActionTypeEnum
 
 class actionPool:
     """
-    Container and caller for all actions of a block, communicates with messageRouter
+    Container and caller for all actions of a algo, communicates with messageRouter
 
     Attributes:
         triggers/events:
             main data structures for actionPool, contains all actions split into event/triggers
         code:
-            block code that the actionPool belongs to
+            algo code that the actionPool belongs to
         count:
             int number of times update called
     """

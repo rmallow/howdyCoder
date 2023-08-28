@@ -1,4 +1,4 @@
-from .block import block
+from .algo import Algo
 from . import actionFactory as aF
 from .feed import feed
 from .dataBase import dataBase
@@ -17,26 +17,24 @@ from ..core.commonGlobals import (
     AlgoSettings,
     SETUP_FUNCS,
     DataSourceSettings,
+    ProgramSettings,
 )
 
 import copy
 import typing
 
 from dataclass_wizard import fromdict
+from .programManager import ProgramManager
 
 
-class AlgoManager:
+class AlgoManager(ProgramManager):
     def __init__(self):
-        self.blocks = {}
-        # self.messageRouter = messageRouter
+        super().__init__()
         self.columnNames = []
 
-    def loadBlock(self, config_dict: dict) -> None:
-        return [self._loadBlockAndDataSource(config_dict)]
-
-    def _loadBlockAndDataSource(self, original_config: dict) -> block:
+    def load(self, program_settings: ProgramSettings) -> Algo:
         dataSources = []
-        func_replaced_config = copy.deepcopy(original_config)
+        func_replaced_config = copy.deepcopy(program_settings.settings)
         user_funcs = self.replaceFunctions(func_replaced_config)
         algo_settings = fromdict(
             AlgoSettings, next(iter(func_replaced_config.values()))
@@ -44,18 +42,18 @@ class AlgoManager:
         dataSources = self._loadDataSources(algo_settings.data_sources)
         feed = self._loadFeed(dataSources)
         actionList = self._loadActionList(algo_settings.action_list, feed)
-        blk = block(
+        algo = Algo(
             actionList,
             feed,
-            algo_settings,
+            program_settings,
             user_funcs,
             code=algo_settings.name,
         )
         # we're setting up the column names in action list and we use that for sending to the ui
         # so the column names can be selected for viewing there, should change later
-        blk.columnNames = self.columnNames
-        self.blocks[algo_settings.name] = blk
-        return blk
+        algo.columnNames = self.columnNames
+        self.programs[algo_settings.name] = algo
+        return algo
 
     def _loadDataSources(
         self, data_source_settings: typing.Dict[str, DataSourceSettings]

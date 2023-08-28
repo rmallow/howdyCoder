@@ -11,7 +11,7 @@ import time
 
 class dataBase(abc.ABC):
     """
-    Base class for data importers for blocks
+    Base class for data importers for algos
     """
 
     def __init__(

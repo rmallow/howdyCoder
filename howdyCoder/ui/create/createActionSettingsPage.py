@@ -36,7 +36,7 @@ AVAILABLE_SOURCE_COLUMN = 2
 SELECTED_SOURCE_COLUMN = 0
 SELECTED_NAME_COLUMN = 1
 SELECTED_REQUIRES_NEW_COLUMN = 2
-SELECTED_PERIOD_COLUMN = 3
+SELECTED_AMOUNT_OF_DATA_COLUMN = 3
 
 
 class FuncType(Enum):
@@ -67,15 +67,18 @@ class CreateActionSettingsPage(CreateBasePage):
         self._current_output_settings = None
         self._selected_input_table_model = QtGui.QStandardItemModel()
         self._selected_input_table_model.setHorizontalHeaderLabels(
-            ["Source", "Name", "Requires New", "Period"]
+            ["Source", "Name", "Requires New", "Amount of Data"]
         )
         self._available_input_table_model = highlightModel.HighlightTableModel()
         self._available_input_table_model.setHorizontalHeaderLabels(
             ["Group", "Name", "Source"]
         )
         self._ui.selectedInputTable.setModel(self._selected_input_table_model)
+        self._selected_input_table_model.itemChanged.connect(
+            self.selectedTableModelItemChanged
+        )
         self._ui.selectedInputTable.setItemDelegateForColumn(
-            SELECTED_PERIOD_COLUMN, SpinBoxDelegate(-1, 99999)
+            SELECTED_AMOUNT_OF_DATA_COLUMN, SpinBoxDelegate(-1, 99999)
         )
         self._ui.availableInputTable.setModel(self._available_input_table_model)
         self._ui.availableInputTable.setMouseTracking(True)
@@ -230,7 +233,7 @@ class CreateActionSettingsPage(CreateBasePage):
             self._ui.selectedInputTable.openPersistentEditor(
                 self._selected_input_table_model.index(
                     self._selected_input_table_model.rowCount() - 1,
-                    SELECTED_PERIOD_COLUMN,
+                    SELECTED_AMOUNT_OF_DATA_COLUMN,
                 )
             )
             self.enableCheck()
@@ -295,8 +298,11 @@ class CreateActionSettingsPage(CreateBasePage):
                 == QtCore.Qt.CheckState.Checked
             )
             input_settings.period = self._selected_input_table_model.item(
-                row, SELECTED_PERIOD_COLUMN
+                row, SELECTED_AMOUNT_OF_DATA_COLUMN
             ).data(QtCore.Qt.ItemDataRole.EditRole)
+            input_settings.period = (
+                1 if input_settings.period == 0 else input_settings.period
+            )
             source = self._selected_input_table_model.item(
                 row, SELECTED_SOURCE_COLUMN
             ).data(QtCore.Qt.UserRole + 1)
@@ -304,3 +310,11 @@ class CreateActionSettingsPage(CreateBasePage):
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
+
+    def selectedTableModelItemChanged(self, item: QtGui.QStandardItem):
+        """A period of 0 doesn't make sense, but we are allowing -1, since that means ALL"""
+        if (
+            item.index().column() == SELECTED_AMOUNT_OF_DATA_COLUMN
+            and item.data(QtCore.Qt.ItemDataRole.EditRole) == 0
+        ):
+            item.setData(1, QtCore.Qt.ItemDataRole.EditRole)

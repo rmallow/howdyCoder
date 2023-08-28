@@ -6,6 +6,8 @@ from .core.commonGlobals import (
     LOCAL_PORT,
     AlgoStatusData,
     Modes,
+    ProgramSettings,
+    ProgramTypes,
 )
 from .core.configConstants import IMPORTS
 
@@ -19,6 +21,7 @@ from .commonUtil.repeatTimer import setInterval
 from .core import message as msg
 from .core import messageKey as msgKey
 from .backEnd.algoManager import AlgoManager
+from .backEnd.scriptManager import ScriptManager
 from .commonUtil import configLoader
 from .backEnd.util.commandProcessor import commandProcessor
 
@@ -40,6 +43,8 @@ import subprocess
 import sys
 import traceback
 from dataclasses import asdict
+from dataclass_wizard import fromdict
+from itertools import chain
 
 MAINFRAME_QUEUE_CHECK_TIMER = 0.3
 LOGGING_QUEUE_CHECK_TIMER = 0.5
@@ -52,8 +57,7 @@ class mainframe(commandProcessor):
     def __init__(self, isLocal: bool):
         """
         This is the main initializing function for all of howdyCoder except for the UI
-        The mainframe is intended to be the main control center for all of the blocks
-        and the message router / handlers
+        The mainframe is intended to be the main control center for all of the programs
 
         All of the separate processes are created out of the mainframe and communicate back
         with the mainframe through different queues,
@@ -64,9 +68,6 @@ class mainframe(commandProcessor):
         # have to set the level for logging
         logging.getLogger().setLevel(logging.INFO)
 
-        # Set up item managers, unrelated to multiprocessing managers
-        self.algo_manager = None
-
         # Load defaults
         self.loader = configLoader.ConfigLoader(SETTINGS_FILE)
 
@@ -74,8 +75,8 @@ class mainframe(commandProcessor):
         self.process_dict = {}
         self.statusDict = {}
 
-        # This manager is for providing dill queues for the block processes
-        self.dill_algo_manager = dill_mp.Manager()
+        # This manager is for providing dill queues for the program processes
+        self.dill_program_manager = dill_mp.Manager()
 
         # Set up port and auth for managers
         port = None
@@ -93,54 +94,58 @@ class mainframe(commandProcessor):
             authkey = LOCAL_AUTH
 
         # This manager is for cleint sessions to acess these queues
-        self.clientSeverManager = qm.QueueManager(address=address, authkey=authkey)
+        self.client_server_manager = qm.QueueManager(address=address, authkey=authkey)
 
         print(
             f"Starting up server manager Address ip: {address[0]} port: {address[1]} and authkey: {authkey}"
         )
         # This queue is complicated as it's used both by local processes, that won't  be going through manager to get it
         # But it will also be used by objects that are only going to be acessing it by manager
-        self.mainframeQueue = mp.Queue(-1)
+        self.mainframe_queue = mp.Queue(-1)
         qm.QueueManager.register(
-            qm.GET_MAINFRAME_QUEUE, callable=lambda: self.mainframeQueue
+            qm.GET_MAINFRAME_QUEUE, callable=lambda: self.mainframe_queue
         )
 
         # This queue will only be used by mainframe and ui main model
-        self.uiQueue = mp.Queue(-1)
-        qm.QueueManager.register(qm.GET_UI_QUEUE, callable=lambda: self.uiQueue)
+        self.ui_queue = mp.Queue(-1)
+        qm.QueueManager.register(qm.GET_UI_QUEUE, callable=lambda: self.ui_queue)
 
         # This queue will be accessed by all processes started with logged process
-        self.loggingQueue = mp.Queue(-1)
+        self.logging_queue = mp.Queue(-1)
         qm.QueueManager.register(
-            qm.GET_LOGGING_QUEUE, callable=lambda: self.loggingQueue
+            qm.GET_LOGGING_QUEUE, callable=lambda: self.logging_queue
         )
 
         # start up the manager thread for serving its objects
         self._manager_thread = threading.Thread(
-            target=self.clientSeverManager.get_server().serve_forever, daemon=True
+            target=self.client_server_manager.get_server().serve_forever, daemon=True
         )
         self._manager_thread.start()
 
         # set up flag variables
-        self.uiConnected = False
-        self.pendingUiMessages = []
-        self.uiLastTime = None
+        self.ui_connected = False
+        self.pending_ui_messages = []
+        self.ui_last_time = None
 
         # add commands for processor
         self.addCmdFunc(msg.CommandType.ADD_OUTPUT_VIEW, mainframe.addOutputView)
         self.addCmdFunc(msg.CommandType.UI_STARTUP, mainframe.sendStartupData)
         self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, mainframe.sendStatusCheck)
-        self.addCmdFunc(msg.CommandType.CREATE_ALGO, mainframe.createAlgoCommand)
+        self.addCmdFunc(msg.CommandType.CREATE, mainframe.createCommand)
         self.addCmdFunc(msg.CommandType.INSTALL_PACKAGE, mainframe.installPackages)
-        self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToBlock)
-        self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, mainframe.passCommandToBlock)
+        self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToProgram)
+        self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, mainframe.passCommandToProgram)
 
         # Get other config files to load
         config = configparser.ConfigParser()
         config.read(SETTINGS_FILE)
 
-        # init block manager
-        self.algo_manager = AlgoManager()
+        # init all managers
+        self.type_to_manager = {
+            ProgramTypes.ALGO.value: AlgoManager(),
+            ProgramTypes.SCRIPT.value: ScriptManager(),
+        }
+        self.all_program_map = {}
 
         self.ui_status_check_event = None
         self.item_status_check_event = None
@@ -154,13 +159,13 @@ class mainframe(commandProcessor):
         If the ui queue exists and a ui is connected then send the pending ui messages
         Otherwise append to a list and send to the UI whe it does connect
         """
-        if self.uiQueue is not None:
-            if self.uiConnected:
-                if len(self.pendingUiMessages) > 0:
+        if self.ui_queue is not None:
+            if self.ui_connected:
+                if len(self.pending_ui_messages) > 0:
                     self.sendPendingUiMessages()
-                self.uiQueue.put(message)
+                self.ui_queue.put(message)
             else:
-                self.pendingUiMessages.append(message)
+                self.pending_ui_messages.append(message)
         else:
             mpLogging.critical(
                 "Major error, ui queue is none, this should never happen"
@@ -171,9 +176,9 @@ class mainframe(commandProcessor):
         A UI has connected so send all of the pending messages in one message
         """
         mpLogging.info("Sending pending messages to the UI")
-        m = msg.message(msg.MessageType.MESSAGE_LIST, self.pendingUiMessages)
-        self.uiQueue.put(m)
-        self.pendingUiMessages = []
+        m = msg.message(msg.MessageType.MESSAGE_LIST, self.pending_ui_messages)
+        self.ui_queue.put(m)
+        self.pending_ui_messages = []
 
     @setInterval(MAINFRAME_QUEUE_CHECK_TIMER)
     def checkMainframeQueue(self):
@@ -185,8 +190,8 @@ class mainframe(commandProcessor):
         This function is run on a timer, when the function ends it will
         run the function again on a predetermined timer
         """
-        while self._is_running and not self.mainframeQueue.empty():
-            message = self.mainframeQueue.get()
+        while self._is_running and not self.mainframe_queue.empty():
+            message = self.mainframe_queue.get()
             if isinstance(message, msg.message):
                 if message.isCommand():
                     self.processCommand(message.content, details=message)
@@ -211,8 +216,8 @@ class mainframe(commandProcessor):
     @setInterval(LOGGING_QUEUE_CHECK_TIMER)
     def checkLoggingQueue(self):
         # Check what's in the logging queue, if the ui queue exists send to that
-        while self._is_running and not self.loggingQueue.empty():
-            recordData = self.loggingQueue.get()
+        while self._is_running and not self.logging_queue.empty():
+            recordData = self.logging_queue.get()
             if recordData:
                 uiLoggingMessage = msg.message(
                     msg.MessageType.UI_UPDATE,
@@ -222,8 +227,8 @@ class mainframe(commandProcessor):
                 self.sendToUi(uiLoggingMessage)
 
     def sendStatusCheck(self, _1, _2=None):
-        self.uiLastTime = time.time()
-        if not self.uiConnected:
+        self.ui_last_time = time.time()
+        if not self.ui_connected:
             # So we got a status message back after we thought the ui was disconnected, so start it back up again
             self.sendStartupData()
         # we'll just reply by sending the message back in 10 seconds
@@ -239,8 +244,8 @@ class mainframe(commandProcessor):
 
     @setInterval(STATUS_CHECK_TIMER)
     def checkItemStatus(self):
-        # Check the status of the current running blocks
-        for code, block in self.algo_manager.blocks.items():
+        # Check the status of the current running programs
+        for code, program in self.all_program_map.items():
             if code in self.process_dict:
                 # algo process was started at one point
                 if (
@@ -255,7 +260,7 @@ class mainframe(commandProcessor):
 
             if code not in self.statusDict and code in self.process_dict:
                 send_time_float = time.time()
-                block.block_queue.put(
+                program.program_queue.put(
                     msg.message(
                         msg.MessageType.COMMAND,
                         content=msg.CommandType.CHECK_STATUS,
@@ -265,7 +270,7 @@ class mainframe(commandProcessor):
                 self.statusDict[code] = send_time_float
             elif code in self.statusDict:
                 if time.time() - self.statusDict[code] > 30:
-                    # block has not responded for more than 60 seconds to we're assuming it's not responsive
+                    # program has not responded for more than 60 seconds to we're assuming it's not responsive
                     # so we'll remove it from the status dict so it's checked again
                     m = msg.message(
                         msg.MessageType.UI_UPDATE,
@@ -292,34 +297,41 @@ class mainframe(commandProcessor):
             time.sleep(5)
 
     def addOutputView(self, command, details):
-        if details.details[ITEM] in self.algo_manager.blocks:
-            block = self.algo_manager.blocks[details.details[ITEM]]
-            block.block_queue.put(
+        if (
+            details.details[ITEM]
+            in self.type_to_manager[ProgramTypes.ALGO.value].programs
+        ):
+            algo = self.type_to_manager[ProgramTypes.ALGO.value].programs[
+                details.details[ITEM]
+            ]
+            algo.program_queue.put(
                 msg.message(msg.MessageType.COMMAND, command, details=details.details)
             )
 
-    def passCommandToBlock(self, command, details):
-        if details.key.sourceCode in self.algo_manager.blocks:
-            self.algo_manager.blocks[details.key.sourceCode].block_queue.put(
+    def passCommandToProgram(self, command, details):
+        if details.key.sourceCode in self.all_program_map:
+            self.all_program_map.program_queue.put(
                 msg.message(msg.MessageType.COMMAND, command, details=details.details)
             )
         else:
             mpLogging.warning(
-                f"Attempted to pass command to block, but didn't find code {details}"
+                f"Attempted to pass command to program, but didn't find code {details.key.sourceCode}"
             )
 
     def sendStartupData(self, _1, _2):
         mpLogging.info("Sending startup data to the UI that was connected")
-        self.uiConnected = True
+        self.ui_connected = True
 
         m = msg.message(msg.MessageType.UI_UPDATE, msg.UiUpdateType.STARTUP)
 
         # We want the startup message to be processed first so we add it to the start
-        self.pendingUiMessages.insert(0, m)
+        self.pending_ui_messages.insert(0, m)
         self.sendPendingUiMessages()
 
-        # ui needs to be told about the current blocks and handlers
-        self.sendCreated(self.algo_manager.blocks.keys())
+        # ui needs to be told about the current programs
+        self.sendCreated(
+            list(k for v in self.type_to_manager.values() for k in v.programs.keys())
+        )
 
         # if we're not already repeatedly calling this function, then call it otherwise continue as normal
         if self.ui_status_check_event is None:
@@ -334,10 +346,10 @@ class mainframe(commandProcessor):
         # once the ui is reconnected we'll send the pending messages on one message
         # so as to not clog the queue
         if (
-            self.uiLastTime
-            and time.time() - self.uiLastTime > UI_STATUS_CHECK_TIMER * 3
+            self.ui_last_time
+            and time.time() - self.ui_last_time > UI_STATUS_CHECK_TIMER * 3
         ):
-            self.uiConnected = False
+            self.ui_connected = False
         else:
             # if we're not already repeatedly calling this function, then call it otherwise continue as normal
             if self.ui_status_check_event is None:
@@ -348,29 +360,29 @@ class mainframe(commandProcessor):
     def cmdStart(self, _, details=None):
         # Called by command processor on receiving the start command message
         if details is None:
-            for code, _ in self.algo_manager.blocks.items():
-                self.runBlock(code)
+            for code, _ in self.all_program_map.items():
+                self.runProgram(code)
         else:
-            # run block will check if code exists, and log if not,
+            # run program will check if code exists, and log if not,
             # but at least check that the message details is a string
             if isinstance(details.details, str):
-                self.runBlock(details.details)
+                self.runProgram(details.details)
 
-    def runBlock(self, code):
-        if code in self.algo_manager.blocks:
+    def runProgram(self, code):
+        if code in self.all_program_map.values():
             if code not in self.process_dict:
-                block = self.algo_manager.blocks[code]
-                self.startBlockProcess(code, block)
-            elif self.algo_manager.blocks[code].block_queue is not None:
-                self.algo_manager.blocks[code].block_queue.put(
+                program = self.all_program_map[code]
+                self.startProgramProcess(code, program)
+            elif self.all_program_map[code].program_queue is not None:
+                self.all_program_map[code].program_queue.put(
                     msg.message(msg.MessageType.COMMAND, msg.CommandType.START)
                 )
             else:
                 mpLogging.error(
-                    f"Got start message for block with a process that exists but no valid queue"
+                    f"Got start message for program with a process that exists but no valid queue"
                 )
         else:
-            mpLogging.error(f"Error finding block with code: {code}")
+            mpLogging.error(f"Error finding program with code: {code}")
 
         # if we're not already repeatedly calling this function, then call it otherwise continue as normal
         if self.item_status_check_event is None:
@@ -378,41 +390,41 @@ class mainframe(commandProcessor):
         elif self.item_status_check_event.is_set():
             self.item_status_check_event.clear()
 
-    def startBlockProcess(self, code, block):
-        processName = "Block-" + str(code)
-        blockProcess = dill_mp.Process(
+    def startProgramProcess(self, code, program):
+        processName = f"{program.config.type_}-" + str(code)
+        program_process = dill_mp.Process(
             target=mpLogging.loggedProcess,
-            args=(self.isLocal, code, block.start),
+            args=(self.isLocal, code, program.start),
             name=processName,
             daemon=True,
         )
 
-        self.process_dict[code] = blockProcess
-        blockProcess.start()
+        self.process_dict[code] = program_process
+        program_process.start()
 
     def cmdEnd(self, _, details=None):
         # Called by command processor on receiving the end command message
         if details is None:
             for k in list(self.process_dict.keys()):
-                self.endBlock(k)
+                self.endProgrm(k)
         else:
             if isinstance(details, str):
-                self.endBlock(details)
+                self.endProgrm(details)
 
-    def endBlock(self, code):
+    def endProgrm(self, code):
         if (
             code in self.process_dict
-            and self.algo_manager.blocks[code].block_queue is not None
+            and self.all_program_map[code].program_queue is not None
         ):
-            self.algo_manager.blocks[code].block_queue.put(
+            self.all_program_map[code].program_queue.put(
                 msg.message(msg.MessageType.COMMAND, msg.CommandType.END)
             )
 
-    def shutdownBlock(self, code, timeout=2):
+    def shutdownProgram(self, code, timeout=2):
         """Send the shutdown message, then try to end process nicely and then if still alive forcibly end it"""
         if code in self.process_dict:
-            if self.algo_manager.blocks[code].block_queue is not None:
-                self.algo_manager.blocks[code].block_queue.put(
+            if self.all_program_map[code].program_queue is not None:
+                self.all_program_map[code].program_queue.put(
                     msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN)
                 )
             if timeout is not None:
@@ -430,39 +442,34 @@ class mainframe(commandProcessor):
             )
 
     def cmdShutdown(self, _, details=None):
-        """End the blocks first and then shutdown"""
+        """End the programs first and then shutdown"""
         if details.details is None:
             self.cmdEnd(None)
             for k in list(self.process_dict.keys()):
-                self.shutdownBlock(k)
+                self.shutdownProgram(k)
             self._is_running = False
         elif isinstance(details.details, str):
-            self.endBlock(details.details)
-            self.shutdownBlock(details.details)
+            self.endProgram(details.details)
+            self.shutdownProgram(details.details)
         else:
             mpLogging.error(
                 f"Invalid details to shutdown command in mainframe: {details}"
             )
 
-    def loadAlgoConfigFile(self, config: str):
-        """Load an algo based on a config file"""
-        if config:
-            config_dict = self.loader.loadAndReplaceYamlFile(config)
-            self.loadAlgos(config_dict)
-
-    def loadAlgos(self, config_dict: typing.Dict[str, typing.Any]) -> None:
+    def loadProgram(self, program_settings: ProgramSettings) -> None:
         """Load the algos and assign the queues they need for mainframe communication"""
-        self.checkModules(config_dict)
-        for algo in self.algo_manager.loadBlock(config_dict):
-            algo.block_queue = self.dill_algo_manager.Queue()
+        self.checkModules(program_settings.settings)
+        program = self.type_to_manager[program_settings.type_].load(program_settings)
+        program.program_queue = self.dill_program_manager.Queue()
+        self.all_program_map[program_settings.name] = program
 
-        self.sendCreated(config_dict.keys())
+        self.sendCreated(program_settings.settings.keys())
 
     def sendCreated(self, algo_keys_to_send: typing.List[str]):
         created_details = {}
         for key in algo_keys_to_send:
-            if key in self.algo_manager.blocks:
-                created_details[key] = self.algo_manager.blocks[key].config
+            if key in self.all_program_map:
+                created_details[key] = self.all_program_map[key].config
         if created_details:
             self.sendToUi(
                 msg.message(
@@ -492,10 +499,11 @@ class mainframe(commandProcessor):
                 )
             )
 
-    def createAlgoCommand(self, _, details=None):
+    def createCommand(self, _, details=None):
         """Wrapper for creating an algo from a command message"""
         if details.details is not None:
-            self.loadAlgos(details.details)
+            program_settings = fromdict(ProgramSettings, details.details)
+            self.loadProgram(program_settings)
 
     def installPackages(self, _, details=None):
         """Receive install pacakge command from UI, must send mod status response after"""
@@ -511,5 +519,5 @@ class mainframe(commandProcessor):
                         description=f"Package: {package}, exception: {traceback.format_exc()}",
                     )
             # now that we've installed, redo the module statuses
-            for code, algo in self.algo_manager.blocks.items():
-                self.checkModules({code: algo.config})
+            for code, program in self.all_program_map.items():
+                self.checkModules({code: program.config.settings})

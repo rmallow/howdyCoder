@@ -24,7 +24,7 @@ class CommandType(IntEnum):
     CHECK_STATUS = auto()
     CHECK_UI_STATUS = auto()
     UI_STARTUP = auto()
-    CREATE_ALGO = auto()
+    CREATE = auto()
     CHECK_MODULES = auto()
     INSTALL_PACKAGE = auto()
     EXPORT = auto()
@@ -33,7 +33,7 @@ class CommandType(IntEnum):
 
 class UiUpdateType(IntEnum):
     OUTPUT = max(e.value for e in CommandType) + 1
-    BLOCK = auto()
+    ALGO = auto()
     HANDLER = auto()
     LOGGING = auto()
     STATUS = auto()

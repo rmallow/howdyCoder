@@ -1,7 +1,14 @@
 from .uiConstants import LOOP_INTERVAL_MSECS
 from .algoData import AlgoDict
 
-from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, AlgoStatusData, InputData
+from ..core.commonGlobals import (
+    RECEIVE_TIME,
+    MAINFRAME,
+    AlgoStatusData,
+    InputData,
+    ProgramSettings,
+    ProgramTypes,
+)
 from ..commonUtil import queueManager as qm
 from ..commonUtil.helpers import getStrTime
 from ..commonUtil import mpLogging, configLoader
@@ -31,24 +38,26 @@ class mainModel(commandProcessor, QtCore.QObject):
 
     def __init__(self, isLocal: bool, parent=None):
         super().__init__(parent)
-        self.uiQueue = None
-        self.mainframeQueue = None
-        self.clientSeverManager = None
+        self.ui_queue = None
+        self.mainframe_queue = None
+        self.client_server_manager = None
         self.incomingMessageCount = Counter()
         self.algo_dict = AlgoDict()
         self._config_loader = configLoader.ConfigLoader()
 
         # Connect to clientServerManager
-        self.clientSeverManager = qm.createQueueManager(isLocal)
-        self.clientSeverManager.connect()
+        self.client_server_manager = qm.createQueueManager(isLocal)
+        self.client_server_manager.connect()
 
         # Get the necessary queues from the manager
-        assert hasattr(self.clientSeverManager, qm.GET_MAINFRAME_QUEUE)
-        self.mainframeQueue = getattr(self.clientSeverManager, qm.GET_MAINFRAME_QUEUE)()
+        assert hasattr(self.client_server_manager, qm.GET_MAINFRAME_QUEUE)
+        self.mainframe_queue = getattr(
+            self.client_server_manager, qm.GET_MAINFRAME_QUEUE
+        )()
         self.pending_queue = deque()
-        assert hasattr(self.clientSeverManager, qm.GET_UI_QUEUE)
+        assert hasattr(self.client_server_manager, qm.GET_UI_QUEUE)
 
-        self.uiQueue = getattr(self.clientSeverManager, qm.GET_UI_QUEUE)()
+        self.ui_queue = getattr(self.client_server_manager, qm.GET_UI_QUEUE)()
         self._module_status = {}
 
         self._export_mapping_cache = defaultdict(deque)
@@ -60,7 +69,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         """
         Add CommandProcessor Handlers, most of these will just track and emit a signal
         """
-        self.addCmdFunc(msg.UiUpdateType.BLOCK, mainModel.handleBlockUpdate)
+        self.addCmdFunc(msg.UiUpdateType.ALGO, mainModel.handleBlockUpdate)
         self.addCmdFunc(msg.UiUpdateType.LOGGING, mainModel.handleLoggingUpdate)
         self.addCmdFunc(msg.UiUpdateType.STATUS, mainModel.handleUIStatus)
         self.addCmdFunc(msg.UiUpdateType.STARTUP, mainModel.handleStartup)
@@ -75,8 +84,8 @@ class mainModel(commandProcessor, QtCore.QObject):
 
     @QtCore.Slot()
     def messageMainframe(self, message):
-        if self.mainframeQueue:
-            self.mainframeQueue.put(message)
+        if self.mainframe_queue:
+            self.mainframe_queue.put(message)
         else:
             # we aren't connected to the mainframe currently so add it to the pending for sending later
             self.pending_queue.append(message)
@@ -90,11 +99,11 @@ class mainModel(commandProcessor, QtCore.QObject):
         As this is the main event loop, check if there is anything pending to send out first
         """
         while self.pending_queue:
-            self.mainframeQueue.put(self.pending_queue.popleft())
-        if self.uiQueue is not None:
+            self.mainframe_queue.put(self.pending_queue.popleft())
+        if self.ui_queue is not None:
             try:
-                while not self.uiQueue.empty():
-                    m: msg.message = self.uiQueue.get()
+                while not self.ui_queue.empty():
+                    m: msg.message = self.ui_queue.get()
                     if not m.isMessageList():
                         self.processCommand(m.content, details=m)
                     else:
@@ -104,7 +113,7 @@ class mainModel(commandProcessor, QtCore.QObject):
             except (BrokenPipeError, EOFError, ConnectionResetError) as e:
                 # This will happen when the server process has ended, we no longer need to keep checking
                 mpLogging.error("UI Queue is disconnnected.")
-                self.uiQueue = None
+                self.ui_queue = None
 
     @QtCore.Slot()
     def sendCmdStartAll(self):
@@ -157,7 +166,7 @@ class mainModel(commandProcessor, QtCore.QObject):
 
     def handleBlockUpdate(self, _, details: msg.message = None):
         """
-        Called by commandProcessor on UiUpdateType.BLOCK
+        Called by commandProcessor on UiUpdateType.ALGO
         """
         self.trackMessage(details)
         self.updateOutputSignal.emit(details)
@@ -197,9 +206,16 @@ class mainModel(commandProcessor, QtCore.QObject):
         algo_config could be blank, which means we're just exiting creator
         """
         if algo_config:
+            program_settings = ProgramSettings(
+                type_=ProgramTypes.ALGO.value,
+                name=next(iter(algo_config.keys())),
+                settings=algo_config,
+            )
             self.messageMainframe(
                 msg.message(
-                    msg.MessageType.COMMAND, msg.CommandType.CREATE_ALGO, algo_config
+                    msg.MessageType.COMMAND,
+                    msg.CommandType.CREATE,
+                    asdict(program_settings),
                 )
             )
 

@@ -10,7 +10,7 @@ import typing
 
 class feed:
     """
-    data storage and processing system for block
+    data storage and processing system for algos
     contains multiple containers for data and calc data along with new/all
     appending functions for pandas data
     """

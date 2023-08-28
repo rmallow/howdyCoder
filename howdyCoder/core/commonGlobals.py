@@ -1,10 +1,9 @@
 from enum import Enum
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from dataclass_wizard import property_wizard, JSONWizard
 import typing
 
-# Dict Keys
-BLOCK = "block"
+# Dict Keys=
 HANDLER = "handler"
 TYPE = "type"
 ITEM = "item"
@@ -22,7 +21,7 @@ MAINFRAME = "Mainframe"
 
 # Logging groups
 ACTION_GROUP = "Action"
-BLOCK_GROUP = "Block"
+ALGO_GROUP = "Algo"
 FEED_GROUP = "Feed"
 HANDLER_GROUP = "Handler"
 ROUTER_GROUP = "Router"
@@ -43,6 +42,12 @@ LOCAL_AUTH = b"abcAuth"
 LOCAL_PORT = 50000
 
 
+class ProgramTypes(str, Enum):
+    PROGRAM = "program"
+    ALGO = "algo"
+    SCRIPT = "script"
+
+
 class Modes(str, Enum):
     NONE = ""
     STANDBY = "Standby"
@@ -51,15 +56,30 @@ class Modes(str, Enum):
 
 
 @dataclass
-class AlgoStatusData:
+class ProgramSettings(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
+    type_: str = ""
+    name: str = ""
+    settings: typing.Dict[str, typing.Any] = field(default_factory=dict)
+
+
+@dataclass
+class ProgramStatusData:
     send_time: float = 0.0
     receive_time: float = 0.0
-    data_length: int = 0
-    feed_last_update_time: float = 0.0
     runtime: float = 0.0
-    columns: list = field(default_factory=list)
     mode: Modes = Modes.STANDBY
     back_time: float = 0.0
+    type_: str = ProgramTypes.PROGRAM.value
+
+
+@dataclass
+class AlgoStatusData(ProgramStatusData):
+    data_length: int = 0
+    feed_last_update_time: float = 0.0
+    columns: list = field(default_factory=list)
 
 
 @dataclass
@@ -70,6 +90,10 @@ class InputData(JSONWizard, metaclass=property_wizard):
     code: str = ""
     data_source_name: str = ""
     val: typing.Any = None
+
+
+USER_FUNC = "user_func"
+SETUP_FUNCS = "setup_funcs"
 
 
 @dataclass
@@ -146,14 +170,23 @@ class DataSourceSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
     key: str = ""
 
 
+test_once = True
+if test_once:
+    test_once = False
+
+    assert any(
+        field.name == SETUP_FUNCS for field in fields(ItemSettings)
+    ), "Changed setuup funcs field name without changing string"
+    assert any(
+        field.name == USER_FUNC for field in fields(FunctionSettings)
+    ), "Changed user func field name without changing string"
+
+
 NONE_GROUP = "None"
 DATA_SOURCES = "data_sources"
 ACTION_LIST = "action_list"
 
 GROUP_SET = set([NONE_GROUP, DATA_SOURCES, ACTION_LIST])
-
-# for DFS purposes this must match the setup_funcs field
-SETUP_FUNCS = "setup_funcs"
 
 
 @dataclass
@@ -174,3 +207,13 @@ class AlgoSettings(JSONWizard, metaclass=property_wizard):
         elif group == DATA_SOURCES:
             return self.data_sources
         assert False, "invalid group"
+
+
+@dataclass
+class ScriptSettings(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
+    name: str = ""
+    function: FunctionSettings = None
+    period: int = 1
