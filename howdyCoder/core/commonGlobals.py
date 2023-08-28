@@ -3,8 +3,6 @@ from dataclasses import dataclass, field
 from dataclass_wizard import property_wizard
 import typing
 
-from ..commonUtil.userFuncCaller import UserFuncCaller
-
 # Dict Keys
 BLOCK = "block"
 HANDLER = "handler"
@@ -77,7 +75,7 @@ class FunctionSettings(metaclass=property_wizard):
     name: str = ""
     imports: typing.List[str] = field(default_factory=list)
     import_statements: typing.List[str] = field(default_factory=list)
-    user_func: UserFuncCaller = None
+    user_func: typing.Any = None
 
 
 @dataclass
@@ -90,7 +88,6 @@ class InputSettings(metaclass=property_wizard):
 @dataclass
 class Parameter(metaclass=property_wizard):
     name: str = ""
-    type_: str = ""
     value: typing.Any = None
 
 
@@ -99,7 +96,10 @@ class ItemSettings(metaclass=property_wizard):
     name: str = ""
     type_: str = ""
     flatten: bool = False
+    period: int = 1
+    single_shot: bool = False
     parameters: typing.Dict[str, Parameter] = field(default_factory=dict)
+    setup_funcs: typing.Dict[str, FunctionSettings] = field(default_factory=dict)
 
     def clear(self):
         self.__init__({})
@@ -113,10 +113,9 @@ class ActionSettings(ItemSettings, metaclass=property_wizard):
     output_func: FunctionSettings = None
 
 
+@dataclass
 class DataSourceSettings(ItemSettings, metaclass=property_wizard):
-    period: int = 1
-    output: typing.Union(typing.List[str], typing.Dict[str, str]) = None
-    single_shot: bool = False
+    output: typing.Union[typing.List[str], typing.Dict[str, str]] = field(default_factory=list)
     # type specific
     get_func: FunctionSettings = None
     input_type: str = ""

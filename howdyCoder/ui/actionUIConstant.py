@@ -1,4 +1,4 @@
-from ..core.commonGlobals import ENUM_VALUE, ENUM_DISPLAY
+from ..core.commonGlobals import ENUM_VALUE, ENUM_DISPLAY, FunctionSettings
 from ..core.configConstants import (
     FUNC_NAME,
     FUNC_LOCAITON,
@@ -13,7 +13,6 @@ INVALID_ACTION_KEY = "__INVALID_ACTION__"
 
 
 class ActionEnum(Enum):
-
     _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
 
     NAME = 0, "Name"
@@ -31,12 +30,11 @@ class ActionEnum(Enum):
 class ActionFuncEnum(Enum):
     _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
 
-    LOCATION = 0, FUNC_LOCAITON
-    NAME = 1, FUNC_NAME
-    CODE = 2, FUNC_CODE
-    IMPORTS = 3, IMPORTS
-    IMPORT_STATEMENTS = 4, IMPORT_STATEMENTS
-    INDEX = 5, ""
+    NAME = 0, FUNC_NAME
+    CODE = 1, FUNC_CODE
+    IMPORTS = 2, IMPORTS
+    IMPORT_STATEMENTS = 3, IMPORT_STATEMENTS
+    INDEX = 4, ""
 
 
 class DataSetEnum(Enum):

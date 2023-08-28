@@ -73,8 +73,8 @@ class CreateTypeBasePage(CreateBasePage):
         self._ui.typeView.selectionModel().clearSelection()
         self._ui.nameEdit.setText("")
 
-    def loadPage(self, keys: typing.List[str]) -> None:
-        return super().loadPage(keys)
+    def loadPage(self) -> None:
+        return super().loadPage()
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

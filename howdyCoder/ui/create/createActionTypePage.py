@@ -1,7 +1,7 @@
 from .createTypeBasePage import CreateTypeBasePage
 from ..uiConstants import PageKeys
 from ...core.configConstants import ActionTypeEnum
-from ...core.commonGlobals import AlgoSettings
+from ...core.commonGlobals import AlgoSettings, ACTION_LIST
 
 import typing
 
@@ -11,6 +11,7 @@ from PySide6 import QtWidgets
 class CreateActionTypePage(CreateTypeBasePage):
     PAGE_KEY = PageKeys.ACTION_TYPE
     EXIT = PageKeys.ADD_ACTION
+    GROUP = ACTION_LIST
 
     TUTORIAL_RESOURCE_PREFIX = "CreateTypeAction"
 

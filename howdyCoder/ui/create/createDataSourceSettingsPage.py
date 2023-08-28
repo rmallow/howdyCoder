@@ -132,13 +132,13 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             )
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             """Nothing more to do with settings, but make sure that we keep output to name of data source"""
-            output_strings = [next(iter(self.getTempConfig().keys()))]
+            output_strings = [self.getTempConfig().name]
         self._outputModel.setStringList(output_strings)
         self._outputModel.setReadOnlyNum(len(output_strings))
         self.enableCheck()
 
-    def loadPage(self, keys) -> None:
-        super().loadPage(keys)
+    def loadPage(self) -> None:
+        super().loadPage()
         currSettings = self.getTempConfig()
         self._current_settings = None
         if currSettings.type_:
@@ -167,9 +167,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             if self._data_source_type == DataSourcesTypeEnum.INPUT:
                 """If it's input, there's only one output and that is the name of the data source"""
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_INPUT
-                self._outputModel.setStringList(
-                    [next(iter(self.getTempConfig().keys()))]
-                )
+                self._outputModel.setStringList([self.getTempConfig().name])
 
     def removeOutput(self):
         selection = self._ui.outputView.selectionModel().selectedIndexes()

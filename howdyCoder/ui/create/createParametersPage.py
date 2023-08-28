@@ -62,7 +62,7 @@ class CreateBaseParametersPage(CreateBasePage):
         """
         if self.getTempConfig():
             curr = self.getTempConfig()
-            curr |= parameterTable.convertToConfig(self._parameterModel.getData())
+            parameterTable.addToConfig(curr, self._parameterModel.getData())
             curr.flatten = self._ui.flattenedCheck.isChecked()
 
     def reset(self) -> None:
@@ -71,12 +71,12 @@ class CreateBaseParametersPage(CreateBasePage):
         self._ui.flattenedCheck.setChecked(True)
         self._ui.single_shot_check.setChecked(False)
 
-    def loadPage(self, keys: typing.List[str]) -> None:
+    def loadPage(self) -> None:
         curr = self.getTempConfig()
-        self._parameterModel.setValues(curr)
-        self._ui.periodSpinBox.setValue(curr.get(PERIOD, 1))
-        self._ui.flattenedCheck.setChecked(curr.get(FLATTEN, True))
-        return super().loadPage(keys)
+        self._ui.periodSpinBox.setValue(curr.period)
+        self._ui.flattenedCheck.setChecked(curr.flatten)
+        self._ui.single_shot_check.setChecked(curr.single_shot)
+        return super().loadPage()
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

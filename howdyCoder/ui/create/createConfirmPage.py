@@ -42,20 +42,16 @@ class CreateConfirmBasePage(CreateBasePage):
         self._ui.confirmButton.setEnabled(False)
 
     def getConfigForView(self):
-        return self.getTempConfig()
+        return {self.getTempConfig().name: asdict(self.getTempConfig())}
 
-    def loadPage(self, keys: typing.List[str]) -> None:
+    def loadPage(self) -> None:
         """
         We want the confirm page to only show the section we've been working on.
-        This is based on the passed in keys.
-        We do this using the helper function below
         """
-        super().loadPage(keys)
+        super().loadPage()
 
         self._ui.configTextView.setPlainText(
-            yaml.dump(
-                asdict(self.getConfigForView()), default_flow_style=False, indent=4
-            )
+            yaml.dump(self.getConfigForView(), default_flow_style=False, indent=4)
         )
 
     def validate(self) -> bool:
@@ -76,7 +72,7 @@ class CreateConfirmBasePage(CreateBasePage):
 class CreateDataSourceConfirmPage(CreateConfirmBasePage):
     PAGE_KEY = PageKeys.CONFRIM_DATA_SOURCE
     TOP_TEXT = "The final config for your data source. Confirm to add or use the back buttons to go back and modify."
-
+    GROUP = DATA_SOURCES
     TUTORIAL_RESOURCE_PREFIX = "CreateConfirm"
 
     def __init__(
@@ -92,7 +88,7 @@ class CreateDataSourceConfirmPage(CreateConfirmBasePage):
 class CreateActionConfirmPage(CreateConfirmBasePage):
     PAGE_KEY = PageKeys.CONFIRM_ACTION
     TOP_TEXT = "The final config for your action. Confirm to add or use the back buttons to go back and modify."
-
+    GROUP = ACTION_LIST
     TUTORIAL_RESOURCE_PREFIX = "CreateConfirm"
 
     def __init__(
@@ -110,7 +106,7 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
     EXIT = PageKeys.NO_PAGE
     EXIT_LABEL = "Exit Creator"
     TOP_TEXT = "The final config for the algo. Select start over to erase your create or click finish to add this algo to the control page."
-
+    GROUP = NONE_GROUP
     TUTORIAL_RESOURCE_PREFIX = "CreateFinalConfirm"
 
     def __init__(
@@ -129,4 +125,4 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
         self._ui.buttonWidget.hide()
 
     def getConfigForView(self):
-        return self.getConfig()
+        return {self.getConfig().name: asdict(self.getConfig())}

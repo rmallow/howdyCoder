@@ -13,6 +13,9 @@ from ...core.commonGlobals import (
     ENUM_TYPE,
     ENUM_EDITOR_VALUES,
     ENUM_ENABLED,
+    ItemSettings,
+    Parameter,
+    FunctionSettings,
 )
 
 import typing
@@ -87,76 +90,24 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
 
         return returnConfig
 
-    def setValues(self, values: typing.Dict[str, typing.Any]):
-        """The base class expects values to be a list, if that's what we were passed in then do that
-        But when we output config from this class, it is in dict form, so have special handling for that
-        """
-        self.clear()
-        if isinstance(values, list):
-            super().setValues(values)
-        else:
-            # it should be a dict, with two top level keys, SETUP_FUNCS and PARAMETERS
-            # the config parser handles these separately, but here we lump them all into one list
-            for param_section_type, param_section_values in values.items():
-                if (
-                    param_section_type == PARAMETERS
-                    or param_section_type == SETUP_FUNCS
-                ):
-                    for param_key, param_value in param_section_values.items():
-                        param_type = editableTable.EditorType.ANY
-                        if PARAMETERS == param_section_type:
-                            # we know these are all not functions, but for the delegate determine the type
-                            try:
-                                float(param_value)
-                                param_type = editableTable.EditorType.NUMBER
-                            except:
-                                # so it's most likely a string but for redundancy
-                                if isinstance(param_value, str):
-                                    param_type = editableTable.EditorType.STRING
 
-                        elif SETUP_FUNCS == param_section_type:
-                            param_type = editableTable.EditorType.FUNC
-
-                        self.appendValue()
-                        self.setData(
-                            self.index(self.rowCount() - 1, ParameterEnum.NAME.value),
-                            param_key,
-                        )
-                        self.setData(
-                            self.index(self.rowCount() - 1, ParameterEnum.TYPE.value),
-                            param_type.display,
-                        )
-                        if param_type == editableTable.EditorType.FUNC:
-                            param_value[ActionFuncEnum.INDEX] = self.index(
-                                self.rowCount() - 1, ParameterEnum.VALUE.value
-                            )
-
-                        self.setData(
-                            self.index(self.rowCount() - 1, ParameterEnum.VALUE.value),
-                            param_value,
-                        )
-
-                        if param_type == editableTable.EditorType.FUNC:
-                            self.itemSelected(param_value)
-
-
-def convertToConfig(
-    parameter_dict: typing.Dict[ParameterEnum, str]
+def addToConfig(
+    config: ItemSettings, parameter_dict: typing.Dict[ParameterEnum, str]
 ) -> typing.Dict[str, str]:
     """This parameter dict should be the output from parameter table getData
     This will convert it from data that makes sense to the UI to config for the block manager
     """
     return_config = {}
-    if PARAMETERS in parameter_dict:
-        return_config[PARAMETERS] = parameter_dict[PARAMETERS]
 
-    if SETUP_FUNCS in parameter_dict:
-        # we need to filter out what we actualy want from the setup funcs config
-        setup_funcs_dict = parameter_dict[SETUP_FUNCS].copy()
+    for k, v in parameter_dict.get(PARAMETERS, {}):
+        config.parameters[k] = Parameter(k, v)
 
-        for key in setup_funcs_dict.keys():
-            setup_funcs_dict[key] = helpers.getConfigFromEnumDict(setup_funcs_dict[key])
-
-        return_config[SETUP_FUNCS] = setup_funcs_dict
+    for k, v in parameter_dict.get(SETUP_FUNCS, {}):
+        config.setup_funcs[k] = FunctionSettings(
+            v[ActionFuncEnum.CODE],
+            v[ActionFuncEnum.NAME],
+            v[ActionFuncEnum.IMPORTS],
+            v[ActionFuncEnum.IMPORT_STATEMENTS],
+        )
 
     return return_config

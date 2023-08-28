@@ -56,8 +56,8 @@ class CreateAddPageBase(CreateBasePage):
         self._ui.skipButton.setEnabled(len(rows) > 0)
         self._dataSourcesModel.setStringList(rows)
 
-    def loadPage(self, keys):
-        super().loadPage(keys)
+    def loadPage(self):
+        super().loadPage()
         self.getTempConfig().clear()
         self.setGroupModel()
 

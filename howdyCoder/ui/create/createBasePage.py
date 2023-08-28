@@ -66,6 +66,10 @@ class CreateBasePage(
         return text.strip() and not text.strip()[0].isnumeric()
 
     @abstractmethod
+    def loadPage(self):
+        pass
+
+    @abstractmethod
     def validate(self) -> bool:
         """Return true if all the page fields are valid"""
         return False

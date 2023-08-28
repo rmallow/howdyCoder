@@ -51,8 +51,8 @@ class CreateNamePage(CreateBasePage):
         self.next_enabled = False
         self._ui.nameEdit.clear()
 
-    def loadPage(self, keys: typing.List[str]) -> None:
-        return super().loadPage(keys)
+    def loadPage(self) -> None:
+        return super().loadPage()
 
     @QtCore.Slot()
     def doesNameExistSlot(self, exists_already: bool) -> None:

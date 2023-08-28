@@ -10,10 +10,7 @@ from ..funcSelector import FuncSelector
 from ..util.spinBoxDelegate import SpinBoxDelegate
 
 from ...core.configConstants import (
-    TYPE,
-    OUTPUT,
     ActionTypeEnum,
-    INPUT,
     ActionDataType,
 )
 
@@ -51,6 +48,7 @@ class CreateActionSettingsPage(CreateBasePage):
     PAGE_KEY = PageKeys.ACTION_SETTINGS
     TUTORIAL_RESOURCE_PREFIX_TRIGGER = "CreateSettingsTrigger"
     TUTORIAL_RESOURCE_PREFIX_EVENT = "CreateSettingsEvent"
+    GROUP = ACTION_LIST
 
     def __init__(
         self,
@@ -126,8 +124,8 @@ class CreateActionSettingsPage(CreateBasePage):
                 self._current_output_settings = settings
             self.enableCheck()
 
-    def loadPage(self, keys) -> None:
-        super().loadPage(keys)
+    def loadPage(self) -> None:
+        super().loadPage()
         currSettings: ActionSettings = self.getTempConfig()
         self._current_calc_settings = None
         self._current_output_settings = None
