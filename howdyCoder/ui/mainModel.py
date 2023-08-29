@@ -1,5 +1,5 @@
 from .uiConstants import LOOP_INTERVAL_MSECS
-from .algoData import AlgoDict
+from .programData import ProgramDict
 
 from ..core.commonGlobals import (
     RECEIVE_TIME,
@@ -42,7 +42,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.mainframe_queue = None
         self.client_server_manager = None
         self.incomingMessageCount = Counter()
-        self.algo_dict = AlgoDict()
+        self.program_dict = ProgramDict()
         self._config_loader = configLoader.ConfigLoader()
 
         # Connect to clientServerManager
@@ -162,7 +162,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         if data.columns:
             self.updateColumnsSignal.emit(details)
         self.updateStatusSignal.emit(details)
-        self.algo_dict.updateAlgoStatus(details.key.sourceCode, data)
+        self.program_dict.updateAlgoStatus(details.key.sourceCode, data)
 
     def handleBlockUpdate(self, _, details: msg.message = None):
         """
@@ -191,31 +191,26 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.trackMessage(details)
         self.messageMainframe(details)
 
-    def addAlgoFile(self, algo_config_file_path: str):
+    def addProgramFile(self, program_config_file_path: str):
         """This will only verify that the file is found, and can be turned into a dict, doesn't determine valid file"""
-        if algo_config_file_path:
+        if program_config_file_path:
             if config := self._config_loader.loadAndReplaceYamlFile(
-                algo_config_file_path
+                program_config_file_path
             ):
-                self.addAlgo(config)
+                self.addProgram(config)
 
     @QtCore.Slot()
-    def addAlgo(self, algo_config: typing.Dict):
+    def addProgram(self, program_config: typing.Dict):
         """
         Send it to the mainframe for processing
-        algo_config could be blank, which means we're just exiting creator
+        program_config could be blank, which means we're just exiting creator
         """
-        if algo_config:
-            program_settings = ProgramSettings(
-                type_=ProgramTypes.ALGO.value,
-                name=next(iter(algo_config.keys())),
-                settings=algo_config,
-            )
+        if program_config:
             self.messageMainframe(
                 msg.message(
                     msg.MessageType.COMMAND,
                     msg.CommandType.CREATE,
-                    asdict(program_settings),
+                    program_config,
                 )
             )
 
@@ -223,7 +218,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         """Mainframe wants us to know this item was created"""
         self.trackMessage(details)
         for k, v in details.details.items():
-            self.algo_dict.addAlgo(k, v)
+            self.program_dict.addProgram(k, v)
 
     def handleModStatus(self, _, details: msg.message = None):
         """Mainframes wants us to know what modules have been found/not found"""
@@ -251,7 +246,7 @@ class mainModel(commandProcessor, QtCore.QObject):
             )
         )
 
-    def shutdownAlgo(self, code):
+    def shutdownProgram(self, code):
         self.messageMainframe(
             msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN, details=code)
         )

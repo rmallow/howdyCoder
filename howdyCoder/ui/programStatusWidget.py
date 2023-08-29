@@ -1,19 +1,19 @@
 from .uiConstants import GUI_REFRESH_INTERVAL
 from .qtUiFiles import ui_algoStatusWidget
-from .algoData import AlgoWidgetData
+from .programData import ProgramWidgetData
 from .tutorialOverlay import AbstractTutorialClass
 
 from .util import abstractQt
 
 from ..commonUtil import helpers
 from ..core.configConstants import DataSourcesTypeEnum, ENUM_DISPLAY
-from ..core.commonGlobals import Modes, AlgoSettings
+from ..core.commonGlobals import Modes, AlgoSettings, ProgramTypes, ProgramSettings
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
 import typing
 import yaml
-from dataclass_wizard import asdict
+from dataclass_wizard import asdict, fromdict
 
 COLOR_MAP = {
     Modes.STANDBY: QtCore.Qt.GlobalColor.gray,
@@ -22,7 +22,7 @@ COLOR_MAP = {
 }
 
 
-class AlgoStatusWidget(
+class ProgramStatusWidget(
     AbstractTutorialClass,
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
@@ -31,21 +31,26 @@ class AlgoStatusWidget(
 
     def __init__(
         self,
-        data: AlgoWidgetData,
+        data: ProgramWidgetData,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
         super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
 
-        self.data: AlgoWidgetData = data
+        self.data: ProgramWidgetData = data
         self.ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()
         self.ui.setupUi(self)
         self.ui.name_label.setText(self.data.name)
         self.ui.save_button.released.connect(self.saveConfig)
         self._input_found = False
-        for v in data.config.data_sources.values():
-            if v.type_ == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY):
-                self._input_found = True
+        if data.config.type_ == ProgramTypes.ALGO.value:
+            for v in data.config.settings.data_sources.values():
+                if v.type_ == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY):
+                    self._input_found = True
+        elif data.config.type_ == ProgramTypes.SCRIPT:
+            self.ui.input_button.hide()
+            self.ui.export_button.hide()
+            self.ui.feedLengthBox.hide()
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.refresh)
         self._timer.start(GUI_REFRESH_INTERVAL)

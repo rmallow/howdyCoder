@@ -107,9 +107,9 @@ class CreateDataSourceParametersPage(CreateBaseParametersPage):
 
 class CreateActionParametersPage(CreateBaseParametersPage):
     PAGE_KEY = PageKeys.ACTION_PARAMETERS
-    ACTION_TEXT = """Set the period for the action. 
-    This determines how much data will be pulled in for the calculating function.
-    For example if the calcuating function detrmines an average and the period is set to 5, then it will be performing an average of the last 5 pieces of data in the input."""
+    # no text for action as period is determined on settings page per input
+    # and single shot doesn't apply
+    ACTION_TEXT = """"""
 
     TUTORIAL_RESOURCE_PREFIX = "CreateParameterAction"
     GROUP = ACTION_LIST
@@ -125,9 +125,25 @@ class CreateActionParametersPage(CreateBaseParametersPage):
             self.TUTORIAL_RESOURCE_PREFIX,
             parent=parent,
         )
-        policy = self._ui.periodWidgetBox.sizePolicy()
-        policy.setHorizontalStretch(
-            self._ui.flattenWidgetBox.sizePolicy().horizontalStretch()
+        self._ui.periodWidgetBox.hide()
+
+
+class CreateScriptParametersPage(CreateBaseParametersPage):
+    PAGE_KEY = PageKeys.SCRIPT_PARAMETERS
+    ACTION_TEXT = """Set how often you'd like this to script in the period section or set single shot if you want it to run only once."""
+
+    TUTORIAL_RESOURCE_PREFIX = "test"
+    GROUP = ACTION_LIST
+
+    def __init__(
+        self,
+        current_config: AlgoSettings,
+        parent: typing.Optional[QtWidgets.QWidget] = None,
+    ):
+        super().__init__(
+            current_config,
+            self.ACTION_TEXT,
+            self.TUTORIAL_RESOURCE_PREFIX,
+            parent=parent,
         )
-        self._ui.periodWidgetBox.setSizePolicy(policy)
-        self._ui.single_shot_check.hide()
+        self._ui.flattenWidgetBox.hide()

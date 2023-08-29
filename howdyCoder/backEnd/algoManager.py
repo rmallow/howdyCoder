@@ -23,7 +23,7 @@ from ..core.commonGlobals import (
 import copy
 import typing
 
-from dataclass_wizard import fromdict
+from dataclass_wizard import fromdict, asdict
 from .programManager import ProgramManager
 
 
@@ -34,25 +34,27 @@ class AlgoManager(ProgramManager):
 
     def load(self, program_settings: ProgramSettings) -> Algo:
         dataSources = []
-        func_replaced_config = copy.deepcopy(program_settings.settings)
+        func_replaced_config = copy.deepcopy(asdict(program_settings))
         user_funcs = self.replaceFunctions(func_replaced_config)
-        algo_settings = fromdict(
-            AlgoSettings, next(iter(func_replaced_config.values()))
-        )
-        dataSources = self._loadDataSources(algo_settings.data_sources)
+        algo_settings_with_user_funcs: AlgoSettings = fromdict(
+            ProgramSettings, func_replaced_config
+        ).settings
+        dataSources = self._loadDataSources(algo_settings_with_user_funcs.data_sources)
         feed = self._loadFeed(dataSources)
-        actionList = self._loadActionList(algo_settings.action_list, feed)
+        actionList = self._loadActionList(
+            algo_settings_with_user_funcs.action_list, feed
+        )
         algo = Algo(
             actionList,
             feed,
             program_settings,
             user_funcs,
-            code=algo_settings.name,
+            code=algo_settings_with_user_funcs.name,
         )
         # we're setting up the column names in action list and we use that for sending to the ui
         # so the column names can be selected for viewing there, should change later
         algo.columnNames = self.columnNames
-        self.programs[algo_settings.name] = algo
+        self.programs[algo_settings_with_user_funcs.name] = algo
         return algo
 
     def _loadDataSources(

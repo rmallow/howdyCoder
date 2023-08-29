@@ -1,6 +1,6 @@
 from .uiConstants import outputTypesEnum
 from .sparseDictListModel import SparseDictListModel
-from .algoData import AlgoDict
+from .programData import ProgramDict
 
 from ..core.commonGlobals import ITEM, AlgoStatusData
 from ..core.configConstants import (
@@ -43,7 +43,7 @@ class mainOutputViewModel(QtCore.QObject):
         self.typeModel: QtCore.QStringListModel = QtCore.QStringListModel(typeStrings)
 
         # this will be assigned during main window creation
-        self.algo_dict: AlgoDict = None
+        self.program_dict: ProgramDict = None
         self.outputViewModels = {}
 
     def addItem(self, model, key, value):
@@ -104,7 +104,7 @@ class mainOutputViewModel(QtCore.QObject):
         """On startup message add blocks and handlers to their combo models"""
         self.blockComboModel.clear()
         # add data from algo dict here
-        for config in self.algo_dict.getConfigs():
+        for config in self.program_dict.getConfigs():
             columns = []
             for ds_key, ds_config in config.data_sources.items():
                 try:

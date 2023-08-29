@@ -1,6 +1,6 @@
 from .newBlockWidget import NewBlockWidget
-from .algoStatusWidget import AlgoStatusWidget
-from .algoData import AlgoDict, AlgoWidgetData
+from .programStatusWidget import ProgramStatusWidget
+from .programData import ProgramDict, ProgramWidgetData
 from .tutorialOverlay import AbstractTutorialClass
 from .inputBox import InputBox
 from .inputWindow import InputWindow
@@ -50,8 +50,8 @@ class ControlWidget(
 ):
     TUTORIAL_RESOURCE_PREFIX = "None"
 
-    startAlgo = QtCore.Signal(str)
-    shutdownAlgo = QtCore.Signal(str)
+    startProgram = QtCore.Signal(str)
+    shutdownProgram = QtCore.Signal(str)
     exportData = QtCore.Signal(str)
     inputEntered = QtCore.Signal(InputData)
 
@@ -76,9 +76,9 @@ class ControlWidget(
         self.ui.mainWidget.setLayout(self.grid_layout)
 
         """This is the main model's algo dict class set by the main window"""
-        self.algo_dict: AlgoDict = None
+        self.program_dict: ProgramDict = None
         """This is a mapping of uid's to status widgets"""
-        self._algo_widgets: typing.Dict[int, AlgoStatusWidget] = {}
+        self._algo_widgets: typing.Dict[int, ProgramStatusWidget] = {}
         """Mapping of uid's to input windows"""
         self._algo_input_windows: typing.Dict[int, InputWindow] = {}
         """Do it once before anyhting is in there to position create new button right"""
@@ -118,13 +118,15 @@ class ControlWidget(
     @QtCore.Slot()
     def compareDataToCurrentWidgets(self):
         """Check if any algos were removed and then check if any were added"""
-        if self.algo_dict is not None:
-            missing_ids, to_remove_ids = self.algo_dict.compareIds(self._algo_widgets)
+        if self.program_dict is not None:
+            missing_ids, to_remove_ids = self.program_dict.compareIds(
+                self._algo_widgets
+            )
             for m in missing_ids:
-                data: AlgoWidgetData = self.algo_dict.getDataById(m)
-                w = AlgoStatusWidget(data)
+                data: ProgramWidgetData = self.program_dict.getDataById(m)
+                w = ProgramStatusWidget(data)
                 w.ui.start_button.released.connect(
-                    lambda: self.startAlgo.emit(data.name)
+                    lambda: self.startProgram.emit(data.name)
                 )
                 w.ui.export_button.released.connect(
                     lambda: self.exportData.emit(data.name)
@@ -140,7 +142,7 @@ class ControlWidget(
     def removeWidget(self, uid: int, refresh=True) -> None:
         if uid in self._algo_widgets:
             if self._algo_widgets[uid].data.mode == Modes.STOPPED:
-                self.shutdownAlgo.emit(self._algo_widgets[uid].data.name)
+                self.shutdownProgram.emit(self._algo_widgets[uid].data.name)
             else:
                 self._algo_widgets[uid].deleteLater()
                 del self._algo_widgets[uid]
@@ -162,7 +164,9 @@ class ControlWidget(
     def createInputWindow(self, uid: int):
         if uid not in self._algo_input_windows:
             inputs = []
-            if uid in self._algo_widgets and (data := self.algo_dict.getDataById(uid)):
+            if uid in self._algo_widgets and (
+                data := self.program_dict.getDataById(uid)
+            ):
                 for key, data_source in data.config.data_sources.items():
                     if data_source.type_ == getattr(
                         DataSourcesTypeEnum.INPUT, ENUM_DISPLAY

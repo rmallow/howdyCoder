@@ -22,6 +22,18 @@ class ProgressSteps(QtWidgets.QWidget):
         self._completed_steps = []
         self._buttons: typing.List[ProgressButton] = []
 
+    def reset(self):
+        for b in self._buttons:
+            b.deleteLater()
+        self._buttons = []
+        self._steps = []
+        self._completed_steps = []
+        self._cur_step_index = 0
+
+        while self.layout() and self.layout().count():
+            item = self.layout().takeAt(0)
+            item.widget().deleteLater()
+
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
         painter = QtGui.QPainter(self)
         stillCompleted = True
@@ -50,15 +62,19 @@ class ProgressSteps(QtWidgets.QWidget):
 
     def setSteps(self, steps: typing.List[str]) -> None:
         """Based on the passed in values set up the display"""
+        self.reset()
         self._steps = steps
-        layout = QtWidgets.QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout = self.layout()
+        if layout is None:
+            layout = QtWidgets.QHBoxLayout(self)
+            layout.setContentsMargins(0, 0, 0, 0)
         for step in self._steps:
             button = ProgressButton(step, parent=self)
             self._buttons.append(button)
             layout.addWidget(button)
-        self.setLayout(layout)
-        self.reset()
+        if self.layout() is None:
+            self.setLayout(layout)
+        self.resetDisplay()
 
     def next(self):
         """Increment current step"""
@@ -72,7 +88,7 @@ class ProgressSteps(QtWidgets.QWidget):
             self._cur_step_index -= 1
         self.updateDisplay()
 
-    def reset(self) -> None:
+    def resetDisplay(self) -> None:
         """Change current step back to 0"""
         self._cur_step_index = 0
         self._completed_steps = [None] * len(self._steps)

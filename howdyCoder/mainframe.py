@@ -458,7 +458,7 @@ class mainframe(commandProcessor):
 
     def loadProgram(self, program_settings: ProgramSettings) -> None:
         """Load the algos and assign the queues they need for mainframe communication"""
-        self.checkModules(program_settings.settings)
+        self.checkModules(program_settings.name, asdict(program_settings))
         program = self.type_to_manager[program_settings.type_].load(program_settings)
         program.program_queue = self.dill_program_manager.Queue()
         self.all_program_map[program_settings.name] = program
@@ -479,25 +479,26 @@ class mainframe(commandProcessor):
                 )
             )
 
-    def checkModules(self, config_dict):
-        for code, config in config_dict.items():
-            modules = set()
-            configLoader.dfsConfigDict(
-                config, lambda k: k == IMPORTS, lambda _1, _2, v: modules.update(set(v))
+    def checkModules(self, code, config_dict):
+        modules = set()
+        configLoader.dfsConfigDict(
+            config_dict,
+            lambda k: k == IMPORTS,
+            lambda _1, _2, v: modules.update(set(v)),
+        )
+        self.sendToUi(
+            msg.message(
+                msg.MessageType.UI_UPDATE,
+                msg.UiUpdateType.MOD_STATUS,
+                details=(
+                    code,
+                    [
+                        (mod, importlib.util.find_spec(mod) is not None)
+                        for mod in modules
+                    ],
+                ),
             )
-            self.sendToUi(
-                msg.message(
-                    msg.MessageType.UI_UPDATE,
-                    msg.UiUpdateType.MOD_STATUS,
-                    details=(
-                        code,
-                        [
-                            (mod, importlib.util.find_spec(mod) is not None)
-                            for mod in modules
-                        ],
-                    ),
-                )
-            )
+        )
 
     def createCommand(self, _, details=None):
         """Wrapper for creating an algo from a command message"""
@@ -520,4 +521,4 @@ class mainframe(commandProcessor):
                     )
             # now that we've installed, redo the module statuses
             for code, program in self.all_program_map.items():
-                self.checkModules({code: program.config.settings})
+                self.checkModules(code, program.config)

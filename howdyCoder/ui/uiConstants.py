@@ -46,6 +46,8 @@ class PageKeys(Enum):
     ACTION_PARAMETERS = "Action Parameters"
     CONFIRM_ACTION = "Confirm Action"
     FINAL_CONFIRM = "Final Confirm"
+    SCRIPT_SETTINGS = "Script Settings"
+    SCRIPT_PARAMETERS = "Script Parameters"
 
 
 PROGRESS_BAR_HEIGHT = 10

@@ -8,6 +8,7 @@ from .createDataSourceSettingsPage import CreateDataSourceSettingsPage
 from .createParametersPage import (
     CreateDataSourceParametersPage,
     CreateActionParametersPage,
+    CreateScriptParametersPage,
 )
 from .createConfirmPage import (
     CreateDataSourceConfirmPage,
@@ -29,6 +30,7 @@ from ...core.commonGlobals import (
     DataSourceSettings,
     DATA_SOURCES,
     ACTION_LIST,
+    ProgramTypes,
 )
 
 from PySide6 import QtWidgets, QtCore
@@ -48,7 +50,14 @@ class createWidgetPage:
             yield getattr(self, field.name)
 
 
-CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
+SCRIPT_CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
+    CreateNamePage,
+    # new page here
+    CreateScriptParametersPage,
+    CreateFinalConfirmPage,
+]
+
+ALGO_CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
     CreateNamePage,
     CreateDataSourceAddPage,
     CreateDataSourceTypePage,
@@ -63,6 +72,11 @@ CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
     CreateFinalConfirmPage,
 ]
 
+PROGRAM_TYPE_TO_PAGES: typing.Dict[ProgramTypes, typing.List[CreateBasePage]] = {
+    ProgramTypes.ALGO: ALGO_CREATION_WIDGET_PAGES,
+    ProgramTypes.SCRIPT: SCRIPT_CREATION_WIDGET_PAGES,
+}
+
 
 class CreateWidget(
     AbstractTutorialClass,
@@ -70,7 +84,7 @@ class CreateWidget(
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
-    addAlgo = QtCore.Signal(object)
+    addProgram = QtCore.Signal(object)
 
     TUTORIAL_RESOURCE_PREFIX = "CreateWidget"
 
@@ -88,11 +102,6 @@ class CreateWidget(
         # Load UI file
         self._ui = ui_createWidget.Ui_CreateWidget()
         self._ui.setupUi(self)
-        self.current_config = AlgoSettings()
-        self._sub_configs = {
-            DATA_SOURCES: DataSourceSettings(),
-            ACTION_LIST: ActionSettings(),
-        }
 
         self._createWidgetBoxLayout = QtWidgets.QVBoxLayout(self._ui.createWidgetBox)
         self._createWidgetBoxLayout.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
@@ -101,29 +110,20 @@ class CreateWidget(
         self._create_widgets_list: typing.List[createWidgetPage] = []
 
         self._current_exit_page: PageKeys = PageKeys.NO_PAGE
+        self._creator_type: ProgramTypes = None
 
-        self.loadCreationWidgets()
-        self.loadProgressSteps()
-        self.loadCurrentPage()
-
-        # don't want clicking through till animation is over so we disable button on press
-        for _, page in self._create_widgets_list:
-            page.nextPage.connect(self.nextPressed)
-            page.enableNext.connect(self._ui.nextButton.setEnabled)
-            page.enableBack.connect(self._ui.backButton.setEnabled)
-            page.manualExit.connect(self.exitPressed)
-        self._ui.nextButton.released.connect(self.nextPressed)
-        self._ui.backButton.released.connect(self.backPressed)
-        self._ui.exitButton.released.connect(self.exitPressed)
+    def getCurrentPageList(self):
+        return PROGRAM_TYPE_TO_PAGES.get(self._creator_type, [])
 
     def loadCreationWidgets(self) -> None:
         """
         Based on the mapping provided use the factory functions to create and load into the list
         """
-        assert len(set(v.PAGE_KEY for v in CREATION_WIDGET_PAGES)) == len(
-            CREATION_WIDGET_PAGES
+        assert len(set(v.PAGE_KEY for v in self.getCurrentPageList())) == len(
+            self.getCurrentPageList()
         ), "Duplicate Creation Widget Page Keys"
-        for widget_class in CREATION_WIDGET_PAGES:
+        self._create_widgets_list = []
+        for widget_class in self.getCurrentPageList():
             p = createWidgetPage(
                 widget_class.PAGE_KEY.value, widget_class(self.current_config, self)
             )
@@ -138,7 +138,7 @@ class CreateWidget(
         """
         Use the keys provided to create the progress steps widget
         """
-        steps = [page.PAGE_KEY.value for page in CREATION_WIDGET_PAGES]
+        steps = [page.PAGE_KEY.value for page in self.getCurrentPageList()]
         self._ui.progressSteps.setSteps(steps)
 
     def loadCurrentPage(self) -> None:
@@ -146,7 +146,9 @@ class CreateWidget(
         Clear out any widgets and set the layout to the current page
         """
         for _ in range(0, self._createWidgetBoxLayout.count()):
-            self._createWidgetBoxLayout.takeAt(0).hide()
+            layout_item = self._createWidgetBoxLayout.takeAt(0)
+            layout_item.widget().hide()
+            layout_item.widget().deleteLater()
         self._createWidgetBoxLayout.addWidget(
             self._create_widgets_list[self._current_index].page
         )
@@ -190,7 +192,7 @@ class CreateWidget(
         """Go forward a page, if it's the last page then check for any error and save config"""
         if self._current_index == len(self._create_widgets_list) - 1:
             # The main window will change from the create widget to control
-            self.addAlgo.emit({self.current_config.name: asdict(self.current_config)})
+            self.addProgram.emit(asdict(self.current_config))
             self.reset()
         else:
             self.changePage(self._current_index + 1)
@@ -264,7 +266,7 @@ class CreateWidget(
     def reset(self):
         self.resetPages(0)
         self.changePage(0)
-        self._ui.progressSteps.reset()
+        self._ui.progressSteps.resetDisplay()
         self.current_config.clear()
         for v in self._sub_configs.values():
             v.clear()
@@ -274,10 +276,10 @@ class CreateWidget(
             exit_page = self._current_exit_page
         if exit_page is PageKeys.NO_PAGE:
             self.reset()
-            self.addAlgo.emit({})
+            self.addProgram.emit({})
         else:
             index = None
-            for i, v in enumerate(CREATION_WIDGET_PAGES):
+            for i, v in enumerate(self.getCurrentPageList()):
                 if v.PAGE_KEY is exit_page:
                     index = i
             if index is not None:
@@ -288,3 +290,28 @@ class CreateWidget(
         return [self] + self._create_widgets_list[
             self._current_index
         ].page.getTutorialClasses()
+
+    def setCurrentType(self, type_: str):
+        for _, page in self._create_widgets_list:
+            page.deleteLater()
+        self._creator_type = ProgramTypes(type_)
+
+        self.current_config = AlgoSettings()
+        self._sub_configs = {
+            DATA_SOURCES: DataSourceSettings(),
+            ACTION_LIST: ActionSettings(),
+        }
+
+        self.loadCreationWidgets()
+        self.loadProgressSteps()
+        self.loadCurrentPage()
+
+        # don't want clicking through till animation is over so we disable button on press
+        for _, page in self._create_widgets_list:
+            page.nextPage.connect(self.nextPressed)
+            page.enableNext.connect(self._ui.nextButton.setEnabled)
+            page.enableBack.connect(self._ui.backButton.setEnabled)
+            page.manualExit.connect(self.exitPressed)
+        self._ui.nextButton.released.connect(self.nextPressed)
+        self._ui.backButton.released.connect(self.backPressed)
+        self._ui.exitButton.released.connect(self.exitPressed)

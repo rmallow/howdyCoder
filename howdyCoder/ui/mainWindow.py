@@ -5,6 +5,7 @@ from .qtUiFiles import ui_mainWindow
 from .mainModel import mainModel
 from .modInstallDialog import ModInstallDialog
 from .tutorialOverlay import AbstractTutorialClass
+from .create.creatorTypeWindow import CreatorTypeWindow
 
 from .util import abstractQt
 
@@ -78,7 +79,7 @@ class MainWindow(
         self._ui.actionEnd_All.triggered.connect(self._main_model.sendCmdEndAll)
         self.config_window.accepted.connect(self.loadConfig)
         self._ui.controlPage.new_block_widget.ui.createButton.pressed.connect(
-            lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.createPage)
+            self.newBlockWidgetSelected
         )
 
         w = QtWidgets.QWidget()
@@ -103,28 +104,30 @@ class MainWindow(
         # the create name page needs to check if the name already exists before letting the user proceed
         # to do this it will send a signal to the main model's algo dict to see if it is there
         # then that will return back if it is in there
-        # alternatively, this could of been done with just passing in the algo_dict to the createNamePage
+        # alternatively, this could of been done with just passing in the program_dict to the createNamePage
         # but I wanted to avoid that for safety
         w: CreateNamePage
         for w in self.findChildren(CreateNamePage):
-            w.doesAlgoNameExist.connect(self._main_model.algo_dict.contains)
-            self._main_model.algo_dict.nameExists.connect(w.doesNameExistSlot)
-        self._ui.createPage.addAlgo.connect(self._main_model.addAlgo)
-        self._ui.createPage.addAlgo.connect(
+            w.doesAlgoNameExist.connect(self._main_model.program_dict.contains)
+            self._main_model.program_dict.nameExists.connect(w.doesNameExistSlot)
+        self._ui.createPage.addProgram.connect(self._main_model.addProgram)
+        self._ui.createPage.addProgram.connect(
             lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
         )
-        self._ui.controlPage.startAlgo.connect(self.algoStartControlBox)
-        self._ui.controlPage.shutdownAlgo.connect(self.algoShutdownControlBox)
+        self._ui.controlPage.startProgram.connect(self.algoStartControlBox)
+        self._ui.controlPage.shutdownProgram.connect(self.algoShutdownControlBox)
         self._ui.controlPage.exportData.connect(self.algoExportControlBox)
         self._ui.controlPage.inputEntered.connect(self._main_model.inputEntered)
-        self._main_model.algo_dict.dataChanged.connect(
+        self._main_model.program_dict.dataChanged.connect(
             self._ui.controlPage.compareDataToCurrentWidgets
         )
-        self._main_model.algo_dict.dataChanged.connect(
+        self._main_model.program_dict.dataChanged.connect(
             self._ui.outputPage.mainOutputViewModel.dataChanged
         )
-        self._ui.controlPage.algo_dict = self._main_model.algo_dict
-        self._ui.outputPage.mainOutputViewModel.algo_dict = self._main_model.algo_dict
+        self._ui.controlPage.program_dict = self._main_model.program_dict
+        self._ui.outputPage.mainOutputViewModel.program_dict = (
+            self._main_model.program_dict
+        )
         self._ui.stackedWidget.currentChanged.connect(self.pageChanged)
         self._ui.changePageButton.released.connect(
             lambda: self._ui.stackedWidget.setCurrentWidget(
@@ -142,11 +145,13 @@ class MainWindow(
             self._main_model.sendInstallPackagesCommand
         )
 
+        self.creator_type_window = None
+
         self.show()
 
     @QtCore.Slot()
     def loadConfig(self):
-        self._main_model.addAlgoFile(self.config_window.getFile())
+        self._main_model.addProgramFile(self.config_window.getFile())
 
     @QtCore.Slot()
     def pageChanged(self, new_page_index: int):
@@ -179,7 +184,7 @@ class MainWindow(
 
     @QtCore.Slot()
     def algoStartControlBox(self, code):
-        data = self._main_model.algo_dict.getData(code)
+        data = self._main_model.program_dict.getData(code)
         if data is not None:
             if data.mode == Modes.STARTED:
                 self._main_model.sendCmdEnd(code)
@@ -188,7 +193,7 @@ class MainWindow(
 
     @QtCore.Slot()
     def algoShutdownControlBox(self, code):
-        self._main_model.shutdownAlgo(code)
+        self._main_model.shutdownProgram(code)
 
     @QtCore.Slot()
     def algoExportControlBox(self, code):
@@ -239,3 +244,19 @@ class MainWindow(
 
     def getTutorialClasses(self) -> typing.List:
         return [self] + self._ui.stackedWidget.currentWidget().getTutorialClasses()
+
+    @QtCore.Slot()
+    def newBlockWidgetSelected(self):
+        if self.creator_type_window is None:
+            self.creator_type_window = CreatorTypeWindow(self)
+            self.creator_type_window.finished.connect(self.creator_type_windowFinished)
+        self.creator_type_window.reset()
+        self.creator_type_window.open()
+
+    @QtCore.Slot()
+    def creator_type_windowFinished(self, result: int):
+        if result == QtWidgets.QDialog.DialogCode.Accepted:
+            self._ui.createPage.setCurrentType(
+                self.creator_type_window.getTypeSelected()
+            )
+            self._ui.stackedWidget.setCurrentWidget(self._ui.createPage)

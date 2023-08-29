@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass, field, fields
-from dataclass_wizard import property_wizard, JSONWizard
+from dataclass_wizard import property_wizard, JSONWizard, fromdict
 import typing
 
 # Dict Keys=
@@ -53,16 +53,6 @@ class Modes(str, Enum):
     STANDBY = "Standby"
     STARTED = "Started"
     STOPPED = "Stopped"
-
-
-@dataclass
-class ProgramSettings(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    type_: str = ""
-    name: str = ""
-    settings: typing.Dict[str, typing.Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -210,10 +200,15 @@ class AlgoSettings(JSONWizard, metaclass=property_wizard):
 
 
 @dataclass
-class ScriptSettings(JSONWizard, metaclass=property_wizard):
+class ScriptSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
+    function: FunctionSettings | None = None
+
+
+@dataclass
+class ProgramSettings(JSONWizard, metaclass=property_wizard):
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
+    type_: str = ""
     name: str = ""
-    function: FunctionSettings = None
-    period: int = 1
+    settings: typing.Union[AlgoSettings, ScriptSettings] = None
