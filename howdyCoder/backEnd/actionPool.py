@@ -6,7 +6,7 @@ from .trigger import trigger
 from . import feed as feedModule
 from . import messageRouter as mRModule
 
-from ..core.configConstants import ActionTypeEnum
+from ..core.commonGlobals import ActionTypeEnum
 
 
 class actionPool:

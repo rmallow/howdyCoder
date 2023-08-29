@@ -1,8 +1,7 @@
+from ..core.dataStructs import AlgoStatusData, Modes
 from ..core.commonGlobals import (
     UI_GROUP,
     MAINFRAME,
-    AlgoStatusData,
-    Modes,
 )
 from ..commonUtil import mpLogging, helpers
 

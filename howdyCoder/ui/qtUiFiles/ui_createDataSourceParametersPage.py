@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QHBoxLayout, QHeaderView,
-    QLabel, QPushButton, QSizePolicy, QSpacerItem,
-    QSpinBox, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDateTimeEdit, QHBoxLayout,
+    QHeaderView, QLabel, QPushButton, QSizePolicy,
+    QSpacerItem, QTimeEdit, QVBoxLayout, QWidget)
 
 from ..editableTable import EditableTableView
 
@@ -65,19 +65,15 @@ class Ui_CreateDataSourceParametersPage(object):
 
         self.horizontalLayout_9.addWidget(self.label_3)
 
-        self.periodSpinBox = QSpinBox(self.widget_11)
-        self.periodSpinBox.setObjectName(u"periodSpinBox")
-        self.periodSpinBox.setEnabled(True)
-        sizePolicy2 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.periodSpinBox.sizePolicy().hasHeightForWidth())
-        self.periodSpinBox.setSizePolicy(sizePolicy2)
-        self.periodSpinBox.setMinimumSize(QSize(100, 0))
-        self.periodSpinBox.setMinimum(1)
-        self.periodSpinBox.setMaximum(999999)
+        self.time_edit = QTimeEdit(self.widget_11)
+        self.time_edit.setObjectName(u"time_edit")
+        self.time_edit.setAlignment(Qt.AlignCenter)
+        self.time_edit.setMinimumTime(QTime(0, 0, 1))
+        self.time_edit.setCurrentSection(QDateTimeEdit.HourSection)
+        self.time_edit.setCurrentSectionIndex(0)
+        self.time_edit.setTime(QTime(0, 0, 1))
 
-        self.horizontalLayout_9.addWidget(self.periodSpinBox)
+        self.horizontalLayout_9.addWidget(self.time_edit)
 
         self.single_shot_check = QCheckBox(self.widget_11)
         self.single_shot_check.setObjectName(u"single_shot_check")
@@ -93,11 +89,11 @@ class Ui_CreateDataSourceParametersPage(object):
 
         self.flattenWidgetBox = QWidget(self.widget)
         self.flattenWidgetBox.setObjectName(u"flattenWidgetBox")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy3.setHorizontalStretch(2)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.flattenWidgetBox.sizePolicy().hasHeightForWidth())
-        self.flattenWidgetBox.setSizePolicy(sizePolicy3)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy2.setHorizontalStretch(2)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.flattenWidgetBox.sizePolicy().hasHeightForWidth())
+        self.flattenWidgetBox.setSizePolicy(sizePolicy2)
         self.verticalLayout_3 = QVBoxLayout(self.flattenWidgetBox)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.label = QLabel(self.flattenWidgetBox)
@@ -146,11 +142,11 @@ class Ui_CreateDataSourceParametersPage(object):
 
         self.widget_6 = QWidget(CreateDataSourceParametersPage)
         self.widget_6.setObjectName(u"widget_6")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy4.setHorizontalStretch(1)
-        sizePolicy4.setVerticalStretch(3)
-        sizePolicy4.setHeightForWidth(self.widget_6.sizePolicy().hasHeightForWidth())
-        self.widget_6.setSizePolicy(sizePolicy4)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy3.setHorizontalStretch(1)
+        sizePolicy3.setVerticalStretch(3)
+        sizePolicy3.setHeightForWidth(self.widget_6.sizePolicy().hasHeightForWidth())
+        self.widget_6.setSizePolicy(sizePolicy3)
         self.horizontalLayout_6 = QHBoxLayout(self.widget_6)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.widget_7 = QWidget(self.widget_6)
@@ -209,7 +205,8 @@ class Ui_CreateDataSourceParametersPage(object):
     def retranslateUi(self, CreateDataSourceParametersPage):
         CreateDataSourceParametersPage.setWindowTitle(QCoreApplication.translate("CreateDataSourceParametersPage", u"CreateDataSourceParametersPage", None))
         self.periodLabel.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set the period for the data source. The period is how often the data source will query the input.  IE if it is a stream data source, it will call the API URL every period number of seconds. Or set singleshot which will make the data source run only once, regardless of period.", None))
-        self.label_3.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Period", None))
+        self.label_3.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Period (hh:mm:ss)", None))
+        self.time_edit.setDisplayFormat(QCoreApplication.translate("CreateDataSourceParametersPage", u"hh:mm:ss", None))
         self.single_shot_check.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Single Shot", None))
         self.label.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set if the output should be flattened. If any of the output is lists, flattening will cause each data point to be counted as individual data. If the ouput is a dict and contains multiple lists, flattening will only happen if all lists are the same length.", None))
         self.flattenedCheck.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Flatten", None))

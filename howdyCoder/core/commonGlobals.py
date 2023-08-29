@@ -1,13 +1,13 @@
 from enum import Enum
-from dataclasses import dataclass, field, fields
-from dataclass_wizard import property_wizard, JSONWizard, fromdict
-import typing
+from aenum import Enum as AdvancedEnum
+
 
 # Dict Keys=
 HANDLER = "handler"
 TYPE = "type"
 ITEM = "item"
 KEY = "key"
+LABEL = "label"
 BACKTRACK = "backtrack"
 GRAPH_SETTINGS = "graph settings"
 PERIOD = "period"
@@ -42,173 +42,57 @@ LOCAL_AUTH = b"abcAuth"
 LOCAL_PORT = 50000
 
 
+"""Constants for fields used in configuraiton files"""
+FUNC_LOCAITON = "location"
+FUNC_NAME = "name"
+FUNC_CODE = "code"
+IMPORTS = "imports"
+IMPORT_STATEMENTS = "import_statements"
+MAPPING = "mapping"
+
+
+NONE_GROUP = "None"
+SCRIPT = "script"
+DATA_SOURCES = "data_sources"
+ACTION_LIST = "action_list"
+
+GROUP_SET = set([NONE_GROUP, DATA_SOURCES, ACTION_LIST, SCRIPT])
+
+
 class ProgramTypes(str, Enum):
     PROGRAM = "program"
     ALGO = "algo"
     SCRIPT = "script"
 
 
-class Modes(str, Enum):
-    NONE = ""
-    STANDBY = "Standby"
-    STARTED = "Started"
-    STOPPED = "Stopped"
+class DataSourcesTypeEnum(AdvancedEnum):
+    """For indexing to work, all hides go to end"""
+
+    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY} {ENUM_HIDE}"
+
+    THREADED = 0, "threaded", False
+    FUNC = 1, "func", False
+    STREAM = 2, "stream", False
+    INPUT = 3, "input", False
+    SIM = 4, "sim", True
 
 
-@dataclass
-class ProgramStatusData:
-    send_time: float = 0.0
-    receive_time: float = 0.0
-    runtime: float = 0.0
-    mode: Modes = Modes.STANDBY
-    back_time: float = 0.0
-    type_: str = ProgramTypes.PROGRAM.value
+class ActionTypeEnum(AdvancedEnum):
+    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
+
+    EVENT = 0, "event"
+    TRIGGER = 1, "trigger"
 
 
-@dataclass
-class AlgoStatusData(ProgramStatusData):
-    data_length: int = 0
-    feed_last_update_time: float = 0.0
-    columns: list = field(default_factory=list)
+class ActionDataType(AdvancedEnum):
+    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
+
+    DATA_FRAME = 0, "pandas data frame"
+    DICTIONARY_OF_LISTS = 1, "dictionary of lists"
+    LISTS_OF_LISTS = 2, "lists of lists"
 
 
-@dataclass
-class InputData(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    code: str = ""
-    data_source_name: str = ""
-    val: typing.Any = None
-
-
-USER_FUNC = "user_func"
-SETUP_FUNCS = "setup_funcs"
-
-
-@dataclass
-class FunctionSettings(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    code: str = ""
-    name: str = ""
-    imports: typing.List[str] = field(default_factory=list)
-    import_statements: typing.List[str] = field(default_factory=list)
-    user_func: typing.Any = None
-
-
-@dataclass
-class InputSettings(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    name: str = ""
-    requires_new: bool = False
-    period: int = 1
-
-
-@dataclass
-class Parameter(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    name: str = ""
-    value: typing.Any = None
-
-
-@dataclass
-class ItemSettings(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    name: str = ""
-    type_: str = ""
-    flatten: bool = False
-    period: int = 1
-    single_shot: bool = False
-    parameters: typing.Dict[str, Parameter] = field(default_factory=dict)
-    setup_funcs: typing.Dict[str, FunctionSettings] = field(default_factory=dict)
-
-    def clear(self):
-        self.__init__({})
-
-
-@dataclass
-class ActionSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    input_: typing.Dict[str, InputSettings] = field(default_factory=dict)
-    input_data_type: str = ""
-    aggregate: str = ""
-    calc_func: FunctionSettings | None = None
-    output_func: FunctionSettings | None = None
-
-
-@dataclass
-class DataSourceSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    output: typing.Union[typing.List[str], typing.Dict[str, str]] = field(
-        default_factory=list
-    )
-    # type specific
-    get_func: FunctionSettings | None = None
-    input_type: str = ""
-    key: str = ""
-
-
-test_once = True
-if test_once:
-    test_once = False
-
-    assert any(
-        field.name == SETUP_FUNCS for field in fields(ItemSettings)
-    ), "Changed setuup funcs field name without changing string"
-    assert any(
-        field.name == USER_FUNC for field in fields(FunctionSettings)
-    ), "Changed user func field name without changing string"
-
-
-NONE_GROUP = "None"
-DATA_SOURCES = "data_sources"
-ACTION_LIST = "action_list"
-
-GROUP_SET = set([NONE_GROUP, DATA_SOURCES, ACTION_LIST])
-
-
-@dataclass
-class AlgoSettings(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    name: str = ""
-    data_sources: typing.Dict[str, DataSourceSettings] = field(default_factory=dict)
-    action_list: typing.Dict[str, ActionSettings] = field(default_factory=dict)
-
-    def clear(self):
-        self.__init__({})
-
-    def getGroupDict(self, group: str) -> typing.Dict[str, ItemSettings]:
-        if group == ACTION_LIST:
-            return self.action_list
-        elif group == DATA_SOURCES:
-            return self.data_sources
-        assert False, "invalid group"
-
-
-@dataclass
-class ScriptSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
-    function: FunctionSettings | None = None
-
-
-@dataclass
-class ProgramSettings(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    type_: str = ""
-    name: str = ""
-    settings: typing.Union[AlgoSettings, ScriptSettings] = None
+class InputType(Enum):
+    SHORT_TEXT = "short text"
+    LONG_TEXT = "long text"
+    NUMBER = "number"

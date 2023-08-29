@@ -1,5 +1,4 @@
 from .program import Program
-
 from ..core.commonGlobals import ProgramTypes
 
 

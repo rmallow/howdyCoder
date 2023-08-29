@@ -1,9 +1,10 @@
+from ...core.dataStructs import AlgoSettings
 from .createTypeBasePage import CreateTypeBasePage
 from ..uiConstants import PageKeys
-from ...core.configConstants import (
+from ...core.commonGlobals import (
     DataSourcesTypeEnum,
 )
-from ...core.commonGlobals import AlgoSettings, DATA_SOURCES
+from ...core.commonGlobals import DATA_SOURCES
 
 import typing
 

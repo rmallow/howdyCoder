@@ -1,3 +1,4 @@
+from ...core.dataStructs import ItemSettings, Parameter
 from ..actionUIConstant import functionDictToFunctionSettings
 from .. import editableTable
 
@@ -7,8 +8,6 @@ from ...core.commonGlobals import (
     ENUM_TYPE,
     ENUM_EDITOR_VALUES,
     ENUM_ENABLED,
-    ItemSettings,
-    Parameter,
 )
 
 import typing

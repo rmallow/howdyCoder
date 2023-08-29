@@ -1,12 +1,9 @@
+from ..core.dataStructs import AlgoStatusData
 from .uiConstants import outputTypesEnum
 from .sparseDictListModel import SparseDictListModel
 from .programData import ProgramDict
 
-from ..core.commonGlobals import ITEM, AlgoStatusData
-from ..core.configConstants import (
-    ActionTypeEnum,
-    ENUM_DISPLAY,
-)
+from ..core.commonGlobals import ITEM, ActionTypeEnum, ENUM_DISPLAY
 from ..core import message as msg
 
 import platform

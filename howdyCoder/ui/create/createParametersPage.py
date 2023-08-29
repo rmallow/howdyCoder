@@ -1,14 +1,15 @@
+from ...core.dataStructs import ActionSettings, AlgoSettings, DataSourceSettings
 from .createBasePage import CreateBasePage
 from ..qtUiFiles import ui_createDataSourceParametersPage
 from ..uiConstants import PageKeys
 from . import parameterTable
 
 from ...core.commonGlobals import (
-    AlgoSettings,
     DATA_SOURCES,
     ACTION_LIST,
-    DataSourceSettings,
-    ActionSettings,
+    NONE_GROUP,
+    DataSourcesTypeEnum,
+    ENUM_DISPLAY,
 )
 
 import typing
@@ -45,7 +46,7 @@ class CreateBaseParametersPage(CreateBasePage):
 
     @QtCore.Slot()
     def singleShotStateChanged(self, _):
-        self._ui.periodSpinBox.setEnabled(not self._ui.single_shot_check.isChecked())
+        self._ui.time_edit.setEnabled(not self._ui.single_shot_check.isChecked())
 
     def validate(self) -> bool:
         return True
@@ -65,13 +66,15 @@ class CreateBaseParametersPage(CreateBasePage):
 
     def reset(self) -> None:
         self._parameterModel.clear()
-        self._ui.periodSpinBox.setValue(1)
+        self._ui.time_edit.setTime(QtCore.QTime(0, 0, 1))
         self._ui.flattenedCheck.setChecked(True)
         self._ui.single_shot_check.setChecked(False)
 
     def loadPage(self) -> None:
         curr = self.getTempConfig()
-        self._ui.periodSpinBox.setValue(curr.period)
+        time = QtCore.QTime()
+        time.addSecs(curr.period)
+        self._ui.time_edit.setTime(time)
         self._ui.flattenedCheck.setChecked(curr.flatten)
         self._ui.single_shot_check.setChecked(curr.single_shot)
         return super().loadPage()
@@ -98,10 +101,21 @@ class CreateDataSourceParametersPage(CreateBaseParametersPage):
             parent=parent,
         )
 
+    def loadPage(self):
+        super().loadPage()
+        if self.getTempConfig().type_ == getattr(
+            DataSourcesTypeEnum.INPUT, ENUM_DISPLAY, ""
+        ):
+            self._ui.flattenWidgetBox.hide()
+            self._ui.periodWidgetBox.hide()
+        else:
+            self._ui.flattenWidgetBox.show()
+            self._ui.periodWidgetBox.show()
+
     def save(self):
         super().save()
         curr: DataSourceSettings = self.getTempConfig()
-        curr.period = self._ui.periodSpinBox.value()
+        curr.period = max(1, QtCore.QTime(0, 0, 0).secsTo(self._ui.time_edit.time()))
         curr.single_shot = self._ui.single_shot_check.isChecked()
 
 
@@ -130,10 +144,10 @@ class CreateActionParametersPage(CreateBaseParametersPage):
 
 class CreateScriptParametersPage(CreateBaseParametersPage):
     PAGE_KEY = PageKeys.SCRIPT_PARAMETERS
-    ACTION_TEXT = """Set how often you'd like this to script in the period section or set single shot if you want it to run only once."""
+    SCRIPT_TEXT = """Set how often you'd like this to script in the period section or set single shot if you want it to run only once."""
 
     TUTORIAL_RESOURCE_PREFIX = "test"
-    GROUP = ACTION_LIST
+    GROUP = NONE_GROUP
 
     def __init__(
         self,
@@ -142,7 +156,7 @@ class CreateScriptParametersPage(CreateBaseParametersPage):
     ):
         super().__init__(
             current_config,
-            self.ACTION_TEXT,
+            self.SCRIPT_TEXT,
             self.TUTORIAL_RESOURCE_PREFIX,
             parent=parent,
         )

@@ -1,3 +1,9 @@
+from ..core.dataStructs import (
+    SETUP_FUNCS,
+    ActionSettings,
+    AlgoSettings,
+    DataSourceSettings,
+)
 from .algo import Algo
 from . import actionFactory as aF
 from .feed import feed
@@ -9,14 +15,10 @@ from ..commonUtil import mpLogging
 from ..commonUtil import configLoader
 from ..commonUtil import userFuncCaller
 
-from ..core.configConstants import (
+from ..core.commonGlobals import (
     ActionTypeEnum,
 )
-from ..core.commonGlobals import (
-    ActionSettings,
-    AlgoSettings,
-    SETUP_FUNCS,
-    DataSourceSettings,
+from ..core.dataStructs import (
     ProgramSettings,
 )
 

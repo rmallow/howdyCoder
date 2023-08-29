@@ -1,3 +1,4 @@
+from ...core.dataStructs import AlgoSettings, DataSourceSettings
 from .createBasePage import CreateBasePage
 from ..uiConstants import PageKeys
 from ..actionUIConstant import ActionFuncEnum, functionDictToFunctionSettings
@@ -8,7 +9,7 @@ from ..selectorWidget import SelectorWidget
 from ..funcSelector import FuncSelector
 from ..treeSelect import UrlTreeSelect
 
-from ...core.configConstants import (
+from ...core.commonGlobals import (
     DataSourcesTypeEnum,
     InputType,
 )
@@ -16,9 +17,7 @@ from ...core.configConstants import (
 from ...commonUtil import helpers
 from ...core.commonGlobals import (
     ENUM_DISPLAY,
-    AlgoSettings,
     DATA_SOURCES,
-    DataSourceSettings,
 )
 
 import typing

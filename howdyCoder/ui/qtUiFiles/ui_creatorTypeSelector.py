@@ -23,7 +23,7 @@ class Ui_CreatorTypeSelector(object):
     def setupUi(self, CreatorTypeSelector):
         if not CreatorTypeSelector.objectName():
             CreatorTypeSelector.setObjectName(u"CreatorTypeSelector")
-        CreatorTypeSelector.resize(528, 474)
+        CreatorTypeSelector.resize(545, 474)
         self.verticalLayout = QVBoxLayout(CreatorTypeSelector)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.label = QLabel(CreatorTypeSelector)
@@ -37,6 +37,9 @@ class Ui_CreatorTypeSelector(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.program_type_view = QListWidget(self.widget)
         self.program_type_view.setObjectName(u"program_type_view")
+        font = QFont()
+        font.setPointSize(30)
+        self.program_type_view.setFont(font)
 
         self.horizontalLayout.addWidget(self.program_type_view)
 

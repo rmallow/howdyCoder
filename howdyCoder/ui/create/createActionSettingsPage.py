@@ -1,3 +1,4 @@
+from ...core.dataStructs import ActionSettings, AlgoSettings, InputSettings
 from .createBasePage import CreateBasePage
 from ..uiConstants import PageKeys
 from ..actionUIConstant import ActionFuncEnum, functionDictToFunctionSettings
@@ -9,17 +10,14 @@ from ..funcSelector import FuncSelector
 
 from ..util.spinBoxDelegate import SpinBoxDelegate
 
-from ...core.configConstants import (
-    ActionTypeEnum,
+from ...core.commonGlobals import (
     ActionDataType,
 )
 
 from ...commonUtil import helpers
 from ...core.commonGlobals import (
     ENUM_DISPLAY,
-    ActionSettings,
-    InputSettings,
-    AlgoSettings,
+    ActionTypeEnum,
     DATA_SOURCES,
     ACTION_LIST,
 )

@@ -1,3 +1,4 @@
+from ..core.dataStructs import AlgoStatusData, InputData, Modes
 from .actionPool import actionPool
 from ..core import message as msg
 from ..core import messageKey as msgKey
@@ -8,14 +9,7 @@ from .program import Program
 
 from ..commonUtil import mpLogging
 from ..commonUtil.repeatTimer import setInterval
-from ..core.commonGlobals import (
-    ALGO_GROUP,
-    BACKTRACK,
-    AlgoStatusData,
-    Modes,
-    InputData,
-    ProgramTypes,
-)
+from ..core.commonGlobals import ALGO_GROUP, BACKTRACK, ProgramTypes
 
 import time
 

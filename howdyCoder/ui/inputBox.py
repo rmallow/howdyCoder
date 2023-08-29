@@ -1,5 +1,5 @@
-from ..core.configConstants import InputType
-from ..core.commonGlobals import InputData
+from ..core.commonGlobals import InputType
+from ..core.dataStructs import InputData
 
 import typing
 

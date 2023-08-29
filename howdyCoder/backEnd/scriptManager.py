@@ -1,5 +1,5 @@
 from .programManager import ProgramManager
-from ..core.commonGlobals import ProgramSettings
+from ..core.dataStructs import ProgramSettings
 
 import copy
 import typing

@@ -1,3 +1,4 @@
+from ..core.dataStructs import InputData, Modes
 from .newBlockWidget import NewBlockWidget
 from .programStatusWidget import ProgramStatusWidget
 from .programData import ProgramDict, ProgramWidgetData
@@ -9,12 +10,11 @@ from .util import abstractQt
 
 from .qtUiFiles import ui_controlWidget
 
-from ..core.configConstants import (
+from ..core.commonGlobals import (
     DataSourcesTypeEnum,
     ENUM_DISPLAY,
     InputType,
 )
-from ..core.commonGlobals import Modes, InputData
 
 from PySide6 import QtWidgets, QtCore, QtGui
 

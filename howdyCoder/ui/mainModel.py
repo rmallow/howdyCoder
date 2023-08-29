@@ -1,14 +1,8 @@
+from ..core.dataStructs import AlgoStatusData, InputData, ProgramSettings
 from .uiConstants import LOOP_INTERVAL_MSECS
 from .programData import ProgramDict
 
-from ..core.commonGlobals import (
-    RECEIVE_TIME,
-    MAINFRAME,
-    AlgoStatusData,
-    InputData,
-    ProgramSettings,
-    ProgramTypes,
-)
+from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, ProgramTypes
 from ..commonUtil import queueManager as qm
 from ..commonUtil.helpers import getStrTime
 from ..commonUtil import mpLogging, configLoader

@@ -2,7 +2,7 @@ from .qtUiFiles import ui_urlTreeSelect
 from .selectorBase import SelectorBase
 from .highlightModel import HighlightTreeModel
 
-from ..core.data_structs import StreamSettings, KeyLabelPair
+from ..core.dataStructs import StreamSettings, KeyLabelPair
 
 from ..backEnd.util import requestUtil
 

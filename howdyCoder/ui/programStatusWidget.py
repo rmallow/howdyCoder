@@ -1,3 +1,4 @@
+from ..core.dataStructs import AlgoSettings, Modes, ProgramSettings
 from .uiConstants import GUI_REFRESH_INTERVAL
 from .qtUiFiles import ui_algoStatusWidget
 from .programData import ProgramWidgetData
@@ -6,8 +7,7 @@ from .tutorialOverlay import AbstractTutorialClass
 from .util import abstractQt
 
 from ..commonUtil import helpers
-from ..core.configConstants import DataSourcesTypeEnum, ENUM_DISPLAY
-from ..core.commonGlobals import Modes, AlgoSettings, ProgramTypes, ProgramSettings
+from ..core.commonGlobals import DataSourcesTypeEnum, ENUM_DISPLAY, ProgramTypes
 
 from PySide6 import QtWidgets, QtCore, QtGui
 

@@ -1,9 +1,10 @@
+from ...core.dataStructs import AlgoSettings
 from .createBasePage import CreateBasePage
 
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createDataSourceAdd
 
-from ...core.commonGlobals import AlgoSettings, DATA_SOURCES, ACTION_LIST
+from ...core.commonGlobals import DATA_SOURCES, ACTION_LIST
 import typing
 
 from PySide6 import QtWidgets, QtCore

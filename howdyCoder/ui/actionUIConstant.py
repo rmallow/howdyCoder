@@ -1,5 +1,7 @@
-from ..core.commonGlobals import ENUM_VALUE, ENUM_DISPLAY, FunctionSettings
-from ..core.configConstants import (
+from ..core.dataStructs import FunctionSettings
+from ..core.commonGlobals import (
+    ENUM_VALUE,
+    ENUM_DISPLAY,
     FUNC_NAME,
     FUNC_LOCAITON,
     FUNC_CODE,

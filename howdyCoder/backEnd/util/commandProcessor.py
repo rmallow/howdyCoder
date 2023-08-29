@@ -1,5 +1,5 @@
 from ...core import message as msg
-from ...core.commonGlobals import Modes
+from ...core.dataStructs import Modes
 
 from ...commonUtil import mpLogging
 from ...commonUtil.multiBase import multiBase

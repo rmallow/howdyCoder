@@ -1,7 +1,8 @@
+from ..core.dataStructs import DataSourceSettings
 from .dataBase import dataBase
 
 from ..commonUtil.userFuncCaller import UserFuncCaller
-from ..core.commonGlobals import PASSBACK_DICT, DataSourceSettings
+from ..core.commonGlobals import PASSBACK_DICT
 
 import typing
 

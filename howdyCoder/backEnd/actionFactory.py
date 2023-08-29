@@ -5,7 +5,7 @@ from .aggregateData import aggregateData
 from .aggregateDataParameter import aggregateDataParameter
 from .aggregateParameter import aggregateParameter
 
-from ..core.configConstants import ActionTypeEnum
+from ..core.commonGlobals import ActionTypeEnum
 
 _ACTION_FACTORY_TYPES = {
     ActionTypeEnum.EVENT.display: event,

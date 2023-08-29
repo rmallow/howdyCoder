@@ -1,5 +1,3 @@
-from ..core.configConstants import IMPORTS
-
 from . import mpLogging
 
 import os

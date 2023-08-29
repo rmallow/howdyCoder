@@ -1,5 +1,4 @@
 from ..qtUiFiles.ui_creatorTypeSelector import Ui_CreatorTypeSelector
-
 from ...core.commonGlobals import ProgramTypes
 
 import typing

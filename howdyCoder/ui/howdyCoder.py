@@ -5,7 +5,7 @@ import os
 from PySide6 import QtWidgets, QtCore, QtGui
 
 
-"""THIS FILES NAME SHOWS UP IN THE MAC MENU BAR DROPDOWN, HENCE THE NAME"""
+"""THIS FILE'S NAME SHOWS UP IN THE MAC MENU BAR DROPDOWN, HENCE THE NAME"""
 
 
 def start(isLocal: bool):

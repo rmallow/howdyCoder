@@ -12,7 +12,7 @@ from .util import abstractQt
 # import name page for find children to connect signal
 from .create.createNamePage import CreateNamePage
 
-from ..core.commonGlobals import Modes
+from ..core.dataStructs import Modes
 
 import typing
 
@@ -101,15 +101,7 @@ class MainWindow(
                 QtCore.QUrl("https://howdycoder.io/documentation")
             )
         )
-        # the create name page needs to check if the name already exists before letting the user proceed
-        # to do this it will send a signal to the main model's algo dict to see if it is there
-        # then that will return back if it is in there
-        # alternatively, this could of been done with just passing in the program_dict to the createNamePage
-        # but I wanted to avoid that for safety
-        w: CreateNamePage
-        for w in self.findChildren(CreateNamePage):
-            w.doesAlgoNameExist.connect(self._main_model.program_dict.contains)
-            self._main_model.program_dict.nameExists.connect(w.doesNameExistSlot)
+
         self._ui.createPage.addProgram.connect(self._main_model.addProgram)
         self._ui.createPage.addProgram.connect(
             lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
@@ -249,14 +241,23 @@ class MainWindow(
     def newBlockWidgetSelected(self):
         if self.creator_type_window is None:
             self.creator_type_window = CreatorTypeWindow(self)
-            self.creator_type_window.finished.connect(self.creator_type_windowFinished)
+            self.creator_type_window.finished.connect(self.creatorTypeWindowFinished)
         self.creator_type_window.reset()
         self.creator_type_window.open()
 
     @QtCore.Slot()
-    def creator_type_windowFinished(self, result: int):
+    def creatorTypeWindowFinished(self, result: int):
         if result == QtWidgets.QDialog.DialogCode.Accepted:
             self._ui.createPage.setCurrentType(
                 self.creator_type_window.getTypeSelected()
             )
+            # the create name page needs to check if the name already exists before letting the user proceed
+            # to do this it will send a signal to the main model's algo dict to see if it is there
+            # then that will return back if it is in there
+            # alternatively, this could of been done with just passing in the program_dict to the createNamePage
+            # but I wanted to avoid that for safety
+            w: CreateNamePage
+            for w in self.findChildren(CreateNamePage):
+                w.doesAlgoNameExist.connect(self._main_model.program_dict.contains)
+                self._main_model.program_dict.nameExists.connect(w.doesNameExistSlot)
             self._ui.stackedWidget.setCurrentWidget(self._ui.createPage)

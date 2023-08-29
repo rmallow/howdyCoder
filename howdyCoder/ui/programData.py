@@ -1,6 +1,7 @@
+from ..core.dataStructs import AlgoSettings, AlgoStatusData, Modes
 from ..core.message import message
 
-from ..core.commonGlobals import Modes, AlgoStatusData, AlgoSettings, ProgramSettings
+from ..core.dataStructs import ProgramSettings
 
 from dataclasses import dataclass
 import typing

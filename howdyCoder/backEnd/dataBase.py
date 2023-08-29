@@ -1,7 +1,8 @@
+from ..core.dataStructs import DataSourceSettings
 from .constants import DataSourceTypeEnum, DataSourceReturnEnum
 
 from ..commonUtil import mpLogging
-from ..core.commonGlobals import DATA_GROUP, DataSourceSettings
+from ..core.commonGlobals import DATA_GROUP
 
 import abc
 import pandas as pd

@@ -1,8 +1,9 @@
+from ...core.dataStructs import AlgoSettings
 from .createBasePage import CreateBasePage
 from ..qtUiFiles import ui_createDataSourceConfirmPage
 from ..uiConstants import PageKeys
 
-from ...core.commonGlobals import AlgoSettings, DATA_SOURCES, ACTION_LIST, NONE_GROUP
+from ...core.commonGlobals import DATA_SOURCES, ACTION_LIST, NONE_GROUP
 
 import typing
 import copy

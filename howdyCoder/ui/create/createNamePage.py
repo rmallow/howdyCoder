@@ -1,8 +1,9 @@
+from ...core.dataStructs import AlgoSettings
 from .createBasePage import CreateBasePage
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createNamePage
 
-from ...core.commonGlobals import AlgoSettings, NONE_GROUP
+from ...core.commonGlobals import NONE_GROUP
 
 import typing
 

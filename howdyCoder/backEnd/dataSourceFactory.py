@@ -5,7 +5,7 @@ from .dataStream import dataStream
 from .dataThreaded import dataThreaded
 from .dataInput import dataInput
 
-from ..core.configConstants import DataSourcesTypeEnum
+from ..core.commonGlobals import DataSourcesTypeEnum
 
 
 """

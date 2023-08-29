@@ -1,9 +1,10 @@
+from ..core.dataStructs import USER_FUNC
 from .program import Program
 
 from ..commonUtil import userFuncCaller
 from ..commonUtil import configLoader
 
-from ..core.commonGlobals import SETUP_FUNCS, USER_FUNC
+from ..core.dataStructs import SETUP_FUNCS
 
 from abc import ABC, abstractmethod
 import copy

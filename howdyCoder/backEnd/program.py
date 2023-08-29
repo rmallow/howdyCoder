@@ -1,3 +1,4 @@
+from ..core.dataStructs import Modes, ProgramSettings, ProgramStatusData
 from ..commonUtil.multiBase import multiBase
 from ..commonUtil.userFuncCaller import UserFuncCaller
 from ..core import message as msg
@@ -5,13 +6,7 @@ from ..core import messageKey as msgKey
 from ..commonUtil import mpLogging
 from ..commonUtil.repeatTimer import setInterval
 from ..commonUtil import queueManager as qm
-from ..core.commonGlobals import (
-    FUNC_GROUP,
-    Modes,
-    ProgramStatusData,
-    ProgramSettings,
-    ProgramTypes,
-)
+from ..core.commonGlobals import FUNC_GROUP, ProgramTypes
 
 from .util.commandProcessor import commandProcessor
 

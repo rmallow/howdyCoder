@@ -1,15 +1,8 @@
 # Local common includes
+from .core.dataStructs import AlgoStatusData, Modes, ProgramSettings
 from .data.datalocator import SETTINGS_FILE
-from .core.commonGlobals import (
-    ITEM,
-    LOCAL_AUTH,
-    LOCAL_PORT,
-    AlgoStatusData,
-    Modes,
-    ProgramSettings,
-    ProgramTypes,
-)
-from .core.configConstants import IMPORTS
+from .core.commonGlobals import ITEM, LOCAL_AUTH, LOCAL_PORT, ProgramTypes
+from .core.commonGlobals import IMPORTS
 
 # Common Util includes
 from .commonUtil import mpLogging

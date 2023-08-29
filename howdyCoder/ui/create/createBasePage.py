@@ -1,6 +1,7 @@
+from ...core.dataStructs import AlgoSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
-from ...core.commonGlobals import UI_GROUP, ItemSettings, AlgoSettings, GROUP_SET
+from ...core.commonGlobals import UI_GROUP, GROUP_SET
 from ..uiConstants import PageKeys
 from ...commonUtil import mpLogging
 

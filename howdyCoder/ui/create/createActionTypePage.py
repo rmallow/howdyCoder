@@ -1,7 +1,8 @@
+from ...core.dataStructs import AlgoSettings
 from .createTypeBasePage import CreateTypeBasePage
 from ..uiConstants import PageKeys
-from ...core.configConstants import ActionTypeEnum
-from ...core.commonGlobals import AlgoSettings, ACTION_LIST
+from ...core.commonGlobals import ActionTypeEnum
+from ...core.commonGlobals import ACTION_LIST
 
 import typing
 

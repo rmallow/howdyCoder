@@ -1,3 +1,10 @@
+from ...core.dataStructs import (
+    ActionSettings,
+    AlgoSettings,
+    DataSourceSettings,
+    ProgramSettings,
+    ScriptSettings,
+)
 from .createBasePage import CreateBasePage
 
 # various pages
@@ -17,6 +24,7 @@ from .createConfirmPage import (
 )
 from .createActionTypePage import CreateActionTypePage
 from .createActionSettingsPage import CreateActionSettingsPage
+from .createScriptSettingsPage import CreateScriptSettingsPage
 
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createWidget
@@ -24,14 +32,7 @@ from ..tutorialOverlay import AbstractTutorialClass
 
 from ..util import animations, abstractQt
 
-from ...core.commonGlobals import (
-    AlgoSettings,
-    ActionSettings,
-    DataSourceSettings,
-    DATA_SOURCES,
-    ACTION_LIST,
-    ProgramTypes,
-)
+from ...core.commonGlobals import DATA_SOURCES, ACTION_LIST, ProgramTypes
 
 from PySide6 import QtWidgets, QtCore
 
@@ -41,7 +42,7 @@ import typing
 
 
 @dataclass
-class createWidgetPage:
+class CreateWidgetPage:
     name: str
     page: CreateBasePage
 
@@ -52,7 +53,7 @@ class createWidgetPage:
 
 SCRIPT_CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
     CreateNamePage,
-    # new page here
+    CreateScriptSettingsPage,
     CreateScriptParametersPage,
     CreateFinalConfirmPage,
 ]
@@ -107,7 +108,7 @@ class CreateWidget(
         self._createWidgetBoxLayout.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
         self._ui.createWidgetBox.setLayout(self._createWidgetBoxLayout)
 
-        self._create_widgets_list: typing.List[createWidgetPage] = []
+        self._create_widgets_list: typing.List[CreateWidgetPage] = []
 
         self._current_exit_page: PageKeys = PageKeys.NO_PAGE
         self._creator_type: ProgramTypes = None
@@ -124,7 +125,7 @@ class CreateWidget(
         ), "Duplicate Creation Widget Page Keys"
         self._create_widgets_list = []
         for widget_class in self.getCurrentPageList():
-            p = createWidgetPage(
+            p = CreateWidgetPage(
                 widget_class.PAGE_KEY.value, widget_class(self.current_config, self)
             )
             p.page.temp_config = self._sub_configs.get(p.page.GROUP, {})
@@ -192,7 +193,15 @@ class CreateWidget(
         """Go forward a page, if it's the last page then check for any error and save config"""
         if self._current_index == len(self._create_widgets_list) - 1:
             # The main window will change from the create widget to control
-            self.addProgram.emit(asdict(self.current_config))
+            self.addProgram.emit(
+                asdict(
+                    ProgramSettings(
+                        self._creator_type.value,
+                        self.current_config.name,
+                        self.current_config,
+                    )
+                )
+            )
             self.reset()
         else:
             self.changePage(self._current_index + 1)
@@ -296,11 +305,15 @@ class CreateWidget(
             page.deleteLater()
         self._creator_type = ProgramTypes(type_)
 
-        self.current_config = AlgoSettings()
-        self._sub_configs = {
-            DATA_SOURCES: DataSourceSettings(),
-            ACTION_LIST: ActionSettings(),
-        }
+        if self._creator_type == ProgramTypes.ALGO:
+            self.current_config = AlgoSettings()
+            self._sub_configs = {
+                DATA_SOURCES: DataSourceSettings(),
+                ACTION_LIST: ActionSettings(),
+            }
+        elif self._creator_type == ProgramTypes.SCRIPT:
+            self.current_config = ScriptSettings()
+            self._sub_configs = {}
 
         self.loadCreationWidgets()
         self.loadProgressSteps()
