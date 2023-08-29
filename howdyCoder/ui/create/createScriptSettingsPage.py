@@ -30,3 +30,18 @@ class CreateScriptSettingsPage(CreateBasePage):
         super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
         self._ui = Ui_CreateScriptSettingsPage()
         self._ui.setupUi(self)
+
+    def loadPage(self):
+        pass
+
+    def getTutorialClasses(self) -> typing.List:
+        return [self]
+
+    def validate(self) -> bool:
+        return True
+
+    def save(self) -> None:
+        pass
+
+    def reset(self) -> None:
+        pass

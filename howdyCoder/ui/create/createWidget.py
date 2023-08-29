@@ -128,7 +128,7 @@ class CreateWidget(
             p = CreateWidgetPage(
                 widget_class.PAGE_KEY.value, widget_class(self.current_config, self)
             )
-            p.page.temp_config = self._sub_configs.get(p.page.GROUP, {})
+            p.page.temp_config = self._sub_configs.get(p.page.GROUP, None)
             self._create_widgets_list.append(p)
         self._current_index: int = 0
 
@@ -188,6 +188,7 @@ class CreateWidget(
             )
             self._ui.progressSteps.goTo(newIndex)
             self._current_index = newIndex
+            self.setButtonText()
 
     def nextPressed(self):
         """Go forward a page, if it's the last page then check for any error and save config"""
@@ -205,16 +206,18 @@ class CreateWidget(
             self.reset()
         else:
             self.changePage(self._current_index + 1)
-            self._ui.nextButton.setText(
-                "Finish"
-                if self._current_index == len(self._create_widgets_list) - 1
-                else "Next"
-            )
-            self._ui.backButton.setText(
-                "Start Over"
-                if self._current_index == len(self._create_widgets_list) - 1
-                else "Back"
-            )
+
+    def setButtonText(self):
+        self._ui.nextButton.setText(
+            "Finish"
+            if self._current_index == len(self._create_widgets_list) - 1
+            else "Next"
+        )
+        self._ui.backButton.setText(
+            "Start Over"
+            if self._current_index == len(self._create_widgets_list) - 1
+            else "Back"
+        )
 
     def backPressed(self):
         """Go back a page"""
@@ -318,6 +321,7 @@ class CreateWidget(
         self.loadCreationWidgets()
         self.loadProgressSteps()
         self.loadCurrentPage()
+        self.reset()
 
         # don't want clicking through till animation is over so we disable button on press
         for _, page in self._create_widgets_list:

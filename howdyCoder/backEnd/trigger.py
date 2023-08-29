@@ -1,14 +1,15 @@
 from .action import action
 from ..core import message as msg
 from ..commonUtil import userFuncCaller
+from ..core.dataStructs import ActionSettings
 
 import typing
 from collections.abc import Iterable
 
 
 class trigger(action):
-    def __init__(self, output_func, *args, **kwargs):
-        self.output_func: userFuncCaller = output_func
+    def __init__(self, action_settings: ActionSettings, *args, **kwargs):
+        self.output_func: userFuncCaller = action_settings.output_function
         super().__init__(*args, **kwargs)
 
     def update(self):

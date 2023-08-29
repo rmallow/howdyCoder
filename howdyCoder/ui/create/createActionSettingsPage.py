@@ -36,6 +36,8 @@ SELECTED_NAME_COLUMN = 1
 SELECTED_REQUIRES_NEW_COLUMN = 2
 SELECTED_AMOUNT_OF_DATA_COLUMN = 3
 
+SELECTED_TRUE_NAME_ROLE = QtCore.Qt.UserRole + 1
+
 
 class FuncType(Enum):
     CALC = 0
@@ -204,37 +206,47 @@ class CreateActionSettingsPage(CreateBasePage):
             and index.isValid()
             and index.column() != AVAILABLE_GROUP_COLUMN
             and index.siblingAtColumn(AVAILABLE_NAME_COLUMN).isValid()
-            and index.row() not in self._curr_selected
         ):
-            self._curr_selected.add(index.row())
             name = self._available_input_table_model.data(
                 index.siblingAtColumn(AVAILABLE_NAME_COLUMN)
             )
-            group = self._available_input_table_model.data(
-                index.siblingAtColumn(AVAILABLE_GROUP_COLUMN)
-            )
-            source_item = QtGui.QStandardItem(f"{group}-{name}")
-            source_item.setData(
-                f"{group}-{name}"
-                if group != getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY).capitalize()
-                else name
-            )
-            name_item = QtGui.QStandardItem(name)
-            requires_new_item = QtGui.QStandardItem()
-            requires_new_item.setCheckable(True)
-            source_item.setEditable(False)
-            name_item.setEditable(True)
-            source_item.setData(index.row(), QtCore.Qt.UserRole)
-            self._selected_input_table_model.appendRow(
-                [source_item, name_item, requires_new_item, QtGui.QStandardItem(1)]
-            )
-            self._ui.selectedInputTable.openPersistentEditor(
-                self._selected_input_table_model.index(
-                    self._selected_input_table_model.rowCount() - 1,
-                    SELECTED_AMOUNT_OF_DATA_COLUMN,
+            avail_group_col_index = index.siblingAtColumn(AVAILABLE_GROUP_COLUMN)
+            """The group name is only populated into the first of each group, so iter up until we get it"""
+            while (
+                avail_group_col_index.isValid()
+                and self._available_input_table_model.data(avail_group_col_index)
+                is None
+            ):
+                avail_group_col_index = avail_group_col_index.siblingAtRow(
+                    avail_group_col_index.row() - 1
                 )
-            )
-            self.enableCheck()
+            group = self._available_input_table_model.data(avail_group_col_index)
+
+            display_name = f"{group}-{name}"
+            if display_name not in self._curr_selected:
+                self._curr_selected.add(display_name)
+                true_name = (
+                    f"{group}-{name}"
+                    if group != getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY).capitalize()
+                    else name
+                )
+                source_item = QtGui.QStandardItem(display_name)
+                source_item.setData(true_name, SELECTED_TRUE_NAME_ROLE)
+                name_item = QtGui.QStandardItem(name)
+                requires_new_item = QtGui.QStandardItem()
+                requires_new_item.setCheckable(True)
+                source_item.setEditable(False)
+                name_item.setEditable(True)
+                self._selected_input_table_model.appendRow(
+                    [source_item, name_item, requires_new_item, QtGui.QStandardItem(1)]
+                )
+                self._ui.selectedInputTable.openPersistentEditor(
+                    self._selected_input_table_model.index(
+                        self._selected_input_table_model.rowCount() - 1,
+                        SELECTED_AMOUNT_OF_DATA_COLUMN,
+                    )
+                )
+                self.enableCheck()
 
     def validate(self):
         return (
@@ -268,17 +280,20 @@ class CreateActionSettingsPage(CreateBasePage):
         """Remove from the selected table and recheck if next should be enabled"""
         selection = self._ui.selectedInputTable.selectionModel().selectedIndexes()
         if len(selection) == 1:
-            self._curr_selected.discard(selection[0].row())
+            """we're discarding the full name, so the source"""
+            self._curr_selected.discard(
+                selection[0].siblingAtColumn(SELECTED_SOURCE_COLUMN).data()
+            )
             self._selected_input_table_model.removeRow(selection[0].row())
             self.enableCheck()
 
     def save(self) -> None:
         action_settings: ActionSettings = self.getTempConfig()
-        action_settings.calc_func = functionDictToFunctionSettings(
+        action_settings.calc_function = functionDictToFunctionSettings(
             self._current_calc_settings
         )
         if self._action_type == ActionTypeEnum.TRIGGER:
-            action_settings.output_func = functionDictToFunctionSettings(
+            action_settings.output_function = functionDictToFunctionSettings(
                 self._current_output_settings
             )
         action_settings.input_data_type = self._ui.dataTypeCombo.currentText()
@@ -299,11 +314,11 @@ class CreateActionSettingsPage(CreateBasePage):
                 row, SELECTED_AMOUNT_OF_DATA_COLUMN
             ).data(QtCore.Qt.ItemDataRole.EditRole)
             input_settings.period = (
-                1 if input_settings.period == 0 else input_settings.period
+                1 if not input_settings.period else input_settings.period
             )
             source = self._selected_input_table_model.item(
                 row, SELECTED_SOURCE_COLUMN
-            ).data(QtCore.Qt.UserRole + 1)
+            ).data(SELECTED_TRUE_NAME_ROLE)
             action_settings.input_[source] = input_settings
 
     def getTutorialClasses(self) -> typing.List:

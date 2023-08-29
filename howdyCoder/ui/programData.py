@@ -1,4 +1,4 @@
-from ..core.dataStructs import AlgoSettings, AlgoStatusData, Modes
+from ..core.dataStructs import AlgoSettings, ProgramStatusData, Modes
 from ..core.message import message
 
 from ..core.dataStructs import ProgramSettings
@@ -61,7 +61,6 @@ class ProgramDict(QtCore.QObject):
     @QtCore.Slot()
     def addProgram(self, code: str, program_config: ProgramSettings):
         self.remove(code)  # shouldn't already exist, but for safety
-        program_config.createSettings()
         self._programs[code] = ProgramWidgetData(
             code, program_config, self._current_uid
         )
@@ -78,7 +77,7 @@ class ProgramDict(QtCore.QObject):
             [o_id for o_id in other.keys() if o_id not in self._current_id_set],
         ]
 
-    def updateProgramStatus(self, code: str, data: AlgoStatusData):
+    def updateProgramStatus(self, code: str, data: ProgramStatusData):
         if code in self._programs:
             self._programs[code].data_count = data.data_length
             self._programs[code].runtime = data.runtime

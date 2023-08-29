@@ -1,5 +1,5 @@
 # Local common includes
-from .core.dataStructs import AlgoStatusData, Modes, ProgramSettings
+from .core.dataStructs import ProgramStatusData, Modes, ProgramSettings
 from .data.datalocator import SETTINGS_FILE
 from .core.commonGlobals import ITEM, LOCAL_AUTH, LOCAL_PORT, ProgramTypes
 from .core.commonGlobals import IMPORTS
@@ -195,7 +195,7 @@ class mainframe(commandProcessor):
                         code = message.key.sourceCode
                         if code in self.statusDict:
                             del self.statusDict[code]
-                            data = AlgoStatusData(**message.details)
+                            data = ProgramStatusData(**message.details)
                             data.back_time = getStrTime(time.time())
                             message.details = asdict(data)
                         else:
@@ -257,7 +257,7 @@ class mainframe(commandProcessor):
                     msg.message(
                         msg.MessageType.COMMAND,
                         content=msg.CommandType.CHECK_STATUS,
-                        details=asdict(AlgoStatusData(send_time_float)),
+                        details=asdict(ProgramStatusData(send_time_float)),
                     )
                 )
                 self.statusDict[code] = send_time_float
@@ -269,7 +269,7 @@ class mainframe(commandProcessor):
                         msg.MessageType.UI_UPDATE,
                         content=msg.UiUpdateType.STATUS,
                         details=asdict(
-                            AlgoStatusData(
+                            ProgramStatusData(
                                 send_time=self.statusDict[code], mode=Modes.STANDBY
                             )
                         ),
@@ -303,7 +303,7 @@ class mainframe(commandProcessor):
 
     def passCommandToProgram(self, command, details):
         if details.key.sourceCode in self.all_program_map:
-            self.all_program_map.program_queue.put(
+            self.all_program_map[details.key.sourceCode].program_queue.put(
                 msg.message(msg.MessageType.COMMAND, command, details=details.details)
             )
         else:
@@ -362,7 +362,7 @@ class mainframe(commandProcessor):
                 self.runProgram(details.details)
 
     def runProgram(self, code):
-        if code in self.all_program_map.values():
+        if code in self.all_program_map:
             if code not in self.process_dict:
                 program = self.all_program_map[code]
                 self.startProgramProcess(code, program)
@@ -397,14 +397,14 @@ class mainframe(commandProcessor):
 
     def cmdEnd(self, _, details=None):
         # Called by command processor on receiving the end command message
-        if details is None:
+        if details.detials is None:
             for k in list(self.process_dict.keys()):
-                self.endProgrm(k)
+                self.endProgram(k)
         else:
-            if isinstance(details, str):
-                self.endProgrm(details)
+            if isinstance(details.detials, str):
+                self.endProgram(details.detials)
 
-    def endProgrm(self, code):
+    def endProgram(self, code):
         if (
             code in self.process_dict
             and self.all_program_map[code].program_queue is not None
@@ -429,7 +429,7 @@ class mainframe(commandProcessor):
                 msg.message(
                     msg.MessageType.UI_UPDATE,
                     msg.UiUpdateType.STATUS,
-                    details=asdict(AlgoStatusData(mode=Modes.STANDBY)),
+                    details=asdict(ProgramStatusData(mode=Modes.STANDBY)),
                     key=msg.messageKey(code, None),
                 )
             )
@@ -456,7 +456,7 @@ class mainframe(commandProcessor):
         program.program_queue = self.dill_program_manager.Queue()
         self.all_program_map[program_settings.name] = program
 
-        self.sendCreated(program_settings.settings.keys())
+        self.sendCreated([program_settings.settings.name])
 
     def sendCreated(self, algo_keys_to_send: typing.List[str]):
         created_details = {}

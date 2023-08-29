@@ -49,10 +49,12 @@ class action:
         **kwargs,
     ):
         self.actionType: str = action_settings.type_
-        self.calcFunc: UserFuncCaller = action_settings.calc_func.user_func
+        self.calcFunc: UserFuncCaller = action_settings.calc_function.user_function
         self.name: str = action_settings.name.lower()
         self.parameters: dict = action_settings.parameters
-        self.setupFuncs: typing.Dict[str, UserFuncCaller] = action_settings.setup_funcs
+        self.setupFuncs: typing.Dict[
+            str, UserFuncCaller
+        ] = action_settings.setup_functions
         self.aggregate: bool = action_settings.aggregate
         self.input_info_map: typing.Dict[str, InputSettings] = action_settings.input_
         self.any_requires_new = any(

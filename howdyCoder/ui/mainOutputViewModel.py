@@ -1,4 +1,4 @@
-from ..core.dataStructs import AlgoStatusData
+from ..core.dataStructs import ProgramStatusData
 from .uiConstants import outputTypesEnum
 from .sparseDictListModel import SparseDictListModel
 from .programData import ProgramDict
@@ -68,7 +68,7 @@ class mainOutputViewModel(QtCore.QObject):
         """
         From a status signal, updating what columns are avaialable for a block
         """
-        data = AlgoStatusData(**message.details)
+        data = ProgramStatusData(**message.details)
         if data.columns:
             # only override columns in there if there are any
             findList = self.blockComboModel.findItems(message.key.sourceCode)
@@ -103,13 +103,13 @@ class mainOutputViewModel(QtCore.QObject):
         # add data from algo dict here
         for config in self.program_dict.getConfigs():
             columns = []
-            for ds_key, ds_config in config.data_sources.items():
+            for ds_key, ds_config in config.settings.data_sources.items():
                 try:
                     columns.extend(list(ds_config.output.values()))
                 except AttributeError:
                     columns.extend(ds_config.output)
 
-            for act_key, act_config in config.action_list.items():
+            for act_key, act_config in config.settings.action_list.items():
                 if act_config.type_ == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
                     columns.append(act_key)
             self.addItem(self.blockComboModel, config.name, columns)

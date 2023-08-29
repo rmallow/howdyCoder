@@ -119,7 +119,7 @@ class Program(commandProcessor, ABC):
 
     @setInterval(1)
     def _update(self):
-        pass
+        self.update()
 
     @abstractmethod
     def update(self):

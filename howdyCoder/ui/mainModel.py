@@ -1,4 +1,4 @@
-from ..core.dataStructs import AlgoStatusData, InputData, ProgramSettings
+from ..core.dataStructs import ProgramStatusData, InputData, ProgramSettings
 from .uiConstants import LOOP_INTERVAL_MSECS
 from .programData import ProgramDict
 
@@ -152,11 +152,11 @@ class mainModel(commandProcessor, QtCore.QObject):
         If the message is status type need to do special processing
         """
         self.trackMessage(details)
-        data = AlgoStatusData(**details.details)
+        data = ProgramStatusData(**details.details)
         if data.columns:
             self.updateColumnsSignal.emit(details)
         self.updateStatusSignal.emit(details)
-        self.program_dict.updateAlgoStatus(details.key.sourceCode, data)
+        self.program_dict.updateProgramStatus(details.key.sourceCode, data)
 
     def handleBlockUpdate(self, _, details: msg.message = None):
         """

@@ -188,7 +188,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self._data_source_type == DataSourcesTypeEnum.FUNC
             or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
-            curr.get_func = functionDictToFunctionSettings(self._current_settings)
+            curr.get_function = functionDictToFunctionSettings(self._current_settings)
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             curr.input_type = self._current_settings
         strings = self._outputModel.stringList()

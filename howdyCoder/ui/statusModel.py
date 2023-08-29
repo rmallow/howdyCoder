@@ -1,4 +1,4 @@
-from ..core.dataStructs import AlgoStatusData, Modes
+from ..core.dataStructs import ProgramStatusData, Modes
 from ..core.commonGlobals import (
     UI_GROUP,
     MAINFRAME,
@@ -38,7 +38,7 @@ class statusModel(QtGui.QStandardItemModel):
 
         # Set the status color based on the presence of certain fields in details
         statusColor = QtCore.Qt.red
-        if code == MAINFRAME or AlgoStatusData(**msg.details).mode == Modes.STARTED:
+        if code == MAINFRAME or ProgramStatusData(**msg.details).mode == Modes.STARTED:
             statusColor = QtCore.Qt.green
         codeItem.setBackground(QtGui.QBrush(statusColor))
 

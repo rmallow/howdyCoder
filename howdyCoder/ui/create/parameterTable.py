@@ -70,7 +70,7 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
             ):
                 if value[ParameterEnum.TYPE] == editableTable.EditorType.FUNC.display:
                     """If it is a setup func add to that section instead of parameters"""
-                    config.setup_funcs[
+                    config.setup_functions[
                         value[ParameterEnum.NAME]
                     ] = functionDictToFunctionSettings(value[ParameterEnum.VALUE])
                 else:

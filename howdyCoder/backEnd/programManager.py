@@ -33,7 +33,7 @@ class ProgramManager(ABC):
 
         configLoader.dfsConfigDict(
             config,
-            lambda k: k.lower().endswith("func"),
+            lambda k: k.lower().endswith("function"),
             assignUserFuncCaller,
         )
 

@@ -11,9 +11,9 @@ class dataFunc(dataBase):
     def __init__(self, data_source_settings: DataSourceSettings, *args, **kwargs):
         super().__init__(data_source_settings, *args, **kwargs)
 
-        self.getFunc: UserFuncCaller = data_source_settings.get_func.user_func
+        self.getFunc: UserFuncCaller = data_source_settings.get_function.user_function
         self.setupFuncs: typing.Dict[str, UserFuncCaller] = {
-            k: v.user_func for k, v in data_source_settings.setup_funcs.items()
+            k: v.user_function for k, v in data_source_settings.setup_functions.items()
         }
 
         # add the pass back dict so that the func can add data here and continue to use it if so desired

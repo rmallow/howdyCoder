@@ -52,7 +52,7 @@ class CreateBasePage(
         return self.current_config
 
     def getTempConfig(self) -> ItemSettings:
-        return self.temp_config
+        return self.temp_config if self.temp_config is not None else self.getConfig()
 
     def getConfigGroup(self):
         return self.getConfig().getGroupDict(self.GROUP)

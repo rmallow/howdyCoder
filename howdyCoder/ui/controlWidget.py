@@ -167,7 +167,7 @@ class ControlWidget(
             if uid in self._algo_widgets and (
                 data := self.program_dict.getDataById(uid)
             ):
-                for key, data_source in data.config.data_sources.items():
+                for key, data_source in data.config.settings.data_sources.items():
                     if data_source.type_ == getattr(
                         DataSourcesTypeEnum.INPUT, ENUM_DISPLAY
                     ):

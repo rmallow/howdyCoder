@@ -37,7 +37,8 @@ class CreateConfirmBasePage(CreateBasePage):
         self.getConfigGroup()[self.getTempConfig().name] = copy.deepcopy(
             self.getTempConfig()
         )
-        self.getTempConfig().clear()
+        if self.getConfig() != self.getTempConfig():
+            self.getTempConfig().clear()
         self.enableNext.emit(True)
         self.enableBack.emit(False)
         self._ui.confirmButton.setEnabled(False)

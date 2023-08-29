@@ -70,10 +70,10 @@ class DataSourcesTypeEnum(AdvancedEnum):
 
     _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY} {ENUM_HIDE}"
 
-    THREADED = 0, "threaded", False
-    FUNC = 1, "func", False
+    THREADED = 0, "threaded function", False
+    FUNC = 1, "function", False
     STREAM = 2, "stream", False
-    INPUT = 3, "input", False
+    INPUT = 3, "user input", False
     SIM = 4, "sim", True
 
 

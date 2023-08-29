@@ -1,4 +1,4 @@
-from ..core.dataStructs import AlgoStatusData, InputData, Modes
+from ..core.dataStructs import ProgramStatusData, InputData, Modes
 from .actionPool import actionPool
 from ..core import message as msg
 from ..core import messageKey as msgKey
@@ -101,7 +101,7 @@ class Algo(Program):
         """
         Aside from special cases like COLUMNS, the details on this message will be displayed on the status window
         """
-        status_data = AlgoStatusData()
+        status_data = ProgramStatusData()
         self.populateProgramStatusData(details, status_data)
         status_data.data_length = self.feed_obj.getDataLength()
         status_data.feed_last_update_time = self.feed_last_update_time

@@ -3,24 +3,18 @@ from ..core.dataStructs import (
     ActionSettings,
     AlgoSettings,
     DataSourceSettings,
+    ProgramSettings,
 )
 from .algo import Algo
 from . import actionFactory as aF
 from .feed import feed
 from .dataBase import dataBase
 from . import dataSourceFactory as dF
-from . import messageRouter as mRModule
-from ..commonUtil import mpLogging
 
 from ..commonUtil import configLoader
 from ..commonUtil import userFuncCaller
 
-from ..core.commonGlobals import (
-    ActionTypeEnum,
-)
-from ..core.dataStructs import (
-    ProgramSettings,
-)
+from ..core.commonGlobals import ActionTypeEnum
 
 import copy
 import typing
@@ -37,7 +31,7 @@ class AlgoManager(ProgramManager):
     def load(self, program_settings: ProgramSettings) -> Algo:
         dataSources = []
         func_replaced_config = copy.deepcopy(asdict(program_settings))
-        user_funcs = self.replaceFunctions(func_replaced_config)
+        user_funcs = self.addUserFuncs(func_replaced_config)
         algo_settings_with_user_funcs: AlgoSettings = fromdict(
             ProgramSettings, func_replaced_config
         ).settings
@@ -95,27 +89,3 @@ class AlgoManager(ProgramManager):
 
     def _loadFeed(self, dataSources: list[dataBase]) -> feed:
         return feed(dataSources)
-
-    def replaceFunctions(self, config_copy):
-        user_funcs = []
-
-        def assignUserFuncCaller(c, k, v):
-            nonlocal user_funcs
-            if v is not None:
-                user_funcs.append(userFuncCaller.UserFuncCaller(**v))
-                c[k]["user_func"] = user_funcs[-1]
-
-        configLoader.dfsConfigDict(
-            config_copy,
-            lambda k: k.lower().endswith("func"),
-            assignUserFuncCaller,
-        )
-
-        configLoader.dfsConfigDict(
-            config_copy,
-            lambda k: k == SETUP_FUNCS,
-            lambda _1, _2, v: (
-                assignUserFuncCaller(f_name, f_value) for f_name, f_value in v.items()
-            ),
-        )
-        return user_funcs

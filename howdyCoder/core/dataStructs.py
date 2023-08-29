@@ -41,10 +41,6 @@ class ProgramStatusData:
     mode: Modes = Modes.STANDBY
     back_time: float = 0.0
     type_: str = ProgramTypes.PROGRAM.value
-
-
-@dataclass
-class AlgoStatusData(ProgramStatusData):
     data_length: int = 0
     feed_last_update_time: float = 0.0
     columns: list = field(default_factory=list)
@@ -69,7 +65,7 @@ class FunctionSettings(JSONWizard, metaclass=property_wizard):
     name: str = ""
     imports: typing.List[str] = field(default_factory=list)
     import_statements: typing.List[str] = field(default_factory=list)
-    user_func: typing.Any = None
+    user_function: typing.Any = None
 
 
 @dataclass
@@ -102,7 +98,7 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
     period: int = 1
     single_shot: bool = False
     parameters: typing.Dict[str, Parameter] = field(default_factory=dict)
-    setup_funcs: typing.Dict[str, FunctionSettings] = field(default_factory=dict)
+    setup_functions: typing.Dict[str, FunctionSettings] = field(default_factory=dict)
 
     def clear(self):
         self.__init__({})
@@ -116,8 +112,8 @@ class ActionSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
     input_: typing.Dict[str, InputSettings] = field(default_factory=dict)
     input_data_type: str = ""
     aggregate: str = ""
-    calc_func: FunctionSettings | None = None
-    output_func: FunctionSettings | None = None
+    calc_function: FunctionSettings | None = None
+    output_function: FunctionSettings | None = None
 
 
 @dataclass
@@ -129,13 +125,13 @@ class DataSourceSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
         default_factory=list
     )
     # type specific
-    get_func: FunctionSettings | None = None
+    get_function: FunctionSettings | None = None
     input_type: str = ""
     key: str = ""
 
 
-USER_FUNC = "user_func"
-SETUP_FUNCS = "setup_funcs"
+USER_FUNC = "user_function"
+SETUP_FUNCS = "setup_functions"
 
 test_once = True
 if test_once:
@@ -151,6 +147,8 @@ if test_once:
 
 @dataclass
 class AlgoSettings(JSONWizard, metaclass=property_wizard):
+    _dataclass_parse_type_ = "AlgoSettings"
+
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
@@ -171,6 +169,11 @@ class AlgoSettings(JSONWizard, metaclass=property_wizard):
 
 @dataclass
 class ScriptSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
+    _dataclass_parse_type_ = "ScriptSettings"
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     function: FunctionSettings | None = None
 
 
@@ -178,6 +181,8 @@ class ScriptSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
 class ProgramSettings(JSONWizard, metaclass=property_wizard):
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
+        tag_key = "_dataclass_parse_type_"
+        auto_assign_tags = True
 
     type_: str = ""
     name: str = ""

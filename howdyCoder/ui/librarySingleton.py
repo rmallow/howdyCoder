@@ -91,7 +91,7 @@ def loadLibraryPy(file_path: str) -> Library:
     return lib
 
 
-def getConfigFromFile(file_path):
+def getConfigFromFile(file_path, warning_if_not_exist=True):
     """Returns None if file cannot be loaded due to an exception"""
     config = None
     if pathlib.Path(file_path).exists():
@@ -113,7 +113,7 @@ def getConfigFromFile(file_path):
                         "Attemped to Load to an invalid AFL file",
                         description=description,
                     )
-    else:
+    elif warning_if_not_exist:
         mpLogging.warning(
             "Attemped to load an AFL from an invalid path",
             description=f"Library: {file_path}",
@@ -181,10 +181,10 @@ def saveToLibrary(
     group: str = "",
 ):
     dict_to_save = {NAME_KEY: name, GROUP_KEY: group, FUNCTIONS_KEY: []}
-    res = getConfigFromFile(file_path)
-    if res is not None:
+
+    if res := getConfigFromFile(file_path, warning_if_not_exist=False):
         dict_to_save = res
-    if pathlib.Path(file_path).exists():
+    if pathlib.Path(file_path).parent.exists():
         with open(file_path, "w") as file:
             dict_to_save[FUNCTIONS_KEY].append(
                 helpers.getConfigFromEnumDict(function_config)
