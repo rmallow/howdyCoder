@@ -101,7 +101,7 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
     setup_functions: typing.Dict[str, FunctionSettings] = field(default_factory=dict)
 
     def clear(self):
-        self.__init__({})
+        self.__init__()
 
 
 @dataclass
@@ -157,7 +157,7 @@ class AlgoSettings(JSONWizard, metaclass=property_wizard):
     action_list: typing.Dict[str, ActionSettings] = field(default_factory=dict)
 
     def clear(self):
-        self.__init__({})
+        self.__init__()
 
     def getGroupDict(self, group: str) -> typing.Dict[str, ItemSettings]:
         if group == ACTION_LIST:

@@ -15,7 +15,7 @@ from PySide6 import QtWidgets, QtCore
 
 class CreateScriptSettingsPage(CreateBasePage):
     PAGE_KEY = PageKeys.SCRIPT_SETTINGS
-    EXIT = PageKeys.NO_PAGE
+    EXIT = PageKeys.NAME
     EXIT_LABEL = "Exit Script Creator"
 
     TUTORIAL_RESOURCE_PREFIX = "test"

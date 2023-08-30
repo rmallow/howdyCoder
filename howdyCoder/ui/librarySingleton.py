@@ -1,11 +1,10 @@
-from .actionUIConstant import ActionFuncEnum
-
 from ..data.datalocator import LIBRARIES_FILE
 
 from ..commonUtil import helpers
 from ..commonUtil import astUtil
 from ..commonUtil import mpLogging
 from ..core.commonGlobals import ENUM_DISPLAY
+from ..core.dataStructs import FunctionSettings
 
 import configparser
 from dataclasses import dataclass
@@ -16,6 +15,8 @@ import copy
 import ast
 import traceback
 import yaml
+
+from dataclass_wizard import asdict, fromlist
 
 
 """
@@ -131,24 +132,18 @@ def loadLibraryAfl(file_path: str):
             config = {}
             if res is not None:
                 config = res
-            for func_config in config.get(FUNCTIONS_KEY, []):
+            for function_setting in fromlist(
+                FunctionSettings, config.get(FUNCTIONS_KEY, [])
+            ):
                 if functionCompiles(
-                    func_config[getattr(ActionFuncEnum.CODE, ENUM_DISPLAY)],
+                    function_setting.code,
                     file_path,
                 ):
                     function_data_list.append(
                         FunctionData(
-                            astUtil.getFunctions(
-                                ast.parse(
-                                    func_config[
-                                        getattr(ActionFuncEnum.CODE, ENUM_DISPLAY)
-                                    ]
-                                )
-                            )[0],
-                            func_config[getattr(ActionFuncEnum.IMPORTS, ENUM_DISPLAY)],
-                            func_config[
-                                getattr(ActionFuncEnum.IMPORT_STATEMENTS, ENUM_DISPLAY)
-                            ],
+                            astUtil.getFunctions(ast.parse(function_setting.code))[0],
+                            function_setting.imports,
+                            function_setting.import_statements,
                         )
                     )
                 lib = Library(
@@ -176,7 +171,7 @@ def loadLibrary(file_path: str, name: str = "", group: str = "") -> Library:
 
 def saveToLibrary(
     file_path: str,
-    function_config: typing.Dict[str, str],
+    function_config: FunctionSettings,
     name: str = "",
     group: str = "",
 ):
@@ -186,9 +181,7 @@ def saveToLibrary(
         dict_to_save = res
     if pathlib.Path(file_path).parent.exists():
         with open(file_path, "w") as file:
-            dict_to_save[FUNCTIONS_KEY].append(
-                helpers.getConfigFromEnumDict(function_config)
-            )
+            dict_to_save[FUNCTIONS_KEY].append(asdict(function_config))
             yaml.dump(dict_to_save, file, default_flow_style=False)
 
 

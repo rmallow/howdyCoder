@@ -68,6 +68,7 @@ class Ui_CreateDataSourceParametersPage(object):
         self.time_edit = QTimeEdit(self.widget_11)
         self.time_edit.setObjectName(u"time_edit")
         self.time_edit.setAlignment(Qt.AlignCenter)
+        self.time_edit.setDate(QDate(2000, 1, 1))
         self.time_edit.setMinimumTime(QTime(0, 0, 1))
         self.time_edit.setCurrentSection(QDateTimeEdit.HourSection)
         self.time_edit.setCurrentSectionIndex(0)
@@ -140,6 +141,14 @@ class Ui_CreateDataSourceParametersPage(object):
 
         self.verticalLayout.addWidget(self.label_4)
 
+        self.suggested_parameters_label = QLabel(CreateDataSourceParametersPage)
+        self.suggested_parameters_label.setObjectName(u"suggested_parameters_label")
+        font1 = QFont()
+        font1.setPointSize(17)
+        self.suggested_parameters_label.setFont(font1)
+
+        self.verticalLayout.addWidget(self.suggested_parameters_label)
+
         self.widget_6 = QWidget(CreateDataSourceParametersPage)
         self.widget_6.setObjectName(u"widget_6")
         sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -211,6 +220,7 @@ class Ui_CreateDataSourceParametersPage(object):
         self.label.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set if the output should be flattened. If any of the output is lists, flattening will cause each data point to be counted as individual data. If the ouput is a dict and contains multiple lists, flattening will only happen if all lists are the same length.", None))
         self.flattenedCheck.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Flatten", None))
         self.label_4.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"(Advanced) Set extra parameters to be used.  This is for if your function requires any extra values set or your api url needs values filled in.  Use the buttons beneath the table to add, remove or clear all parameters. Once added, click in the name, type and value columns to modify.", None))
+        self.suggested_parameters_label.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Suggested Parameters:", None))
         self.label_2.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Parameters", None))
         self.addParameterButton.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Add", None))
         self.removeParameterButton.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Remove", None))

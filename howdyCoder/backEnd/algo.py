@@ -97,18 +97,15 @@ class Algo(Program):
         )
         self._mainframe_queue.put(m)
 
-    def checkStatus(self, _, details):
+    def populateTypeSpecificStatusData(self, details, status_data):
         """
         Aside from special cases like COLUMNS, the details on this message will be displayed on the status window
         """
-        status_data = ProgramStatusData()
-        self.populateProgramStatusData(details, status_data)
         status_data.data_length = self.feed_obj.getDataLength()
         status_data.feed_last_update_time = self.feed_last_update_time
         status_data.columns = list(self.feed_obj.data.keys()) + list(
             self.feed_obj.calcData.keys()
         )
-        self.sendStatusData(status_data)
 
     def exportData(self, _, details):
         self._mainframe_queue.put(

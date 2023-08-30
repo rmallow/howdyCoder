@@ -13,8 +13,12 @@ from ...core.commonGlobals import (
 )
 
 import typing
+from ...commonUtil import helpers
 
 from PySide6 import QtWidgets, QtCore
+
+SUGGESTED_PARAMETERS_START = "Suggested Parameters based on given functions: "
+NO_SUGGESTED_PARAMETERS = "NO SUGGESTIONS"
 
 
 class CreateBaseParametersPage(CreateBasePage):
@@ -77,7 +81,21 @@ class CreateBaseParametersPage(CreateBasePage):
         self._ui.time_edit.setTime(time)
         self._ui.flattenedCheck.setChecked(curr.flatten)
         self._ui.single_shot_check.setChecked(curr.single_shot)
+        self.setParametersLabel()
         return super().loadPage()
+
+    def setParametersLabel(self):
+        helper_data = self.getHelperData()
+        if helper_data.suggested_parameters:
+            self._ui.suggested_parameters_label.setText(
+                helpers.listToFormattedString(
+                    SUGGESTED_PARAMETERS_START, helper_data.suggested_parameters
+                )
+            )
+        else:
+            self._ui.suggested_parameters_label.setText(
+                SUGGESTED_PARAMETERS_START + NO_SUGGESTED_PARAMETERS
+            )
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

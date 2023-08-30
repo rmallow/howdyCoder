@@ -1,9 +1,9 @@
 from .funcSelectorPageBase import FuncSelectorPageBase
 from .qtUiFiles import ui_funcSelectorCodePage
 
-from .actionUIConstant import ActionFuncEnum
 from . import librarySingleton
 from ..commonUtil import astUtil
+from ..core.dataStructs import FunctionSettings
 
 import ast
 import typing
@@ -44,9 +44,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
         self.enableControls(False)
 
-        self._current_function_config: typing.Dict[
-            ActionFuncEnum, typing.Union[str, list]
-        ] = None
+        self._current_function_settings: FunctionSettings = None
 
         self._code_edit_timer = QtCore.QTimer()
         self._code_edit_timer.setSingleShot(True)
@@ -59,7 +57,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     def updateData(self) -> None:
         self._ui.codeEdit.clear()
-        self._current_function_config = None
+        self._current_function_settings = None
         return super().updateData()
 
     def codeChanged(self):
@@ -72,7 +70,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         if self._ui.codeEdit.toPlainText():
             self._ui.codeEdit.setEnabled(False)
             self._ui.statusLabel.setText(COMPILING_STATUS)
-            self._current_function_config = None
+            self._current_function_settings = None
             try:
                 # first make sure it compiles, this is a better check than ast parsing, we don't need a return value for this
                 compile(self._ui.codeEdit.toPlainText(), "<string>", "exec")
@@ -85,7 +83,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                 if len(functions) > 1:
                     self._ui.statusLabel.setText(TOO_MANY_FUNCTIONS_ERROR_STATUS)
                 elif functions:
-                    self._current_function_config = self.createFunctionConfig(
+                    self._current_function_settings = self.createFunctionConfig(
                         functions[0], *astUtil.getImportsUnique(root)
                     )
                     self.enableControls(True)
@@ -98,16 +96,13 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
     def createFunctionConfig(
         self, function: ast.FunctionDef, imports: list, import_statements: list
     ):
-        func_config_dict = {}
-        func_config_dict[ActionFuncEnum.NAME] = function.name
-        func_config_dict[ActionFuncEnum.CODE] = ast.unparse(function)
-        func_config_dict[ActionFuncEnum.IMPORTS] = imports
-        func_config_dict[ActionFuncEnum.IMPORT_STATEMENTS] = import_statements
-        return func_config_dict
+        return FunctionSettings(
+            ast.unparse(function), function.name, imports, import_statements
+        )
 
     @QtCore.Slot()
     def sendFunctionConfig(self):
-        self.funcSelected.emit(self._current_function_config)
+        self.funcSelected.emit(self._current_function_settings)
 
     @QtCore.Slot()
     def saveCode(self):
@@ -117,7 +112,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         )
         if file_dlg_return and file_dlg_return[0]:
             librarySingleton.saveToLibrary(
-                file_dlg_return[0], self._current_function_config
+                file_dlg_return[0], self._current_function_settings
             )
 
     def enableControls(self, enable):

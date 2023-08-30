@@ -1,5 +1,4 @@
 from ...core.dataStructs import ItemSettings, Parameter
-from ..actionUIConstant import functionDictToFunctionSettings
 from .. import editableTable
 
 from ...core.commonGlobals import (
@@ -70,9 +69,9 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
             ):
                 if value[ParameterEnum.TYPE] == editableTable.EditorType.FUNC.display:
                     """If it is a setup func add to that section instead of parameters"""
-                    config.setup_functions[
-                        value[ParameterEnum.NAME]
-                    ] = functionDictToFunctionSettings(value[ParameterEnum.VALUE])
+                    config.setup_functions[value[ParameterEnum.NAME]] = value[
+                        ParameterEnum.VALUE
+                    ]
                 else:
                     """else add to parameter section as normal"""
                     config.parameters[value[ParameterEnum.NAME]] = Parameter(

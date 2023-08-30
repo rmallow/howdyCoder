@@ -1,5 +1,4 @@
-from .funcSelector import FuncSelector
-from .actionUIConstant import ActionFuncEnum
+from .funcSelector import FuncSelector, FunctionSettingsWithIndex
 from .selectorWidget import SelectorWidget
 
 from .util.abstractQt import getAbstactQtResolver, handleAbstractMethods
@@ -164,22 +163,20 @@ class EditableTableModel(
         return None
 
     @QtCore.Slot()
-    def itemSelected(self, functionConfig: typing.Dict[ActionFuncEnum, str]) -> None:
+    def itemSelected(self, settings: FunctionSettingsWithIndex) -> None:
         """When a function is selected update the value with the func and also populate the description"""
-        if ActionFuncEnum.INDEX in functionConfig:
-            modelIndex = functionConfig[ActionFuncEnum.INDEX]
-            if modelIndex in self.selectorWidgets:
-                selectorWidget = self.selectorWidgets[modelIndex]
-                del functionConfig[ActionFuncEnum.INDEX]
-                valueKey = self.getValueKey(modelIndex)
+        if settings.index is not None:
+            if settings.index in self.selectorWidgets:
+                selectorWidget = self.selectorWidgets[settings.index]
+                valueKey = self.getValueKey(settings.index)
                 if valueKey is not None:
-                    self.values[valueKey][self.valueEnum] = functionConfig
+                    self.values[valueKey][self.valueEnum] = settings.function_settings
                     if self.descriptionEnum is not None:
-                        self.values[valueKey][self.descriptionEnum] = functionConfig[
-                            ActionFuncEnum.CODE
-                        ]
+                        self.values[valueKey][
+                            self.descriptionEnum
+                        ] = settings.function_settings.code
                     selectorWidget._ui.selectionLabel.setText(
-                        functionConfig[ActionFuncEnum.NAME]
+                        settings.function_settings.name
                     )
 
     def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:

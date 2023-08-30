@@ -1,15 +1,23 @@
 from ...core.dataStructs import AlgoSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
-from ...core.commonGlobals import UI_GROUP, GROUP_SET
+from ...core.commonGlobals import GROUP_SET
 from ..uiConstants import PageKeys
-from ...commonUtil import mpLogging
 
+from dataclasses import dataclass, field
 from abc import abstractmethod
 import typing
 from enum import Enum
 
 from PySide6 import QtWidgets, QtCore
+
+
+@dataclass
+class HelperData:
+    suggested_parameters: typing.List[str] = field(default_factory=list)
+
+    def clear(self):
+        self.__init__()
 
 
 class CreateBasePage(
@@ -41,6 +49,7 @@ class CreateBasePage(
         ), "GROUP not correctly assigned by sub class"
         self.current_config: AlgoSettings = current_config
         self.temp_config: ItemSettings = None  # assigned after the fact
+        self.helper_data: HelperData = None
         self.next_enabled = True
         self.back_enabled = True
 
@@ -56,6 +65,12 @@ class CreateBasePage(
 
     def getConfigGroup(self):
         return self.getConfig().getGroupDict(self.GROUP)
+
+    def getHelperData(self):
+        return self.helper_data if self.helper_data is not None else HelperData()
+
+    def populateParameters(self):
+        pass
 
     def enableCheck(self):
         """Can be used as a slot for changing inputs on each page"""

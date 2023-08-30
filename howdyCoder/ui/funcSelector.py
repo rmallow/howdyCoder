@@ -1,11 +1,19 @@
-from .actionUIConstant import ActionFuncEnum
 from .qtUiFiles import ui_funcSelector
 from .selectorBase import SelectorBase
 from .funcSelectorPageBase import FuncSelectorPageBase
 
+from ..core.dataStructs import FunctionSettings
+
 import typing
 
+from dataclasses import dataclass
 from PySide6 import QtCore
+
+
+@dataclass
+class FunctionSettingsWithIndex:
+    function_settings: FunctionSettings = FunctionSettings()
+    index: QtCore.QModelIndex = None
 
 
 class FuncSelector(SelectorBase):
@@ -37,10 +45,11 @@ class FuncSelector(SelectorBase):
             self._ui.tabWidget.widget(x).findChild(FuncSelectorPageBase).updateData()
 
     @QtCore.Slot()
-    def addParentIndex(self, func_config_dict):
-        if self.parentIndex is not None:
-            func_config_dict[ActionFuncEnum.INDEX] = self.parentIndex
-        self.itemSelected.emit(func_config_dict)
+    def addParentIndex(self, function_settings: FunctionSettings):
+        settings_with_index = FunctionSettingsWithIndex(
+            function_settings, self.parentIndex
+        )
+        self.itemSelected.emit(settings_with_index)
         # if we're emitting this, we're done selecting so we can hide now
         self.hide()
 

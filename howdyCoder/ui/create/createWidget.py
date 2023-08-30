@@ -5,7 +5,7 @@ from ...core.dataStructs import (
     ProgramSettings,
     ScriptSettings,
 )
-from .createBasePage import CreateBasePage
+from .createBasePage import CreateBasePage, HelperData
 
 # various pages
 from .createNamePage import CreateNamePage
@@ -112,6 +112,7 @@ class CreateWidget(
 
         self._current_exit_page: PageKeys = PageKeys.NO_PAGE
         self._creator_type: ProgramTypes = None
+        self.helper_data = HelperData()
 
     def getCurrentPageList(self):
         return PROGRAM_TYPE_TO_PAGES.get(self._creator_type, [])
@@ -129,6 +130,7 @@ class CreateWidget(
                 widget_class.PAGE_KEY.value, widget_class(self.current_config, self)
             )
             p.page.temp_config = self._sub_configs.get(p.page.GROUP, None)
+            p.page.helper_data = self.helper_data
             self._create_widgets_list.append(p)
         self._current_index: int = 0
 
@@ -162,9 +164,11 @@ class CreateWidget(
             self._create_widgets_list[self._current_index].page.next_enabled
         )
 
-    def changePage(self, newIndex: int):
+    def changePage(self, newIndex: int, reset_helper_data=True):
         """Change the page to the given page with an animation, save the current page and check its validity"""
         if newIndex >= 0 and newIndex < len(self._create_widgets_list):
+            if reset_helper_data:
+                self.helper_data.clear()
             # disable both the buttons, at the end of the animation they'll be reenabled
             self._ui.nextButton.setEnabled(False)
             self._ui.backButton.setEnabled(False)
@@ -205,7 +209,14 @@ class CreateWidget(
             )
             self.reset()
         else:
-            self.changePage(self._current_index + 1)
+            should_reset = (
+                self._create_widgets_list[self._current_index].page.GROUP
+                != self._create_widgets_list[self._current_index + 1].page.GROUP
+            )
+            self.changePage(
+                self._current_index + 1,
+                reset_helper_data=should_reset,
+            )
 
     def setButtonText(self):
         self._ui.nextButton.setText(

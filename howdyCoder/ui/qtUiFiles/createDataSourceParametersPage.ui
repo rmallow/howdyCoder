@@ -65,6 +65,13 @@
               <property name="alignment">
                <set>Qt::AlignCenter</set>
               </property>
+              <property name="date">
+               <date>
+                <year>2000</year>
+                <month>1</month>
+                <day>1</day>
+               </date>
+              </property>
               <property name="minimumTime">
                <time>
                 <hour>0</hour>
@@ -201,6 +208,18 @@
      </property>
      <property name="wordWrap">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="suggested_parameters_label">
+     <property name="font">
+      <font>
+       <pointsize>17</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Suggested Parameters:</string>
      </property>
     </widget>
    </item>

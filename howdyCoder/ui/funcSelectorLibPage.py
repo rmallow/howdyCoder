@@ -1,8 +1,9 @@
 from .funcSelectorPageBase import FuncSelectorPageBase
 from .qtUiFiles import ui_funcSelectorLibPage
 
-from .actionUIConstant import ActionFuncEnum
 from . import librarySingleton
+
+from ..core.dataStructs import FunctionSettings
 
 import ast
 import typing
@@ -105,19 +106,14 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
         if self._selectedIndex is not None and self._selectedIndex.isValid():
             if self._selectedIndex.parent().isValid():
                 if not self._selectedIndex.model().hasChildren(self._selectedIndex):
-                    func_config_dict = {}
-                    func_config_dict[ActionFuncEnum.NAME] = self._selectedIndex.data()
-                    func_config_dict[ActionFuncEnum.CODE] = self._selectedIndex.data(
-                        CODE_ROLE
+                    self.funcSelected.emit(
+                        FunctionSettings(
+                            self._selectedIndex.data(CODE_ROLE),
+                            self._selectedIndex.data(),
+                            self._selectedIndex.data(IMPORT_ROLE),
+                            self._selectedIndex.data(IMPORT_STATEMENT_ROLE),
+                        )
                     )
-                    func_config_dict[ActionFuncEnum.IMPORTS] = self._selectedIndex.data(
-                        IMPORT_ROLE
-                    )
-                    func_config_dict[
-                        ActionFuncEnum.IMPORT_STATEMENTS
-                    ] = self._selectedIndex.data(IMPORT_STATEMENT_ROLE)
-
-                    self.funcSelected.emit(func_config_dict.copy())
                     return
         self._ui.funcDescription.document().setPlainText("Not a valid function!!!")
 

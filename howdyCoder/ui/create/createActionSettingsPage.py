@@ -1,18 +1,13 @@
 from ...core.dataStructs import ActionSettings, AlgoSettings, InputSettings
 from .createBasePage import CreateBasePage
 from ..uiConstants import PageKeys
-from ..actionUIConstant import ActionFuncEnum, functionDictToFunctionSettings
 from ..qtUiFiles import ui_createActionSettingsPage
 
 from .. import highlightModel
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector
+from ..funcSelector import FuncSelector, FunctionSettingsWithIndex
 
 from ..util.spinBoxDelegate import SpinBoxDelegate
-
-from ...core.commonGlobals import (
-    ActionDataType,
-)
 
 from ...commonUtil import helpers
 from ...core.commonGlobals import (
@@ -20,7 +15,9 @@ from ...core.commonGlobals import (
     ActionTypeEnum,
     DATA_SOURCES,
     ACTION_LIST,
+    ActionDataType,
 )
+from ...core.dataStructs import FunctionSettings
 
 from aenum import Enum
 import typing
@@ -107,24 +104,26 @@ class CreateActionSettingsPage(CreateBasePage):
         self._ui.dataTypeCombo.currentIndexChanged.connect(self.enableCheck)
 
     @QtCore.Slot()
-    def onFuncSelected(self, settings):
+    def onFuncSelected(self, settings: FunctionSettingsWithIndex):
         """
         The func selector has returned a value, check which button triggered it, and
         based on that update the correct setting variable and the text
         """
-        if ActionFuncEnum.INDEX in settings:
-            if settings[ActionFuncEnum.INDEX] == FuncType.CALC:
-                self._calc_selector_widget.updateText(settings[ActionFuncEnum.NAME])
+        if settings.index:
+            if settings.index == FuncType.CALC:
+                self._calc_selector_widget.updateText(settings.function_settings.name)
                 self._calc_selector_widget.updateExtraDescription(
-                    settings.get(ActionFuncEnum.CODE, "")
+                    settings.function_settings.code
                 )
-                self._current_calc_settings = settings
-            elif settings[ActionFuncEnum.INDEX] == FuncType.OUTPUT:
-                self._output_selector_widget.updateText(settings[ActionFuncEnum.NAME])
+                self._current_calc_settings = settings.function_settings
+            elif settings.index == FuncType.OUTPUT:
+                self._output_selector_widget.updateText(
+                    settings.function_settings.names
+                )
                 self._output_selector_widget.updateExtraDescription(
-                    settings.get(ActionFuncEnum.CODE, "")
+                    settings.function_settings.code
                 )
-                self._current_output_settings = settings
+                self._current_output_settings = settings.function_settings
             self.enableCheck()
 
     def loadPage(self) -> None:
@@ -289,13 +288,9 @@ class CreateActionSettingsPage(CreateBasePage):
 
     def save(self) -> None:
         action_settings: ActionSettings = self.getTempConfig()
-        action_settings.calc_function = functionDictToFunctionSettings(
-            self._current_calc_settings
-        )
+        action_settings.calc_function = self._current_calc_settings
         if self._action_type == ActionTypeEnum.TRIGGER:
-            action_settings.output_function = functionDictToFunctionSettings(
-                self._current_output_settings
-            )
+            action_settings.output_function = self._current_output_settings
         action_settings.input_data_type = self._ui.dataTypeCombo.currentText()
         # get from data, because if it's an event we don't want to get the "Event" tag before it
         # this has been stored in the data when the selected table was populated

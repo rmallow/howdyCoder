@@ -397,12 +397,12 @@ class mainframe(commandProcessor):
 
     def cmdEnd(self, _, details=None):
         # Called by command processor on receiving the end command message
-        if details.detials is None:
+        if details.details is None:
             for k in list(self.process_dict.keys()):
                 self.endProgram(k)
         else:
-            if isinstance(details.detials, str):
-                self.endProgram(details.detials)
+            if isinstance(details.details, str):
+                self.endProgram(details.details)
 
     def endProgram(self, code):
         if (

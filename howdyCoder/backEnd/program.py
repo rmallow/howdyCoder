@@ -88,13 +88,18 @@ class Program(commandProcessor, ABC):
         )()
         self._current_mode = Modes.STARTED
         self.start_time = time.time()
+        self._run_time: int = 0
+        self._last_status: int = None
         self.check_program_status_event = self.checkProgramQueue(timer=True)
         self.update_event = self._update(timer=True, on_runtime_time=self.period)
         self.keepAlive()
 
     def populateProgramStatusData(self, details, status_data: ProgramStatusData):
+        if self._current_mode == Modes.STARTED and self._last_status is not None:
+            self._run_time += time.time() - self._last_status
+        self._last_status = time.time()
         status_data.receive_time = time.time()
-        status_data.runtime = time.time() - self.start_time
+        status_data.runtime = self._run_time
         status_data.mode = self._current_mode
 
         if details is not None and isinstance(details, dict):
@@ -109,12 +114,19 @@ class Program(commandProcessor, ABC):
         )
         self._mainframe_queue.put(returnMessage)
 
+    def getStatusDataInstance(self):
+        return ProgramStatusData()
+
+    def populateTypeSpecificStatusData(self, details, status_data):
+        pass
+
     def checkStatus(self, _, details):
         """
         Aside from special cases like COLUMNS, the details on this message will be displayed on the status window
         """
-        status_data = ProgramStatusData()
+        status_data = self.getStatusDataInstance()
         self.populateProgramStatusData(details, status_data)
+        self.populateTypeSpecificStatusData(details, status_data)
         self.sendStatusData(status_data)
 
     @setInterval(1)

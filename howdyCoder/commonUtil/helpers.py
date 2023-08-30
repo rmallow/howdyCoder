@@ -35,14 +35,12 @@ def getConfigFromEnumDict(enumDict: typing.Dict[Enum, str]) -> typing.Dict[str, 
     }
 
 
-def createErrorLabel(errorLabel: str, errorList=typing.List[str]) -> str:
-    # determine error formatting based on number of errors
-    if len(errorList) > 2:
-        for error in errorList[:-1]:
-            errorLabel = f"{errorLabel} {error}, "
-        errorLabel = f"{errorLabel} and {errorList[-1]}"
-    elif len(errorList) > 1:
-        errorLabel = f"{errorLabel} {errorList[0]} and {errorList[1]}"
+def listToFormattedString(label: str, str_list: typing.List[str]) -> str:
+    # determine label formatting based on number of strs
+    if len(str_list) > 2:
+        error_label = f"{error_label} {', '.join(str_list[:-1])}, and {str_list[-1]}"
+    elif len(str_list) > 1:
+        error_label = f"{error_label} {str_list[0]} and {str_list[1]}"
     else:
-        errorLabel = f"{errorLabel} {errorList[0]}"
-    return errorLabel
+        error_label = f"{error_label} {str_list[0]}"
+    return error_label

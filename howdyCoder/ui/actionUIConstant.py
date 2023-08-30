@@ -30,27 +30,6 @@ class ActionEnum(Enum):
     OUTPUT_FUNC = 9, ""
 
 
-class ActionFuncEnum(Enum):
-    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
-
-    NAME = 0, FUNC_NAME
-    CODE = 1, FUNC_CODE
-    IMPORTS = 2, IMPORTS
-    IMPORT_STATEMENTS = 3, IMPORT_STATEMENTS
-    INDEX = 4, ""
-
-
-def functionDictToFunctionSettings(
-    function_dict: typing.Dict[ActionFuncEnum, typing.Any]
-):
-    return FunctionSettings(
-        function_dict[ActionFuncEnum.CODE],
-        function_dict[ActionFuncEnum.NAME],
-        function_dict[ActionFuncEnum.IMPORTS],
-        function_dict[ActionFuncEnum.IMPORT_STATEMENTS],
-    )
-
-
 class DataSetEnum(Enum):
     _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
 

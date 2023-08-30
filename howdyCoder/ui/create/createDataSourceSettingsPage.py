@@ -1,24 +1,22 @@
 from ...core.dataStructs import AlgoSettings, DataSourceSettings
 from .createBasePage import CreateBasePage
 from ..uiConstants import PageKeys
-from ..actionUIConstant import ActionFuncEnum, functionDictToFunctionSettings
 from ..qtUiFiles import ui_createDataSourceSettingsPage
 
 from .. import editableTable
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector
+from ..funcSelector import FuncSelector, FunctionSettingsWithIndex
 from ..treeSelect import UrlTreeSelect
 
-from ...core.commonGlobals import (
-    DataSourcesTypeEnum,
-    InputType,
-)
 
 from ...commonUtil import helpers
 from ...core.commonGlobals import (
     ENUM_DISPLAY,
     DATA_SOURCES,
+    DataSourcesTypeEnum,
+    InputType,
 )
+from ...core.dataStructs import FunctionSettings
 
 import typing
 
@@ -124,10 +122,10 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
             self._ui.stackedWidget.currentWidget().updateText(
-                self._current_settings.get(ActionFuncEnum.NAME, "")
+                self._current_settings.function_settings.name
             )
             self._ui.stackedWidget.currentWidget().updateExtraDescription(
-                self._current_settings.get(ActionFuncEnum.CODE, "")
+                self._current_settings.function_settings.code
             )
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             """Nothing more to do with settings, but make sure that we keep output to name of data source"""
@@ -188,7 +186,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self._data_source_type == DataSourcesTypeEnum.FUNC
             or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
-            curr.get_function = functionDictToFunctionSettings(self._current_settings)
+            curr.get_function = self._current_settings.function_settings
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             curr.input_type = self._current_settings
         strings = self._outputModel.stringList()
