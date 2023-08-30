@@ -5,7 +5,7 @@ from ..qtUiFiles import ui_createActionSettingsPage
 
 from .. import highlightModel
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector, FunctionSettingsWithIndex
+from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData
 
 from ..util.spinBoxDelegate import SpinBoxDelegate
 
@@ -60,8 +60,8 @@ class CreateActionSettingsPage(CreateBasePage):
         self._ui.setupUi(self)
         self.next_enabled = False
         self._action_type = None
-        self._current_calc_settings = None
-        self._current_output_settings = None
+        self._current_calc_settings: FunctionSettingsWithHelperData = None
+        self._current_output_settings: FunctionSettingsWithHelperData = None
         self._selected_input_table_model = QtGui.QStandardItemModel()
         self._selected_input_table_model.setHorizontalHeaderLabels(
             ["Source", "Name", "Requires New", "Amount of Data"]
@@ -104,7 +104,7 @@ class CreateActionSettingsPage(CreateBasePage):
         self._ui.dataTypeCombo.currentIndexChanged.connect(self.enableCheck)
 
     @QtCore.Slot()
-    def onFuncSelected(self, settings: FunctionSettingsWithIndex):
+    def onFuncSelected(self, settings: FunctionSettingsWithHelperData):
         """
         The func selector has returned a value, check which button triggered it, and
         based on that update the correct setting variable and the text
@@ -115,7 +115,7 @@ class CreateActionSettingsPage(CreateBasePage):
                 self._calc_selector_widget.updateExtraDescription(
                     settings.function_settings.code
                 )
-                self._current_calc_settings = settings.function_settings
+                self._current_calc_settings = settings
             elif settings.index == FuncType.OUTPUT:
                 self._output_selector_widget.updateText(
                     settings.function_settings.names
@@ -123,14 +123,12 @@ class CreateActionSettingsPage(CreateBasePage):
                 self._output_selector_widget.updateExtraDescription(
                     settings.function_settings.code
                 )
-                self._current_output_settings = settings.function_settings
+                self._current_output_settings = settings
             self.enableCheck()
 
     def loadPage(self) -> None:
         super().loadPage()
         currSettings: ActionSettings = self.getTempConfig()
-        self._current_calc_settings = None
-        self._current_output_settings = None
         if currSettings.type_:
             enumType = helpers.findEnumByAttribute(
                 ActionTypeEnum, ENUM_DISPLAY, currSettings.type_

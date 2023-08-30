@@ -13,7 +13,7 @@ GRAPH_SETTINGS = "graph settings"
 PERIOD = "period"
 RECEIVE_TIME = "receive time"
 FIRST = "first"
-DATA_SET = "dataSet"
+DATA_SET = "data_set"
 PASSBACK_DICT = "passback_dict"
 
 NOT_AVAIL_STR = "N/A"

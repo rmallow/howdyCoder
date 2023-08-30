@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="icons">
+    <file>x_red.png</file>
+    <file>checkmark_green.png</file>
+    <file>x.png</file>
+    <file>checkmark.png</file>
     <file>help.png</file>
   </qresource>
   <qresource prefix="MainOutputView">

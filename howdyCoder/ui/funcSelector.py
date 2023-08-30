@@ -1,19 +1,22 @@
 from .qtUiFiles import ui_funcSelector
 from .selectorBase import SelectorBase
 from .funcSelectorPageBase import FuncSelectorPageBase
+from ..commonUtil import astUtil
 
 from ..core.dataStructs import FunctionSettings
 
 import typing
+import ast
+from dataclasses import dataclass, field
 
-from dataclasses import dataclass
 from PySide6 import QtCore
 
 
 @dataclass
-class FunctionSettingsWithIndex:
+class FunctionSettingsWithHelperData:
     function_settings: FunctionSettings = FunctionSettings()
     index: QtCore.QModelIndex = None
+    suggested_parameters: typing.List[str] = field(default_factory=list)
 
 
 class FuncSelector(SelectorBase):
@@ -36,7 +39,7 @@ class FuncSelector(SelectorBase):
             # to avoid cranky qt layout error, the child widget is inside the tab
             self._ui.tabWidget.widget(x).findChild(
                 FuncSelectorPageBase
-            ).funcSelected.connect(self.addParentIndex)
+            ).funcSelected.connect(self.addHelperData)
 
     def show(self):
         """Called when window should be showed, so we update data on sub pages"""
@@ -45,9 +48,13 @@ class FuncSelector(SelectorBase):
             self._ui.tabWidget.widget(x).findChild(FuncSelectorPageBase).updateData()
 
     @QtCore.Slot()
-    def addParentIndex(self, function_settings: FunctionSettings):
-        settings_with_index = FunctionSettingsWithIndex(
-            function_settings, self.parentIndex
+    def addHelperData(self, function_settings: FunctionSettings):
+        settings_with_index = FunctionSettingsWithHelperData(
+            function_settings,
+            self.parentIndex,
+            astUtil.getSuggestedParameterNames(
+                ast.parse(function_settings.code, "<string>")
+            ),
         )
         self.itemSelected.emit(settings_with_index)
         # if we're emitting this, we're done selecting so we can hide now

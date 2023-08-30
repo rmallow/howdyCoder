@@ -1,8 +1,8 @@
 from ...core.dataStructs import ScriptSettings
 from .createBasePage import CreateBasePage
-from ..qtUiFiles import ui_createDataSourceConfirmPage
 from ..uiConstants import PageKeys
 from ..qtUiFiles.ui_createScriptSettingsPage import Ui_CreateScriptSettingsPage
+from ..funcSelector import FunctionSettingsWithHelperData
 
 from ...core.commonGlobals import NONE_GROUP
 
@@ -31,17 +31,25 @@ class CreateScriptSettingsPage(CreateBasePage):
         self._ui = Ui_CreateScriptSettingsPage()
         self._ui.setupUi(self)
 
+        self._current_settings = None
+        self._ui.funcSelectorWidget.itemSelected.connect(self.settingsSelected)
+
     def loadPage(self):
         pass
 
     def getTutorialClasses(self) -> typing.List:
-        return [self]
+        return [self] + self._ui.funcSelectorWidget.getTutorialClasses()
 
     def validate(self) -> bool:
-        return True
+        return self._current_settings is not None
 
     def save(self) -> None:
         pass
+
+    def settingsSelected(self, function_settings: FunctionSettingsWithHelperData):
+        self.getHelperData().suggested_parameters = (
+            function_settings.suggested_parameters
+        )
 
     def reset(self) -> None:
         pass

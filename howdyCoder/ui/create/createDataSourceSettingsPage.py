@@ -5,7 +5,7 @@ from ..qtUiFiles import ui_createDataSourceSettingsPage
 
 from .. import editableTable
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector, FunctionSettingsWithIndex
+from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData
 from ..treeSelect import UrlTreeSelect
 
 
@@ -121,6 +121,9 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self._data_source_type == DataSourcesTypeEnum.FUNC
             or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
+            self.getHelperData().suggested_parameters.extend(
+                self._current_settings.suggested_parameters
+            )
             self._ui.stackedWidget.currentWidget().updateText(
                 self._current_settings.function_settings.name
             )
@@ -137,7 +140,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
     def loadPage(self) -> None:
         super().loadPage()
         currSettings = self.getTempConfig()
-        self._current_settings = None
         if currSettings.type_:
             enumType = helpers.findEnumByAttribute(
                 DataSourcesTypeEnum, ENUM_DISPLAY, currSettings.type_

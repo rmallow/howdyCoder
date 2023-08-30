@@ -37,10 +37,11 @@ def getConfigFromEnumDict(enumDict: typing.Dict[Enum, str]) -> typing.Dict[str, 
 
 def listToFormattedString(label: str, str_list: typing.List[str]) -> str:
     # determine label formatting based on number of strs
+    res = ""
     if len(str_list) > 2:
-        error_label = f"{error_label} {', '.join(str_list[:-1])}, and {str_list[-1]}"
+        res = f"{label} {', '.join(str_list[:-1])}, and {str_list[-1]}"
     elif len(str_list) > 1:
-        error_label = f"{error_label} {str_list[0]} and {str_list[1]}"
+        res = f"{label} {str_list[0]} and {str_list[1]}"
     else:
-        error_label = f"{error_label} {str_list[0]}"
-    return error_label
+        res = f"{label} {str_list[0]}"
+    return res

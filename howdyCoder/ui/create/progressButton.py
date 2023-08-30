@@ -1,4 +1,3 @@
-from ..uiFilePaths import CHECKMARK_IMAGE, X_IMAGE
 from ..uiConstants import (
     PROGRESS_BAR_COMPLETED_COLOR_STR,
     PROGRESS_BAR_UNCOMPLETED_COLOR_STR,
@@ -7,7 +6,7 @@ from ..uiConstants import (
 )
 from ..qtUiFiles import ui_progressButton
 
-from ...commonUtil import pathUtil
+from ..util import qtResourceManager
 
 import typing
 
@@ -43,10 +42,14 @@ class ProgressButton(QtWidgets.QWidget):
             self._ui.button.setIcon(QtGui.QIcon())
         elif self._completed:
             color = PROGRESS_BAR_COMPLETED_COLOR_STR
-            self._ui.button.setIcon(QtGui.QIcon(CHECKMARK_IMAGE))
+            self._ui.button.setIcon(
+                qtResourceManager.getResourceByName("icons", "checkmark.png")
+            )
         else:
             color = PROGRESS_BAR_FAILED_COLOR_STR
-            self._ui.button.setIcon(QtGui.QIcon(X_IMAGE))
+            self._ui.button.setIcon(
+                qtResourceManager.getResourceByName("icons", "x.png")
+            )
         self._ui.button.setStyleSheet(
             self._ui.button.styleSheet() + f"background-color:{color};"
         )

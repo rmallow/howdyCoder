@@ -18,11 +18,17 @@ WAIT_FOR_TEXT_EDITING_TO_END = 2000
 
 
 COMPILING_STATUS = "Compiling Code"
-COMPILE_ERROR_STATUS = "Error encountered: Code Compilation"
+ERROR_ENCOUNTERED = "Error encountered: "
+COMPILE_ERROR_STATUS = ERROR_ENCOUNTERED + "Code Compilation"
 TOO_MANY_FUNCTIONS_ERROR_STATUS = (
-    "Error encountered: Too many functions, only one allowed"
+    ERROR_ENCOUNTERED + "Too many functions, only one allowed"
 )
-TOO_FEW_FUNCTIONS_STATUS = "Error encountered: Must be at least one function"
+POSONLY_ARGS_ERROR_STATUS = (
+    ERROR_ENCOUNTERED
+    + "Remove the not allowed Positional-only argument indicator '/' in the function defenition."
+)
+TOO_FEW_FUNCTIONS_ERROR_STATUS = ERROR_ENCOUNTERED + "Must be at least one function"
+
 GOOD_STATUS = "No errors found, Code good to go"
 
 
@@ -83,13 +89,16 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                 if len(functions) > 1:
                     self._ui.statusLabel.setText(TOO_MANY_FUNCTIONS_ERROR_STATUS)
                 elif functions:
-                    self._current_function_settings = self.createFunctionConfig(
-                        functions[0], *astUtil.getImportsUnique(root)
-                    )
-                    self.enableControls(True)
-                    self._ui.statusLabel.setText(GOOD_STATUS)
+                    if functions[0].args.posonlyargs:
+                        self._ui.statusLabel.setText(POSONLY_ARGS_ERROR_STATUS)
+                    else:
+                        self._current_function_settings = self.createFunctionConfig(
+                            functions[0], *astUtil.getImportsUnique(root)
+                        )
+                        self.enableControls(True)
+                        self._ui.statusLabel.setText(GOOD_STATUS)
                 else:
-                    self._ui.statusLabel.setText(TOO_FEW_FUNCTIONS_STATUS)
+                    self._ui.statusLabel.setText(TOO_FEW_FUNCTIONS_ERROR_STATUS)
 
             self._ui.codeEdit.setEnabled(True)
 

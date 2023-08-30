@@ -1,4 +1,4 @@
-from .funcSelector import FuncSelector, FunctionSettingsWithIndex
+from .funcSelector import FuncSelector, FunctionSettingsWithHelperData
 from .selectorWidget import SelectorWidget
 
 from .util.abstractQt import getAbstactQtResolver, handleAbstractMethods
@@ -163,7 +163,7 @@ class EditableTableModel(
         return None
 
     @QtCore.Slot()
-    def itemSelected(self, settings: FunctionSettingsWithIndex) -> None:
+    def itemSelected(self, settings: FunctionSettingsWithHelperData) -> None:
         """When a function is selected update the value with the func and also populate the description"""
         if settings.index is not None:
             if settings.index in self.selectorWidgets:
