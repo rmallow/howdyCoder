@@ -1,7 +1,7 @@
 from ...core.dataStructs import AlgoSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
-from ...core.commonGlobals import GROUP_SET
+from ...core.commonGlobals import GROUP_SET, ProgramTypes
 from ..uiConstants import PageKeys
 
 from dataclasses import dataclass, field
@@ -49,7 +49,8 @@ class CreateBasePage(
         ), "GROUP not correctly assigned by sub class"
         self.current_config: AlgoSettings = current_config
         self.temp_config: ItemSettings = None  # assigned after the fact
-        self.helper_data: HelperData = None
+        self.helper_data: HelperData = None  # assigned after the fact
+        self.creator_type: ProgramTypes = None  # assigned after the fact
         self.next_enabled = True
         self.back_enabled = True
 

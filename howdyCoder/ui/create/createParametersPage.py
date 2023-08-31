@@ -3,6 +3,7 @@ from .createBasePage import CreateBasePage
 from ..qtUiFiles import ui_createDataSourceParametersPage
 from ..uiConstants import PageKeys
 from . import parameterTable
+from ..util import qtResourceManager
 
 from ...core.commonGlobals import (
     DATA_SOURCES,
@@ -16,9 +17,6 @@ import typing
 from ...commonUtil import helpers
 
 from PySide6 import QtWidgets, QtCore
-
-SUGGESTED_PARAMETERS_START = "Suggested Parameters based on given functions: "
-NO_SUGGESTED_PARAMETERS = "NO SUGGESTIONS"
 
 
 class CreateBaseParametersPage(CreateBasePage):
@@ -45,6 +43,7 @@ class CreateBaseParametersPage(CreateBasePage):
                 self._ui.parameterView.getSelected()
             )
         )
+        self._parameterModel.dataChanged.connect(self.checkParameterNames)
         self._ui.clearParameterButton.pressed.connect(self._parameterModel.clear)
         self._ui.single_shot_check.stateChanged.connect(self.singleShotStateChanged)
 
@@ -86,19 +85,36 @@ class CreateBaseParametersPage(CreateBasePage):
 
     def setParametersLabel(self):
         helper_data = self.getHelperData()
-        if helper_data.suggested_parameters:
-            self._ui.suggested_parameters_label.setText(
-                helpers.listToFormattedString(
-                    SUGGESTED_PARAMETERS_START, helper_data.suggested_parameters
-                )
+        self._ui.parameter_list_widget.clear()
+        for param in helper_data.suggested_parameters:
+            icon = qtResourceManager.getResourceByName(
+                "icons",
+                (
+                    "checkmark_green.png"
+                    if param in self._parameterModel.current_names
+                    else "x_red.png"
+                ),
             )
-        else:
-            self._ui.suggested_parameters_label.setText(
-                SUGGESTED_PARAMETERS_START + NO_SUGGESTED_PARAMETERS
+            self._ui.parameter_list_widget.addItem(
+                QtWidgets.QListWidgetItem(icon, param)
             )
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
+
+    def checkParameterNames(self):
+        for x in range(self._ui.parameter_list_widget.count()):
+            self._ui.parameter_list_widget.item(x).setIcon(
+                qtResourceManager.getResourceByName(
+                    "icons",
+                    (
+                        "checkmark_green.png"
+                        if self._ui.parameter_list_widget.item(x).text()
+                        in self._parameterModel.current_names
+                        else "x_red.png"
+                    ),
+                )
+            )
 
 
 class CreateDataSourceParametersPage(CreateBaseParametersPage):

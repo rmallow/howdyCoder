@@ -2,11 +2,6 @@ from ..core.dataStructs import FunctionSettings
 from ..core.commonGlobals import (
     ENUM_VALUE,
     ENUM_DISPLAY,
-    FUNC_NAME,
-    FUNC_LOCAITON,
-    FUNC_CODE,
-    IMPORTS,
-    IMPORT_STATEMENTS,
 )
 
 import typing

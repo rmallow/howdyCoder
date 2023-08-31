@@ -290,6 +290,14 @@ class CreateActionSettingsPage(CreateBasePage):
         if self._action_type == ActionTypeEnum.TRIGGER:
             action_settings.output_function = self._current_output_settings
         action_settings.input_data_type = self._ui.dataTypeCombo.currentText()
+        self.getHelperData().suggested_parameters = (
+            self._current_calc_settings.suggested_parameters[::]
+            + (
+                self._current_output_settings.suggested_parameters[::]
+                if self._current_output_settings
+                else []
+            )
+        )
         # get from data, because if it's an event we don't want to get the "Event" tag before it
         # this has been stored in the data when the selected table was populated
         for row in range(self._selected_input_table_model.rowCount()):

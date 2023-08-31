@@ -121,9 +121,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self._data_source_type == DataSourcesTypeEnum.FUNC
             or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
-            self.getHelperData().suggested_parameters.extend(
-                self._current_settings.suggested_parameters
-            )
             self._ui.stackedWidget.currentWidget().updateText(
                 self._current_settings.function_settings.name
             )
@@ -189,6 +186,9 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             or self._data_source_type == DataSourcesTypeEnum.THREADED
         ):
             curr.get_function = self._current_settings.function_settings
+            self.getHelperData().suggested_parameters = (
+                self._current_settings.suggested_parameters[::]
+            )
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             curr.input_type = self._current_settings
         strings = self._outputModel.stringList()

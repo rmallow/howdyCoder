@@ -42,6 +42,24 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
     def __init__(self, *args, **kwargs):
         super().__init__(ParameterEnum)
         self.values: typing.List[typing.Dict[ParameterEnum, str]] = []
+        self.current_names: typing.Set[str] = set()
+
+    def setData(
+        self,
+        index: QtCore.QModelIndex,
+        value: typing.Any,
+        role: int = QtCore.Qt.DisplayRole,
+    ) -> bool:
+        if (
+            (role == QtCore.Qt.EditRole or role == QtCore.Qt.DisplayRole)
+            and index.column() == getattr(ParameterEnum.NAME, ENUM_VALUE)
+            and index.row() < len(self.values)
+        ):
+            self.current_names.discard(
+                self.values[index.row()].get(ParameterEnum.NAME, "")
+            )
+            self.current_names.add(value)
+        return super().setData(index, value, role)
 
     def data(
         self, index: QtCore.QModelIndex, role: int = QtCore.Qt.DisplayRole
@@ -65,7 +83,6 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 and ParameterEnum.VALUE in value
                 and ParameterEnum.NAME in value
                 and value[ParameterEnum.NAME]
-                and value[ParameterEnum.VALUE]
             ):
                 if value[ParameterEnum.TYPE] == editableTable.EditorType.FUNC.display:
                     """If it is a setup func add to that section instead of parameters"""

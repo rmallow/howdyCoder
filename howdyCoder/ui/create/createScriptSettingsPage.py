@@ -31,7 +31,7 @@ class CreateScriptSettingsPage(CreateBasePage):
         self._ui = Ui_CreateScriptSettingsPage()
         self._ui.setupUi(self)
 
-        self._current_settings = None
+        self._current_settings: FunctionSettingsWithHelperData = None
         self._ui.funcSelectorWidget.itemSelected.connect(self.settingsSelected)
 
     def loadPage(self):
@@ -44,12 +44,12 @@ class CreateScriptSettingsPage(CreateBasePage):
         return self._current_settings is not None
 
     def save(self) -> None:
-        pass
-
-    def settingsSelected(self, function_settings: FunctionSettingsWithHelperData):
         self.getHelperData().suggested_parameters = (
-            function_settings.suggested_parameters
+            self._current_settings.suggested_parameters
         )
 
+    def settingsSelected(self, function_settings: FunctionSettingsWithHelperData):
+        self._current_settings = function_settings
+
     def reset(self) -> None:
-        pass
+        self._current_settings = None

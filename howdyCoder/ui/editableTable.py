@@ -64,7 +64,9 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
                     combo.addItem(comboValue)
                 return combo
         elif editorType == EditorType.NUMBER:
-            return QtWidgets.QDoubleSpinBox(parent)
+            spin = QtWidgets.QDoubleSpinBox(parent)
+            spin.setRange(-9999999999999, 9999999999999)
+            return spin
         if index in index.model().funcIndexes:
             selectorWidget = SelectorWidget(index, index.model().funcSelector, parent)
             index.model().selectorWidgets[index] = selectorWidget

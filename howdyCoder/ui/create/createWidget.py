@@ -131,6 +131,7 @@ class CreateWidget(
             )
             p.page.temp_config = self._sub_configs.get(p.page.GROUP, None)
             p.page.helper_data = self.helper_data
+            p.page.creator_type = self._creator_type
             self._create_widgets_list.append(p)
         self._current_index: int = 0
 
@@ -164,10 +165,13 @@ class CreateWidget(
             self._create_widgets_list[self._current_index].page.next_enabled
         )
 
-    def changePage(self, newIndex: int, reset_helper_data=True):
+    def changePage(self, newIndex: int):
         """Change the page to the given page with an animation, save the current page and check its validity"""
         if newIndex >= 0 and newIndex < len(self._create_widgets_list):
-            if reset_helper_data:
+            if (
+                self._create_widgets_list[self._current_index].page.GROUP
+                != self._create_widgets_list[newIndex].page.GROUP
+            ):
                 self.helper_data.clear()
             # disable both the buttons, at the end of the animation they'll be reenabled
             self._ui.nextButton.setEnabled(False)
@@ -209,14 +213,7 @@ class CreateWidget(
             )
             self.reset()
         else:
-            should_reset = (
-                self._create_widgets_list[self._current_index].page.GROUP
-                != self._create_widgets_list[self._current_index + 1].page.GROUP
-            )
-            self.changePage(
-                self._current_index + 1,
-                reset_helper_data=should_reset,
-            )
+            self.changePage(self._current_index + 1)
 
     def setButtonText(self):
         self._ui.nextButton.setText(
@@ -289,6 +286,7 @@ class CreateWidget(
     def reset(self):
         self.resetPages(0)
         self.changePage(0)
+        self.helper_data.clear()
         self._ui.progressSteps.resetDisplay()
         self.current_config.clear()
         for v in self._sub_configs.values():
