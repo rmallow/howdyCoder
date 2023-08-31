@@ -36,19 +36,8 @@ from ...core.commonGlobals import DATA_SOURCES, ACTION_LIST, ProgramTypes
 
 from PySide6 import QtWidgets, QtCore
 
-from dataclasses import dataclass, fields
 from dataclass_wizard import asdict
 import typing
-
-
-@dataclass
-class CreateWidgetPage:
-    name: str
-    page: CreateBasePage
-
-    def __iter__(self):
-        for field in fields(self):
-            yield getattr(self, field.name)
 
 
 SCRIPT_CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
@@ -108,7 +97,7 @@ class CreateWidget(
         self._createWidgetBoxLayout.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
         self._ui.createWidgetBox.setLayout(self._createWidgetBoxLayout)
 
-        self._create_widgets_list: typing.List[CreateWidgetPage] = []
+        self._create_widgets_list: typing.List[CreateBasePage] = []
 
         self._current_exit_page: PageKeys = PageKeys.NO_PAGE
         self._creator_type: ProgramTypes = None
@@ -126,16 +115,14 @@ class CreateWidget(
         ), "Duplicate Creation Widget Page Keys"
         self._create_widgets_list = []
         for widget_class in self.getCurrentPageList():
-            p = CreateWidgetPage(
-                widget_class.PAGE_KEY.value, widget_class(self.current_config, self)
-            )
-            p.page.temp_config = self._sub_configs.get(p.page.GROUP, None)
-            p.page.helper_data = self.helper_data
-            p.page.creator_type = self._creator_type
+            p = widget_class(self.current_config, self)
+            p.temp_config = self._sub_configs.get(p.GROUP, None)
+            p.helper_data = self.helper_data
+            p.creator_type = self._creator_type
             self._create_widgets_list.append(p)
         self._current_index: int = 0
 
-        for _, w in self._create_widgets_list:
+        for w in self._create_widgets_list:
             w.hide()
 
     def loadProgressSteps(self) -> None:
@@ -154,39 +141,39 @@ class CreateWidget(
             layout_item.widget().hide()
             layout_item.widget().deleteLater()
         self._createWidgetBoxLayout.addWidget(
-            self._create_widgets_list[self._current_index].page
+            self._create_widgets_list[self._current_index]
         )
-        self._create_widgets_list[self._current_index].page.show()
+        self._create_widgets_list[self._current_index].show()
         self._ui.backButton.setEnabled(
             self._current_index != 0
-            and self._create_widgets_list[self._current_index].page.back_enabled
+            and self._create_widgets_list[self._current_index].back_enabled
         )
         self._ui.nextButton.setEnabled(
-            self._create_widgets_list[self._current_index].page.next_enabled
+            self._create_widgets_list[self._current_index].next_enabled
         )
 
     def changePage(self, newIndex: int):
         """Change the page to the given page with an animation, save the current page and check its validity"""
         if newIndex >= 0 and newIndex < len(self._create_widgets_list):
             if (
-                self._create_widgets_list[self._current_index].page.GROUP
-                != self._create_widgets_list[newIndex].page.GROUP
+                self._create_widgets_list[self._current_index].GROUP
+                != self._create_widgets_list[newIndex].GROUP
             ):
                 self.helper_data.clear()
             # disable both the buttons, at the end of the animation they'll be reenabled
             self._ui.nextButton.setEnabled(False)
             self._ui.backButton.setEnabled(False)
             self._ui.exitButton.setEnabled(False)
-            currentPage = self._create_widgets_list[self._current_index].page
+            currentPage = self._create_widgets_list[self._current_index]
             if valid_page := currentPage.validate():
                 currentPage.save()
             # Get keys from the page before the page we are loading and put it in the page we are loading
             if newIndex > 0:
-                self._create_widgets_list[newIndex].page.loadPage()
+                self._create_widgets_list[newIndex].loadPage()
             animations.fadeStart(
                 self._ui.createWidgetBox,
-                self._create_widgets_list[self._current_index].page,
-                self._create_widgets_list[newIndex].page,
+                self._create_widgets_list[self._current_index],
+                self._create_widgets_list[newIndex],
                 self._createWidgetBoxLayout,
                 finishedSlot=lambda: self.animationFinished(newIndex),
             )
@@ -254,21 +241,15 @@ class CreateWidget(
         """
         after widget animation is done, enable button and update widget
         """
-        self._ui.backButton.setEnabled(
-            self._create_widgets_list[newIndex].page.back_enabled
-        )
-        self._ui.nextButton.setEnabled(
-            self._create_widgets_list[newIndex].page.next_enabled
-        )
+        self._ui.backButton.setEnabled(self._create_widgets_list[newIndex].back_enabled)
+        self._ui.nextButton.setEnabled(self._create_widgets_list[newIndex].next_enabled)
         self._ui.exitButton.setEnabled(True)
-        if self._create_widgets_list[newIndex].page.EXIT_LABEL:
-            self._ui.exitButton.setText(
-                self._create_widgets_list[newIndex].page.EXIT_LABEL
-            )
-        if self._create_widgets_list[newIndex].page.EXIT:
-            self._current_exit_page = self._create_widgets_list[newIndex].page.EXIT
-        self._create_widgets_list[newIndex].page.update()
-        self._create_widgets_list[newIndex].page.drawingFix()
+        if self._create_widgets_list[newIndex].EXIT_LABEL:
+            self._ui.exitButton.setText(self._create_widgets_list[newIndex].EXIT_LABEL)
+        if self._create_widgets_list[newIndex].EXIT:
+            self._current_exit_page = self._create_widgets_list[newIndex].EXIT
+        self._create_widgets_list[newIndex].update()
+        self._create_widgets_list[newIndex].drawingFix()
         self._ui.scrollArea.viewport().update()
 
     @QtCore.Slot()
@@ -281,7 +262,7 @@ class CreateWidget(
             min(self._current_index, reset_to_index),
             max(self._current_index, reset_to_index) + 1,
         ):
-            self._create_widgets_list[x].page.reset()
+            self._create_widgets_list[x].reset()
 
     def reset(self):
         self.resetPages(0)
@@ -310,10 +291,10 @@ class CreateWidget(
     def getTutorialClasses(self) -> typing.List:
         return [self] + self._create_widgets_list[
             self._current_index
-        ].page.getTutorialClasses()
+        ].getTutorialClasses()
 
     def setCurrentType(self, type_: str):
-        for _, page in self._create_widgets_list:
+        for page in self._create_widgets_list:
             page.deleteLater()
         self._creator_type = ProgramTypes(type_)
 
@@ -333,7 +314,7 @@ class CreateWidget(
         self.reset()
 
         # don't want clicking through till animation is over so we disable button on press
-        for _, page in self._create_widgets_list:
+        for page in self._create_widgets_list:
             page.nextPage.connect(self.nextPressed)
             page.enableNext.connect(self._ui.nextButton.setEnabled)
             page.enableBack.connect(self._ui.backButton.setEnabled)
