@@ -3,7 +3,7 @@ from .uiConstants import outputTypesEnum
 from .sparseDictListModel import SparseDictListModel
 from .programData import ProgramDict
 
-from ..core.commonGlobals import ITEM, ActionTypeEnum, ENUM_DISPLAY
+from ..core.commonGlobals import ITEM, ActionTypeEnum, ENUM_DISPLAY, ProgramTypes
 from ..core import message as msg
 
 import platform
@@ -20,7 +20,7 @@ class mainOutputViewModel(QtCore.QObject):
 
         # All selectors will refer back to the same models
         # this way we only need to update one set of models and all selectors will be updated
-        self.blockComboModel: QtGui.QStandardItemModel = QtGui.QStandardItemModel()
+        self.program_combo_model: QtGui.QStandardItemModel = QtGui.QStandardItemModel()
         self.handlerComboModel: QtGui.QStandardItemModel = QtGui.QStandardItemModel()
 
         # graph is disabled for mac unless environment variable has been set
@@ -28,16 +28,16 @@ class mainOutputViewModel(QtCore.QObject):
         # https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr
         # based on debugging, issue happened when creating graph, so disabling it for mac
         # unless the user has the envionrment variable workaround
-        typeStrings = [
+        type_strings = [
             val.value for val in outputTypesEnum if val != outputTypesEnum.GRAPH
         ]
         if (
             platform.system() != "Darwin"
             or os.environ.get("OBJC_DISABLE_INITIALIZE_FORK_SAFETY", "NO") == "YES"
         ):
-            typeStrings.append(outputTypesEnum.GRAPH.value)
+            type_strings.append(outputTypesEnum.GRAPH.value)
 
-        self.typeModel: QtCore.QStringListModel = QtCore.QStringListModel(typeStrings)
+        self.typeModel: QtCore.QStringListModel = QtCore.QStringListModel(type_strings)
 
         # this will be assigned during main window creation
         self.program_dict: ProgramDict = None
@@ -50,7 +50,7 @@ class mainOutputViewModel(QtCore.QObject):
 
     def addBlocks(self, blockDict):
         for key, value in blockDict.items():
-            self.addItem(self.blockComboModel, key, value)
+            self.addItem(self.program_combo_model, key, value)
 
     def addHandlers(self, handlerDict):
         for key, value in handlerDict.items():
@@ -71,7 +71,7 @@ class mainOutputViewModel(QtCore.QObject):
         data = ProgramStatusData(**message.details)
         if data.columns:
             # only override columns in there if there are any
-            findList = self.blockComboModel.findItems(message.key.sourceCode)
+            findList = self.program_combo_model.findItems(message.key.sourceCode)
             if len(findList) == 1:
                 # there should be only one that matches
                 findList[0].setData(data.columns)
@@ -99,17 +99,18 @@ class mainOutputViewModel(QtCore.QObject):
     @QtCore.Slot()
     def dataChanged(self):
         """On startup message add blocks and handlers to their combo models"""
-        self.blockComboModel.clear()
+        self.program_combo_model.clear()
         # add data from algo dict here
         for config in self.program_dict.getConfigs():
             columns = []
-            for ds_key, ds_config in config.settings.data_sources.items():
-                try:
-                    columns.extend(list(ds_config.output.values()))
-                except AttributeError:
-                    columns.extend(ds_config.output)
+            if config.type_ == ProgramTypes.ALGO:
+                for ds_key, ds_config in config.settings.data_sources.items():
+                    try:
+                        columns.extend(list(ds_config.output.values()))
+                    except AttributeError:
+                        columns.extend(ds_config.output)
 
-            for act_key, act_config in config.settings.action_list.items():
-                if act_config.type_ == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
-                    columns.append(act_key)
-            self.addItem(self.blockComboModel, config.name, columns)
+                for act_key, act_config in config.settings.action_list.items():
+                    if act_config.type_ == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
+                        columns.append(act_key)
+            self.addItem(self.program_combo_model, config.name, columns)

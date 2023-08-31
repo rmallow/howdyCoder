@@ -37,7 +37,7 @@ def findData(feed: feedModule.feed, col: str) -> typing.List[sparseDictList.Spar
     return None
 
 
-class action:
+class Action:
     """
     Base virtual class for actions used by action pool
     """
@@ -55,38 +55,47 @@ class action:
         self.setupFuncs: typing.Dict[
             str, UserFuncCaller
         ] = action_settings.setup_functions
-        self.aggregate: bool = action_settings.aggregate
-        self.input_info_map: typing.Dict[str, InputSettings] = action_settings.input_
-        self.any_requires_new = any(
-            v.requires_new for v in self.input_info_map.values()
-        )
 
-        self.action_data_type: ActionDataType = helpers.findEnumByAttribute(
-            ActionDataType, ENUM_DISPLAY, action_settings.input_data_type
-        )
-        self.flatten: bool = action_settings.flatten
-
-        self.input = [x.lower() for x in self.input_info_map.keys()]
-
-        self.last_used = {i: None for i in self.input}
-
-        self.dataSet: pd.DataFrame = None
-        # this must be set before calling update
-        self.lastCalcIndex: int = None
         self.isFirst: bool = True
+        self.aggregate: bool = action_settings.aggregate
+        self.flatten: bool = action_settings.flatten
         self.feed: feedModule.feed = None
 
-    def update(self):
-        """Called by action pool, updates dataSet and calls calcFunc"""
-        indexing_input, index_length = self.checkInput()
-        if indexing_input:
-            for x in range(index_length):
-                index = findData(self.feed, indexing_input)[-(index_length - x)].index
-                self.updateDataSet(index)
+        # some actions might not take any input from the feed
+        self.input_info_map: typing.Dict[str, InputSettings] = action_settings.input_
+        if self.input_info_map:
+            self.any_requires_new = any(
+                v.requires_new for v in self.input_info_map.values()
+            )
 
-                self.parameters[FIRST] = self.isFirst
-                self.isFirst = False
-                yield self.calcFunc(**self.parameters), index
+            self.action_data_type: ActionDataType = helpers.findEnumByAttribute(
+                ActionDataType, ENUM_DISPLAY, action_settings.input_data_type
+            )
+
+            self.input = [x.lower() for x in self.input_info_map.keys()]
+
+            self.last_used = {i: None for i in self.input}
+
+            self.dataSet: pd.DataFrame = None
+            # this must be set before calling update
+            self.lastCalcIndex: int = None
+
+    def update(self):
+        """Called by action pool, updates dataSet (if there is input to do so) and calls calcFunc"""
+        indexing_input = None
+        if self.input_info_map:
+            indexing_input, index_length = self.checkInput()
+            if indexing_input:
+                for x in range(index_length):
+                    index = findData(self.feed, indexing_input)[
+                        -(index_length - x)
+                    ].index
+                    self.updateDataSet(index)
+
+        if not self.input_info_map or indexing_input:
+            self.parameters[FIRST] = self.isFirst
+            self.isFirst = False
+            yield self.calcFunc(**self.parameters), index
 
     def checkInput(self) -> typing.Tuple[str, int]:
         """

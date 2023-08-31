@@ -31,21 +31,26 @@ class FuncSelector(SelectorBase):
         # set always on top flag
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         # Load UI file and setup UI with layout
-        self._ui = ui_funcSelector.Ui_FuncSelector()
-        self._ui.setupUi(self)
+        self.ui = ui_funcSelector.Ui_FuncSelector()
+        self.ui.setupUi(self)
+        self.embedded = False
 
         self.parentIndex = None
-        for x in range(self._ui.tabWidget.count()):
+        for x in range(self.ui.tabWidget.count()):
             # to avoid cranky qt layout error, the child widget is inside the tab
-            self._ui.tabWidget.widget(x).findChild(
+            self.ui.tabWidget.widget(x).findChild(
                 FuncSelectorPageBase
             ).funcSelected.connect(self.addHelperData)
 
+    def updateChildData(self):
+        for x in range(self.ui.tabWidget.count()):
+            # to avoid cranky qt layout error, the child widget is inside the tab
+            self.ui.tabWidget.widget(x).findChild(FuncSelectorPageBase).updateData()
+
     def show(self):
         """Called when window should be showed, so we update data on sub pages"""
-        for x in range(self._ui.tabWidget.count()):
-            # to avoid cranky qt layout error, the child widget is inside the tab
-            self._ui.tabWidget.widget(x).findChild(FuncSelectorPageBase).updateData()
+        self.updateChildData()
+        return super().show()
 
     @QtCore.Slot()
     def addHelperData(self, function_settings: FunctionSettings):
@@ -58,9 +63,10 @@ class FuncSelector(SelectorBase):
         )
         self.itemSelected.emit(settings_with_index)
         # if we're emitting this, we're done selecting so we can hide now
-        self.hide()
+        if not self.embedded:
+            self.hide()
 
     def getTutorialClasses(self) -> typing.List:
-        return [self] + self._ui.tabWidget.currentWidget().findChild(
+        return [self] + self.ui.tabWidget.currentWidget().findChild(
             FuncSelectorPageBase
         ).getTutorialClasses()

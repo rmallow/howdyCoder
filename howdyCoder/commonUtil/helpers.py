@@ -1,4 +1,5 @@
 from ..core.commonGlobals import ENUM_DISPLAY
+from functools import cache
 
 import time
 import typing
@@ -15,11 +16,13 @@ def getStrElapsedTime(elapsed: float) -> str:
     return f"{td.days} days,  {(td.seconds // (60 * 60)):02d} : {(td.seconds // (60)):02d} : {td.seconds%60:02d}"
 
 
+@cache
 def getEnumAttributeList(enum, attribute: str) -> typing.List[str]:
     """Return a list of the enum attributes"""
     return [getattr(e, attribute, None) for e in enum]
 
 
+@cache
 def findEnumByAttribute(enum, attribute: str, value: typing.Any):
     for e in enum:
         if getattr(e, attribute, None) == value:

@@ -46,7 +46,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="FuncSelectorCodePage" name="widget_2" native="true"/>
+        <widget class="FuncSelectorCodePage" name="codeWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -65,7 +65,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="FuncSelectorLibPage" name="widget" native="true"/>
+        <widget class="FuncSelectorLibPage" name="libWidget" native="true"/>
        </item>
       </layout>
      </widget>

@@ -1,5 +1,5 @@
 from ..core.dataStructs import ProgramStatusData, InputData, Modes
-from .actionPool import actionPool
+from .actionPool import ActionPool
 from ..core import message as msg
 from ..core import messageKey as msgKey
 from . import constants as con
@@ -22,13 +22,11 @@ class Algo(Program):
         config,
         user_funcs,
         *args,
-        code="algo1",
         **kwargs,
     ):
         super().__init__(config, user_funcs, *args, **kwargs)
-        self.code = code
         self.feed_obj: feed = feed_obj
-        self.pool = actionPool(actionList, self.code)
+        self.pool = ActionPool(actionList)
         self.track = False
         self.feed_last_update_time = 0
         self.period = feed_obj.period
@@ -39,32 +37,31 @@ class Algo(Program):
         self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, Algo.addInputData)
 
     def update(self):
-        if self._current_mode == Modes.STARTED:
-            feed_ret_val = self.feed_obj.update()
-            self.feed_last_update_time = time.time()
-            if feed_ret_val is not None:
-                if feed_ret_val == con.FeedRetValues.VALID_VALUES:
-                    self.pool.doActions()
-                    if self.track:
-                        self.sendCombinedData()
-                elif feed_ret_val == con.FeedRetValues.NO_VALID_VALUES:
-                    pass
-                elif feed_ret_val == con.DataSourceReturnEnum.OUTSIDE_CONSTRAINT:
-                    self.clear()
-                elif feed_ret_val == con.DataSourceReturnEnum.NO_DATA:
-                    # Want to do nothing and process potential algos messages
-                    pass
-                elif feed_ret_val != con.DataSourceReturnEnum.END_DATA:
-                    # Feed is at end of data so don't want to keep calling it
-                    self._current_mode = Modes.STOPPED
-                else:
-                    # Feeds should not be returning None, issue a warning and stop updating
-                    mpLogging.warning(
-                        f"Algo {self.code} eceived invalid return value from feed",
-                        group=ALGO_GROUP,
-                        description="Return recognized enum value for feed status",
-                    )
-                    self._current_mode = Modes.STOPPED
+        feed_ret_val = self.feed_obj.update()
+        self.feed_last_update_time = time.time()
+        if feed_ret_val is not None:
+            if feed_ret_val == con.FeedRetValues.VALID_VALUES:
+                self.pool.doActions()
+                if self.track:
+                    self.sendCombinedData()
+            elif feed_ret_val == con.FeedRetValues.NO_VALID_VALUES:
+                pass
+            elif feed_ret_val == con.DataSourceReturnEnum.OUTSIDE_CONSTRAINT:
+                self.clear()
+            elif feed_ret_val == con.DataSourceReturnEnum.NO_DATA:
+                # Want to do nothing and process potential algos messages
+                pass
+            elif feed_ret_val != con.DataSourceReturnEnum.END_DATA:
+                # Feed is at end of data so don't want to keep calling it
+                self._current_mode = Modes.STOPPED
+            else:
+                # Feeds should not be returning None, issue a warning and stop updating
+                mpLogging.warning(
+                    f"Algo {self.code} eceived invalid return value from feed",
+                    group=ALGO_GROUP,
+                    description="Return recognized enum value for feed status",
+                )
+                self._current_mode = Modes.STOPPED
 
     def clear(self):
         self.feed_obj.clear()
@@ -119,9 +116,6 @@ class Algo(Program):
 
     def cmdStart(self, command, details=None):
         self.feed_obj.started()
-
-    def cmdShutdown(self, command, details=None):
-        self._end = True
 
     def addInputData(self, _, details=None):
         if details is not None:

@@ -1,5 +1,4 @@
 from ..core.dataStructs import (
-    SETUP_FUNCS,
     ActionSettings,
     AlgoSettings,
     DataSourceSettings,
@@ -11,10 +10,7 @@ from .feed import feed
 from .dataBase import dataBase
 from . import dataSourceFactory as dF
 
-from ..commonUtil import configLoader
-from ..commonUtil import userFuncCaller
-
-from ..core.commonGlobals import ActionTypeEnum
+from ..core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY
 
 import copy
 import typing
@@ -45,7 +41,6 @@ class AlgoManager(ProgramManager):
             feed,
             program_settings,
             user_funcs,
-            code=algo_settings_with_user_funcs.name,
         )
         # we're setting up the column names in action list and we use that for sending to the ui
         # so the column names can be selected for viewing there, should change later
@@ -79,7 +74,7 @@ class AlgoManager(ProgramManager):
             # if it is an event but not an aggregate then add the name to column names
             # so it can be selected later
             if (
-                creator_type == ActionTypeEnum.EVENT.display
+                creator_type == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY)
                 and not action_settings.aggregate
             ):
                 self.columnNames.append(name)

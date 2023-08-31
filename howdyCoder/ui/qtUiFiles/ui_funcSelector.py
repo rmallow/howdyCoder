@@ -36,10 +36,10 @@ class Ui_FuncSelector(object):
         self.verticalLayout_2 = QVBoxLayout(self.codePage)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, -1, 0, 0)
-        self.widget_2 = FuncSelectorCodePage(self.codePage)
-        self.widget_2.setObjectName(u"widget_2")
+        self.codeWidget = FuncSelectorCodePage(self.codePage)
+        self.codeWidget.setObjectName(u"codeWidget")
 
-        self.verticalLayout_2.addWidget(self.widget_2)
+        self.verticalLayout_2.addWidget(self.codeWidget)
 
         self.tabWidget.addTab(self.codePage, "")
         self.libPage = QWidget()
@@ -47,10 +47,10 @@ class Ui_FuncSelector(object):
         self.verticalLayout_3 = QVBoxLayout(self.libPage)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, -1, 0, 0)
-        self.widget = FuncSelectorLibPage(self.libPage)
-        self.widget.setObjectName(u"widget")
+        self.libWidget = FuncSelectorLibPage(self.libPage)
+        self.libWidget.setObjectName(u"libWidget")
 
-        self.verticalLayout_3.addWidget(self.widget)
+        self.verticalLayout_3.addWidget(self.libWidget)
 
         self.tabWidget.addTab(self.libPage, "")
 

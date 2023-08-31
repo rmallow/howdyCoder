@@ -17,7 +17,6 @@ from ...core.commonGlobals import (
     ACTION_LIST,
     ActionDataType,
 )
-from ...core.dataStructs import FunctionSettings
 
 from aenum import Enum
 import typing
@@ -139,7 +138,7 @@ class CreateActionSettingsPage(CreateBasePage):
             if self._action_type == ActionTypeEnum.EVENT:
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_EVENT
                 self._ui.triggerWidget.setHidden(True)
-            else:
+            elif self._action_type == ActionTypeEnum.TRIGGER:
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_TRIGGER
                 self._ui.triggerWidget.setHidden(False)
 

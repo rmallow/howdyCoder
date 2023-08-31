@@ -1,4 +1,4 @@
-from .action import action
+from .action import Action
 from . import actionFactory as aF
 
 
@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from typing import List
 
 
-class aggregate(action):
+class aggregate(Action):
     """
     Aggregates are intended to perform the same action on multiple inputes
     Either combining all the inputs for one action
@@ -17,7 +17,7 @@ class aggregate(action):
         super().__init__(*args, **kwargs)
         self.combined: bool = False
         self.lastNumColumns = 0
-        self.childActions: List[action] = []
+        self.childActions: List[Action] = []
 
     def createChildren(self):
         numColumns = len(self.feed.data.keys()) + len(self.feed.calcData.keys())

@@ -168,13 +168,17 @@ class AlgoSettings(JSONWizard, metaclass=property_wizard):
 
 
 @dataclass
-class ScriptSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
+class ScriptSettings(JSONWizard, metaclass=property_wizard):
     _dataclass_parse_type_ = "ScriptSettings"
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
-    function: FunctionSettings | None = None
+    action: ActionSettings = None
+    name: str = ""
+
+    def clear(self):
+        self.__init__()
 
 
 @dataclass

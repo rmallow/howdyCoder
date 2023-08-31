@@ -1,55 +1,36 @@
-from ..core import message as msg
-from ..core.messageKey import messageKey
-from .action import action as act
-from .event import event
-from .trigger import trigger
-from . import feed as feedModule
-from . import messageRouter as mRModule
+from .action import Action
 
-from ..core.commonGlobals import ActionTypeEnum
+from ..core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY, ENUM_VALUE
+from ..commonUtil.helpers import findEnumByAttribute
+
+import typing
 
 
-class actionPool:
+class ActionPool:
     """
-    Container and caller for all actions of a algo, communicates with messageRouter
-
-    Attributes:
-        triggers/events:
-            main data structures for actionPool, contains all actions split into event/triggers
-        code:
-            algo code that the actionPool belongs to
-        count:
-            int number of times update called
+    Container and caller for all actions of a program
     """
 
     def __init__(
         self,
-        actions: list[act],
-        code: str,
+        actions: typing.List[Action],
     ):
-        # self.messageRouter: mRModule.messageRouter = messageRouter
-        self.code: str = code
-        self.events: list[event] = []
-        self.triggers: list[trigger] = []
-        self.count: int = 0
+        self._all_actions = [[] for _ in range(len(ActionTypeEnum))]
 
         for action in actions:
-            self.addAction(action)
+            self._all_actions[
+                getattr(
+                    findEnumByAttribute(
+                        ActionTypeEnum, ENUM_DISPLAY, action.actionType
+                    ),
+                    ENUM_VALUE,
+                )
+            ].append(action)
 
     def doActions(self) -> None:
         """
-        Perform all of the events followed by all of the triggers
-        if given handle aggregate actions
-        dispatch trigger messages to message router
+        Perform all of the actions in order of priority
         """
-        for event in self.events:
-            event.update()
-        for trigger in self.triggers:
-            trigger.update()
-
-    def addAction(self, action: act) -> None:
-        """Seperate action out into trigger or event list"""
-        if action.actionType == ActionTypeEnum.EVENT.display:
-            self.events.append(action)
-        else:
-            self.triggers.append(action)
+        for action_list in self._all_actions:
+            for a in action_list:
+                a.update()

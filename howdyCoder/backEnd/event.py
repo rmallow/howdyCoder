@@ -1,7 +1,7 @@
 from . import action as act
 
 
-class event(act.action):
+class event(act.Action):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

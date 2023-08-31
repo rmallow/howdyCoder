@@ -82,6 +82,7 @@ class ActionTypeEnum(AdvancedEnum):
 
     EVENT = 0, "event"
     TRIGGER = 1, "trigger"
+    SCRIPT = 2, "script"
 
 
 class ActionDataType(AdvancedEnum):

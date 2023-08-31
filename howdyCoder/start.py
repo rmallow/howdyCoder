@@ -4,6 +4,7 @@ import logging
 
 import argparse
 import threading
+import traceback
 
 
 def start():
@@ -36,6 +37,7 @@ def start():
                 "UI arg passed (-u) or local arg (-l) but ui modules not installed"
             )
             logging.critical(f"Module not found: {e.name} at path: {e.path}")
+            traceback.print_exception(e)
         else:
             # if ui is present we will allow the ui to run it
             howdyCoder.start(isLocal)

@@ -1,4 +1,4 @@
-from ...core.dataStructs import AlgoSettings, ItemSettings
+from ...core.dataStructs import AlgoSettings, ScriptSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
 from ...core.commonGlobals import GROUP_SET, ProgramTypes
@@ -58,7 +58,7 @@ class CreateBasePage(
         abstractQt.handleAbstractMethods(self)
         return super().__new__(self, *args, **kwargs)
 
-    def getConfig(self) -> AlgoSettings:
+    def getConfig(self) -> typing.Union[AlgoSettings, ScriptSettings]:
         return self.current_config
 
     def getTempConfig(self) -> ItemSettings:

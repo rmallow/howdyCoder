@@ -9,6 +9,9 @@ import typing
 
 from PySide6 import QtWidgets, QtCore
 
+LABEL_TEXT_LEFT = "Enter a name for the "
+LABEL_TEXT_RIGHT = " for reference"
+
 
 class CreateNamePage(CreateBasePage):
     PAGE_KEY = PageKeys.NAME
@@ -49,10 +52,16 @@ class CreateNamePage(CreateBasePage):
         self.getConfig().name = self._ui.nameEdit.text().strip()
 
     def reset(self) -> None:
+        self._ui.label.setText(
+            f"{LABEL_TEXT_LEFT}{self.creator_type.value}{LABEL_TEXT_RIGHT}"
+        )
         self.next_enabled = False
         self._ui.nameEdit.clear()
 
     def loadPage(self) -> None:
+        self._ui.label.setText(
+            f"{LABEL_TEXT_LEFT}{self.creator_type.value}{LABEL_TEXT_RIGHT}"
+        )
         return super().loadPage()
 
     @QtCore.Slot()

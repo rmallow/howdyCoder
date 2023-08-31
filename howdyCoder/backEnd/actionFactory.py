@@ -1,4 +1,4 @@
-from .action import action
+from .action import Action
 from .event import event
 from .trigger import trigger
 from .aggregateData import aggregateData
@@ -26,7 +26,7 @@ class actionFactory:
 
     def create(
         self, config: dict, creatorType: str, doSetupFunc: bool = True
-    ) -> action:
+    ) -> Action:
         """
         Based on a creator type, creates an action using the given config
 

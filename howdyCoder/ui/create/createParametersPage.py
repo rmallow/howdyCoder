@@ -195,3 +195,6 @@ class CreateScriptParametersPage(CreateBaseParametersPage):
             parent=parent,
         )
         self._ui.flattenWidgetBox.hide()
+
+    def getTempConfig(self) -> ActionSettings:
+        return self.getConfig().action

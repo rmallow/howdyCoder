@@ -45,8 +45,8 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
         super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
-        self._ui = ui_funcSelectorCodePage.Ui_FuncSelectorCodePage()
-        self._ui.setupUi(self)
+        self.ui = ui_funcSelectorCodePage.Ui_FuncSelectorCodePage()
+        self.ui.setupUi(self)
 
         self.enableControls(False)
 
@@ -56,13 +56,13 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self._code_edit_timer.setSingleShot(True)
         self._code_edit_timer.setInterval(WAIT_FOR_TEXT_EDITING_TO_END)
         self._code_edit_timer.timeout.connect(self.validateCode)
-        self._ui.codeEdit.textChanged.connect(self.codeChanged)
+        self.ui.codeEdit.textChanged.connect(self.codeChanged)
 
-        self._ui.selectButton.released.connect(self.sendFunctionConfig)
-        self._ui.saveButton.released.connect(self.saveCode)
+        self.ui.selectButton.released.connect(self.sendFunctionConfig)
+        self.ui.saveButton.released.connect(self.saveCode)
 
     def updateData(self) -> None:
-        self._ui.codeEdit.clear()
+        self.ui.codeEdit.clear()
         self._current_function_settings = None
         return super().updateData()
 
@@ -73,34 +73,34 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
     def validateCode(self):
         """Disable the text edit and validate the code entered into the text edit"""
         # disable at start and re enable after validation
-        if self._ui.codeEdit.toPlainText():
-            self._ui.codeEdit.setEnabled(False)
-            self._ui.statusLabel.setText(COMPILING_STATUS)
+        if self.ui.codeEdit.toPlainText():
+            self.ui.codeEdit.setEnabled(False)
+            self.ui.statusLabel.setText(COMPILING_STATUS)
             self._current_function_settings = None
             try:
                 # first make sure it compiles, this is a better check than ast parsing, we don't need a return value for this
-                compile(self._ui.codeEdit.toPlainText(), "<string>", "exec")
+                compile(self.ui.codeEdit.toPlainText(), "<string>", "exec")
             except Exception:
                 # just catch any exception
-                self._ui.statusLabel.setText(COMPILE_ERROR_STATUS)
+                self.ui.statusLabel.setText(COMPILE_ERROR_STATUS)
             else:
-                root = ast.parse(self._ui.codeEdit.toPlainText(), "<string>")
+                root = ast.parse(self.ui.codeEdit.toPlainText(), "<string>")
                 functions = astUtil.getFunctions(root)
                 if len(functions) > 1:
-                    self._ui.statusLabel.setText(TOO_MANY_FUNCTIONS_ERROR_STATUS)
+                    self.ui.statusLabel.setText(TOO_MANY_FUNCTIONS_ERROR_STATUS)
                 elif functions:
                     if functions[0].args.posonlyargs:
-                        self._ui.statusLabel.setText(POSONLY_ARGS_ERROR_STATUS)
+                        self.ui.statusLabel.setText(POSONLY_ARGS_ERROR_STATUS)
                     else:
                         self._current_function_settings = self.createFunctionConfig(
                             functions[0], *astUtil.getImportsUnique(root)
                         )
                         self.enableControls(True)
-                        self._ui.statusLabel.setText(GOOD_STATUS)
+                        self.ui.statusLabel.setText(GOOD_STATUS)
                 else:
-                    self._ui.statusLabel.setText(TOO_FEW_FUNCTIONS_ERROR_STATUS)
+                    self.ui.statusLabel.setText(TOO_FEW_FUNCTIONS_ERROR_STATUS)
 
-            self._ui.codeEdit.setEnabled(True)
+            self.ui.codeEdit.setEnabled(True)
 
     def createFunctionConfig(
         self, function: ast.FunctionDef, imports: list, import_statements: list
@@ -125,5 +125,5 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             )
 
     def enableControls(self, enable):
-        self._ui.saveButton.setEnabled(enable)
-        self._ui.selectButton.setEnabled(enable)
+        self.ui.saveButton.setEnabled(enable)
+        self.ui.selectButton.setEnabled(enable)

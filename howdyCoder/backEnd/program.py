@@ -24,6 +24,7 @@ class Program(commandProcessor, ABC):
         super().__init__()
         self._end = False
         self.config: ProgramSettings = config
+        self.code = self.config.name
         self.program_queue = None
         self._user_funcs: typing.List[UserFuncCaller] = user_funcs
         self._mainframe_queue = None
@@ -131,8 +132,12 @@ class Program(commandProcessor, ABC):
 
     @setInterval(1)
     def _update(self):
-        self.update()
+        if self._current_mode == Modes.STARTED:
+            self.update()
 
     @abstractmethod
     def update(self):
         pass
+
+    def cmdShutdown(self, command, details=None):
+        self._end = True

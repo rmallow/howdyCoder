@@ -5,7 +5,7 @@ from ..qtUiFiles import ui_createDataSourceSettingsPage
 
 from .. import editableTable
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData
+from ..funcSelector import FuncSelector
 from ..treeSelect import UrlTreeSelect
 
 
