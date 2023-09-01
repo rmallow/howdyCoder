@@ -28,6 +28,7 @@ class mainModel(commandProcessor, QtCore.QObject):
     updateLoggingSignal = QtCore.Signal(msg.message)
     updateStatusSignal = QtCore.Signal(msg.message)
     updateColumnsSignal = QtCore.Signal(msg.message)
+    updateSTDSignal = QtCore.Signal(msg.message)
     moduleStatusChangedSignal = QtCore.Signal()
 
     def __init__(self, isLocal: bool, parent=None):
@@ -70,7 +71,8 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.addCmdFunc(msg.UiUpdateType.CREATED, mainModel.handleCreated)
         self.addCmdFunc(msg.UiUpdateType.MOD_STATUS, mainModel.handleModStatus)
         self.addCmdFunc(msg.UiUpdateType.EXPORT, mainModel.handleExport)
-        self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, self.checkStatus)
+        self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, mainModel.checkStatus)
+        self.addCmdFunc(msg.UiUpdateType.STD_OUT_ERR, mainModel.handleSTDUpdate)
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.checkQueue)
@@ -281,3 +283,10 @@ class mainModel(commandProcessor, QtCore.QObject):
                 key=msg.messageKey(input_data.code, None),
             )
         )
+
+    def handleSTDUpdate(self, _, details: msg.message = None):
+        """
+        Called by commandProcessor on UiUpdateType.STD_OUT_ERR
+        """
+        self.trackMessage(details)
+        self.updateSTDSignal.emit(details)

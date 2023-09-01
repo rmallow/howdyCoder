@@ -56,7 +56,7 @@ class Action:
             str, UserFuncCaller
         ] = action_settings.setup_functions
 
-        self.isFirst: bool = True
+        self.is_first: bool = True
         self.aggregate: bool = action_settings.aggregate
         self.flatten: bool = action_settings.flatten
         self.feed: feedModule.feed = None
@@ -80,22 +80,27 @@ class Action:
             # this must be set before calling update
             self.lastCalcIndex: int = None
 
-    def update(self):
-        """Called by action pool, updates dataSet (if there is input to do so) and calls calcFunc"""
-        indexing_input = None
-        if self.input_info_map:
-            indexing_input, index_length = self.checkInput()
-            if indexing_input:
-                for x in range(index_length):
-                    index = findData(self.feed, indexing_input)[
-                        -(index_length - x)
-                    ].index
-                    self.updateDataSet(index)
+    def multipleUpdate(self):
+        """
+        Called by action pool, updates dataSet and calls calcFunc
+        This is a yield so only works when called in a generator type situation
+        """
+        indexing_input, index_length = self.checkInput()
+        if indexing_input:
+            for x in range(index_length):
+                index = findData(self.feed, indexing_input)[-(index_length - x)].index
+                self.updateDataSet(index)
 
-        if not self.input_info_map or indexing_input:
-            self.parameters[FIRST] = self.isFirst
-            self.isFirst = False
-            yield self.calcFunc(**self.parameters), index
+                self.parameters[FIRST] = self.is_first
+                self.is_first = False
+                val, stdout_str, stderr_str = self.calcFunc(**self.parameters)
+                yield val, stdout_str, stderr_str, index
+
+    def update(self):
+        self.parameters[FIRST] = self.is_first
+        self.is_first = False
+        _, stdout_str, stderr_str = self.calcFunc(**self.parameters)
+        return [stdout_str], [stderr_str]
 
     def checkInput(self) -> typing.Tuple[str, int]:
         """

@@ -1,3 +1,5 @@
+from .actionPool import ActionPool
+
 from ..core.dataStructs import Modes, ProgramSettings, ProgramStatusData
 from ..commonUtil.multiBase import multiBase
 from ..commonUtil.userFuncCaller import UserFuncCaller
@@ -20,8 +22,9 @@ PROGRAM_QUEUE_CHECK_TIMER = 0.5
 
 
 class Program(commandProcessor, ABC):
-    def __init__(self, config, user_funcs):
+    def __init__(self, action_pool, config, user_funcs):
         super().__init__()
+        self.action_pool: ActionPool = action_pool
         self._end = False
         self.config: ProgramSettings = config
         self.code = self.config.name
@@ -141,3 +144,15 @@ class Program(commandProcessor, ABC):
 
     def cmdShutdown(self, command, details=None):
         self._end = True
+
+    def doActions(self):
+        data_list = self.action_pool.doActions()
+        if data_list:
+            self._mainframe_queue.put(
+                msg.message(
+                    msg.MessageType.UI_UPDATE,
+                    msg.UiUpdateType.STD_OUT_ERR,
+                    key=msgKey.messageKey(self.code, None),
+                    details=[asdict(d) for d in data_list],
+                )
+            )

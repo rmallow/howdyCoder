@@ -41,6 +41,7 @@ class UiUpdateType(IntEnum):
     CREATED = auto()
     MOD_STATUS = auto()
     EXPORT = auto()
+    STD_OUT_ERR = auto()
 
 
 """

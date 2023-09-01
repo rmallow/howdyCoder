@@ -34,6 +34,13 @@ class Modes(str, Enum):
 
 
 @dataclass
+class STDOutErrData:
+    out: typing.List[str] = field(default_factory=list)
+    err: typing.List[str] = field(default_factory=list)
+    action_name: str = ""
+
+
+@dataclass
 class ProgramStatusData:
     send_time: float = 0.0
     receive_time: float = 0.0

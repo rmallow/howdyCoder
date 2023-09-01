@@ -160,20 +160,23 @@ class outputSelect(
     @QtCore.Slot()
     def typeSelected(self, text):
         self.selectionSettings[TYPE] = text
-        if text == outputTypesEnum.GRAPH.value:
-            self.graphSettingsWidget.setColumnComboBox(self.columnNames)
-            self._selectSettingsUI.typeSpecificStackedWidget.setCurrentWidget(
-                self.graphSettingsWidget.mainWidget
-            )
-            self._selectSettingsUI.typeSpecificStackedWidget.show()
+        if text == outputTypesEnum.PRINTED.value:
+            self.selectionFinished.emit(self.selectionSettings)
         else:
-            self._selectSettingsUI.typeSpecificStackedWidget.hide()
-        animations.fadeStart(
-            self,
-            self._select_type_widget,
-            self._select_settings_widget,
-            self._main_layout,
-        )
+            if text == outputTypesEnum.GRAPH.value:
+                self.graphSettingsWidget.setColumnComboBox(self.columnNames)
+                self._selectSettingsUI.typeSpecificStackedWidget.setCurrentWidget(
+                    self.graphSettingsWidget.mainWidget
+                )
+                self._selectSettingsUI.typeSpecificStackedWidget.show()
+            else:
+                self._selectSettingsUI.typeSpecificStackedWidget.hide()
+            animations.fadeStart(
+                self,
+                self._select_type_widget,
+                self._select_settings_widget,
+                self._main_layout,
+            )
 
     @QtCore.Slot()
     def settingsSelected(self):

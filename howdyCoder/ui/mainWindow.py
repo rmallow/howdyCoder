@@ -50,6 +50,9 @@ class MainWindow(
         self._main_model.updateColumnsSignal.connect(
             self._ui.outputPage.mainOutputViewModel.receiveColumns
         )
+        self._main_model.updateSTDSignal.connect(
+            self._ui.outputPage.mainOutputViewModel.receiveSTD
+        )
         self._ui.outputPage.mainOutputViewModel.addOutputViewSignal.connect(
             self._main_model.messageMainframe
         )

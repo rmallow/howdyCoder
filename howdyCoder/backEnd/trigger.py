@@ -13,9 +13,13 @@ class trigger(Action):
         super().__init__(*args, **kwargs)
 
     def update(self):
-        for value, _ in super().update():
+        stdout_list, stderr_list = [], []
+        for value, stdout_str, stderr_str, _ in super().multipleUpdate():
             if value:
                 self.output_func(**self.parameters)
+            stdout_list.append(stdout_str)
+            stderr_list.append(stderr_str)
+        return stdout_list, stderr_list
 
     def processRawTriggerValue(self, rawTriggerValue: typing.Any) -> list[msg.message]:
         """

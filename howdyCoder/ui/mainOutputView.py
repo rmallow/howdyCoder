@@ -2,6 +2,7 @@ import typing
 from .outputSelect import outputSelect
 from .outputViewFeed import OutputViewFeed
 from .outputViewGraph import outputViewGraph
+from .outputViewPrinted import OutputViewPrinted
 from .uiConstants import outputTypesEnum
 from .mainOutputViewModel import mainOutputViewModel
 from .tutorialOverlay import AbstractTutorialClass
@@ -14,6 +15,12 @@ from ..commonUtil import mpLogging
 import typing
 
 from PySide6 import QtWidgets, QtCore
+
+OUTPUT_VIEW_TYPE_TO_VIEW_CLASS = {
+    outputTypesEnum.FEED.value: OutputViewFeed,
+    outputTypesEnum.GRAPH.value: outputViewGraph,
+    outputTypesEnum.PRINTED.value: OutputViewPrinted,
+}
 
 
 # this class is used in a generated file
@@ -58,23 +65,23 @@ class mainOutputView(
         self._outer_layout.addWidget(self._sub_main_window)
 
     @QtCore.Slot()
-    def onSelectionFinished(self, selectionSettings):
+    def onSelectionFinished(self, selection_settings):
         """
         Output select is finished, send settings to mainOutputViewModel to translate to message
         """
-        outputViewModel = self.mainOutputViewModel.setupOutputView(selectionSettings)
-        oView = None
+        oView, model = None, self.mainOutputViewModel.setupOutputView(
+            selection_settings
+        )
         x = 1
-        title = f"{selectionSettings[ITEM]} - {selectionSettings[TYPE]}{x}"
+        title = f"{selection_settings[ITEM]} - {selection_settings[TYPE]}{x}"
         while title in self._title_set:
             x += 1
-            title = f"{selectionSettings[ITEM]} - {selectionSettings[TYPE]}{x}"
+            title = f"{selection_settings[ITEM]} - {selection_settings[TYPE]}{x}"
         self._title_set.add(title)
         dock = QtWidgets.QDockWidget(title, self._sub_main_window)
-        if selectionSettings[TYPE] == outputTypesEnum.FEED.value:
-            oView = OutputViewFeed(outputViewModel, selectionSettings, dock)
-        elif selectionSettings[TYPE] == outputTypesEnum.GRAPH.value:
-            oView = outputViewGraph(outputViewModel, selectionSettings, dock)
+        oView = OUTPUT_VIEW_TYPE_TO_VIEW_CLASS[selection_settings[TYPE]](
+            model, selection_settings, dock
+        )
 
         self._current_selector = outputSelect(self.mainOutputViewModel, self)
         self._current_selector.selectionFinished.connect(self.onSelectionFinished)

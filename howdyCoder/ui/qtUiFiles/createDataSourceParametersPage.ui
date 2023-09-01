@@ -258,23 +258,6 @@
        <widget class="QWidget" name="widget_7" native="true">
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Parameters</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="EditableTableView" name="parameterView">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QWidget" name="buttonWidget" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
@@ -308,6 +291,13 @@
              </widget>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="EditableTableView" name="parameterView">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
         </layout>

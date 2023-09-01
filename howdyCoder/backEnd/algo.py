@@ -17,16 +17,15 @@ import time
 class Algo(Program):
     def __init__(
         self,
-        actionList,
+        action_pool,
         feed_obj,
         config,
         user_funcs,
         *args,
         **kwargs,
     ):
-        super().__init__(config, user_funcs, *args, **kwargs)
+        super().__init__(action_pool, config, user_funcs, *args, **kwargs)
         self.feed_obj: feed = feed_obj
-        self.pool = ActionPool(actionList)
         self.track = False
         self.feed_last_update_time = 0
         self.period = feed_obj.period
@@ -41,7 +40,7 @@ class Algo(Program):
         self.feed_last_update_time = time.time()
         if feed_ret_val is not None:
             if feed_ret_val == con.FeedRetValues.VALID_VALUES:
-                self.pool.doActions()
+                self.doActions()
                 if self.track:
                     self.sendCombinedData()
             elif feed_ret_val == con.FeedRetValues.NO_VALID_VALUES:

@@ -5,11 +5,12 @@ from .aggregateData import aggregateData
 from .aggregateDataParameter import aggregateDataParameter
 from .aggregateParameter import aggregateParameter
 
-from ..core.commonGlobals import ActionTypeEnum
+from ..core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY
 
 _ACTION_FACTORY_TYPES = {
-    ActionTypeEnum.EVENT.display: event,
-    ActionTypeEnum.TRIGGER.display: trigger,
+    getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY): event,
+    getattr(ActionTypeEnum.TRIGGER, ENUM_DISPLAY): trigger,
+    getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY): Action,
     "aggregatedata": aggregateData,
     "aggregatedataparameter": aggregateDataParameter,
     "aggregateparameter": aggregateParameter,

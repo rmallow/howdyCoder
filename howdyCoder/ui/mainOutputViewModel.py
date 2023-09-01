@@ -3,11 +3,16 @@ from .uiConstants import outputTypesEnum
 from .sparseDictListModel import SparseDictListModel
 from .programData import ProgramDict
 
-from ..core.commonGlobals import ITEM, ActionTypeEnum, ENUM_DISPLAY, ProgramTypes
+from ..core.dataStructs import STDOutErrData
+from ..core.commonGlobals import ITEM, TYPE, ActionTypeEnum, ENUM_DISPLAY, ProgramTypes
 from ..core import message as msg
+from ..commonUtil import helpers
 
 import platform
 import os
+import time
+
+from dataclass_wizard import fromlist
 
 from PySide6 import QtGui, QtCore
 
@@ -42,6 +47,7 @@ class mainOutputViewModel(QtCore.QObject):
         # this will be assigned during main window creation
         self.program_dict: ProgramDict = None
         self.outputViewModels = {}
+        self.std_models = {}
 
     def addItem(self, model, key, value):
         item = QtGui.QStandardItem(str(key))
@@ -76,24 +82,33 @@ class mainOutputViewModel(QtCore.QObject):
                 # there should be only one that matches
                 findList[0].setData(data.columns)
 
-    def setupOutputView(self, selectionDict):
+    def setupOutputView(self, selection_settings):
         """
         Output select has finished selecting output, message mainframe to start sending data
         Return model for output view, mainOutputViewModel owns these models
         """
+        model = None
+        if (
+            selection_settings[TYPE] == outputTypesEnum.FEED.value
+            or selection_settings[TYPE] == outputTypesEnum.GRAPH.value
+        ):
+            m = msg.message(
+                msg.MessageType.COMMAND,
+                msg.CommandType.ADD_OUTPUT_VIEW,
+                details=selection_settings,
+            )
 
-        m = msg.message(
-            msg.MessageType.COMMAND,
-            msg.CommandType.ADD_OUTPUT_VIEW,
-            details=selectionDict,
-        )
+            self.addOutputViewSignal.emit(m)
 
-        self.addOutputViewSignal.emit(m)
+            model = SparseDictListModel(**selection_settings)
+            modelList = self.outputViewModels.get(selection_settings[ITEM], [])
+            modelList.append(model)
+            self.outputViewModels[selection_settings[ITEM]] = modelList
+        elif selection_settings[TYPE] == outputTypesEnum.PRINTED.value:
+            if selection_settings[ITEM] not in self.std_models:
+                self.std_models[selection_settings[ITEM]] = QtGui.QStandardItemModel()
+            model = self.std_models[selection_settings[ITEM]]
 
-        model = SparseDictListModel(**selectionDict)
-        modelList = self.outputViewModels.get(selectionDict[ITEM], [])
-        modelList.append(model)
-        self.outputViewModels[selectionDict[ITEM]] = modelList
         return model
 
     @QtCore.Slot()
@@ -114,3 +129,33 @@ class mainOutputViewModel(QtCore.QObject):
                     if act_config.type_ == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
                         columns.append(act_key)
             self.addItem(self.program_combo_model, config.name, columns)
+
+    @QtCore.Slot()
+    def receiveSTD(self, message: msg.message):
+        if message.key.sourceCode not in self.std_models:
+            self.std_models[message.key.sourceCode] = QtGui.QStandardItemModel()
+        model = self.std_models[message.key.sourceCode]
+        for data in fromlist(STDOutErrData, message.details):
+            for s in data.out:
+                s = s.strip()
+                if s:
+                    model.appendRow(
+                        QtGui.QStandardItem(
+                            f"{helpers.getStrTime(time.time())}: {data.action_name} - {s}"
+                        )
+                    )
+            for s in data.err:
+                s = s.strip()
+                if s:
+                    item = QtGui.QStandardItem(
+                        f"{helpers.getStrTime(time.time())}: {data.action_name} - {s}"
+                    )
+                    item.setData(
+                        QtGui.QBrush(QtCore.Qt.GlobalColor.yellow),
+                        QtCore.Qt.ItemDataRole.BackgroundRole,
+                    )
+                    item.setData(
+                        QtGui.QBrush(QtCore.Qt.GlobalColor.black),
+                        QtCore.Qt.ItemDataRole.ForegroundRole,
+                    )
+                    model.appendRow(item)

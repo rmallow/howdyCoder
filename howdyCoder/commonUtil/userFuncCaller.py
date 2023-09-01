@@ -5,6 +5,8 @@ import typing
 from typing import Any
 import inspect
 import traceback
+import io
+from contextlib import redirect_stdout, redirect_stderr
 
 
 class UserFuncCaller:
@@ -67,14 +69,21 @@ class UserFuncCaller:
         """
         Call the function in a hopefully safe-ish manner
         Keyword arguments will be filtered out but arguments will be passed forward
+        also get any data that was going to stdout or stderr and return that
         """
         filteredParamters = self.filterArguments(kwargs)
         try:
-            return self._function_scope[self.name](*args, **filteredParamters)
+            with redirect_stderr(io.StringIO()) as f_err:
+                with redirect_stdout(io.StringIO()) as f_std:
+                    ret_val = self._function_scope[self.name](
+                        *args, **filteredParamters
+                    )
+            return ret_val, f_std.getvalue(), f_err.getvalue()
         except Exception as e:
             mpLogging.error(
                 f"Exception while calling a user defined function name: {self.name}\n{e}"
             )
+            return None, None, None
 
     def filterArguments(self, passed_in_kwarg: typing.Dict[str, Any]) -> dict[str, Any]:
         """

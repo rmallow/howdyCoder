@@ -2,6 +2,7 @@ from .programManager import ProgramManager
 from .script import Script
 from .action import Action
 from .actionPool import ActionPool
+from .actionFactory import actionFactory
 
 from ..core.dataStructs import ProgramSettings, ScriptSettings
 
@@ -30,4 +31,12 @@ class ScriptManager(ProgramManager):
         return script
 
     def loadActionPool(self, script_settings_with_user_funcs: ScriptSettings):
-        return ActionPool([Action(script_settings_with_user_funcs.action)])
+        factory = actionFactory()
+        return ActionPool(
+            [
+                factory.create(
+                    script_settings_with_user_funcs.action,
+                    script_settings_with_user_funcs.action.type_,
+                )
+            ]
+        )

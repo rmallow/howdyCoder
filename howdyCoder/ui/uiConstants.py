@@ -9,6 +9,7 @@ GUI_REFRESH_INTERVAL = 500
 class outputTypesEnum(Enum):
     FEED = "Feed"
     GRAPH = "Graph"
+    PRINTED = "Printed"
 
 
 class InputTypesEnum(Enum):

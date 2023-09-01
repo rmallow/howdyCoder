@@ -9,6 +9,7 @@ from . import actionFactory as aF
 from .feed import feed
 from .dataBase import dataBase
 from . import dataSourceFactory as dF
+from .actionPool import ActionPool
 
 from ..core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY
 
@@ -33,11 +34,11 @@ class AlgoManager(ProgramManager):
         ).settings
         dataSources = self._loadDataSources(algo_settings_with_user_funcs.data_sources)
         feed = self._loadFeed(dataSources)
-        actionList = self._loadActionList(
+        action_pool = self._loadActionPool(
             algo_settings_with_user_funcs.action_list, feed
         )
         algo = Algo(
-            actionList,
+            action_pool,
             feed,
             program_settings,
             user_funcs,
@@ -61,7 +62,7 @@ class AlgoManager(ProgramManager):
         factory = dF.dataSourceFactory()
         return factory.create(data_source_settings, data_source_settings.type_)
 
-    def _loadActionList(
+    def _loadActionPool(
         self, action_list_settings: typing.Dict[str, ActionSettings], feed
     ) -> list:
         actionList = []
@@ -80,7 +81,7 @@ class AlgoManager(ProgramManager):
                 self.columnNames.append(name)
             action.feed = feed
             actionList.append(action)
-        return actionList
+        return ActionPool(actionList)
 
     def _loadFeed(self, dataSources: list[dataBase]) -> feed:
         return feed(dataSources)
