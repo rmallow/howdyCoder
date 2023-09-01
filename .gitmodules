@@ -1,3 +1,6 @@
 [submodule "Utility/PySideAutoGenerate"]
 	path = Utility/PySideAutoGenerate
 	url = https://github.com/rmallow/python_qt_ui_generator.git
+[submodule "howdyCoderPrompts"]
+	path = howdyCoderPrompts
+	url = git@github.com:rmallow/howdyCoderPrompts.git

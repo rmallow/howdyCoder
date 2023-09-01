@@ -1,5 +1,5 @@
 from .qtUiFiles import ui_funcSelector
-from .selectorBase import SelectorBase
+from .selectorBase import SelectorBase, HelperData
 from .funcSelectorPageBase import FuncSelectorPageBase
 from ..commonUtil import astUtil
 
@@ -13,9 +13,8 @@ from PySide6 import QtCore
 
 
 @dataclass
-class FunctionSettingsWithHelperData:
+class FunctionSettingsWithHelperData(HelperData):
     function_settings: FunctionSettings = FunctionSettings()
-    index: QtCore.QModelIndex = None
     suggested_parameters: typing.List[str] = field(default_factory=list)
 
 
@@ -55,8 +54,8 @@ class FuncSelector(SelectorBase):
     @QtCore.Slot()
     def addHelperData(self, function_settings: FunctionSettings):
         settings_with_index = FunctionSettingsWithHelperData(
-            function_settings,
             self.parentIndex,
+            function_settings,
             astUtil.getSuggestedParameterNames(
                 ast.parse(function_settings.code, "<string>")
             ),

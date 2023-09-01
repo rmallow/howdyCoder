@@ -2,8 +2,14 @@ from .tutorialOverlay import AbstractTutorialClass
 from .util import abstractQt
 
 import typing
+from dataclasses import dataclass
 
 from PySide6 import QtWidgets, QtCore
+
+
+@dataclass
+class HelperData:
+    index: QtCore.QModelIndex = None
 
 
 class SelectorBase(

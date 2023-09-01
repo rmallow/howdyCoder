@@ -1,4 +1,6 @@
 from .funcSelector import FuncSelector, FunctionSettingsWithHelperData
+from .pathSelector import PathSelector, PathWithHelperData
+from .selectorBase import HelperData
 from .selectorWidget import SelectorWidget
 
 from .util.abstractQt import getAbstactQtResolver, handleAbstractMethods
@@ -27,7 +29,8 @@ class EditorType(Enum):
     COMBO = 1, "combo"
     NUMBER = 2, "number"
     FUNC = 3, "function"
-    ANY = 4, "any"
+    PATH = 4, "path"
+    ANY = 5, "any"
 
 
 def getEditorTypeList():
@@ -67,10 +70,16 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
             spin = QtWidgets.QDoubleSpinBox(parent)
             spin.setRange(-9999999999999, 9999999999999)
             return spin
-        if index in index.model().funcIndexes:
-            selectorWidget = SelectorWidget(index, index.model().funcSelector, parent)
-            index.model().selectorWidgets[index] = selectorWidget
-            return selectorWidget
+        if index in index.model().selector_indexes:
+            selector_widget = SelectorWidget(
+                index,
+                index.model().func_selector
+                if editorType == EditorType.FUNC
+                else index.model().path_selector,
+                parent,
+            )
+            index.model().selector_widgets[index] = selector_widget
+            return selector_widget
         return super().createEditor(parent, option, index)
 
     def setModelData(
@@ -133,10 +142,12 @@ class EditableTableModel(
         self.values = []
 
         # used for selecting functions
-        self.funcIndexes = set()
-        self.funcSelector = FuncSelector()
-        self.selectorWidgets = {}
-        self.funcSelector.itemSelected.connect(self.itemSelected)
+        self.selector_indexes = set()
+        self.func_selector = FuncSelector()
+        self.path_selector = PathSelector()
+        self.selector_widgets = {}
+        self.func_selector.itemSelected.connect(self.itemSelected)
+        self.path_selector.itemSelected.connect(self.itemSelected)
 
         super().__init__(parent=parent)
 
@@ -165,21 +176,27 @@ class EditableTableModel(
         return None
 
     @QtCore.Slot()
-    def itemSelected(self, settings: FunctionSettingsWithHelperData) -> None:
+    def itemSelected(self, settings: HelperData) -> None:
         """When a function is selected update the value with the func and also populate the description"""
-        if settings.index is not None:
-            if settings.index in self.selectorWidgets:
-                selectorWidget = self.selectorWidgets[settings.index]
-                valueKey = self.getValueKey(settings.index)
-                if valueKey is not None:
+        if settings.index is not None and settings.index in self.selector_widgets:
+            selectorWidget = self.selector_widgets[settings.index]
+            valueKey = self.getValueKey(settings.index)
+            if valueKey is not None:
+                label = ""
+                description = ""
+                if isinstance(settings, FunctionSettingsWithHelperData):
                     self.values[valueKey][self.valueEnum] = settings.function_settings
-                    if self.descriptionEnum is not None:
-                        self.values[valueKey][
-                            self.descriptionEnum
-                        ] = settings.function_settings.code
+
+                    description = settings.function_settings.code
                     selectorWidget._ui.selectionLabel.setText(
                         settings.function_settings.name
                     )
+                elif isinstance(settings, PathWithHelperData):
+                    self.values[valueKey][self.valueEnum] = settings.path
+
+                if self.descriptionEnum is not None:
+                    self.values[valueKey][self.descriptionEnum] = description
+                selectorWidget._ui.selectionLabel.setText(label)
 
     def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
         flags = super().flags(index)
@@ -228,7 +245,14 @@ class EditableTableModel(
         if role == QtCore.Qt.EditRole or role == QtCore.Qt.DisplayRole:
             enumKey = self.getEnumKey(index)
             valueKey = self.getValueKey(index)
-            returnVal = self.safeSetValue(valueKey, enumKey, value)
+            old_val = None
+            if (
+                valueKey < len(self.values)
+                and enumKey in self.values[valueKey]
+                and value != self.values[valueKey][enumKey]
+            ):
+                old_val = self.values[valueKey][enumKey]
+            ret_val = self.safeSetValue(valueKey, enumKey, value)
             if (
                 enumKey is not None
                 and valueKey is not None
@@ -236,20 +260,29 @@ class EditableTableModel(
                 and self.valueEnum is not None
             ):
                 if enumKey == self.typeEnum:
-                    self.safeSetValue(valueKey, self.valueEnum, None)
                     if self.descriptionEnum is not None:
                         self.safeSetValue(valueKey, self.descriptionEnum, None)
                     funcIndex = self.getIndex(self.valueEnum, valueKey)
                     # if the value was func, then we need to open the func editor
-                    if value == EditorType.FUNC.display:
-                        self.funcIndexes.add(funcIndex)
+                    if (
+                        value == EditorType.FUNC.display
+                        or value == EditorType.PATH.display
+                    ):
+                        if value != old_val and (
+                            old_val == EditorType.FUNC.display
+                            or old_val == EditorType.PATH.display
+                        ):
+                            self.closePersistentEditor.emit(funcIndex)
+                        self.selector_indexes.add(funcIndex)
                         self.openPersistentEditor.emit(funcIndex)
                     else:
-                        if funcIndex in self.funcIndexes:
-                            self.funcIndexes.remove(funcIndex)
+                        if funcIndex in self.selector_indexes:
+                            self.selector_indexes.remove(funcIndex)
                         self.closePersistentEditor.emit(funcIndex)
+
+                    self.safeSetValue(valueKey, self.valueEnum, None)
             self.dataChanged.emit(index, index, [QtCore.Qt.DisplayRole])
-            return returnVal
+            return ret_val
         return super().setData(index, value, role)
 
     def safeSetValue(

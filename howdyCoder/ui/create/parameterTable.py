@@ -31,6 +31,7 @@ class ParameterEnum(Enum):
             editableTable.EditorType.STRING.display,
             editableTable.EditorType.NUMBER.display,
             editableTable.EditorType.FUNC.display,
+            editableTable.EditorType.PATH.display,
         ],
         True,
     )
