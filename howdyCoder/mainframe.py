@@ -437,7 +437,7 @@ class mainframe(commandProcessor):
     def cmdShutdown(self, _, details=None):
         """End the programs first and then shutdown"""
         if details.details is None:
-            self.cmdEnd(None)
+            self.cmdEnd(None, details)
             for k in list(self.process_dict.keys()):
                 self.shutdownProgram(k)
             self._is_running = False

@@ -37,6 +37,11 @@ class Ui_CreatorTypeSelector(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.program_type_view = QListWidget(self.widget)
         self.program_type_view.setObjectName(u"program_type_view")
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.program_type_view.sizePolicy().hasHeightForWidth())
+        self.program_type_view.setSizePolicy(sizePolicy)
         font = QFont()
         font.setPointSize(30)
         self.program_type_view.setFont(font)
@@ -45,6 +50,12 @@ class Ui_CreatorTypeSelector(object):
 
         self.program_type_description = QLabel(self.widget)
         self.program_type_description.setObjectName(u"program_type_description")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy1.setHorizontalStretch(1)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.program_type_description.sizePolicy().hasHeightForWidth())
+        self.program_type_description.setSizePolicy(sizePolicy1)
+        self.program_type_description.setWordWrap(True)
 
         self.horizontalLayout.addWidget(self.program_type_description)
 
