@@ -6,8 +6,8 @@ import typing
 from PySide6 import QtWidgets, QtCore
 
 TYPE_TO_DESCRIPTION_LABEL = {
-    ProgramTypes.ALGO.value: "Create an algo",
-    ProgramTypes.SCRIPT.value: "Create a script",
+    ProgramTypes.ALGO.value: "Create an algo.\nString together multiple data sources and actions.\nThis is for more complex use cases where the AI can't generate everything needed in one go and thing should be split up. The creator will guide you through the steps of creating the data sources and actions that work together to acheiver the desire result.",
+    ProgramTypes.SCRIPT.value: "Create a script.\nExecute a single main function, most likely AI generated.\nThis is best for quickly creating a function and setting parameters.\nThis can then be saved and run whenever and however often as desired.",
 }
 
 
