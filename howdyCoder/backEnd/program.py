@@ -90,7 +90,6 @@ class Program(commandProcessor, ABC):
         self._mainframe_queue = getattr(
             self._client_server_manager, qm.GET_MAINFRAME_QUEUE
         )()
-        self._current_mode = Modes.STARTED
         self.start_time = time.time()
         self._run_time: int = 0
         self._last_status: int = None
@@ -141,6 +140,9 @@ class Program(commandProcessor, ABC):
     @abstractmethod
     def update(self):
         pass
+
+    def cmdStart(self, command, details=None):
+        self.action_pool.started()
 
     def cmdShutdown(self, command, details=None):
         self._end = True

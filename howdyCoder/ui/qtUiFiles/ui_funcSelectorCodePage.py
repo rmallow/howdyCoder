@@ -19,24 +19,32 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QHBoxLayout, QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy,
     QSpacerItem, QVBoxLayout, QWidget)
 
+from ..keySetWidget import KeySetWidget
+
 class Ui_FuncSelectorCodePage(object):
     def setupUi(self, FuncSelectorCodePage):
         if not FuncSelectorCodePage.objectName():
             FuncSelectorCodePage.setObjectName(u"FuncSelectorCodePage")
-        FuncSelectorCodePage.resize(759, 637)
+        FuncSelectorCodePage.resize(763, 745)
         self.verticalLayout = QVBoxLayout(FuncSelectorCodePage)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(2, 2, 2, 2)
         self.infoLabel = QLabel(FuncSelectorCodePage)
         self.infoLabel.setObjectName(u"infoLabel")
         self.infoLabel.setWordWrap(True)
 
         self.verticalLayout.addWidget(self.infoLabel)
 
+        self.key_set_widget = KeySetWidget(FuncSelectorCodePage)
+        self.key_set_widget.setObjectName(u"key_set_widget")
+
+        self.verticalLayout.addWidget(self.key_set_widget)
+
         self.widget_4 = QWidget(FuncSelectorCodePage)
         self.widget_4.setObjectName(u"widget_4")
         self.horizontalLayout_4 = QHBoxLayout(self.widget_4)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalLayout_4.setContentsMargins(0, 4, 0, 4)
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.prompt_label = QLabel(self.widget_4)
         self.prompt_label.setObjectName(u"prompt_label")
 
@@ -53,7 +61,7 @@ class Ui_FuncSelectorCodePage(object):
 
         self.horizontalLayout_4.addWidget(self.prompt_combo_box)
 
-        self.horizontalSpacer_5 = QSpacerItem(437, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_5 = QSpacerItem(461, 5, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_4.addItem(self.horizontalSpacer_5)
 
@@ -64,7 +72,7 @@ class Ui_FuncSelectorCodePage(object):
         self.prompt_text_edit.setObjectName(u"prompt_text_edit")
         sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(2)
+        sizePolicy1.setVerticalStretch(1)
         sizePolicy1.setHeightForWidth(self.prompt_text_edit.sizePolicy().hasHeightForWidth())
         self.prompt_text_edit.setSizePolicy(sizePolicy1)
         self.prompt_text_edit.setTabStopDistance(4.000000000000000)
@@ -76,16 +84,17 @@ class Ui_FuncSelectorCodePage(object):
         self.horizontalLayout_2 = QHBoxLayout(self.widget_2)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_4 = QSpacerItem(40, 5, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer_4)
 
         self.call_api_button = QPushButton(self.widget_2)
         self.call_api_button.setObjectName(u"call_api_button")
+        self.call_api_button.setEnabled(False)
 
         self.horizontalLayout_2.addWidget(self.call_api_button)
 
-        self.horizontalSpacer_2 = QSpacerItem(304, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(316, 5, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
 
@@ -96,7 +105,7 @@ class Ui_FuncSelectorCodePage(object):
         self.widget_3.setObjectName(u"widget_3")
         self.horizontalLayout_3 = QHBoxLayout(self.widget_3)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 4)
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.entry_function_label = QLabel(self.widget_3)
         self.entry_function_label.setObjectName(u"entry_function_label")
 
@@ -107,7 +116,7 @@ class Ui_FuncSelectorCodePage(object):
 
         self.horizontalLayout_3.addWidget(self.entry_function_edit)
 
-        self.horizontalSpacer_3 = QSpacerItem(291, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_3 = QSpacerItem(303, 5, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_3)
 
@@ -120,17 +129,30 @@ class Ui_FuncSelectorCodePage(object):
 
         self.verticalLayout.addWidget(self.label)
 
-        self.codeEdit = QPlainTextEdit(FuncSelectorCodePage)
-        self.codeEdit.setObjectName(u"codeEdit")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.code_edit_box = QWidget(FuncSelectorCodePage)
+        self.code_edit_box.setObjectName(u"code_edit_box")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(5)
-        sizePolicy2.setHeightForWidth(self.codeEdit.sizePolicy().hasHeightForWidth())
-        self.codeEdit.setSizePolicy(sizePolicy2)
+        sizePolicy2.setHeightForWidth(self.code_edit_box.sizePolicy().hasHeightForWidth())
+        self.code_edit_box.setSizePolicy(sizePolicy2)
+        self.horizontalLayout_5 = QHBoxLayout(self.code_edit_box)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.codeEdit = QPlainTextEdit(self.code_edit_box)
+        self.codeEdit.setObjectName(u"codeEdit")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy3.setHorizontalStretch(5)
+        sizePolicy3.setVerticalStretch(5)
+        sizePolicy3.setHeightForWidth(self.codeEdit.sizePolicy().hasHeightForWidth())
+        self.codeEdit.setSizePolicy(sizePolicy3)
         self.codeEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.codeEdit.setTabStopDistance(4.000000000000000)
 
-        self.verticalLayout.addWidget(self.codeEdit)
+        self.horizontalLayout_5.addWidget(self.codeEdit)
+
+
+        self.verticalLayout.addWidget(self.code_edit_box)
 
         self.statusLabel = QLabel(FuncSelectorCodePage)
         self.statusLabel.setObjectName(u"statusLabel")
@@ -143,7 +165,7 @@ class Ui_FuncSelectorCodePage(object):
         self.horizontalLayout = QHBoxLayout(self.widget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 5, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 

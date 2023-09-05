@@ -6,6 +6,8 @@ _extraKwargs = ["group", "source", "description"]
 
 _mpKwarg = "_mpKwarg"
 
+MP_KEY = "mpKey"
+
 
 def adjustKwarg(kwargs):
     if "extra" not in kwargs:
@@ -46,7 +48,7 @@ class MPLogger(logging.Logger):
             d = dict(record.__dict__)
             d["msg"] = record.getMessage()
             d["args"] = None
-            d["mpKey"] = self.mpKey
+            d[MP_KEY] = self.mpKey
             self.log_queue.put(d)
         elif False:  # can be changed to show all logs but will spam the feed
             # TODO: change this to not just be False and based on cl arg

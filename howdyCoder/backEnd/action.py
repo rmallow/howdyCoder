@@ -52,6 +52,9 @@ class Action:
         self.calcFunc: UserFuncCaller = action_settings.calc_function.user_function
         self.name: str = action_settings.name.lower()
         self.parameters: dict = action_settings.parameters
+        self.parameters: typing.Dict[str, typing.Any] = {
+            v.name: v.value for v in action_settings.parameters.values()
+        }
         self.setupFuncs: typing.Dict[
             str, UserFuncCaller
         ] = action_settings.setup_functions
@@ -59,7 +62,9 @@ class Action:
         self.is_first: bool = True
         self.aggregate: bool = action_settings.aggregate
         self.flatten: bool = action_settings.flatten
+        self.single_shot: bool = action_settings.single_shot
         self.feed: feedModule.feed = None
+        self.just_started = False
 
         # some actions might not take any input from the feed
         self.input_info_map: typing.Dict[str, InputSettings] = action_settings.input_
@@ -97,10 +102,13 @@ class Action:
                 yield val, stdout_str, stderr_str, index
 
     def update(self):
-        self.parameters[FIRST] = self.is_first
-        self.is_first = False
-        _, stdout_str, stderr_str = self.calcFunc(**self.parameters)
-        return [stdout_str], [stderr_str]
+        if self.just_started or not self.single_shot:
+            self.just_started = False
+            self.parameters[FIRST] = self.is_first
+            self.is_first = False
+            _, stdout_str, stderr_str = self.calcFunc(**self.parameters)
+            return [stdout_str], [stderr_str]
+        return [], []
 
     def checkInput(self) -> typing.Tuple[str, int]:
         """

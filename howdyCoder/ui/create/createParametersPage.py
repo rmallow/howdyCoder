@@ -66,6 +66,10 @@ class CreateBaseParametersPage(CreateBasePage):
             curr = self.getTempConfig()
             self._parameterModel.getData(curr)
             curr.flatten = self._ui.flattenedCheck.isChecked()
+            curr.period = max(
+                1, QtCore.QTime(0, 0, 0).secsTo(self._ui.time_edit.time())
+            )
+            curr.single_shot = self._ui.single_shot_check.isChecked()
 
     def reset(self) -> None:
         self._parameterModel.clear()
@@ -145,12 +149,6 @@ class CreateDataSourceParametersPage(CreateBaseParametersPage):
         else:
             self._ui.flattenWidgetBox.show()
             self._ui.periodWidgetBox.show()
-
-    def save(self):
-        super().save()
-        curr: DataSourceSettings = self.getTempConfig()
-        curr.period = max(1, QtCore.QTime(0, 0, 0).secsTo(self._ui.time_edit.time()))
-        curr.single_shot = self._ui.single_shot_check.isChecked()
 
 
 class CreateActionParametersPage(CreateBaseParametersPage):

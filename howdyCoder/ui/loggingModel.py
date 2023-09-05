@@ -1,4 +1,5 @@
 from ..core.message import message
+from ..commonUtil.mpLogging import MP_KEY
 
 import time
 import typing
@@ -63,7 +64,7 @@ class loggingModel(QtCore.QAbstractTableModel):
         messageList.append(message.details["levelname"])
 
         # Key
-        key = message.details.get("mpKey", _notAvail)
+        key = message.details.get(MP_KEY, _notAvail)
         if key not in self.keys:
             self.keys.add(key)
             self.addKey.emit(key)

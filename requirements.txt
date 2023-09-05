@@ -5,3 +5,5 @@ PyYAML
 PySide6
 matplotlib
 dataclass_wizard
+keyring
+openai

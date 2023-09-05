@@ -172,6 +172,9 @@ class mainModel(commandProcessor, QtCore.QObject):
         Called by commandProcessor on UiUpdateType.LOGGING
         """
         self.trackMessage(details)
+        self.program_dict.updateProgramLogging(
+            details.details.get(mpLogging.MP_KEY, ""), details.details
+        )
         self.updateLoggingSignal.emit(details)
 
     def handleStartup(self, _, details: msg.message = None):

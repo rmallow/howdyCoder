@@ -29,7 +29,7 @@ class Ui_HowdyCoder(object):
     def setupUi(self, HowdyCoder):
         if not HowdyCoder.objectName():
             HowdyCoder.setObjectName(u"HowdyCoder")
-        HowdyCoder.resize(800, 600)
+        HowdyCoder.resize(763, 745)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -74,6 +74,7 @@ class Ui_HowdyCoder(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.changePageButton = QPushButton(self.centralwidget)
         self.changePageButton.setObjectName(u"changePageButton")
 
@@ -83,6 +84,7 @@ class Ui_HowdyCoder(object):
         self.widget.setObjectName(u"widget")
         self.horizontalLayout = QHBoxLayout(self.widget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.stackedWidget = QStackedWidget(self.widget)
         self.stackedWidget.setObjectName(u"stackedWidget")
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)

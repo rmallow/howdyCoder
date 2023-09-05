@@ -366,7 +366,8 @@ class mainframe(commandProcessor):
             if code not in self.process_dict:
                 program = self.all_program_map[code]
                 self.startProgramProcess(code, program)
-            elif self.all_program_map[code].program_queue is not None:
+            # start the process AND then send cmd start
+            if self.all_program_map[code].program_queue is not None:
                 self.all_program_map[code].program_queue.put(
                     msg.message(msg.MessageType.COMMAND, msg.CommandType.START)
                 )

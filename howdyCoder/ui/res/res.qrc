@@ -6,6 +6,13 @@
     <file>checkmark.png</file>
     <file>help.png</file>
   </qresource>
+  <qresource prefix="logging">
+    <file>critical.png</file>
+    <file>error.png</file>
+    <file>warning.png</file>
+    <file>info.png</file>
+    <file>debug.png</file>
+  </qresource>
   <qresource prefix="MainOutputView">
     <file>Tutorial/MainOutputView_1.png</file>
     <file>Tutorial/MainOutputView_2.png</file>

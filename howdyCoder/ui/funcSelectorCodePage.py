@@ -1,21 +1,26 @@
 from .funcSelectorPageBase import FuncSelectorPageBase
 from .qtUiFiles import ui_funcSelectorCodePage
+from .util import qtResourceManager, expander
 
 from . import librarySingleton
-from ..commonUtil import astUtil
+from ..commonUtil import astUtil, keyringUtil, openAIUtil
 from ..core.dataStructs import FunctionSettings
 
 import ast
 import typing
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
+
+TEST_PROMPTS = {
+    "No Prompt": "",
+    "Script Prompt": "You are writing code in python for a user. Only respond to their prompts with python code. Do not provide test code. If more than one function is used for what the users asks for then you should designate the entry function by entry:<FUNCTION NAME HERE>.",
+}
 
 CODE_ROLE = QtCore.Qt.UserRole + 1
 IMPORT_ROLE = QtCore.Qt.UserRole + 2
 IMPORT_STATEMENT_ROLE = QtCore.Qt.UserRole + 3
 
 WAIT_FOR_TEXT_EDITING_TO_END = 2000
-
 
 COMPILING_STATUS = "Compiling Code"
 ERROR_ENCOUNTERED = "Error encountered: "
@@ -52,14 +57,37 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
         self._current_function_settings: FunctionSettings = None
 
+        self.ui.key_set_widget.key_name = openAIUtil.OPEN_AI_API_KEY_NAME
+        self.ui.key_set_widget._key_validation_function = openAIUtil.testValid
+        self.ui.key_set_widget.output_function = self.ui.call_api_button.setEnabled
+        if openAIUtil.testValidKeySet():
+            self.ui.key_set_widget.setStatus(True)
+            self.ui.call_api_button.setEnabled(True)
+
+        self.setupPromptCombo()
+
+        self.ui.call_api_button.released.connect(self.callApiButton)
         self._code_edit_timer = QtCore.QTimer()
         self._code_edit_timer.setSingleShot(True)
         self._code_edit_timer.setInterval(WAIT_FOR_TEXT_EDITING_TO_END)
         self._code_edit_timer.timeout.connect(self.validateCode)
         self.ui.codeEdit.textChanged.connect(self.codeChanged)
 
+        hz_expander = expander.HorizontalExpander(self.ui.code_edit_box, "Explanation")
+        layout = QtWidgets.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.code_explanation = QtWidgets.QPlainTextEdit(hz_expander.contentArea)
+        self.code_explanation.setReadOnly(True)
+        layout.addWidget(self.code_explanation)
+        hz_expander.setContentLayout(layout)
+        self.ui.code_edit_box.layout().addWidget(hz_expander, 1)
+
         self.ui.selectButton.released.connect(self.sendFunctionConfig)
         self.ui.saveButton.released.connect(self.saveCode)
+
+    def setupPromptCombo(self):
+        for k, v in TEST_PROMPTS.items():
+            self.ui.prompt_combo_box.addItem(k, v)
 
     def updateData(self) -> None:
         self.ui.codeEdit.clear()
@@ -127,3 +155,22 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
     def enableControls(self, enable):
         self.ui.saveButton.setEnabled(enable)
         self.ui.selectButton.setEnabled(enable)
+
+    def callApiButton(self):
+        self.ui.codeEdit.setEnabled(False)
+        self.ui.prompt_text_edit.setEnabled(False)
+        system_prompt = self.ui.prompt_combo_box.currentData(
+            QtCore.Qt.ItemDataRole.UserRole
+        )
+        user_prompt = self.ui.prompt_text_edit.toPlainText()
+        cur_font = self.ui.prompt_text_edit.font()
+        new_font = QtGui.QFont(cur_font)
+        new_font.setPointSizeF(new_font.pointSize() * 3)
+        self.ui.prompt_text_edit.setPlainText("... Generating ...")
+        response = openAIUtil.getChatCompletion(system_prompt, user_prompt)
+        self.ui.codeEdit.setPlainText(openAIUtil.getPythonCodeOnly(response))
+        self.code_explanation.setPlainText(response)
+        self.ui.codeEdit.setEnabled(True)
+        self.ui.prompt_text_edit.setEnabled(True)
+        self.ui.prompt_text_edit.setPlainText(user_prompt)
+        self.ui.prompt_text_edit.setFont(cur_font)

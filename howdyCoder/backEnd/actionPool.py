@@ -36,7 +36,12 @@ class ActionPool:
         """
         data_list = []
         for action_list in self._all_actions:
-            for a in action_list:
-                out, err = a.update()
-                data_list.append(STDOutErrData(out, err, a.name))
+            for action in action_list:
+                out, err = action.update()
+                data_list.append(STDOutErrData(out, err, action.name))
         return data_list
+
+    def started(self):
+        for action_list in self._all_actions:
+            for action in action_list:
+                action.just_started = True

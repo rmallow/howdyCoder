@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1005</width>
-    <height>574</height>
+    <width>763</width>
+    <height>745</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -119,11 +119,23 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1003</width>
-        <height>494</height>
+        <width>761</width>
+        <height>667</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QWidget" name="createWidgetBox" native="true">
          <property name="sizePolicy">
@@ -145,10 +157,10 @@
     <widget class="QWidget" name="buttonBox" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="topMargin">
-       <number>6</number>
+       <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>6</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QPushButton" name="backButton">

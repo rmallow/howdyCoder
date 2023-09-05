@@ -6,14 +6,26 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
-    <height>637</height>
+    <width>763</width>
+    <height>745</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>FuncSelectorCodePage</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>2</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>2</number>
+   </property>
+   <property name="bottomMargin">
+    <number>2</number>
+   </property>
    <item>
     <widget class="QLabel" name="infoLabel">
      <property name="text">
@@ -25,19 +37,22 @@
     </widget>
    </item>
    <item>
+    <widget class="KeySetWidget" name="key_set_widget" native="true"/>
+   </item>
+   <item>
     <widget class="QWidget" name="widget_4" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <property name="leftMargin">
        <number>0</number>
       </property>
       <property name="topMargin">
-       <number>4</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
        <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>4</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QLabel" name="prompt_label">
@@ -69,8 +84,8 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>437</width>
-          <height>20</height>
+          <width>461</width>
+          <height>5</height>
          </size>
         </property>
        </spacer>
@@ -83,7 +98,7 @@
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
-       <verstretch>2</verstretch>
+       <verstretch>1</verstretch>
       </sizepolicy>
      </property>
      <property name="tabStopDistance">
@@ -117,13 +132,16 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>40</width>
-          <height>20</height>
+          <height>5</height>
          </size>
         </property>
        </spacer>
       </item>
       <item>
        <widget class="QPushButton" name="call_api_button">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Send to AI</string>
         </property>
@@ -136,8 +154,8 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>304</width>
-          <height>20</height>
+          <width>316</width>
+          <height>5</height>
          </size>
         </property>
        </spacer>
@@ -158,7 +176,7 @@
        <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>4</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QLabel" name="entry_function_label">
@@ -177,8 +195,8 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>291</width>
-          <height>20</height>
+          <width>303</width>
+          <height>5</height>
          </size>
         </property>
        </spacer>
@@ -197,22 +215,46 @@
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="codeEdit">
+    <widget class="QWidget" name="code_edit_box" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>5</verstretch>
       </sizepolicy>
      </property>
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::NoWrap</enum>
-     </property>
-     <property name="tabStopDistance">
-      <double>4.000000000000000</double>
-     </property>
-     <property name="placeholderText">
-      <string>Code goes here.</string>
-     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPlainTextEdit" name="codeEdit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>5</horstretch>
+          <verstretch>5</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="lineWrapMode">
+         <enum>QPlainTextEdit::NoWrap</enum>
+        </property>
+        <property name="tabStopDistance">
+         <double>4.000000000000000</double>
+        </property>
+        <property name="placeholderText">
+         <string>Code goes here.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -248,7 +290,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>40</width>
-          <height>20</height>
+          <height>5</height>
          </size>
         </property>
        </spacer>
@@ -279,6 +321,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KeySetWidget</class>
+   <extends>QWidget</extends>
+   <header>..keySetWidget</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

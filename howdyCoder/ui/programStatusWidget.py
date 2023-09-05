@@ -1,19 +1,38 @@
+from __future__ import annotations
 from ..core.dataStructs import AlgoSettings, Modes, ProgramSettings
 from .uiConstants import GUI_REFRESH_INTERVAL
 from .qtUiFiles import ui_algoStatusWidget
 from .programData import ProgramWidgetData
 from .tutorialOverlay import AbstractTutorialClass
 
-from .util import abstractQt
+from .util import abstractQt, qtResourceManager
 
 from ..commonUtil import helpers
 from ..core.commonGlobals import DataSourcesTypeEnum, ENUM_DISPLAY, ProgramTypes
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
+import logging
 import typing
 import yaml
-from dataclass_wizard import asdict, fromdict
+from dataclass_wizard import asdict
+
+LOG_LEVEL_ROLE = QtCore.Qt.ItemDataRole.UserRole
+
+
+class LoggingListWidgetItem(QtWidgets.QListWidgetItem):
+    def __lt__(self, other: LoggingListWidgetItem) -> bool:
+        return self.data(LOG_LEVEL_ROLE) < other.data(LOG_LEVEL_ROLE)
+
+
+LOGGING_LEVEL_TO_ICON = {
+    logging.DEBUG: "debug.png",
+    logging.INFO: "info.png",
+    logging.WARNING: "warning.png",
+    logging.ERROR: "error.png",
+    logging.CRITICAL: "critical.png",
+}
+
 
 COLOR_MAP = {
     Modes.STANDBY: QtCore.Qt.GlobalColor.gray,
@@ -76,6 +95,8 @@ class ProgramStatusWidget(
             "Shutdown" if self.data.mode == Modes.STOPPED else "Remove"
         )
 
+        self.updateLogging()
+
     @QtCore.Slot()
     def saveConfig(self):
         if file_path := QtWidgets.QFileDialog.getSaveFileName(filter="Config (*.yml)")[
@@ -90,3 +111,25 @@ class ProgramStatusWidget(
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
+
+    def updateLogging(self):
+        """Updates from proram dict the mpLogging for this program, and adds new widget items if needed"""
+        if self.ui.logging_list_widget.count() != len(self.data.logging_count):
+            self.ui.logging_list_widget.clear()
+            for k, v in self.data.logging_count.items():
+                item = LoggingListWidgetItem(
+                    qtResourceManager.getResourceByName(
+                        "logging", LOGGING_LEVEL_TO_ICON[k]
+                    ),
+                    str(v),
+                )
+                item.setData(LOG_LEVEL_ROLE, k)
+                item.setData(
+                    QtCore.Qt.ItemDataRole.ToolTipRole,
+                    logging.getLevelName(k).capitalize(),
+                )
+                self.ui.logging_list_widget.addItem(item)
+        else:
+            for x in range(self.ui.logging_list_widget.count()):
+                item = self.ui.logging_list_widget.item(x)
+                item.setText(str(self.data.logging_count[item.data(LOG_LEVEL_ROLE)]))

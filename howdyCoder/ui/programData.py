@@ -3,7 +3,8 @@ from ..core.message import message
 
 from ..core.dataStructs import ProgramSettings
 
-from dataclasses import dataclass
+from collections import defaultdict
+from dataclasses import dataclass, field
 import typing
 
 from PySide6 import QtCore
@@ -17,6 +18,9 @@ class ProgramWidgetData:
     runtime: float = 0.0
     data_count: int = 0
     mode: Modes = Modes.STANDBY
+    logging_count: typing.Dict[int, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
 
 
 class ProgramDict(QtCore.QObject):
@@ -82,3 +86,7 @@ class ProgramDict(QtCore.QObject):
             self._programs[code].data_count = data.data_length
             self._programs[code].runtime = data.runtime
             self._programs[code].mode = data.mode
+
+    def updateProgramLogging(self, code: str, logging_details: typing.Dict[str, str]):
+        if code in self._programs:
+            self._programs[code].logging_count[logging_details["levelno"]] += 1
