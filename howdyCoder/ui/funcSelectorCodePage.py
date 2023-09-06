@@ -1,9 +1,9 @@
 import PySide6.QtGui
 from .funcSelectorPageBase import FuncSelectorPageBase
 from .qtUiFiles import ui_funcSelectorCodePage
-from .util import qtResourceManager, expander
+from .util import qtResourceManager, expander, genericWorker
 
-from . import librarySingleton
+from . import librarySingleton, promptSingleton
 from ..commonUtil import astUtil, keyringUtil, openAIUtil
 from ..core.dataStructs import FunctionSettings
 
@@ -11,11 +11,6 @@ import ast
 import typing
 
 from PySide6 import QtWidgets, QtCore, QtGui
-
-TEST_PROMPTS = {
-    "No Prompt": "",
-    "Script Prompt": "You are writing code in python for a user. Only respond to their prompts with python code. Do not provide test code. If more than one function is used for what the users asks for then you should designate the entry function by entry:<FUNCTION NAME HERE>.",
-}
 
 CODE_ROLE = QtCore.Qt.UserRole + 1
 IMPORT_ROLE = QtCore.Qt.UserRole + 2
@@ -92,7 +87,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.saveButton.released.connect(self.saveCode)
 
     def setupPromptCombo(self):
-        for k, v in TEST_PROMPTS.items():
+        for k, v in promptSingleton.prompts.items():
             self.ui.prompt_combo_box.addItem(k, v)
 
     def updateData(self) -> None:
@@ -165,21 +160,30 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
     def callApiButton(self):
         self.ui.codeEdit.setEnabled(False)
         self.ui.prompt_text_edit.setEnabled(False)
+        self.ui.call_api_button.setEnabled(False)
         system_prompt = self.ui.prompt_combo_box.currentData(
             QtCore.Qt.ItemDataRole.UserRole
         )
-        user_prompt = self.ui.prompt_text_edit.toPlainText()
-        cur_font = self.ui.prompt_text_edit.font()
-        new_font = QtGui.QFont(cur_font)
+        self.user_prompt = self.ui.prompt_text_edit.toPlainText()
+        self.cur_font = self.ui.prompt_text_edit.font()
+        new_font = QtGui.QFont(self.cur_font)
         new_font.setPointSizeF(new_font.pointSize() * 3)
         self.ui.prompt_text_edit.setPlainText("... Generating ...")
-        response = openAIUtil.getChatCompletion(system_prompt, user_prompt)
+        self.thread, self.worker = genericWorker.createThreadAndWorker(
+            openAIUtil.getChatCompletion,
+            self.apiResponse,
+            system_prompt,
+            self.user_prompt,
+        )
+
+    def apiResponse(self, response: str):
         self.ui.codeEdit.setPlainText(openAIUtil.getPythonCodeOnly(response))
         self.code_explanation.setPlainText(response)
         self.ui.codeEdit.setEnabled(True)
         self.ui.prompt_text_edit.setEnabled(True)
-        self.ui.prompt_text_edit.setPlainText(user_prompt)
-        self.ui.prompt_text_edit.setFont(cur_font)
+        self.ui.call_api_button.setEnabled(True)
+        self.ui.prompt_text_edit.setPlainText(self.user_prompt)
+        self.ui.prompt_text_edit.setFont(self.cur_font)
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         """Setting how far out the explanation box should expand to"""

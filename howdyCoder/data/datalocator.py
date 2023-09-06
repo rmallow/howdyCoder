@@ -4,15 +4,14 @@ Importable settings file
 import os
 import sys
 
-SETTINGS_FILE = (
-    os.path.dirname(os.path.abspath(sys.modules[__name__].__file__)) + r"/settings.ini"
+CURRENT_FILE_PATH = os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))
+
+SETTINGS_FILE = os.path.join(CURRENT_FILE_PATH, "settings.ini")
+
+LIBRARIES_FILE = os.path.join(CURRENT_FILE_PATH, "libraries.ini")
+
+PROMPTS_FILE = os.path.join(
+    CURRENT_FILE_PATH, "..", "..", "howdyCoderPrompts", "prompts.ini"
 )
 
-LIBRARIES_FILE = (
-    os.path.dirname(os.path.abspath(sys.modules[__name__].__file__)) + r"/libraries.ini"
-)
-
-TEST_FILE = (
-    os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))
-    + r"/test_config.yml"
-)
+TEST_FILE = os.path.join(CURRENT_FILE_PATH, "test_config.ini")
