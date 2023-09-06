@@ -7,3 +7,4 @@ matplotlib
 dataclass_wizard
 keyring
 openai
+qt_material

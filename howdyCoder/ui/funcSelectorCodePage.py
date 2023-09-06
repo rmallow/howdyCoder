@@ -165,10 +165,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             QtCore.Qt.ItemDataRole.UserRole
         )
         self.user_prompt = self.ui.prompt_text_edit.toPlainText()
-        self.cur_font = self.ui.prompt_text_edit.font()
-        new_font = QtGui.QFont(self.cur_font)
-        new_font.setPointSizeF(new_font.pointSize() * 3)
-        self.ui.prompt_text_edit.setPlainText("... Generating ...")
+        self.ui.prompt_text_edit.setPlainText("... Generating, Please Wait ...")
         self.thread, self.worker = genericWorker.createThreadAndWorker(
             openAIUtil.getChatCompletion,
             self.apiResponse,
@@ -183,7 +180,6 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.prompt_text_edit.setEnabled(True)
         self.ui.call_api_button.setEnabled(True)
         self.ui.prompt_text_edit.setPlainText(self.user_prompt)
-        self.ui.prompt_text_edit.setFont(self.cur_font)
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         """Setting how far out the explanation box should expand to"""
@@ -192,3 +188,11 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             self.ui.code_edit_box.size().width() // 2
         )
         return ret_val
+
+    def setDefaultPrompt(self, prompt_name: str):
+        """Not a case sensitive search"""
+        index = self.ui.prompt_combo_box.findText(
+            prompt_name, QtCore.Qt.MatchFlag.MatchFixedString
+        )
+        assert index != -1, f"Could not find prompt by this name: {prompt_name}"
+        self.ui.prompt_combo_box.setCurrentIndex(index)

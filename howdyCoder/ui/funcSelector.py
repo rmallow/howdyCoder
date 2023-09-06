@@ -69,3 +69,10 @@ class FuncSelector(SelectorBase):
         return [self] + self.ui.tabWidget.currentWidget().findChild(
             FuncSelectorPageBase
         ).getTutorialClasses()
+
+    def setDefaultPrompt(self, prompt_name: str) -> None:
+        for x in range(self.ui.tabWidget.count()):
+            # to avoid cranky qt layout error, the child widget is inside the tab
+            self.ui.tabWidget.widget(x).findChild(
+                FuncSelectorPageBase
+            ).setDefaultPrompt(prompt_name)

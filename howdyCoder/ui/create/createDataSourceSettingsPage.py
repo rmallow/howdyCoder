@@ -148,6 +148,11 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 self.reset()
             self._data_source_type = enumType
             self._ui.stackedWidget.setCurrentIndex(enumType.value)
+            self._funcSelector.setDefaultPrompt(
+                "Data Source Threaded"
+                if enumType == DataSourcesTypeEnum.THREADED
+                else "Data Source"
+            )
             if (
                 self._data_source_type == DataSourcesTypeEnum.STREAM
                 or self._data_source_type == DataSourcesTypeEnum.INPUT

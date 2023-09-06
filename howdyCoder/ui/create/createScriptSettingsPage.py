@@ -34,6 +34,7 @@ class CreateScriptSettingsPage(CreateBasePage):
 
         self._current_settings: FunctionSettingsWithHelperData = None
         self._ui.funcSelectorWidget.itemSelected.connect(self.settingsSelected)
+        self._ui.funcSelectorWidget.setDefaultPrompt("Script")
         self.next_enabled = False
 
     def loadPage(self):

@@ -91,6 +91,7 @@ class MainWindow(
             QtWidgets.QSizePolicy.Policy.Preferred,
         )
         self._ui.toolBar.insertWidget(self._ui.invisible_action, w)
+        self._ui.toolBar.removeAction(self._ui.invisible_action)
         self.menu = QtWidgets.QMenu("Help", self)
         self.menu.addAction(self._ui.action_tutorial)
         self.menu.addAction(self._ui.action_documentation)

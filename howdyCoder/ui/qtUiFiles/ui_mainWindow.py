@@ -38,6 +38,7 @@ class Ui_HowdyCoder(object):
         icon = QIcon()
         icon.addFile(u":/app-icons/1024.png", QSize(), QIcon.Normal, QIcon.Off)
         HowdyCoder.setWindowIcon(icon)
+        HowdyCoder.setStyleSheet(u"")
         self.actionStart_All = QAction(HowdyCoder)
         self.actionStart_All.setObjectName(u"actionStart_All")
         self.actionStart_All.setCheckable(False)

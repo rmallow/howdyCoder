@@ -33,3 +33,7 @@ class FuncSelectorPageBase(
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
+
+    def setDefaultPrompt(self, prompt_name: str):
+        """Can be overriden in child page to set default prompt"""
+        pass
