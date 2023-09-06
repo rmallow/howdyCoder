@@ -25,7 +25,7 @@ class Ui_FuncSelectorCodePage(object):
     def setupUi(self, FuncSelectorCodePage):
         if not FuncSelectorCodePage.objectName():
             FuncSelectorCodePage.setObjectName(u"FuncSelectorCodePage")
-        FuncSelectorCodePage.resize(763, 745)
+        FuncSelectorCodePage.resize(985, 835)
         self.verticalLayout = QVBoxLayout(FuncSelectorCodePage)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(2, 2, 2, 2)
@@ -68,36 +68,40 @@ class Ui_FuncSelectorCodePage(object):
 
         self.verticalLayout.addWidget(self.widget_4)
 
-        self.prompt_text_edit = QPlainTextEdit(FuncSelectorCodePage)
-        self.prompt_text_edit.setObjectName(u"prompt_text_edit")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.promptBox = QWidget(FuncSelectorCodePage)
+        self.promptBox.setObjectName(u"promptBox")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(1)
-        sizePolicy1.setHeightForWidth(self.prompt_text_edit.sizePolicy().hasHeightForWidth())
-        self.prompt_text_edit.setSizePolicy(sizePolicy1)
+        sizePolicy1.setHeightForWidth(self.promptBox.sizePolicy().hasHeightForWidth())
+        self.promptBox.setSizePolicy(sizePolicy1)
+        self.horizontalLayout_6 = QHBoxLayout(self.promptBox)
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.prompt_text_edit = QPlainTextEdit(self.promptBox)
+        self.prompt_text_edit.setObjectName(u"prompt_text_edit")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(1)
+        sizePolicy2.setHeightForWidth(self.prompt_text_edit.sizePolicy().hasHeightForWidth())
+        self.prompt_text_edit.setSizePolicy(sizePolicy2)
         self.prompt_text_edit.setTabStopDistance(4.000000000000000)
 
-        self.verticalLayout.addWidget(self.prompt_text_edit)
+        self.horizontalLayout_6.addWidget(self.prompt_text_edit)
+
+        self.call_api_button = QPushButton(self.promptBox)
+        self.call_api_button.setObjectName(u"call_api_button")
+        self.call_api_button.setEnabled(False)
+
+        self.horizontalLayout_6.addWidget(self.call_api_button)
+
+
+        self.verticalLayout.addWidget(self.promptBox)
 
         self.widget_2 = QWidget(FuncSelectorCodePage)
         self.widget_2.setObjectName(u"widget_2")
         self.horizontalLayout_2 = QHBoxLayout(self.widget_2)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.horizontalSpacer_4 = QSpacerItem(40, 5, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer_4)
-
-        self.call_api_button = QPushButton(self.widget_2)
-        self.call_api_button.setObjectName(u"call_api_button")
-        self.call_api_button.setEnabled(False)
-
-        self.horizontalLayout_2.addWidget(self.call_api_button)
-
-        self.horizontalSpacer_2 = QSpacerItem(316, 5, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
-
 
         self.verticalLayout.addWidget(self.widget_2)
 
@@ -131,21 +135,21 @@ class Ui_FuncSelectorCodePage(object):
 
         self.code_edit_box = QWidget(FuncSelectorCodePage)
         self.code_edit_box.setObjectName(u"code_edit_box")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(5)
-        sizePolicy2.setHeightForWidth(self.code_edit_box.sizePolicy().hasHeightForWidth())
-        self.code_edit_box.setSizePolicy(sizePolicy2)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(5)
+        sizePolicy3.setHeightForWidth(self.code_edit_box.sizePolicy().hasHeightForWidth())
+        self.code_edit_box.setSizePolicy(sizePolicy3)
         self.horizontalLayout_5 = QHBoxLayout(self.code_edit_box)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.codeEdit = QPlainTextEdit(self.code_edit_box)
         self.codeEdit.setObjectName(u"codeEdit")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy3.setHorizontalStretch(5)
-        sizePolicy3.setVerticalStretch(5)
-        sizePolicy3.setHeightForWidth(self.codeEdit.sizePolicy().hasHeightForWidth())
-        self.codeEdit.setSizePolicy(sizePolicy3)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy4.setHorizontalStretch(10)
+        sizePolicy4.setVerticalStretch(5)
+        sizePolicy4.setHeightForWidth(self.codeEdit.sizePolicy().hasHeightForWidth())
+        self.codeEdit.setSizePolicy(sizePolicy4)
         self.codeEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.codeEdit.setTabStopDistance(4.000000000000000)
 

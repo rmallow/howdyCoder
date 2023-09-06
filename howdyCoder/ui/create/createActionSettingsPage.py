@@ -74,7 +74,14 @@ class CreateActionSettingsPage(CreateBasePage):
             self.selectedTableModelItemChanged
         )
         self._ui.selectedInputTable.setItemDelegateForColumn(
-            SELECTED_AMOUNT_OF_DATA_COLUMN, SpinBoxDelegate(-1, 99999)
+            SELECTED_AMOUNT_OF_DATA_COLUMN,
+            SpinBoxDelegate(
+                -1,
+                99999,
+                disallowed_values=[0],
+                disallowed_default_value=1,
+                parent=self._ui.selectedInputTable,
+            ),
         )
         self._ui.availableInputTable.setModel(self._available_input_table_model)
         self._ui.availableInputTable.setMouseTracking(True)
@@ -285,9 +292,11 @@ class CreateActionSettingsPage(CreateBasePage):
 
     def save(self) -> None:
         action_settings: ActionSettings = self.getTempConfig()
-        action_settings.calc_function = self._current_calc_settings
+        action_settings.calc_function = self._current_calc_settings.function_settings
         if self._action_type == ActionTypeEnum.TRIGGER:
-            action_settings.output_function = self._current_output_settings
+            action_settings.output_function = (
+                self._current_output_settings.function_settings
+            )
         action_settings.input_data_type = self._ui.dataTypeCombo.currentText()
         self.getHelperData().suggested_parameters = (
             self._current_calc_settings.suggested_parameters[::]

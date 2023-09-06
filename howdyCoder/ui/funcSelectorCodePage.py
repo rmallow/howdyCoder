@@ -1,3 +1,4 @@
+import PySide6.QtGui
 from .funcSelectorPageBase import FuncSelectorPageBase
 from .qtUiFiles import ui_funcSelectorCodePage
 from .util import qtResourceManager, expander
@@ -73,14 +74,19 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self._code_edit_timer.timeout.connect(self.validateCode)
         self.ui.codeEdit.textChanged.connect(self.codeChanged)
 
-        hz_expander = expander.HorizontalExpander(self.ui.code_edit_box, "Explanation")
+        self.hz_expander = expander.HorizontalExpander(
+            self.ui.code_edit_box,
+            "Explanation",
+            animation_end_value=self.ui.codeEdit.sizeHint().width() // 2,
+        )
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        self.code_explanation = QtWidgets.QPlainTextEdit(hz_expander.contentArea)
+        self.code_explanation = QtWidgets.QPlainTextEdit(self.hz_expander.contentArea)
         self.code_explanation.setReadOnly(True)
         layout.addWidget(self.code_explanation)
-        hz_expander.setContentLayout(layout)
-        self.ui.code_edit_box.layout().addWidget(hz_expander, 1)
+        self.hz_expander.setContentLayout(layout)
+        self.ui.code_edit_box.layout().addWidget(self.hz_expander, 1)
+        self.resize
 
         self.ui.selectButton.released.connect(self.sendFunctionConfig)
         self.ui.saveButton.released.connect(self.saveCode)
@@ -174,3 +180,11 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.prompt_text_edit.setEnabled(True)
         self.ui.prompt_text_edit.setPlainText(user_prompt)
         self.ui.prompt_text_edit.setFont(cur_font)
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        """Setting how far out the explanation box should expand to"""
+        ret_val = super().resizeEvent(event)
+        self.hz_expander.setContentLayoutAnimationEndValue(
+            self.ui.code_edit_box.size().width() // 2
+        )
+        return ret_val

@@ -103,6 +103,10 @@ class CreateWidget(
         self._creator_type: ProgramTypes = None
         self.helper_data = HelperData()
 
+        self._ui.nextButton.released.connect(self.nextPressed)
+        self._ui.backButton.released.connect(self.backPressed)
+        self._ui.exitButton.released.connect(self.exitPressed)
+
     def getCurrentPageList(self):
         return PROGRAM_TYPE_TO_PAGES.get(self._creator_type, [])
 
@@ -310,8 +314,8 @@ class CreateWidget(
 
         self.loadCreationWidgets()
         self.loadProgressSteps()
-        self.loadCurrentPage()
         self.reset()
+        self.loadCurrentPage()
 
         # don't want clicking through till animation is over so we disable button on press
         for page in self._create_widgets_list:
@@ -319,6 +323,3 @@ class CreateWidget(
             page.enableNext.connect(self._ui.nextButton.setEnabled)
             page.enableBack.connect(self._ui.backButton.setEnabled)
             page.manualExit.connect(self.exitPressed)
-        self._ui.nextButton.released.connect(self.nextPressed)
-        self._ui.backButton.released.connect(self.backPressed)
-        self._ui.exitButton.released.connect(self.exitPressed)

@@ -2,7 +2,9 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class HorizontalExpander(QtWidgets.QWidget):
-    def __init__(self, parent=None, title="", animationDuration=300):
+    def __init__(
+        self, parent=None, title="", animationDuration=300, animation_end_value: int = 1
+    ):
         super().__init__(parent=parent)
 
         self.animationDuration = animationDuration
@@ -10,6 +12,7 @@ class HorizontalExpander(QtWidgets.QWidget):
         self.contentArea = QtWidgets.QScrollArea()
         self.toggleButton = QtWidgets.QToolButton()
         self.mainLayout = QtWidgets.QHBoxLayout()
+        self.animation_end_value = animation_end_value
 
         self.toggleButton.setStyleSheet("QToolButton { border: none; }")
         self.toggleButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
@@ -57,16 +60,22 @@ class HorizontalExpander(QtWidgets.QWidget):
     def setContentLayout(self, contentLayout):
         self.contentArea.destroy()
         self.contentArea.setLayout(contentLayout)
-        collapsedWidth = self.sizeHint().width() - self.contentArea.maximumWidth()
-        contentWidth = contentLayout.sizeHint().width()
+        self.collapsedWidth = self.sizeHint().width() - self.contentArea.maximumWidth()
+        self.setAnimations()
+
+    def setContentLayoutAnimationEndValue(self, width: int):
+        self.animation_end_value = width
+        self.setAnimations()
+
+    def setAnimations(self):
         for i in range(self.toggleAnimation.animationCount() - 1):
             expandAnimation = self.toggleAnimation.animationAt(i)
             expandAnimation.setDuration(self.animationDuration)
-            expandAnimation.setStartValue(collapsedWidth)
-            expandAnimation.setEndValue(collapsedWidth + contentWidth)
+            expandAnimation.setStartValue(self.collapsedWidth)
+            expandAnimation.setEndValue(self.collapsedWidth + self.animation_end_value)
         contentAnimation = self.toggleAnimation.animationAt(
             self.toggleAnimation.animationCount() - 1
         )
         contentAnimation.setDuration(self.animationDuration)
         contentAnimation.setStartValue(0)
-        contentAnimation.setEndValue(contentWidth)
+        contentAnimation.setEndValue(self.animation_end_value)
