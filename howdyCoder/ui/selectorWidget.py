@@ -10,6 +10,7 @@ class SelectorWidget(QtWidgets.QWidget):
         index: QtCore.QModelIndex,
         selector: SelectorBase,
         parent: QtWidgets.QWidget,
+        default_prompt="Parameter Setup Func",
     ):
         super().__init__(parent)
         # Load UI file and setup UI
@@ -19,10 +20,12 @@ class SelectorWidget(QtWidgets.QWidget):
         self._selector: SelectorBase = selector
         self._ui.selectorButton.pressed.connect(self.showFuncSelector)
         self.index = index
+        self._default_prompt = default_prompt
 
     @QtCore.Slot()
     def showFuncSelector(self):
         self._selector.parentIndex = self.index
+        self._selector.setDefaultPrompt(self._default_prompt)
         self._selector.show()
         self._selector.showNormal()
 

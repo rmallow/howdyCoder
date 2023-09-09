@@ -30,3 +30,7 @@ class SelectorBase(
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
         return super().__new__(self, *args, **kwargs)
+
+    def setDefaultPrompt(self, new_prompt: str) -> None:
+        """Can be overriden in child selector to set default prompt"""
+        pass

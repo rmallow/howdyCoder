@@ -95,11 +95,19 @@ class CreateActionSettingsPage(CreateBasePage):
 
         self._func_selector = FuncSelector()
         self._calc_selector_widget = SelectorWidget(
-            FuncType.CALC, self._func_selector, self._ui.calcFuncWidget
+            FuncType.CALC,
+            self._func_selector,
+            self._ui.calcFuncWidget,
+            default_prompt="Event"
+            if self._action_type == ActionTypeEnum.EVENT
+            else "Trigger Calculation",
         )
         self._ui.calcFuncWidget.layout().addWidget(self._calc_selector_widget)
         self._output_selector_widget = SelectorWidget(
-            FuncType.OUTPUT, self._func_selector, self._ui.outputFuncWidget
+            FuncType.OUTPUT,
+            self._func_selector,
+            self._ui.outputFuncWidget,
+            default_prompt="Trigger Output",
         )
         self._ui.outputFuncWidget.layout().addWidget(self._output_selector_widget)
         self._func_selector.itemSelected.connect(self.onFuncSelected)
