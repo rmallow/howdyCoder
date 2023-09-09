@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>192</width>
+    <width>165</width>
     <height>202</height>
    </rect>
   </property>
@@ -70,6 +70,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="statusTip">
+      <string/>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QPushButton" name="createButton">
@@ -91,6 +94,9 @@
           <pointsize>100</pointsize>
           <kerning>false</kerning>
          </font>
+        </property>
+        <property name="toolTipDuration">
+         <number>0</number>
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton {

@@ -85,7 +85,7 @@ class Ui_HowdyCoder(object):
         self.widget.setObjectName(u"widget")
         self.horizontalLayout = QHBoxLayout(self.widget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 4)
         self.stackedWidget = QStackedWidget(self.widget)
         self.stackedWidget.setObjectName(u"stackedWidget")
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)

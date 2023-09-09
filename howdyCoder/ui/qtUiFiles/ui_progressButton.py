@@ -22,12 +22,13 @@ class Ui_ProgressButton(object):
     def setupUi(self, ProgressButton):
         if not ProgressButton.objectName():
             ProgressButton.setObjectName(u"ProgressButton")
-        ProgressButton.resize(73, 104)
+        ProgressButton.resize(70, 90)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ProgressButton.sizePolicy().hasHeightForWidth())
         ProgressButton.setSizePolicy(sizePolicy)
+        ProgressButton.setMaximumSize(QSize(400, 200))
         self.verticalLayout = QVBoxLayout(ProgressButton)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -40,8 +41,15 @@ class Ui_ProgressButton(object):
         self.widget.setSizePolicy(sizePolicy1)
         self.horizontalLayout = QHBoxLayout(self.widget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.button = QPushButton(self.widget)
         self.button.setObjectName(u"button")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.button.sizePolicy().hasHeightForWidth())
+        self.button.setSizePolicy(sizePolicy2)
+        self.button.setToolTipDuration(0)
         self.button.setStyleSheet(u" background-color: gray;\n"
 " border-style: solid;\n"
 " border-width:0px;\n"
@@ -61,6 +69,7 @@ class Ui_ProgressButton(object):
         sizePolicy1.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
         self.label.setSizePolicy(sizePolicy1)
         self.label.setAlignment(Qt.AlignCenter)
+        self.label.setWordWrap(False)
 
         self.verticalLayout.addWidget(self.label)
 

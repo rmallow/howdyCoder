@@ -22,7 +22,7 @@ class Ui_NewBlockWidget(object):
     def setupUi(self, NewBlockWidget):
         if not NewBlockWidget.objectName():
             NewBlockWidget.setObjectName(u"NewBlockWidget")
-        NewBlockWidget.resize(192, 202)
+        NewBlockWidget.resize(165, 202)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -79,6 +79,7 @@ class Ui_NewBlockWidget(object):
         font2.setPointSize(100)
         font2.setKerning(False)
         self.createButton.setFont(font2)
+        self.createButton.setToolTipDuration(0)
         self.createButton.setStyleSheet(u"QPushButton {\n"
 "    color: white;\n"
 "    border: 1px solid #87CEEB,;\n"
@@ -127,6 +128,9 @@ class Ui_NewBlockWidget(object):
     def retranslateUi(self, NewBlockWidget):
         NewBlockWidget.setWindowTitle(QCoreApplication.translate("NewBlockWidget", u"NewBlockWidget", None))
         self.label.setText(QCoreApplication.translate("NewBlockWidget", u"Create New", None))
+#if QT_CONFIG(statustip)
+        self.widget_2.setStatusTip("")
+#endif // QT_CONFIG(statustip)
         self.createButton.setText(QCoreApplication.translate("NewBlockWidget", u"+", None))
 #if QT_CONFIG(shortcut)
         self.createButton.setShortcut("")

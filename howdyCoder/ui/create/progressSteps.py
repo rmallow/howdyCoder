@@ -35,6 +35,8 @@ class ProgressSteps(QtWidgets.QWidget):
             item.widget().deleteLater()
 
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
+        """
+        TODO: Fix, under qt_material style it doesn't look good
         painter = QtGui.QPainter(self)
         stillCompleted = True
         for i in range(0, len(self._buttons) - 1):
@@ -57,7 +59,7 @@ class ProgressSteps(QtWidgets.QWidget):
             else:
                 stillCompleted = False
             painter.fillRect(rect, color)
-
+        """
         return super().paintEvent(event)
 
     def setSteps(self, steps: typing.List[str]) -> None:
