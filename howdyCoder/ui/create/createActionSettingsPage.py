@@ -98,9 +98,7 @@ class CreateActionSettingsPage(CreateBasePage):
             FuncType.CALC,
             self._func_selector,
             self._ui.calcFuncWidget,
-            default_prompt="Event"
-            if self._action_type == ActionTypeEnum.EVENT
-            else "Trigger Calculation",
+            default_prompt="Event",
         )
         self._ui.calcFuncWidget.layout().addWidget(self._calc_selector_widget)
         self._output_selector_widget = SelectorWidget(
@@ -146,6 +144,11 @@ class CreateActionSettingsPage(CreateBasePage):
         if currSettings.type_:
             enumType = helpers.findEnumByAttribute(
                 ActionTypeEnum, ENUM_DISPLAY, currSettings.type_
+            )
+            self.ui._calc_selector_widget.default_prompt = (
+                "Event"
+                if self._action_type == ActionTypeEnum.EVENT
+                else "Trigger Calculation"
             )
             if self._action_type is not None and self._action_type != enumType:
                 self.reset()

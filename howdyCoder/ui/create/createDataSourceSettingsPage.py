@@ -67,14 +67,20 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self._funcSelector = FuncSelector()
 
         self._threadedPage = SelectorWidget(
-            None, self._funcSelector, self._ui.stackedWidget
+            None,
+            self._funcSelector,
+            self._ui.stackedWidget,
+            default_prompt="Data Source Threaded",
         )
         self._ui.stackedWidget.insertWidget(
             DataSourcesTypeEnum.THREADED.value, self._threadedPage
         )
 
         self._funcPage = SelectorWidget(
-            None, self._funcSelector, self._ui.stackedWidget
+            None,
+            self._funcSelector,
+            self._ui.stackedWidget,
+            default_prompt="Data Source",
         )
         self._ui.stackedWidget.insertWidget(
             DataSourcesTypeEnum.FUNC.value, self._funcPage
@@ -82,7 +88,9 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self._urlTreeSelect = UrlTreeSelect()
 
         self._streamPage = SelectorWidget(
-            None, self._urlTreeSelect, self._ui.stackedWidget
+            None,
+            self._urlTreeSelect,
+            self._ui.stackedWidget,
         )
         self._ui.stackedWidget.insertWidget(
             DataSourcesTypeEnum.STREAM.value, self._streamPage
@@ -148,11 +156,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 self.reset()
             self._data_source_type = enumType
             self._ui.stackedWidget.setCurrentIndex(enumType.value)
-            self._funcSelector.setDefaultPrompt(
-                "Data Source Threaded"
-                if enumType == DataSourcesTypeEnum.THREADED
-                else "Data Source"
-            )
             if (
                 self._data_source_type == DataSourcesTypeEnum.STREAM
                 or self._data_source_type == DataSourcesTypeEnum.INPUT
