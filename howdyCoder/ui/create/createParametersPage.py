@@ -10,6 +10,7 @@ from ...core.commonGlobals import (
     ACTION_LIST,
     NONE_GROUP,
     DataSourcesTypeEnum,
+    ActionTypeEnum,
     ENUM_DISPLAY,
 )
 
@@ -144,11 +145,9 @@ class CreateDataSourceParametersPage(CreateBaseParametersPage):
         if self.getTempConfig().type_ == getattr(
             DataSourcesTypeEnum.INPUT, ENUM_DISPLAY, ""
         ):
-            self._ui.flattenWidgetBox.hide()
-            self._ui.periodWidgetBox.hide()
+            self._ui.period_and_flatten_box.hide()
         else:
-            self._ui.flattenWidgetBox.show()
-            self._ui.periodWidgetBox.show()
+            self._ui.period_and_flatten_box.show()
 
 
 class CreateActionParametersPage(CreateBaseParametersPage):
@@ -172,6 +171,15 @@ class CreateActionParametersPage(CreateBaseParametersPage):
             parent=parent,
         )
         self._ui.periodWidgetBox.hide()
+    
+    def loadPage(self) -> None:
+        if self.getTempConfig().type_ == getattr(
+            ActionTypeEnum.TRIGGER, ENUM_DISPLAY, ""
+        ):
+            self._ui.period_and_flatten_box.hide()
+        else:
+            self._ui.period_and_flatten_box.show()
+        return super().loadPage()
 
 
 class CreateScriptParametersPage(CreateBaseParametersPage):

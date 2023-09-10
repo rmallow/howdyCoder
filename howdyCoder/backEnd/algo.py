@@ -114,7 +114,7 @@ class Algo(Program):
         )
 
     def cmdStart(self, command, details=None):
-        super().start(command, details)
+        super().cmdStart(command, details)
         self.feed_obj.started()
 
     def addInputData(self, _, details=None):

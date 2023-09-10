@@ -129,9 +129,7 @@ class CreateActionSettingsPage(CreateBasePage):
                 )
                 self._current_calc_settings = settings
             elif settings.index == FuncType.OUTPUT:
-                self._output_selector_widget.updateText(
-                    settings.function_settings.names
-                )
+                self._output_selector_widget.updateText(settings.function_settings.name)
                 self._output_selector_widget.updateExtraDescription(
                     settings.function_settings.code
                 )
@@ -145,7 +143,7 @@ class CreateActionSettingsPage(CreateBasePage):
             enumType = helpers.findEnumByAttribute(
                 ActionTypeEnum, ENUM_DISPLAY, currSettings.type_
             )
-            self.ui._calc_selector_widget.default_prompt = (
+            self._calc_selector_widget.default_prompt = (
                 "Event"
                 if self._action_type == ActionTypeEnum.EVENT
                 else "Trigger Calculation"

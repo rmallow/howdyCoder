@@ -1,6 +1,8 @@
 from ..core.commonGlobals import InputType
 from ..core.dataStructs import InputData
 
+from .inputGetter import InputGetterBase, MousePosGetter
+
 import typing
 
 from PySide6 import QtWidgets, QtCore
@@ -11,6 +13,7 @@ class InputBox(QtWidgets.QWidget):
         InputType.SHORT_TEXT: QtWidgets.QLineEdit,
         InputType.LONG_TEXT: QtWidgets.QPlainTextEdit,
         InputType.NUMBER: QtWidgets.QDoubleSpinBox,
+        InputType.MOUSE_POS: MousePosGetter,
     }
 
     INPUT_TYPE_TO_GETTER = {
@@ -38,30 +41,54 @@ class InputBox(QtWidgets.QWidget):
         self._data_source_name = data_source_name
         self._input_type = input_type
         assert self._input_type in self.INPUT_TYPE_TO_WIDGET
+        self._input_widget: InputGetterBase | QtWidgets.QWidget = (
+            self.INPUT_TYPE_TO_WIDGET[self._input_type](self)
+        )
+        hide_enter = hide_reset = False
+        if isinstance(self._input_widget, InputGetterBase):
+            hide_enter = self._input_widget.HIDE_ENTER
+            hide_reset = self._input_widget.HIDE_RESET
+            self._input_widget.inputEntered.connect(self.inputEnteredWrapper)
+        """Manual UI setup"""
+
         layout = QtWidgets.QVBoxLayout()
-        button_box = QtWidgets.QHBoxLayout()
-        button_box_widget = QtWidgets.QWidget(self)
+        if not (hide_enter and hide_reset):
+            button_box_widget = QtWidgets.QWidget(self)
+            button_box = QtWidgets.QHBoxLayout()
         label = QtWidgets.QLabel(f"Data Source - {self._data_source_name}", self)
-        self._input_widget = self.INPUT_TYPE_TO_WIDGET[self._input_type](self)
-        enter_button = QtWidgets.QPushButton("Enter", self)
-        reset_button = QtWidgets.QPushButton("Reset", self)
-        enter_button.released.connect(self.enterPressed)
-        reset_button.released.connect(self.resetPressed)
-        button_box.addWidget(enter_button)
-        button_box.addWidget(reset_button)
-        button_box_widget.setLayout(button_box)
+        if not hide_enter:
+            enter_button = QtWidgets.QPushButton("Enter", self)
+            enter_button.released.connect(self.enterPressed)
+            button_box.addWidget(enter_button)
+        if not hide_reset:
+            reset_button = QtWidgets.QPushButton("Reset", self)
+            reset_button.released.connect(self.resetPressed)
+            button_box.addWidget(reset_button)
         layout.addWidget(label)
         layout.addWidget(self._input_widget)
-        layout.addWidget(button_box_widget)
+        if not (hide_enter and hide_reset):
+            button_box_widget.setLayout(button_box)
+            layout.addWidget(button_box_widget)
         self.setLayout(layout)
 
     @QtCore.Slot()
     def enterPressed(self):
-        val = self.INPUT_TYPE_TO_GETTER[self._input_type](self._input_widget)
+        if self._input_type in self.INPUT_TYPE_TO_GETTER:
+            val = self.INPUT_TYPE_TO_GETTER[self._input_type](self._input_widget)
+        else:
+            val = self._input_widget.value()
         self.inputEntered.emit(
             InputData(code="", data_source_name=self._data_source_name, val=val)
         )
 
     @QtCore.Slot()
     def resetPressed(self):
-        self.INPUT_TYPE_TO_RESET[self._input_type](self._input_widget)
+        if self._input_type in self.INPUT_TYPE_TO_RESET:
+            self.INPUT_TYPE_TO_RESET[self._input_type](self._input_widget)
+        else:
+            self._input_widget.clear()
+
+    @QtCore.Slot()
+    def inputEnteredWrapper(self, input_data: InputData):
+        input_data.data_source_name = self._data_source_name
+        self.inputEntered.emit(input_data)

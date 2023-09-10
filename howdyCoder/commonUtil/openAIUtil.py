@@ -15,10 +15,9 @@ def setKeyDecorator(func):
 
 
 def setKeyFromKeyring():
-    openai.api_key = openai.api_key = keyringUtil.getKey(OPEN_AI_API_KEY_NAME)
+    openai.api_key = keyringUtil.getKey(OPEN_AI_API_KEY_NAME)
 
 
-@setKeyDecorator
 def testValidKeySet() -> bool:
     try:
         openai.Model.list()
@@ -28,7 +27,7 @@ def testValidKeySet() -> bool:
         ConnectionResetError,
         openai.error.AuthenticationError,
         openai.error.APIConnectionError,
-    ):
+    ) as e:
         return False
     else:
         return True
@@ -86,3 +85,9 @@ def getPythonCodeOnly(code: str):
         else:
             start = code.find(PYTHON_SEARCH, end + len(CODE_INDICATOR))
     return res if res else code
+
+
+first_load = True
+if first_load:
+    first_load = False
+    setKeyFromKeyring()

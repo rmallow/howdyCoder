@@ -20,7 +20,7 @@ def start(isLocal: bool):
     main = MainWindow(isLocal)
     path = os.path.abspath(
         os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "res", "howdy_style.qss"
+            os.path.dirname(os.path.abspath(__file__)), "res", "howdyStyle.qss"
         )
     )
     apply_stylesheet(app, theme="dark_lightgreen.xml", css_file=path)

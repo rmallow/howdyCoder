@@ -132,8 +132,8 @@ class Ui_AlgoStatusWidget(object):
 
         self.logging_widget = QWidget(AlgoStatusWidget)
         self.logging_widget.setObjectName(u"logging_widget")
-        sizePolicy3.setHeightForWidth(self.logging_widget.sizePolicy().hasHeightForWidth())
-        self.logging_widget.setSizePolicy(sizePolicy3)
+        sizePolicy2.setHeightForWidth(self.logging_widget.sizePolicy().hasHeightForWidth())
+        self.logging_widget.setSizePolicy(sizePolicy2)
         self.horizontalLayout_4 = QHBoxLayout(self.logging_widget)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
@@ -168,6 +168,8 @@ class Ui_AlgoStatusWidget(object):
 
         self.widget = QWidget(AlgoStatusWidget)
         self.widget.setObjectName(u"widget")
+        sizePolicy3.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
+        self.widget.setSizePolicy(sizePolicy3)
         self.horizontalLayout_3 = QHBoxLayout(self.widget)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 12)

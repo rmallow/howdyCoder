@@ -426,14 +426,14 @@ class mainframe(commandProcessor):
             if self.process_dict[code].is_alive():
                 self.process_dict[code].terminate()
             del self.process_dict[code]
-            self.sendToUi(
-                msg.message(
-                    msg.MessageType.UI_UPDATE,
-                    msg.UiUpdateType.STATUS,
-                    details=asdict(ProgramStatusData(mode=Modes.STANDBY)),
-                    key=msg.messageKey(code, None),
-                )
+        self.sendToUi(
+            msg.message(
+                msg.MessageType.UI_UPDATE,
+                msg.UiUpdateType.STATUS,
+                details=asdict(ProgramStatusData(mode=Modes.STANDBY)),
+                key=msg.messageKey(code, None),
             )
+        )
 
     def cmdShutdown(self, _, details=None):
         """End the programs first and then shutdown"""

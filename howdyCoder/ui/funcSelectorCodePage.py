@@ -12,18 +12,11 @@ import typing
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
-CODE_ROLE = QtCore.Qt.UserRole + 1
-IMPORT_ROLE = QtCore.Qt.UserRole + 2
-IMPORT_STATEMENT_ROLE = QtCore.Qt.UserRole + 3
-
 WAIT_FOR_TEXT_EDITING_TO_END = 2000
 
 COMPILING_STATUS = "Compiling Code"
 ERROR_ENCOUNTERED = "Error encountered: "
 COMPILE_ERROR_STATUS = ERROR_ENCOUNTERED + "Code Compilation"
-TOO_MANY_FUNCTIONS_ERROR_STATUS = (
-    ERROR_ENCOUNTERED + "Too many functions, only one allowed"
-)
 POSONLY_ARGS_ERROR_STATUS = (
     ERROR_ENCOUNTERED
     + "Remove the not allowed Positional-only argument indicator '/' in the function defenition."
@@ -31,6 +24,17 @@ POSONLY_ARGS_ERROR_STATUS = (
 TOO_FEW_FUNCTIONS_ERROR_STATUS = ERROR_ENCOUNTERED + "Must be at least one function"
 
 GOOD_STATUS = "No errors found, Code good to go"
+
+
+def createFunctionConfig(
+    function: ast.FunctionDef,
+    entry_function: str,
+    imports: list,
+    import_statements: list,
+):
+    return FunctionSettings(
+        ast.unparse(function), entry_function, imports, import_statements
+    )
 
 
 class FuncSelectorCodePage(FuncSelectorPageBase):
@@ -51,7 +55,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
         self.enableControls(False)
 
-        self._current_function_settings: FunctionSettings = None
+        self._current_function_settings: FunctionSettings = FunctionSettings()
 
         self.ui.key_set_widget.key_name = openAIUtil.OPEN_AI_API_KEY_NAME
         self.ui.key_set_widget._key_validation_function = openAIUtil.testValid
@@ -92,7 +96,10 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     def updateData(self) -> None:
         self.ui.codeEdit.clear()
-        self._current_function_settings = None
+        self._current_function_settings = FunctionSettings()
+        self.ui.prompt_text_edit.clear()
+        self.ui.entry_function_edit.clear()
+        self.code_explanation.clear()
         return super().updateData()
 
     def codeChanged(self):
@@ -115,14 +122,14 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             else:
                 root = ast.parse(self.ui.codeEdit.toPlainText(), "<string>")
                 functions = astUtil.getFunctions(root)
-                if len(functions) > 1:
-                    self.ui.statusLabel.setText(TOO_MANY_FUNCTIONS_ERROR_STATUS)
-                elif functions:
+                if functions:
                     if functions[0].args.posonlyargs:
                         self.ui.statusLabel.setText(POSONLY_ARGS_ERROR_STATUS)
                     else:
-                        self._current_function_settings = self.createFunctionConfig(
-                            functions[0], *astUtil.getImportsUnique(root)
+                        self._current_function_settings = createFunctionConfig(
+                            functions[0],
+                            self.ui.entry_function_edit.text(),
+                            *astUtil.getImportsUnique(root),
                         )
                         self.enableControls(True)
                         self.ui.statusLabel.setText(GOOD_STATUS)
@@ -130,13 +137,6 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                     self.ui.statusLabel.setText(TOO_FEW_FUNCTIONS_ERROR_STATUS)
 
             self.ui.codeEdit.setEnabled(True)
-
-    def createFunctionConfig(
-        self, function: ast.FunctionDef, imports: list, import_statements: list
-    ):
-        return FunctionSettings(
-            ast.unparse(function), function.name, imports, import_statements
-        )
 
     @QtCore.Slot()
     def sendFunctionConfig(self):

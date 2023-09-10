@@ -29,16 +29,16 @@ class Ui_CreateDataSourceParametersPage(object):
         CreateDataSourceParametersPage.resize(861, 884)
         self.verticalLayout = QVBoxLayout(CreateDataSourceParametersPage)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.widget = QWidget(CreateDataSourceParametersPage)
-        self.widget.setObjectName(u"widget")
+        self.period_and_flatten_box = QWidget(CreateDataSourceParametersPage)
+        self.period_and_flatten_box.setObjectName(u"period_and_flatten_box")
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(2)
-        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
-        self.widget.setSizePolicy(sizePolicy)
-        self.horizontalLayout = QHBoxLayout(self.widget)
+        sizePolicy.setHeightForWidth(self.period_and_flatten_box.sizePolicy().hasHeightForWidth())
+        self.period_and_flatten_box.setSizePolicy(sizePolicy)
+        self.horizontalLayout = QHBoxLayout(self.period_and_flatten_box)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.periodWidgetBox = QWidget(self.widget)
+        self.periodWidgetBox = QWidget(self.period_and_flatten_box)
         self.periodWidgetBox.setObjectName(u"periodWidgetBox")
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(3)
@@ -94,7 +94,7 @@ class Ui_CreateDataSourceParametersPage(object):
 
         self.horizontalLayout.addWidget(self.periodWidgetBox)
 
-        self.flattenWidgetBox = QWidget(self.widget)
+        self.flattenWidgetBox = QWidget(self.period_and_flatten_box)
         self.flattenWidgetBox.setObjectName(u"flattenWidgetBox")
         sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy3.setHorizontalStretch(2)
@@ -138,7 +138,7 @@ class Ui_CreateDataSourceParametersPage(object):
         self.horizontalLayout.addWidget(self.flattenWidgetBox)
 
 
-        self.verticalLayout.addWidget(self.widget)
+        self.verticalLayout.addWidget(self.period_and_flatten_box)
 
         self.label_4 = QLabel(CreateDataSourceParametersPage)
         self.label_4.setObjectName(u"label_4")

@@ -133,6 +133,7 @@ class Ui_CreateDataSourceType(object):
         self.typeDescription.setSizePolicy(sizePolicy6)
         self.typeDescription.setFont(font)
         self.typeDescription.setAlignment(Qt.AlignCenter)
+        self.typeDescription.setWordWrap(True)
 
         self.horizontalLayout_2.addWidget(self.typeDescription)
 

@@ -11,8 +11,7 @@ import typing
 from PySide6 import QtWidgets, QtCore, QtGui
 
 CODE_ROLE = QtCore.Qt.UserRole + 1
-IMPORT_ROLE = QtCore.Qt.UserRole + 2
-IMPORT_STATEMENT_ROLE = QtCore.Qt.UserRole + 3
+SETTINGS_ROLE = CODE_ROLE + 1
 
 
 class FuncSelectorLibPage(FuncSelectorPageBase):
@@ -74,15 +73,14 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
     def addFuncItem(
         self,
         lib_item: QtGui.QStandardItem,
-        function_data: librarySingleton.FunctionData,
+        function_settings: FunctionSettings,
     ) -> None:
         """
         Using the function node create the function item
         """
-        function_item = QtGui.QStandardItem(function_data.function.name)
-        function_item.setData(ast.unparse(function_data.function), CODE_ROLE)
-        function_item.setData(function_data.imports, IMPORT_ROLE)
-        function_item.setData(function_data.import_statements, IMPORT_STATEMENT_ROLE)
+        function_item = QtGui.QStandardItem(function_settings.name)
+        function_item.setData(function_settings.code, CODE_ROLE)
+        function_item.setData(function_settings, SETTINGS_ROLE)
         lib_item.appendRow(function_item)
 
     @QtCore.Slot()
@@ -106,14 +104,7 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
         if self._selectedIndex is not None and self._selectedIndex.isValid():
             if self._selectedIndex.parent().isValid():
                 if not self._selectedIndex.model().hasChildren(self._selectedIndex):
-                    self.funcSelected.emit(
-                        FunctionSettings(
-                            self._selectedIndex.data(CODE_ROLE),
-                            self._selectedIndex.data(),
-                            self._selectedIndex.data(IMPORT_ROLE),
-                            self._selectedIndex.data(IMPORT_STATEMENT_ROLE),
-                        )
-                    )
+                    self.funcSelected.emit(self._selectedIndex.data(SETTINGS_ROLE))
                     return
         self._ui.funcDescription.document().setPlainText("Not a valid function!!!")
 
@@ -133,7 +124,7 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
 
             # we have the group now get the functions out of the library
             lib_item = QtGui.QStandardItem(library.name)
-            for func in library.function_list:
+            for func in library.functions:
                 self.addFuncItem(lib_item, func)
 
             # finally add the functions to the group

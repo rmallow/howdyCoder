@@ -1,9 +1,7 @@
 from ..data.datalocator import LIBRARIES_FILE
 
-from ..commonUtil import helpers
 from ..commonUtil import astUtil
 from ..commonUtil import mpLogging
-from ..core.commonGlobals import ENUM_DISPLAY
 from ..core.dataStructs import FunctionSettings
 
 import configparser
@@ -16,29 +14,14 @@ import ast
 import traceback
 import yaml
 
-from dataclass_wizard import asdict, fromlist
-
-
-"""
-AFL Constants
-"""
-NAME_KEY = "name"
-GROUP_KEY = "group"
-FUNCTIONS_KEY = "functions"
-
-
-@dataclass
-class FunctionData:
-    function: ast.FunctionDef
-    imports: list
-    import_statements: list
+from dataclass_wizard import asdict, fromdict
 
 
 @dataclass
 class Library:
     name: str
     group: str
-    function_list: typing.List[FunctionData]
+    functions: typing.List[FunctionSettings]
 
 
 """Used to store the loaded library values between func selectors"""
@@ -84,7 +67,9 @@ def loadLibraryPy(file_path: str) -> Library:
                         "",
                         "",
                         [
-                            FunctionData(f, imports, import_statements)
+                            FunctionSettings(
+                                f.name, ast.unparse(f), imports, import_statements
+                            )
                             for f in functions
                             if functionCompiles(ast.unparse(f), file_path)
                         ],
@@ -127,30 +112,21 @@ def loadLibraryAfl(file_path: str):
     if file_path is not None and file_path != "":
         filePathObj = pathlib.Path(file_path)
         if filePathObj.exists():
-            function_data_list = []
-            res = getConfigFromFile(file_path)
             config = {}
-            if res is not None:
-                config = res
-            for function_setting in fromlist(
-                FunctionSettings, config.get(FUNCTIONS_KEY, [])
-            ):
-                if functionCompiles(
-                    function_setting.code,
-                    file_path,
-                ):
-                    function_data_list.append(
-                        FunctionData(
-                            astUtil.getFunctions(ast.parse(function_setting.code))[0],
-                            function_setting.imports,
-                            function_setting.import_statements,
-                        )
+            if res := getConfigFromFile(file_path):
+                config = fromdict(Library, res)
+            lib = Library(
+                config.name,
+                config.group,
+                [
+                    function_setting
+                    for function_setting in config.functions
+                    if functionCompiles(
+                        function_setting.code,
+                        file_path,
                     )
-                lib = Library(
-                    config.get(NAME_KEY, ""),
-                    config.get(GROUP_KEY, ""),
-                    function_data_list,
-                )
+                ],
+            )
     return lib
 
 
@@ -175,14 +151,14 @@ def saveToLibrary(
     name: str = "",
     group: str = "",
 ):
-    dict_to_save = {NAME_KEY: name, GROUP_KEY: group, FUNCTIONS_KEY: []}
+    settings_to_save = Library(name, group, [])
 
     if res := getConfigFromFile(file_path, warning_if_not_exist=False):
-        dict_to_save = res
+        settings_to_save = fromdict(Library, res)
     if pathlib.Path(file_path).parent.exists():
         with open(file_path, "w") as file:
-            dict_to_save[FUNCTIONS_KEY].append(asdict(function_config))
-            yaml.dump(dict_to_save, file, default_flow_style=False)
+            settings_to_save.functions.append(function_config)
+            yaml.dump(asdict(settings_to_save), file, default_flow_style=False)
 
 
 def getLibraries() -> typing.List[Library]:

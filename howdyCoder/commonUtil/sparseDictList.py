@@ -120,7 +120,9 @@ class SparseDictList(dict):
             writer = csv.writer(csv_file)
             writer.writerow(self.keys())
             current_indexes = defaultdict(int)
-            max_index = max(v[-1].index for v in self.values())
+            max_index = 0
+            for v in self.values():
+                max_index = max(v[-1].index, max_index)
             for x in range(max_index + 1):
                 row = []
                 for k in self.keys():
