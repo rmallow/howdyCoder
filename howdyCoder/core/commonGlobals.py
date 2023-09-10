@@ -98,3 +98,4 @@ class InputType(Enum):
     LONG_TEXT = "long text"
     NUMBER = "number"
     MOUSE_POS = "mouse position"
+    SPEECH_TO_TEXT = "speech to text"

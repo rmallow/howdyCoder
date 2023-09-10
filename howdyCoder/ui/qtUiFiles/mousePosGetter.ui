@@ -49,7 +49,7 @@
    <item>
     <widget class="QLabel" name="description_label">
      <property name="text">
-      <string>Hit Space while active is checked to capture and send mouse position as coordinate point (x, y)</string>
+      <string>Hit Space while active is checked to capture and send mouse position as coordinate point (x, y) (Experimental Feature)</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

@@ -60,9 +60,9 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.key_set_widget.key_name = openAIUtil.OPEN_AI_API_KEY_NAME
         self.ui.key_set_widget._key_validation_function = openAIUtil.testValid
         self.ui.key_set_widget.output_function = self.ui.call_api_button.setEnabled
-        if openAIUtil.testValidKeySet():
-            self.ui.key_set_widget.setStatus(True)
-            self.ui.call_api_button.setEnabled(True)
+        cur_val = openAIUtil.testValidKeySet()
+        self.ui.key_set_widget.setStatus(cur_val)
+        self.ui.call_api_button.setEnabled(cur_val)
 
         self.setupPromptCombo()
 
@@ -111,6 +111,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         # disable at start and re enable after validation
         if self.ui.codeEdit.toPlainText():
             self.ui.codeEdit.setEnabled(False)
+            self.ui.entry_function_edit.setEnabled(False)
             self.ui.statusLabel.setText(COMPILING_STATUS)
             self._current_function_settings = None
             try:
@@ -126,6 +127,23 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                     if functions[0].args.posonlyargs:
                         self.ui.statusLabel.setText(POSONLY_ARGS_ERROR_STATUS)
                     else:
+                        if len(functions) == 1:
+                            self.ui.entry_function_edit.setText(functions[0].name)
+                            self.ui.entry_function_edit.setEnabled(False)
+                        else:
+                            func_name = functions[-1].name
+                            index = self.code_explanation.toPlainText().find("entry:")
+                            if index != -1:
+                                new_line = self.code_explanation.toPlainText().find(
+                                    "\n"
+                                )
+                                potential_name = self.code_explanation.toPlainText()[
+                                    index + len("entry:") : new_line
+                                ]
+                                if any(f.name == potential_name for f in functions):
+                                    func_name = potential_name
+                            self.ui.entry_function_edit.setText(func_name)
+                            self.ui.entry_function_edit.setEnabled(True)
                         self._current_function_settings = createFunctionConfig(
                             functions[0],
                             self.ui.entry_function_edit.text(),
@@ -137,6 +155,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                     self.ui.statusLabel.setText(TOO_FEW_FUNCTIONS_ERROR_STATUS)
 
             self.ui.codeEdit.setEnabled(True)
+            self.ui.entry_function_edit.setEnabled(True)
 
     @QtCore.Slot()
     def sendFunctionConfig(self):

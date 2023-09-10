@@ -55,6 +55,12 @@ def getChatCompletion(system_prompt: str, user_prompt: str):
     return content
 
 
+@setKeyDecorator
+def transcribeAudio(audio_file):
+    audio_file = open(audio_file, "rb")
+    return openai.Audio.transcribe("whisper-1", audio_file)
+
+
 PIP_SERACH = "pip"
 CODE_INDICATOR = "```"
 PYTHON_SEARCH = CODE_INDICATOR + "python"

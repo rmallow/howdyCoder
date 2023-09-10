@@ -60,6 +60,6 @@ class Ui_MousePosGetter(object):
         MousePosGetter.setWindowTitle(QCoreApplication.translate("MousePosGetter", u"Mouse Pos Getter", None))
         self.active_check.setText(QCoreApplication.translate("MousePosGetter", u"Active", None))
         self.pos_label.setText("")
-        self.description_label.setText(QCoreApplication.translate("MousePosGetter", u"Hit Space while active is checked to capture and send mouse position as coordinate point (x, y)", None))
+        self.description_label.setText(QCoreApplication.translate("MousePosGetter", u"Hit Space while active is checked to capture and send mouse position as coordinate point (x, y) (Experimental Feature)", None))
     # retranslateUi
 

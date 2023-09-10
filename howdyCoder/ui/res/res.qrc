@@ -6,6 +6,13 @@
     <file>checkmark.png</file>
     <file>help.png</file>
   </qresource>
+  <qresource prefix="audio">
+    <file>pause.png</file>
+    <file>play_pause.png</file>
+    <file>play.png</file>
+    <file>stop_audio.png</file>
+    <file>mic.png</file>
+  </qresource>
   <qresource prefix="logging">
     <file>critical.png</file>
     <file>error.png</file>

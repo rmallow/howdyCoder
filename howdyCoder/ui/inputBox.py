@@ -1,7 +1,7 @@
 from ..core.commonGlobals import InputType
 from ..core.dataStructs import InputData
 
-from .inputGetter import InputGetterBase, MousePosGetter
+from .inputGetter import InputGetterBase, MousePosGetter, AudioGetter
 
 import typing
 
@@ -14,6 +14,7 @@ class InputBox(QtWidgets.QWidget):
         InputType.LONG_TEXT: QtWidgets.QPlainTextEdit,
         InputType.NUMBER: QtWidgets.QDoubleSpinBox,
         InputType.MOUSE_POS: MousePosGetter,
+        InputType.SPEECH_TO_TEXT: AudioGetter,
     }
 
     INPUT_TYPE_TO_GETTER = {
@@ -50,12 +51,14 @@ class InputBox(QtWidgets.QWidget):
             hide_reset = self._input_widget.HIDE_RESET
             self._input_widget.inputEntered.connect(self.inputEnteredWrapper)
         """Manual UI setup"""
-
         layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(
+            QtWidgets.QLabel(f"Data Source - {self._data_source_name}", self)
+        )
+        layout.addWidget(self._input_widget)
         if not (hide_enter and hide_reset):
             button_box_widget = QtWidgets.QWidget(self)
             button_box = QtWidgets.QHBoxLayout()
-        label = QtWidgets.QLabel(f"Data Source - {self._data_source_name}", self)
         if not hide_enter:
             enter_button = QtWidgets.QPushButton("Enter", self)
             enter_button.released.connect(self.enterPressed)
@@ -64,8 +67,6 @@ class InputBox(QtWidgets.QWidget):
             reset_button = QtWidgets.QPushButton("Reset", self)
             reset_button.released.connect(self.resetPressed)
             button_box.addWidget(reset_button)
-        layout.addWidget(label)
-        layout.addWidget(self._input_widget)
         if not (hide_enter and hide_reset):
             button_box_widget.setLayout(button_box)
             layout.addWidget(button_box_widget)
@@ -73,13 +74,15 @@ class InputBox(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def enterPressed(self):
+        val = None
         if self._input_type in self.INPUT_TYPE_TO_GETTER:
             val = self.INPUT_TYPE_TO_GETTER[self._input_type](self._input_widget)
         else:
             val = self._input_widget.value()
-        self.inputEntered.emit(
-            InputData(code="", data_source_name=self._data_source_name, val=val)
-        )
+        if val is not None:
+            self.inputEntered.emit(
+                InputData(code="", data_source_name=self._data_source_name, val=val)
+            )
 
     @QtCore.Slot()
     def resetPressed(self):
