@@ -153,14 +153,14 @@ class CreateActionSettingsPage(CreateBasePage):
             enumType = helpers.findEnumByAttribute(
                 ActionTypeEnum, ENUM_DISPLAY, currSettings.type_
             )
+            if self._action_type is not None and self._action_type != enumType:
+                self.reset()
+            self._action_type = enumType
             self._calc_selector_widget.default_prompt = (
                 "Event"
                 if self._action_type == ActionTypeEnum.EVENT
                 else "Trigger Calculation"
             )
-            if self._action_type is not None and self._action_type != enumType:
-                self.reset()
-            self._action_type = enumType
             if self._action_type == ActionTypeEnum.EVENT:
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_EVENT
                 self._ui.triggerWidget.setHidden(True)

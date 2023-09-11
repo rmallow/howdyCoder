@@ -25,7 +25,7 @@ class Ui_FuncSelector(object):
     def setupUi(self, FuncSelector):
         if not FuncSelector.objectName():
             FuncSelector.setObjectName(u"FuncSelector")
-        FuncSelector.resize(552, 435)
+        FuncSelector.resize(1013, 781)
         self.verticalLayout = QVBoxLayout(FuncSelector)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
