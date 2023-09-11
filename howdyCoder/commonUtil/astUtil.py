@@ -1,3 +1,5 @@
+from ..core.commonGlobals import DATA_SET
+
 import ast
 from collections import namedtuple
 import typing
@@ -47,8 +49,32 @@ def getSuggestedParameterNames(root: ast.Module) -> typing.List[str]:
     args and kwonlyargs - these we do pass in and will return
     vararg and kwarg - these are *args and **kwargs type arguments and will be ignored as we don't suggest these
     """
-    parameters = []
+    parameters = set()
     for f in function_defs:
-        parameters.extend([arg.arg for arg in f.args.args])
-        parameters.extend([arg.arg for arg in f.args.kwonlyargs])
-    return parameters
+        parameters.update([arg.arg for arg in f.args.args])
+        parameters.update([arg.arg for arg in f.args.kwonlyargs])
+    return list(parameters)
+
+
+def getSuggestedDataSetNames(root: ast.Module) -> typing.List[str]:
+    function_defs = getFunctions(root)
+    data_set_names = set()
+
+    def handleConstants(c: ast.Constant):
+        nonlocal data_set_names
+        if isinstance(c, ast.Constant):
+            try:
+                v = ast.literal_eval(ast.unparse(c))
+                if isinstance(v, str):
+                    data_set_names.add(v)
+            except Exception as _:
+                pass  # this really shouldn't
+
+    for f in function_defs:
+        for node in ast.walk(f):
+            if isinstance(node, ast.Subscript):
+                if ast.unparse(node.value) == DATA_SET:
+                    handleConstants(node.slice)
+                    for slice_child in ast.iter_child_nodes(node.slice):
+                        handleConstants(slice_child)
+    return list(data_set_names)

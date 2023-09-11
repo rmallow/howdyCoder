@@ -110,6 +110,11 @@
           <verstretch>1</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>16</pointsize>
+         </font>
+        </property>
         <property name="tabStopDistance">
          <double>4.000000000000000</double>
         </property>
@@ -228,6 +233,11 @@
           <horstretch>10</horstretch>
           <verstretch>5</verstretch>
          </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>16</pointsize>
+         </font>
         </property>
         <property name="lineWrapMode">
          <enum>QPlainTextEdit::NoWrap</enum>

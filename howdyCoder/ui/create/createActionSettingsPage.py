@@ -8,6 +8,7 @@ from ..selectorWidget import SelectorWidget
 from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData
 
 from ..util.spinBoxDelegate import SpinBoxDelegate
+from ..util import qtResourceManager
 
 from ...commonUtil import helpers
 from ...core.commonGlobals import (
@@ -70,6 +71,9 @@ class CreateActionSettingsPage(CreateBasePage):
             ["Group", "Name", "Source"]
         )
         self._ui.selectedInputTable.setModel(self._selected_input_table_model)
+        self._ui.selectedInputTable.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeMode.Stretch
+        )
         self._selected_input_table_model.itemChanged.connect(
             self.selectedTableModelItemChanged
         )
@@ -84,6 +88,9 @@ class CreateActionSettingsPage(CreateBasePage):
             ),
         )
         self._ui.availableInputTable.setModel(self._available_input_table_model)
+        self._ui.availableInputTable.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeMode.Stretch
+        )
         self._ui.availableInputTable.setMouseTracking(True)
 
         self._ui.availableInputTable.clicked.connect(self.availableSelected)
@@ -114,6 +121,8 @@ class CreateActionSettingsPage(CreateBasePage):
             self._ui.dataTypeCombo.addItem(getattr(e, ENUM_DISPLAY), e)
         self._ui.dataTypeCombo.setCurrentIndex(-1)
         self._ui.dataTypeCombo.currentIndexChanged.connect(self.enableCheck)
+        # TODO add back in input data type
+        self._ui.data_type_box.hide()
 
     @QtCore.Slot()
     def onFuncSelected(self, settings: FunctionSettingsWithHelperData):
@@ -135,6 +144,7 @@ class CreateActionSettingsPage(CreateBasePage):
                 )
                 self._current_output_settings = settings
             self.enableCheck()
+        self.updateDataSetSuggestions()
 
     def loadPage(self) -> None:
         super().loadPage()
@@ -268,8 +278,9 @@ class CreateActionSettingsPage(CreateBasePage):
                 self._action_type == ActionTypeEnum.EVENT
                 or self._current_output_settings is not None
             )
-            and self._ui.dataTypeCombo.currentIndex() >= 0
         )
+        # TODO add back in input data type
+        # and self._ui.dataTypeCombo.currentIndex() >= 0
 
     def reset(self) -> None:
         self._curr_selected = set()
@@ -298,6 +309,7 @@ class CreateActionSettingsPage(CreateBasePage):
             )
             self._selected_input_table_model.removeRow(selection[0].row())
             self.enableCheck()
+            self.updateDataSetSuggestions()
 
     def save(self) -> None:
         action_settings: ActionSettings = self.getTempConfig()
@@ -306,7 +318,11 @@ class CreateActionSettingsPage(CreateBasePage):
             action_settings.output_function = (
                 self._current_output_settings.function_settings
             )
-        action_settings.input_data_type = self._ui.dataTypeCombo.currentText()
+        action_settings.input_data_type = getattr(
+            ActionDataType.DICTIONARY_OF_LISTS, ENUM_DISPLAY
+        )
+        # TODO add back in input data type
+        # action_settings.input_data_type = self._ui.dataTypeCombo.currentText()
         self.getHelperData().suggested_parameters = (
             self._current_calc_settings.suggested_parameters[::]
             + (
@@ -349,3 +365,40 @@ class CreateActionSettingsPage(CreateBasePage):
             and item.data(QtCore.Qt.ItemDataRole.EditRole) == 0
         ):
             item.setData(1, QtCore.Qt.ItemDataRole.EditRole)
+        if item.index().column() == SELECTED_NAME_COLUMN:
+            self.updateDataSetSuggestions()
+
+    def updateDataSetSuggestions(self):
+        self._ui.suggested_data_set.clear()
+        current = set()
+        for row in range(self._selected_input_table_model.rowCount()):
+            current.add(
+                self._selected_input_table_model.item(row, SELECTED_NAME_COLUMN).data(
+                    QtCore.Qt.ItemDataRole.DisplayRole
+                )
+            )
+
+        def getIcon(name):
+            nonlocal current
+            return qtResourceManager.getResourceByName(
+                "icons",
+                ("checkmark_green.png" if name in current else "x_red.png"),
+            )
+
+        added = set()
+        if self._current_calc_settings is not None:
+            for name in self._current_calc_settings.suggested_data:
+                added.add(name)
+                self._ui.suggested_data_set.addItem(
+                    QtWidgets.QListWidgetItem(getIcon(name), name)
+                )
+
+        if (
+            self._current_output_settings is not None
+            and self._action_type == ActionTypeEnum.TRIGGER
+        ):
+            for name in self._current_output_settings.suggested_data:
+                if name not in added:
+                    self._ui.suggested_data_set.addItem(
+                        QtWidgets.QListWidgetItem(getIcon(name), name)
+                    )

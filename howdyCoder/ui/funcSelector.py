@@ -16,6 +16,7 @@ from PySide6 import QtCore
 class FunctionSettingsWithHelperData(HelperData):
     function_settings: FunctionSettings = FunctionSettings()
     suggested_parameters: typing.List[str] = field(default_factory=list)
+    suggested_data: typing.List[str] = field(default_factory=list)
 
 
 class FuncSelector(SelectorBase):
@@ -53,12 +54,12 @@ class FuncSelector(SelectorBase):
 
     @QtCore.Slot()
     def addHelperData(self, function_settings: FunctionSettings):
+        root = ast.parse(function_settings.code, "<string>")
         settings_with_index = FunctionSettingsWithHelperData(
             self.parentIndex,
             function_settings,
-            astUtil.getSuggestedParameterNames(
-                ast.parse(function_settings.code, "<string>")
-            ),
+            astUtil.getSuggestedParameterNames(root),
+            astUtil.getSuggestedDataSetNames(root),
         )
         self.itemSelected.emit(settings_with_index)
         # if we're emitting this, we're done selecting so we can hide now

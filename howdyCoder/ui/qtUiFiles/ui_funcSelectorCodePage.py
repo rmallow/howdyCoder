@@ -84,6 +84,9 @@ class Ui_FuncSelectorCodePage(object):
         sizePolicy2.setVerticalStretch(1)
         sizePolicy2.setHeightForWidth(self.prompt_text_edit.sizePolicy().hasHeightForWidth())
         self.prompt_text_edit.setSizePolicy(sizePolicy2)
+        font = QFont()
+        font.setPointSize(16)
+        self.prompt_text_edit.setFont(font)
         self.prompt_text_edit.setTabStopDistance(4.000000000000000)
 
         self.horizontalLayout_6.addWidget(self.prompt_text_edit)
@@ -150,6 +153,7 @@ class Ui_FuncSelectorCodePage(object):
         sizePolicy4.setVerticalStretch(5)
         sizePolicy4.setHeightForWidth(self.codeEdit.sizePolicy().hasHeightForWidth())
         self.codeEdit.setSizePolicy(sizePolicy4)
+        self.codeEdit.setFont(font)
         self.codeEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.codeEdit.setTabStopDistance(4.000000000000000)
 
