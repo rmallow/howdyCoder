@@ -27,13 +27,16 @@ GOOD_STATUS = "No errors found, Code good to go"
 
 
 def createFunctionConfig(
-    function: ast.FunctionDef,
+    functions: typing.List[ast.FunctionDef],
     entry_function: str,
     imports: list,
     import_statements: list,
 ):
     return FunctionSettings(
-        ast.unparse(function), entry_function, imports, import_statements
+        "\n\n".join([ast.unparse(function) for function in functions]),
+        entry_function,
+        imports,
+        import_statements,
     )
 
 
@@ -56,6 +59,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.enableControls(False)
 
         self._current_function_settings: FunctionSettings = FunctionSettings()
+        self.valid_code = True
 
         self.ui.key_set_widget.key_name = openAIUtil.OPEN_AI_API_KEY_NAME
         self.ui.key_set_widget._key_validation_function = openAIUtil.testValid
@@ -72,6 +76,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self._code_edit_timer.setInterval(WAIT_FOR_TEXT_EDITING_TO_END)
         self._code_edit_timer.timeout.connect(self.validateCode)
         self.ui.codeEdit.textChanged.connect(self.codeChanged)
+        self.ui.entry_function_edit.textChanged.connect(self.entryFunctionChanged)
 
         self.hz_expander = expander.HorizontalExpander(
             self.ui.code_edit_box,
@@ -85,7 +90,6 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         layout.addWidget(self.code_explanation)
         self.hz_expander.setContentLayout(layout)
         self.ui.code_edit_box.layout().addWidget(self.hz_expander, 1)
-        self.resize
 
         self.ui.selectButton.released.connect(self.sendFunctionConfig)
         self.ui.saveButton.released.connect(self.saveCode)
@@ -114,6 +118,8 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             self.ui.entry_function_edit.setEnabled(False)
             self.ui.statusLabel.setText(COMPILING_STATUS)
             self._current_function_settings = None
+            self._current_functions = []
+            self.valid_code = False
             try:
                 # first make sure it compiles, this is a better check than ast parsing, we don't need a return value for this
                 compile(self.ui.codeEdit.toPlainText(), "<string>", "exec")
@@ -122,16 +128,18 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                 self.ui.statusLabel.setText(COMPILE_ERROR_STATUS)
             else:
                 root = ast.parse(self.ui.codeEdit.toPlainText(), "<string>")
-                functions = astUtil.getFunctions(root)
-                if functions:
-                    if functions[0].args.posonlyargs:
+                self._current_functions = astUtil.getFunctions(root)
+                if self._current_functions:
+                    if self._current_functions[0].args.posonlyargs:
                         self.ui.statusLabel.setText(POSONLY_ARGS_ERROR_STATUS)
                     else:
-                        if len(functions) == 1:
-                            self.ui.entry_function_edit.setText(functions[0].name)
+                        if len(self._current_functions) == 1:
+                            self.ui.entry_function_edit.setText(
+                                self._current_functions[0].name
+                            )
                             self.ui.entry_function_edit.setEnabled(False)
                         else:
-                            func_name = functions[-1].name
+                            func_name = self._current_functions[-1].name
                             index = self.code_explanation.toPlainText().find("entry:")
                             if index != -1:
                                 new_line = self.code_explanation.toPlainText().find(
@@ -139,16 +147,20 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                                 )
                                 potential_name = self.code_explanation.toPlainText()[
                                     index + len("entry:") : new_line
-                                ]
-                                if any(f.name == potential_name for f in functions):
+                                ].strip()
+                                if any(
+                                    f.name == potential_name
+                                    for f in self._current_functions
+                                ):
                                     func_name = potential_name
                             self.ui.entry_function_edit.setText(func_name)
                             self.ui.entry_function_edit.setEnabled(True)
                         self._current_function_settings = createFunctionConfig(
-                            functions[0],
+                            self._current_functions,
                             self.ui.entry_function_edit.text(),
                             *astUtil.getImportsUnique(root),
                         )
+                        self.valid_code = True
                         self.enableControls(True)
                         self.ui.statusLabel.setText(GOOD_STATUS)
                 else:
@@ -215,3 +227,10 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         )
         assert index != -1, f"Could not find prompt by this name: {prompt_name}"
         self.ui.prompt_combo_box.setCurrentIndex(index)
+
+    def entryFunctionChanged(self, new_text):
+        if self.valid_code and any(new_text == f.name for f in self._current_functions):
+            self._current_function_settings.name = new_text
+            self.enableControls(True)
+        else:
+            self.enableControls(False)
