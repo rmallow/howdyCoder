@@ -12,6 +12,7 @@ from ...core.commonGlobals import (
     DataSourcesTypeEnum,
     ActionTypeEnum,
     ENUM_DISPLAY,
+    DATA_SET,
 )
 
 import typing
@@ -92,17 +93,18 @@ class CreateBaseParametersPage(CreateBasePage):
         helper_data = self.getHelperData()
         self._ui.parameter_list_widget.clear()
         for param in helper_data.suggested_parameters:
-            icon = qtResourceManager.getResourceByName(
-                "icons",
-                (
-                    "checkmark_green.png"
-                    if param in self._parameterModel.current_names
-                    else "x_red.png"
-                ),
-            )
-            self._ui.parameter_list_widget.addItem(
-                QtWidgets.QListWidgetItem(icon, param)
-            )
+            if param != DATA_SET:
+                icon = qtResourceManager.getResourceByName(
+                    "icons",
+                    (
+                        "checkmark_green.png"
+                        if param in self._parameterModel.current_names
+                        else "x_red.png"
+                    ),
+                )
+                self._ui.parameter_list_widget.addItem(
+                    QtWidgets.QListWidgetItem(icon, param)
+                )
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
@@ -171,7 +173,7 @@ class CreateActionParametersPage(CreateBaseParametersPage):
             parent=parent,
         )
         self._ui.periodWidgetBox.hide()
-    
+
     def loadPage(self) -> None:
         if self.getTempConfig().type_ == getattr(
             ActionTypeEnum.TRIGGER, ENUM_DISPLAY, ""

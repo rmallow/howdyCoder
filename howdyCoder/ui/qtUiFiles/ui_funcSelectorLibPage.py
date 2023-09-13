@@ -84,7 +84,7 @@ class Ui_FuncSelectorLibPage(object):
 
         self.funcDescription = QTextEdit(self.widget_4)
         self.funcDescription.setObjectName(u"funcDescription")
-        self.funcDescription.setTextInteractionFlags(Qt.NoTextInteraction)
+        self.funcDescription.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
         self.horizontalLayout_4.addWidget(self.funcDescription)
 

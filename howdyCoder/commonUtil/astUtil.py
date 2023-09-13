@@ -41,7 +41,9 @@ def getFunctions(root: ast.Module) -> typing.List[ast.FunctionDef]:
     ]
 
 
-def getSuggestedParameterNames(root: ast.Module) -> typing.List[str]:
+def getSuggestedParameterNames(
+    root: ast.Module, entry_function: str
+) -> typing.List[str]:
     function_defs = getFunctions(root)
     """
     FunctionDef contains an ast.arguments that has posonlyargs, args, vararg, kwonlyargs, and kwarg
@@ -51,8 +53,9 @@ def getSuggestedParameterNames(root: ast.Module) -> typing.List[str]:
     """
     parameters = set()
     for f in function_defs:
-        parameters.update([arg.arg for arg in f.args.args])
-        parameters.update([arg.arg for arg in f.args.kwonlyargs])
+        if f.name == entry_function:
+            parameters.update([arg.arg for arg in f.args.args])
+            parameters.update([arg.arg for arg in f.args.kwonlyargs])
     return list(parameters)
 
 

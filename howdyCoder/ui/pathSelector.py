@@ -2,7 +2,13 @@ from .selectorBase import SelectorBase, HelperData
 import typing
 from PySide6 import QtWidgets
 
+from enum import Enum
 from dataclasses import dataclass
+
+
+class PathType(Enum):
+    FOLDER = "folder"
+    FILE = "file"
 
 
 @dataclass
@@ -17,14 +23,21 @@ class PathSelector(SelectorBase):
 
     TUTORIAL_RESOURCE_PREFIX = "None"
 
-    def __init__(self, parent=None):
+    def __init__(self, path_type: PathType, parent=None):
         super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent)
 
         self.parentIndex = None
+        self._path_type = path_type
 
     def show(self):
         """Called when this widget should be shown but instead we're going to show a file selection"""
-        path = QtWidgets.QFileDialog.getOpenFileName()[0]
+        path = ""
+        if self._path_type == PathType.FOLDER:
+            path = QtWidgets.QFileDialog.getExistingDirectory()
+        elif self._path_type == PathType.FILE:
+            path = QtWidgets.QFileDialog.getSaveFileName(
+                options=QtWidgets.QFileDialog.Option.DontConfirmOverwrite
+            )[0]
         if path:
             self.itemSelected.emit(PathWithHelperData(self.parentIndex, path))
 

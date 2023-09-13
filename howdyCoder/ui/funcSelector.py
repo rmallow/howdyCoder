@@ -58,7 +58,7 @@ class FuncSelector(SelectorBase):
         settings_with_index = FunctionSettingsWithHelperData(
             self.parentIndex,
             function_settings,
-            astUtil.getSuggestedParameterNames(root),
+            astUtil.getSuggestedParameterNames(root, function_settings.name),
             astUtil.getSuggestedDataSetNames(root),
         )
         self.itemSelected.emit(settings_with_index)

@@ -1,5 +1,5 @@
 from .funcSelector import FuncSelector, FunctionSettingsWithHelperData
-from .pathSelector import PathSelector, PathWithHelperData
+from .pathSelector import PathSelector, PathWithHelperData, PathType
 from .selectorBase import HelperData
 from .selectorWidget import SelectorWidget
 
@@ -29,8 +29,14 @@ class EditorType(Enum):
     COMBO = 1, "combo"
     NUMBER = 2, "number"
     FUNC = 3, "function"
-    PATH = 4, "path"
+    FILE = 4, PathType.FILE.value
+    FOLDER = 5, PathType.FOLDER.value
     ANY = 5, "any"
+
+
+SELECTOR_TYPES = set(
+    [EditorType.FUNC.display, EditorType.FOLDER.display, EditorType.FILE.display]
+)
 
 
 def getEditorTypeList():
@@ -71,13 +77,20 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
             spin.setRange(-9999999999999, 9999999999999)
             return spin
         if index in index.model().selector_indexes:
-            selector_widget = SelectorWidget(
-                index,
-                index.model().func_selector
-                if editorType == EditorType.FUNC
-                else index.model().path_selector,
-                parent,
-            )
+            selector_widget = None
+            if editorType == EditorType.FUNC:
+                selector_widget = SelectorWidget(
+                    index, index.model().func_selector, parent, "Parameter Setup Func"
+                )
+            elif editorType == EditorType.FOLDER:
+                selector_widget = SelectorWidget(
+                    index, index.model().folder_selector, parent
+                )
+            else:
+                selector_widget = SelectorWidget(
+                    index, index.model().file_selector, parent
+                )
+
             index.model().selector_widgets[index] = selector_widget
             return selector_widget
         return super().createEditor(parent, option, index)
@@ -144,10 +157,12 @@ class EditableTableModel(
         # used for selecting functions
         self.selector_indexes = set()
         self.func_selector = FuncSelector()
-        self.path_selector = PathSelector()
+        self.folder_selector = PathSelector(PathType.FOLDER)
+        self.file_selector = PathSelector(PathType.FILE)
         self.selector_widgets = {}
         self.func_selector.itemSelected.connect(self.itemSelected)
-        self.path_selector.itemSelected.connect(self.itemSelected)
+        self.folder_selector.itemSelected.connect(self.itemSelected)
+        self.file_selector.itemSelected.connect(self.itemSelected)
 
         super().__init__(parent=parent)
 
@@ -188,11 +203,10 @@ class EditableTableModel(
                     self.values[valueKey][self.valueEnum] = settings.function_settings
 
                     description = settings.function_settings.code
-                    selectorWidget._ui.selectionLabel.setText(
-                        settings.function_settings.name
-                    )
+                    label = settings.function_settings.name
                 elif isinstance(settings, PathWithHelperData):
                     self.values[valueKey][self.valueEnum] = settings.path
+                    description = settings.path
 
                 if self.descriptionEnum is not None:
                     self.values[valueKey][self.descriptionEnum] = description
@@ -264,14 +278,8 @@ class EditableTableModel(
                         self.safeSetValue(valueKey, self.descriptionEnum, None)
                     funcIndex = self.getIndex(self.valueEnum, valueKey)
                     # if the value was func, then we need to open the func editor
-                    if (
-                        value == EditorType.FUNC.display
-                        or value == EditorType.PATH.display
-                    ):
-                        if value != old_val and (
-                            old_val == EditorType.FUNC.display
-                            or old_val == EditorType.PATH.display
-                        ):
+                    if value in SELECTOR_TYPES:
+                        if value != old_val and (old_val in SELECTOR_TYPES):
                             self.closePersistentEditor.emit(funcIndex)
                         self.selector_indexes.add(funcIndex)
                         self.openPersistentEditor.emit(funcIndex)
