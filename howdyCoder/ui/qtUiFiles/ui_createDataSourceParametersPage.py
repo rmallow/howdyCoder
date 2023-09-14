@@ -140,12 +140,12 @@ class Ui_CreateDataSourceParametersPage(object):
 
         self.verticalLayout.addWidget(self.period_and_flatten_box)
 
-        self.label_4 = QLabel(CreateDataSourceParametersPage)
-        self.label_4.setObjectName(u"label_4")
-        self.label_4.setFont(font)
-        self.label_4.setWordWrap(True)
+        self.suggested_label = QLabel(CreateDataSourceParametersPage)
+        self.suggested_label.setObjectName(u"suggested_label")
+        self.suggested_label.setFont(font)
+        self.suggested_label.setWordWrap(True)
 
-        self.verticalLayout.addWidget(self.label_4)
+        self.verticalLayout.addWidget(self.suggested_label)
 
         self.parameter_list_widget = QListWidget(CreateDataSourceParametersPage)
         self.parameter_list_widget.setObjectName(u"parameter_list_widget")
@@ -224,7 +224,7 @@ class Ui_CreateDataSourceParametersPage(object):
         self.single_shot_check.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Single Shot", None))
         self.label.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set if the output should be flattened. If any of the output is lists, flattening will cause each data point to be counted as individual data. If the ouput is a dict and contains multiple lists, flattening will only happen if all lists are the same length.", None))
         self.flattenedCheck.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Flatten", None))
-        self.label_4.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set the parameters to be used by your function. The top box shows the parameters that are used by the functions you've entered on the previous page. In the bottom box, enter the parameter name, select the type and then enter a value.", None))
+        self.suggested_label.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Set the parameters to be used by your function. The top box shows the parameters that are used by the functions you've entered on the previous page. In the bottom box, enter the parameter name, select the type and then enter a value.", None))
         self.addParameterButton.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Add", None))
         self.removeParameterButton.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Remove", None))
         self.clearParameterButton.setText(QCoreApplication.translate("CreateDataSourceParametersPage", u"Clear", None))

@@ -75,6 +75,22 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 return self.values[valueKey][ParameterEnum.DESCRIPTION]
         return super().data(index, role)
 
+    def getSuggestedParameters(self):
+        suggested = []
+        for value in self.values:
+            if (
+                ParameterEnum.TYPE in value
+                and ParameterEnum.VALUE in value
+                and ParameterEnum.NAME in value
+                and value[ParameterEnum.NAME]
+                and value[ParameterEnum.VALUE]
+            ):
+                if value[ParameterEnum.TYPE] == getattr(
+                    editableTable.EditorType.FUNC, ENUM_DISPLAY
+                ):
+                    suggested.extend(value[ParameterEnum.VALUE].suggested_parameters)
+        return suggested
+
     def getData(self, config: ItemSettings) -> typing.Dict[str, typing.Any]:
         """Return a dict that is the config of the parameter table"""
         returnConfig = {}

@@ -200,7 +200,7 @@ class EditableTableModel(
                 label = ""
                 description = ""
                 if isinstance(settings, FunctionSettingsWithHelperData):
-                    self.values[valueKey][self.valueEnum] = settings.function_settings
+                    self.values[valueKey][self.valueEnum] = settings
 
                     description = settings.function_settings.code
                     label = settings.function_settings.name
@@ -211,6 +211,9 @@ class EditableTableModel(
                 if self.descriptionEnum is not None:
                     self.values[valueKey][self.descriptionEnum] = description
                 selectorWidget._ui.selectionLabel.setText(label)
+                self.dataChanged.emit(
+                    settings.index, settings.index, [QtCore.Qt.DisplayRole]
+                )
 
     def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
         flags = super().flags(index)
