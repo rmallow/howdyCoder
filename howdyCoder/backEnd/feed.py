@@ -126,6 +126,7 @@ class feed:
     def started(self):
         for data_source in self.dataSources:
             data_source.just_started = True
+            data_source.loadData()
 
     def addInputData(self, data_source_code: str, data: typing.Any):
         if data_source_code in self.data_source_mapping:

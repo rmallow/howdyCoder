@@ -106,7 +106,7 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                     """If it is a setup func add to that section instead of parameters"""
                     config.setup_functions[value[ParameterEnum.NAME]] = value[
                         ParameterEnum.VALUE
-                    ]
+                    ].function_settings
                 else:
                     """else add to parameter section as normal"""
                     config.parameters[value[ParameterEnum.NAME]] = Parameter(

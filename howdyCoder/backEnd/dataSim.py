@@ -16,8 +16,6 @@ class dataSim(dataBase):
         self.newCyle = False
         self.end = False
 
-        self.loadData()
-
     def loadData(self) -> None:
         """
         Loads the simulated data into self.data

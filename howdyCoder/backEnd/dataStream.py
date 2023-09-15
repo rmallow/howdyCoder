@@ -9,8 +9,6 @@ class dataStream(dataBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.loadData()
-
     def getData(self) -> dict:
         return self.dataModifications(self.getDataReal())
 

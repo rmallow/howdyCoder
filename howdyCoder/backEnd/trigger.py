@@ -9,7 +9,7 @@ from collections.abc import Iterable
 
 class trigger(Action):
     def __init__(self, action_settings: ActionSettings, *args, **kwargs):
-        self.output_func: userFuncCaller = action_settings.output_function
+        self.output_func: userFuncCaller = action_settings.output_function.user_function
         super().__init__(action_settings, *args, **kwargs)
 
     def update(self):

@@ -48,13 +48,12 @@ class SpinBoxDelegate(QtWidgets.QStyledItemDelegate):
         model: QtCore.QAbstractItemModel,
         index: QtCore.QModelIndex | QtCore.QPersistentModelIndex,
     ) -> None:
-        editor.interpretText()
         val = (
             editor.value()
             if editor.value() not in self.disallowed_values
             else self.disallowed_default_value
         )
-        model.setData(index, editor.value(), QtCore.Qt.ItemDataRole.EditRole)
+        model.setData(index, val, QtCore.Qt.ItemDataRole.EditRole)
 
     def updateEditorGeometry(
         self,
@@ -66,5 +65,9 @@ class SpinBoxDelegate(QtWidgets.QStyledItemDelegate):
 
     @QtCore.Slot()
     def spinValueChanged(self):
-        if self.sender() and hasattr(self.sender(), "setValue"):
+        if (
+            self.sender()
+            and hasattr(self.sender(), "setValue")
+            and self.sender().value() in self.disallowed_values
+        ):
             self.sender().setValue(self.disallowed_default_value)

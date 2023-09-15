@@ -45,3 +45,4 @@ class ActionPool:
         for action_list in self._all_actions:
             for action in action_list:
                 action.just_started = True
+                action.setup()

@@ -20,8 +20,6 @@ class dataFunc(dataBase):
         passback_dict = {}
         self.parameters[PASSBACK_DICT] = passback_dict
 
-        self.loadData()
-
     def getData(self) -> dict:
         """
         Called by fees to get Data
@@ -35,5 +33,7 @@ class dataFunc(dataBase):
         """
         Calls the setup func and loads the return of the setup func into the parameters
         """
-        for key, userFunc in self.setupFuncs.items():
-            self.parameters |= {key: userFunc(**self.parameters)}
+        for key, function_settings in self.setupFuncs.items():
+            self.parameters |= {
+                key: function_settings.user_function(**self.parameters)[0]
+            }

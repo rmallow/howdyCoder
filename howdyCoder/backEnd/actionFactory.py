@@ -42,8 +42,6 @@ class actionFactory:
         """
         actionCreator = self._getCreator(creatorType)
         actionObj = actionCreator(config)
-        if doSetupFunc:
-            actionObj.setup()
         return actionObj
 
     def validType(self, creatorType: str) -> bool:

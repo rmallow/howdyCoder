@@ -169,7 +169,9 @@ class AudioGetter(InputGetterBase):
 
     def value(self):
         if self._ui.transcribed_text.toPlainText():
-            self.inputEntered.emit(self._ui.transcribed_text.toPlainText())
+            self.inputEntered.emit(
+                InputData(val=self._ui.transcribed_text.toPlainText())
+            )
             self.clear()
 
     @QtCore.Slot()

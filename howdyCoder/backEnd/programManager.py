@@ -31,17 +31,15 @@ class ProgramManager(ABC):
                 user_funcs.append(userFuncCaller.UserFuncCaller(**v))
                 c[k][USER_FUNC] = user_funcs[-1]
 
+        def handleSetupFuncs(c, k, v):
+            for f_name, f_value in v.items():
+                assignUserFuncCaller(v, f_name, f_value)
+
         configLoader.dfsConfigDict(
             config,
             lambda k: k.lower().endswith("function"),
             assignUserFuncCaller,
         )
 
-        configLoader.dfsConfigDict(
-            config,
-            lambda k: k == SETUP_FUNCS,
-            lambda _1, _2, v: (
-                assignUserFuncCaller(f_name, f_value) for f_name, f_value in v.items()
-            ),
-        )
+        configLoader.dfsConfigDict(config, lambda k: k == SETUP_FUNCS, handleSetupFuncs)
         return user_funcs

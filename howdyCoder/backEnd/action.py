@@ -184,5 +184,7 @@ class Action:
         if self.parameters is None or not isinstance(self.parameters, dict):
             self.parameters = {}
 
-        for key, userFunc in self.setupFuncs.items():
-            self.parameters |= {key: userFunc(**self.parameters)}
+        for key, function_settings in self.setupFuncs.items():
+            self.parameters |= {
+                key: function_settings.user_function(**self.parameters)[0]
+            }
