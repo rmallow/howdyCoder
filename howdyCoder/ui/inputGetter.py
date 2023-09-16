@@ -127,12 +127,15 @@ class AudioGetter(InputGetterBase):
         self._recording_worker = None
         self._transcribing_thread = None
         self._transcribing_worker = None
+        self._is_recording = False
 
     def setValidAPI(self, val):
         self._valid_api = val
         self._ui.record_button.setEnabled(self._valid_api)
 
     def record(self):
+        self._is_recording = True
+        self._ui.record_button.setChecked(True)
         self._recording_object = audioRecordingUtil.RecordingObject()
         (
             self._recording_thread,
@@ -144,7 +147,10 @@ class AudioGetter(InputGetterBase):
         )
 
     def stopRecord(self):
-        self._recording_object.keep_running = False
+        self._is_recording = False
+        self._ui.record_button.setChecked(False)
+        if self._recording_object is not None:
+            self._recording_object.keep_running = False
 
     def handleRecord(self, filename: str):
         self.filename = filename
@@ -160,7 +166,7 @@ class AudioGetter(InputGetterBase):
         self._ui.transcribed_text.setPlainText(transcribed_text["text"])
         self._ui.transcribing_status.setText("DONE TRANSCRIBING")
         if self._ui.active_check.isChecked():
-            self.inputEntered.emit(transcribed_text["text"])
+            self.inputEntered.emit(InputData(val=transcribed_text["text"]))
         os.remove(self.filename)
 
     def clear(self):
@@ -176,7 +182,7 @@ class AudioGetter(InputGetterBase):
 
     @QtCore.Slot()
     def recordHit(self):
-        if not self._ui.record_button.isChecked():
+        if self._is_recording:
             self.stopRecord()
         else:
             self.record()

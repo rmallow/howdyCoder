@@ -27,7 +27,8 @@ class dataFunc(dataBase):
         @returns: dictList of values
         """
         self.getDataLogging()
-        return self.dataModifications(self.getFunc(**self.parameters))
+        vals, _1, _2 = self.getFunc(**self.parameters)
+        return self.dataModifications(vals)
 
     def loadData(self) -> None:
         """

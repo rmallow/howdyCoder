@@ -144,6 +144,10 @@ class ControlWidget(
             if self._algo_widgets[uid].data.mode == Modes.STOPPED:
                 self.shutdownProgram.emit(self._algo_widgets[uid].data.name)
             else:
+                if uid in self._algo_input_windows:
+                    self._algo_input_windows[uid].hide()
+                    self._algo_input_windows[uid].deleteLater()
+                    del self._algo_input_windows[uid]
                 self._algo_widgets[uid].deleteLater()
                 del self._algo_widgets[uid]
                 if refresh:
