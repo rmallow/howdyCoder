@@ -65,7 +65,7 @@ class UserFuncCaller:
         """Wrapper function to call func, so that userFuncCaller can still be used as a regular function"""
         return self.callFunc(*args, **kwargs)
 
-    def callFunc(self, *args, **kwargs) -> Any:
+    def callFunc(self, *args, _caller_name="", **kwargs) -> Any:
         """
         Call the function in a hopefully safe-ish manner
         Keyword arguments will be filtered out but arguments will be passed forward
@@ -80,9 +80,13 @@ class UserFuncCaller:
                     )
             return ret_val, f_std.getvalue(), f_err.getvalue()
         except Exception as e:
-            mpLogging.error(
-                f"Exception while calling a user defined function name: {self.name}\n{e}"
-            )
+            exception_str = ""
+            if _caller_name:
+                exception_str = f"Exception while calling from {_caller_name} a function named: {self.name}\n"
+            else:
+                exception_str = f"Exception while calling function named: {self.name}\n"
+            exception_str += "-" * 10 + f"\n{e}"
+            mpLogging.error(exception_str, group=FUNC_GROUP)
             return None, None, None
 
     def filterArguments(self, passed_in_kwarg: typing.Dict[str, Any]) -> dict[str, Any]:

@@ -27,23 +27,21 @@ class CreateTypeBasePage(CreateBasePage):
         self._ui.setupUi(self)
         self._ui.typeLabel.setText(type_label)
 
-        self._type_model = QtGui.QStandardItemModel()
-
         for k, v in type_dict.items():
-            item = QtGui.QStandardItem(k)
-            item.setData(v)
-            self._type_model.appendRow(item)
-        self._ui.typeView.setModel(self._type_model)
+            item = QtWidgets.QListWidgetItem(k)
+            item.setData(QtCore.Qt.ItemDataRole.UserRole, v)
+            self._ui.typeView.addItem(item)
 
         self.next_enabled = False
         self.back_enabled = False
-        self._ui.typeView.selectionModel().selectionChanged.connect(self.typeSelected)
+        self._ui.typeView.currentRowChanged.connect(self.typeSelected)
         self._ui.nameEdit.textChanged.connect(self.enableCheck)
+        self._ui.typeView.setCurrentRow(-1)
 
-    def typeSelected(self, selection: QtCore.QItemSelection, _):
-        if selection.indexes() and selection.indexes()[0].isValid():
+    def typeSelected(self, row: int):
+        if row >= 0 and row < self._ui.typeView.count():
             self._ui.typeDescription.setText(
-                self._type_model.itemFromIndex(selection.indexes()[0]).data()
+                self._ui.typeView.item(row).data(QtCore.Qt.ItemDataRole.UserRole)
             )
         else:
             self._ui.typeDescription.setText(NO_SELECTION_TEXT)
@@ -51,25 +49,38 @@ class CreateTypeBasePage(CreateBasePage):
 
     def validate(self) -> bool:
         return (
-            len(self._ui.typeView.selectionModel().selectedIndexes()) > 0
-            and self._ui.typeView.selectionModel().selectedIndexes()[0].isValid()
+            self._ui.typeView.currentRow() != -1
             and self.validateText(self._ui.nameEdit.text())
-            and self._ui.nameEdit.text().strip() not in self.getConfigGroup()
+            and (
+                self._ui.nameEdit.text().strip() not in self.getConfigGroup()
+                or self._ui.nameEdit.text().strip() == self.getTempConfig().name
+            )
         )
 
     def save(self) -> None:
         """Set the name as a new dict with the type"""
-        self.getTempConfig().clear()
+        new_type = self._ui.typeView.currentItem().text()
+        if new_type != self.getTempConfig().type_:
+            self.getTempConfig().clear()
+        if (
+            self.getTempConfig().name
+            and self.getTempConfig().name in self.getConfigGroup()
+        ):
+            del self.getConfigGroup()[self.getTempConfig().name]
         self.getTempConfig().name = self._ui.nameEdit.text().strip()
-        self.getTempConfig().type_ = (
-            self._ui.typeView.selectionModel().selectedIndexes()[0].data()
-        )
+        self.getTempConfig().type_ = new_type
 
     def reset(self) -> None:
         self._ui.typeView.selectionModel().clearSelection()
         self._ui.nameEdit.setText("")
 
     def loadPage(self) -> None:
+        items = self._ui.typeView.findItems(
+            self.getTempConfig().type_, QtCore.Qt.MatchFlag.MatchExactly
+        )
+        if items:
+            self._ui.typeView.setCurrentRow(self._ui.typeView.row(items[0]))
+        self._ui.nameEdit.setText(self.getTempConfig().name)
         return super().loadPage()
 
     def getTutorialClasses(self) -> typing.List:

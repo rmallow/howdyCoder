@@ -12,7 +12,7 @@ from .util import abstractQt
 # import name page for find children to connect signal
 from .create.createNamePage import CreateNamePage
 
-from ..core.dataStructs import Modes
+from ..core.dataStructs import Modes, ProgramSettings
 
 import typing
 
@@ -113,6 +113,7 @@ class MainWindow(
         self._ui.controlPage.startProgram.connect(self.algoStartControlBox)
         self._ui.controlPage.shutdownProgram.connect(self.algoShutdownControlBox)
         self._ui.controlPage.exportData.connect(self.algoExportControlBox)
+        self._ui.controlPage.editProgram.connect(self.editProgramConfig)
         self._ui.controlPage.inputEntered.connect(self._main_model.inputEntered)
         self._main_model.program_dict.dataChanged.connect(
             self._ui.controlPage.compareDataToCurrentWidgets
@@ -249,19 +250,27 @@ class MainWindow(
         self.creator_type_window.reset()
         self.creator_type_window.open()
 
+    def loadCreatePage(
+        self, creator_type: str, creator_config: ProgramSettings | None = None
+    ):
+        self._ui.createPage.setCurrentType(creator_type, creator_config)
+        # the create name page needs to check if the name already exists before letting the user proceed
+        # to do this it will send a signal to the main model's algo dict to see if it is there
+        # then that will return back if it is in there
+        # alternatively, this could of been done with just passing in the program_dict to the createNamePage
+        # but I wanted to avoid that for safety
+        w: CreateNamePage
+        for w in self.findChildren(CreateNamePage):
+            w.doesAlgoNameExist.connect(self._main_model.program_dict.contains)
+            self._main_model.program_dict.nameExists.connect(w.doesNameExistSlot)
+        self._ui.stackedWidget.setCurrentWidget(self._ui.createPage)
+
+    @QtCore.Slot()
+    def editProgramConfig(self, code: str) -> None:
+        widgetData = self._main_model.program_dict.getData(code)
+        self.loadCreatePage(widgetData.config.type_, creator_config=widgetData.config)
+
     @QtCore.Slot()
     def creatorTypeWindowFinished(self, result: int):
         if result == QtWidgets.QDialog.DialogCode.Accepted:
-            self._ui.createPage.setCurrentType(
-                self.creator_type_window.getTypeSelected()
-            )
-            # the create name page needs to check if the name already exists before letting the user proceed
-            # to do this it will send a signal to the main model's algo dict to see if it is there
-            # then that will return back if it is in there
-            # alternatively, this could of been done with just passing in the program_dict to the createNamePage
-            # but I wanted to avoid that for safety
-            w: CreateNamePage
-            for w in self.findChildren(CreateNamePage):
-                w.doesAlgoNameExist.connect(self._main_model.program_dict.contains)
-                self._main_model.program_dict.nameExists.connect(w.doesNameExistSlot)
-            self._ui.stackedWidget.setCurrentWidget(self._ui.createPage)
+            self.loadCreatePage(self.creator_type_window.getTypeSelected())

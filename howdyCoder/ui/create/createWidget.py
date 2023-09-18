@@ -38,6 +38,7 @@ from PySide6 import QtWidgets, QtCore
 
 from dataclass_wizard import asdict
 import typing
+import copy
 
 
 SCRIPT_CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
@@ -107,6 +108,10 @@ class CreateWidget(
         self._ui.backButton.released.connect(self.backPressed)
         self._ui.exitButton.released.connect(self.exitPressed)
 
+        self._current_index: int = 0
+        self.current_config = None
+        self._sub_configs = {}
+
     def getCurrentPageList(self):
         return PROGRAM_TYPE_TO_PAGES.get(self._creator_type, [])
 
@@ -148,6 +153,7 @@ class CreateWidget(
             self._create_widgets_list[self._current_index]
         )
         self._create_widgets_list[self._current_index].show()
+        self._create_widgets_list[self._current_index].loadPage()
         self._ui.backButton.setEnabled(
             self._current_index != 0
             and self._create_widgets_list[self._current_index].back_enabled
@@ -264,7 +270,10 @@ class CreateWidget(
         """
         for x in range(
             min(self._current_index, reset_to_index),
-            max(self._current_index, reset_to_index) + 1,
+            min(
+                max(self._current_index, reset_to_index) + 1,
+                len(self._create_widgets_list),
+            ),
         ):
             self._create_widgets_list[x].reset()
 
@@ -273,7 +282,8 @@ class CreateWidget(
         self.changePage(0)
         self.helper_data.clear()
         self._ui.progressSteps.resetDisplay()
-        self.current_config.clear()
+        if self.current_config is not None:
+            self.current_config.clear()
         for v in self._sub_configs.values():
             v.clear()
 
@@ -297,24 +307,29 @@ class CreateWidget(
             self._current_index
         ].getTutorialClasses()
 
-    def setCurrentType(self, type_: str):
+    def setCurrentType(self, type_: str, creator_config: ProgramSettings):
         for page in self._create_widgets_list:
             page.deleteLater()
         self._creator_type = ProgramTypes(type_)
-
+        # must reset before we assign values
+        self.reset()
+        if creator_config is None:
+            if self._creator_type == ProgramTypes.ALGO:
+                self.current_config = AlgoSettings()
+            elif self._creator_type == ProgramTypes.SCRIPT:
+                self.current_config = ScriptSettings()
+        else:
+            self.current_config = copy.deepcopy(creator_config.settings)
         if self._creator_type == ProgramTypes.ALGO:
-            self.current_config = AlgoSettings()
             self._sub_configs = {
                 DATA_SOURCES: DataSourceSettings(),
                 ACTION_LIST: ActionSettings(),
             }
-        elif self._creator_type == ProgramTypes.SCRIPT:
-            self.current_config = ScriptSettings()
+        else:
             self._sub_configs = {}
 
         self.loadCreationWidgets()
         self.loadProgressSteps()
-        self.reset()
         self.loadCurrentPage()
 
         # don't want clicking through till animation is over so we disable button on press

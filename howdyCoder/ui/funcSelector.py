@@ -19,6 +19,17 @@ class FunctionSettingsWithHelperData(HelperData):
     suggested_data: typing.List[str] = field(default_factory=list)
 
 
+def addHelperData(
+    function_settings: FunctionSettings,
+) -> FunctionSettingsWithHelperData:
+    root = ast.parse(function_settings.code, "<string>")
+    return FunctionSettingsWithHelperData(
+        function_settings,
+        astUtil.getSuggestedParameterNames(root, function_settings.name),
+        astUtil.getSuggestedDataSetNames(root),
+    )
+
+
 class FuncSelector(SelectorBase):
     """
     Dialog with widget selection pages

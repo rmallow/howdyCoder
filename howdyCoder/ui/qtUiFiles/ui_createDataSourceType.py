@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QHBoxLayout, QLabel,
-    QLineEdit, QListView, QSizePolicy, QSpacerItem,
-    QVBoxLayout, QWidget)
+    QLineEdit, QListWidget, QListWidgetItem, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_CreateDataSourceType(object):
     def setupUi(self, CreateDataSourceType):
@@ -111,7 +111,7 @@ class Ui_CreateDataSourceType(object):
 
         self.verticalLayout_3.addWidget(self.typeLabel)
 
-        self.typeView = QListView(self.widget_4)
+        self.typeView = QListWidget(self.widget_4)
         self.typeView.setObjectName(u"typeView")
         font2 = QFont()
         font2.setPointSize(20)

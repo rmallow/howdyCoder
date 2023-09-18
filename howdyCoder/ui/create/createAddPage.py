@@ -7,9 +7,11 @@ from ..qtUiFiles import ui_createDataSourceAdd
 from ...core.commonGlobals import DATA_SOURCES, ACTION_LIST
 import typing
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 
 ACTION_TOP_TEXT = "Actions act on data either from data sources and/or events. There are two types of actions, events which take input data and apply a function to output data, and triggers which take input data and determine if a criteria is met to trigger an output function. "
+
+NAME_ROLE = QtCore.Qt.ItemDataRole.UserRole + 1
 
 
 class CreateAddPageBase(CreateBasePage):
@@ -28,7 +30,7 @@ class CreateAddPageBase(CreateBasePage):
         self._ui.setupUi(self)
         if top_text:
             self._ui.topText.setText(top_text)
-        self._dataSourcesModel = QtCore.QStringListModel()
+        self._dataSourcesModel = QtGui.QStandardItemModel()
         self._ui.dataSourcesView.setModel(self._dataSourcesModel)
         self.next_enabled = False
         self._skip_page: PageKeys = skip_page
@@ -36,6 +38,7 @@ class CreateAddPageBase(CreateBasePage):
         self._ui.skipButton.released.connect(
             lambda: self.manualExit.emit(self._skip_page)
         )
+        self._ui.editButton.released.connect(self.editConfig)
         self._ui.removeButton.released.connect(self.removeSelected)
 
     def save(self) -> None:
@@ -46,34 +49,42 @@ class CreateAddPageBase(CreateBasePage):
 
     def reset(self) -> None:
         self._ui.skipButton.setEnabled(False)
-        self._dataSourcesModel.setStringList([])
+        self._dataSourcesModel.clear()
         self.getTempConfig().clear()
         return super().reset()
 
     def setGroupModel(self):
-        rows = []
         for k, v in self.getConfigGroup().items():
-            rows.append(f"{k} : {v.type_}")
-        self._ui.skipButton.setEnabled(len(rows) > 0)
-        self._dataSourcesModel.setStringList(rows)
+            item = QtGui.QStandardItem(f"{k} : {v.type_}")
+            item.setData(k, NAME_ROLE)
+            self._dataSourcesModel.appendRow(item)
+        self._ui.skipButton.setEnabled(len(self.getConfigGroup()) != 0)
 
     def loadPage(self):
         super().loadPage()
         self.getTempConfig().clear()
         self.setGroupModel()
 
-    def removeSelected(self):
+    def getCurrentSelectionName(self):
+        name = ""
         selection = self._ui.dataSourcesView.selectionModel().selectedIndexes()
         if len(selection) == 1:
-            index = selection[0]
-            strings = self._dataSourcesModel.stringList()
-            if index.row() >= 0 and index.row() < len(strings):
-                if strings[index.row()] in self.getConfigGroup():
-                    del self.getConfigGroup()[strings[index.row()]]
-                    self.setGroupModel()
+            name = selection[0].data(NAME_ROLE)
+        return name
+
+    def removeSelected(self):
+        del self.getConfigGroup()[self.getCurrentSelectionName()]
+        self.setGroupModel()
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
+
+    def editConfig(self):
+        self.getTempConfig().clear()
+        self.getTempConfig().inPlaceCopy(
+            self.getConfigGroup()[self.getCurrentSelectionName()]
+        )
+        self.nextPage.emit()
 
 
 class CreateDataSourceAddPage(CreateAddPageBase):

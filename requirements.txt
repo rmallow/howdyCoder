@@ -9,3 +9,5 @@ keyring==24.2.0
 openai==0.28.0
 qt-material==2.14
 PyAutoGUI==0.9.54
+soundfile==0.12.1
+sounddevice==0.4.6

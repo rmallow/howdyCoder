@@ -78,6 +78,17 @@ class Ui_CreateDataSourceAdd(object):
 
         self.horizontalLayout.addWidget(self.removeButton)
 
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Maximum, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_2)
+
+        self.editButton = QPushButton(self.widget)
+        self.editButton.setObjectName(u"editButton")
+        sizePolicy1.setHeightForWidth(self.editButton.sizePolicy().hasHeightForWidth())
+        self.editButton.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout.addWidget(self.editButton)
+
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
@@ -123,6 +134,7 @@ class Ui_CreateDataSourceAdd(object):
         self.bottomText.setText(QCoreApplication.translate("CreateDataSourceAdd", u"Click add to start adding a new item  or select a item and hit remove to delete.", None))
         self.addButton.setText(QCoreApplication.translate("CreateDataSourceAdd", u"Add", None))
         self.removeButton.setText(QCoreApplication.translate("CreateDataSourceAdd", u"Remove", None))
+        self.editButton.setText(QCoreApplication.translate("CreateDataSourceAdd", u"Edit", None))
         self.skipButton.setText(QCoreApplication.translate("CreateDataSourceAdd", u"Skip", None))
     # retranslateUi
 

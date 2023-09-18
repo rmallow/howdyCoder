@@ -129,7 +129,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QListView" name="typeView">
+          <widget class="QListWidget" name="typeView">
            <property name="font">
             <font>
              <pointsize>20</pointsize>

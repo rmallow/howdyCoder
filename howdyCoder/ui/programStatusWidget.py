@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import PySide6.QtGui
 from ..core.dataStructs import AlgoSettings, Modes, ProgramSettings
 from .uiConstants import GUI_REFRESH_INTERVAL
 from .qtUiFiles import ui_algoStatusWidget
@@ -77,9 +79,8 @@ class ProgramStatusWidget(
     @QtCore.Slot()
     def refresh(self):
         """Refresh the widgets displayed valued based on what's in the stored data object"""
-        pal = QtGui.QPalette()
-        pal.setColor(QtGui.QPalette.Window, QtGui.QColor(COLOR_MAP[self.data.mode]))
-        self.ui.status_label.setPalette(pal)
+        color = QtGui.QColor(COLOR_MAP[self.data.mode])
+        self.ui.status_label.setStyleSheet(f"background-color:{color.name()};")
         self.ui.status_label.setText(self.data.mode.value)
         self.ui.data_count_value.setText(str(self.data.data_count))
         self.ui.runtime_value.setText(helpers.getStrElapsedTime(self.data.runtime))
@@ -133,3 +134,7 @@ class ProgramStatusWidget(
             for x in range(self.ui.logging_list_widget.count()):
                 item = self.ui.logging_list_widget.item(x)
                 item.setText(str(self.data.logging_count[item.data(LOG_LEVEL_ROLE)]))
+
+    def resizeEvent(self, event: QtCore.QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self.ui.edit_button.setMaximumWidth(self.ui.export_button.width())

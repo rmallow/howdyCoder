@@ -62,6 +62,7 @@ class CreateNamePage(CreateBasePage):
         self._ui.label.setText(
             f"{LABEL_TEXT_LEFT}{self.creator_type.value}{LABEL_TEXT_RIGHT}"
         )
+        self._ui.nameEdit.setText(self.getConfig().name)
         return super().loadPage()
 
     @QtCore.Slot()

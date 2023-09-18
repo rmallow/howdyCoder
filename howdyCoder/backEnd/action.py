@@ -98,7 +98,9 @@ class Action:
 
                 self.parameters[FIRST] = self.is_first
                 self.is_first = False
-                val, stdout_str, stderr_str = self.calcFunc(**self.parameters)
+                val, stdout_str, stderr_str = self.calcFunc(
+                    **self.parameters, _caller_name=f"Action: {self.name}"
+                )
                 yield val, stdout_str, stderr_str, index
 
     def update(self):

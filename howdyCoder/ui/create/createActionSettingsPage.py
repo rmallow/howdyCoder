@@ -5,7 +5,7 @@ from ..qtUiFiles import ui_createActionSettingsPage
 
 from .. import highlightModel
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData
+from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData, addHelperData
 
 from ..util.spinBoxDelegate import SpinBoxDelegate
 from ..util import qtResourceManager
@@ -148,14 +148,25 @@ class CreateActionSettingsPage(CreateBasePage):
 
     def loadPage(self) -> None:
         super().loadPage()
-        currSettings: ActionSettings = self.getTempConfig()
-        if currSettings.type_:
+        curr_settings: ActionSettings = self.getTempConfig()
+        if curr_settings.type_:
             enumType = helpers.findEnumByAttribute(
-                ActionTypeEnum, ENUM_DISPLAY, currSettings.type_
+                ActionTypeEnum, ENUM_DISPLAY, curr_settings.type_
             )
-            if self._action_type is not None and self._action_type != enumType:
+            if self._action_type is None or self._action_type != enumType:
                 self.reset()
-            self._action_type = enumType
+            else:
+                if curr_settings.calc_function is not None:
+                    with_helper = addHelperData(curr_settings.calc_function)
+                    with_helper.index = FuncType.CALC
+                    self.onFuncSelected(with_helper)
+                if (
+                    curr_settings.output_function is not None
+                    and enumType == ActionTypeEnum.TRIGGER
+                ):
+                    with_helper = addHelperData(curr_settings.output_function)
+                    with_helper.index = FuncType.OUTPUT
+                    self.onFuncSelected(with_helper)
             self._calc_selector_widget.default_prompt = (
                 "Event"
                 if self._action_type == ActionTypeEnum.EVENT
@@ -167,6 +178,7 @@ class CreateActionSettingsPage(CreateBasePage):
             elif self._action_type == ActionTypeEnum.TRIGGER:
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_TRIGGER
                 self._ui.triggerWidget.setHidden(False)
+            self.updateDataSetSuggestions()
 
         self.loadAvailableInputTable()
 

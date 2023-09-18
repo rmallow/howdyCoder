@@ -110,6 +110,9 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
     def clear(self):
         self.__init__()
 
+    def inPlaceCopy(self, other):
+        self.__dict__ = other.__dict__.copy()
+
 
 @dataclass
 class ActionSettings(ItemSettings, JSONWizard, metaclass=property_wizard):

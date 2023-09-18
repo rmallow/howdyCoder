@@ -27,7 +27,7 @@ HANDLER_GROUP = "Handler"
 ROUTER_GROUP = "Router"
 UI_GROUP = "UI"
 DATA_GROUP = "Data"
-FUNC_GROUP = "Func"
+FUNC_GROUP = "Function"
 
 
 # aenum ENUM constants

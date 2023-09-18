@@ -52,6 +52,7 @@ class ControlWidget(
 
     startProgram = QtCore.Signal(str)
     shutdownProgram = QtCore.Signal(str)
+    editProgram = QtCore.Signal(str)
     exportData = QtCore.Signal(str)
     inputEntered = QtCore.Signal(InputData)
 
@@ -81,7 +82,7 @@ class ControlWidget(
         self._algo_widgets: typing.Dict[int, ProgramStatusWidget] = {}
         """Mapping of uid's to input windows"""
         self._algo_input_windows: typing.Dict[int, InputWindow] = {}
-        """Do it once before anyhting is in there to position create new button right"""
+        """Do it once before anything is in there to position create new button right"""
         self.addWidgets()
 
     def clear(self):
@@ -130,6 +131,9 @@ class ControlWidget(
                 )
                 w.ui.export_button.released.connect(
                     lambda: self.exportData.emit(data.name)
+                )
+                w.ui.edit_button.released.connect(
+                    lambda: self.editProgram.emit(data.name)
                 )
                 w.ui.remove_button.released.connect(lambda: self.removeWidget(m))
                 w.ui.input_button.released.connect(lambda: self.createInputWindow(m))
