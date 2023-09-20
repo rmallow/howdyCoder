@@ -204,6 +204,7 @@ class EditableTableModel(
 
                     description = settings.function_settings.code
                     label = settings.function_settings.name
+                    selectorWidget.data = settings.function_settings
                 elif isinstance(settings, PathWithHelperData):
                     self.values[valueKey][self.valueEnum] = settings.path
                     description = settings.path

@@ -86,10 +86,12 @@ class CreateBaseParametersPage(CreateBasePage):
         self._ui.time_edit.setTime(time)
         self._ui.flattenedCheck.setChecked(curr.flatten)
         self._ui.single_shot_check.setChecked(curr.single_shot)
+        self._parameterModel.clear()
+        self._parameterModel.setDataFromSettings(curr)
         self.setParametersLabel()
         return super().loadPage()
 
-    def setParametersLabel(self):
+    def setParametersLabel(self, *args, **kwrags):
         helper_data = self.getHelperData()
         self._ui.parameter_list_widget.clear()
         for param_list in (

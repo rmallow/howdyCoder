@@ -24,6 +24,7 @@ def addHelperData(
 ) -> FunctionSettingsWithHelperData:
     root = ast.parse(function_settings.code, "<string>")
     return FunctionSettingsWithHelperData(
+        None,
         function_settings,
         astUtil.getSuggestedParameterNames(root, function_settings.name),
         astUtil.getSuggestedDataSetNames(root),
@@ -47,16 +48,17 @@ class FuncSelector(SelectorBase):
         self.embedded = False
 
         self.parentIndex = None
+        self.applyToPages(
+            lambda page: page.funcSelected.connect(self.addHelperDataWithIndex)
+        )
+
+    def applyToPages(self, function):
         for x in range(self.ui.tabWidget.count()):
             # to avoid cranky qt layout error, the child widget is inside the tab
-            self.ui.tabWidget.widget(x).findChild(
-                FuncSelectorPageBase
-            ).funcSelected.connect(self.addHelperData)
+            function(self.ui.tabWidget.widget(x).findChild(FuncSelectorPageBase))
 
     def updateChildData(self):
-        for x in range(self.ui.tabWidget.count()):
-            # to avoid cranky qt layout error, the child widget is inside the tab
-            self.ui.tabWidget.widget(x).findChild(FuncSelectorPageBase).updateData()
+        self.applyToPages(lambda page: page.updateData())
 
     def show(self):
         """Called when window should be showed, so we update data on sub pages"""
@@ -64,14 +66,9 @@ class FuncSelector(SelectorBase):
         return super().show()
 
     @QtCore.Slot()
-    def addHelperData(self, function_settings: FunctionSettings):
-        root = ast.parse(function_settings.code, "<string>")
-        settings_with_index = FunctionSettingsWithHelperData(
-            self.parentIndex,
-            function_settings,
-            astUtil.getSuggestedParameterNames(root, function_settings.name),
-            astUtil.getSuggestedDataSetNames(root),
-        )
+    def addHelperDataWithIndex(self, function_settings: FunctionSettings):
+        settings_with_index = addHelperData(function_settings)
+        settings_with_index.index = self.parentIndex
         self.itemSelected.emit(settings_with_index)
         # if we're emitting this, we're done selecting so we can hide now
         if not self.embedded:
@@ -83,8 +80,7 @@ class FuncSelector(SelectorBase):
         ).getTutorialClasses()
 
     def setDefaultPrompt(self, prompt_name: str) -> None:
-        for x in range(self.ui.tabWidget.count()):
-            # to avoid cranky qt layout error, the child widget is inside the tab
-            self.ui.tabWidget.widget(x).findChild(
-                FuncSelectorPageBase
-            ).setDefaultPrompt(prompt_name)
+        self.applyToPages(lambda page: page.setDefaultPrompt(prompt_name))
+
+    def setData(self, data: typing.Any) -> None:
+        self.applyToPages(lambda page: page.setData(data))

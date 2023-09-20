@@ -77,6 +77,7 @@ class Ui_FuncSelectorCodePage(object):
         self.promptBox.setSizePolicy(sizePolicy1)
         self.horizontalLayout_6 = QHBoxLayout(self.promptBox)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.prompt_text_edit = QPlainTextEdit(self.promptBox)
         self.prompt_text_edit.setObjectName(u"prompt_text_edit")
         sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -91,11 +92,30 @@ class Ui_FuncSelectorCodePage(object):
 
         self.horizontalLayout_6.addWidget(self.prompt_text_edit)
 
-        self.call_api_button = QPushButton(self.promptBox)
-        self.call_api_button.setObjectName(u"call_api_button")
-        self.call_api_button.setEnabled(False)
+        self.label_2 = QLabel(self.promptBox)
+        self.label_2.setObjectName(u"label_2")
 
-        self.horizontalLayout_6.addWidget(self.call_api_button)
+        self.horizontalLayout_6.addWidget(self.label_2)
+
+        self.widget_5 = QWidget(self.promptBox)
+        self.widget_5.setObjectName(u"widget_5")
+        self.verticalLayout_2 = QVBoxLayout(self.widget_5)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.create_new_api_button = QPushButton(self.widget_5)
+        self.create_new_api_button.setObjectName(u"create_new_api_button")
+        self.create_new_api_button.setEnabled(False)
+
+        self.verticalLayout_2.addWidget(self.create_new_api_button)
+
+        self.modify_api_button = QPushButton(self.widget_5)
+        self.modify_api_button.setObjectName(u"modify_api_button")
+        self.modify_api_button.setEnabled(False)
+
+        self.verticalLayout_2.addWidget(self.modify_api_button)
+
+
+        self.horizontalLayout_6.addWidget(self.widget_5)
 
 
         self.verticalLayout.addWidget(self.promptBox)
@@ -206,7 +226,9 @@ class Ui_FuncSelectorCodePage(object):
         self.infoLabel.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Paste code or query the API to generate code for you. The bottom editor will check that the code compiles and is compatible. If there is an error, the error message will be displayed at the bottom. Based on the type of function you are requesting from the API select an initial prompt from the combo box below.", None))
         self.prompt_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Initial Prompt:", None))
         self.prompt_text_edit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"AI prompt goes here.", None))
-        self.call_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Send to AI", None))
+        self.label_2.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Send to AI:", None))
+        self.create_new_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Create New Function", None))
+        self.modify_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Modify Function", None))
         self.entry_function_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Entry Function Name:", None))
         self.label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Only have code entered in the text edit box below. If there is more than just code, such as AI explanation, delete that. Oftentimes AI will generate a main function with helper functions, enter the entry point function that is supposed to be called first in the box above. This function name must be found in the code below.", None))
         self.codeEdit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"Code goes here.", None))

@@ -81,3 +81,10 @@ def getSuggestedDataSetNames(root: ast.Module) -> typing.List[str]:
                     for slice_child in ast.iter_child_nodes(node.slice):
                         handleConstants(slice_child)
     return list(data_set_names)
+
+
+def getRoot(code: str):
+    try:
+        return ast.parse(code, "<string>")
+    except Exception as _:
+        return ast.Module()

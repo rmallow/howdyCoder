@@ -5,11 +5,11 @@ from ..qtUiFiles import ui_createDataSourceSettingsPage
 
 from .. import editableTable
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector
+from ..funcSelector import FuncSelector, addHelperData
 from ..treeSelect import UrlTreeSelect
 
 
-from ...commonUtil import helpers
+from ...commonUtil import helpers, astUtil
 from ...core.commonGlobals import (
     ENUM_DISPLAY,
     DATA_SOURCES,
@@ -135,19 +135,26 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self._ui.stackedWidget.currentWidget().updateExtraDescription(
                 self._current_settings.function_settings.code
             )
+            self._ui.stackedWidget.currentWidget().data = (
+                self._current_settings.function_settings
+            )
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             """Nothing more to do with settings, but make sure that we keep output to name of data source"""
             output_strings = [self.getTempConfig().name]
-        self._outputModel.setStringList(output_strings)
-        self._outputModel.setReadOnlyNum(len(output_strings))
+        if (
+            self._data_source_type != DataSourcesTypeEnum.FUNC
+            and self._data_source_type != DataSourcesTypeEnum.THREADED
+        ):
+            self._outputModel.setStringList(output_strings)
+            self._outputModel.setReadOnlyNum(len(output_strings))
         self.enableCheck()
 
     def loadPage(self) -> None:
         super().loadPage()
-        currSettings = self.getTempConfig()
-        if currSettings.type_:
+        curr_settings: DataSourceSettings = self.getTempConfig()
+        if curr_settings.type_:
             enumType = helpers.findEnumByAttribute(
-                DataSourcesTypeEnum, ENUM_DISPLAY, currSettings.type_
+                DataSourcesTypeEnum, ENUM_DISPLAY, curr_settings.type_
             )
             if (
                 self._data_source_type is not None
@@ -156,6 +163,11 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 self.reset()
             self._data_source_type = enumType
             self._ui.stackedWidget.setCurrentIndex(enumType.value)
+            try:
+                self._ui.stackedWidget.currentWidget().resetText()
+            except AttributeError as e:
+                """Not all have this, it's ok"""
+                pass
             if (
                 self._data_source_type == DataSourcesTypeEnum.STREAM
                 or self._data_source_type == DataSourcesTypeEnum.INPUT
@@ -164,14 +176,22 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 self._ui.removeOutputButton.setEnabled(False)
                 self._ui.outputHelpText.setText("")
             else:
+                if curr_settings.get_function is not None:
+                    self.onSpecificSettingsSelected(
+                        addHelperData(curr_settings.get_function)
+                    )
                 self._ui.addOutputButton.setEnabled(True)
                 self._ui.removeOutputButton.setEnabled(True)
                 self._ui.outputHelpText.setText(OUTPUT_HELP)
+                self._outputModel.setStringList(curr_settings.output)
             self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_FUNC
             if self._data_source_type == DataSourcesTypeEnum.INPUT:
                 """If it's input, there's only one output and that is the name of the data source"""
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_INPUT
-                self._outputModel.setStringList([self.getTempConfig().name])
+                if index := self._input_combo.findText(curr_settings.input_type) != -1:
+                    self._input_combo.setCurrentIndex(index)
+                    self.onSpecificSettingsSelected(curr_settings.input_type)
+            self.enableCheck()
 
     def removeOutput(self):
         selection = self._ui.outputView.selectionModel().selectedIndexes()
@@ -195,7 +215,9 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         ):
             curr.get_function = self._current_settings.function_settings
             self.getHelperData().suggested_parameters = (
-                self._current_settings.suggested_parameters[::]
+                astUtil.getSuggestedParameterNames(
+                    astUtil.getRoot(curr.get_function.code), curr.get_function.name
+                )
             )
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             curr.input_type = self._current_settings

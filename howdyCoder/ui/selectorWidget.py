@@ -21,6 +21,7 @@ class SelectorWidget(QtWidgets.QWidget):
         self._ui.selectorButton.pressed.connect(self.showFuncSelector)
         self.index = index
         self.default_prompt = default_prompt
+        self.data = None
 
     @QtCore.Slot()
     def showFuncSelector(self):
@@ -28,6 +29,7 @@ class SelectorWidget(QtWidgets.QWidget):
         self._selector.setDefaultPrompt(self.default_prompt)
         self._selector.show()
         self._selector.showNormal()
+        self._selector.setData(self.data)
 
     def updateText(self, text):
         self._ui.selectionLabel.setText(text)

@@ -41,6 +41,14 @@ class FuncType(Enum):
     OUTPUT = 1
 
 
+def getTrueName(group, name):
+    return (
+        f"{group}-{name}"
+        if group != getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY).capitalize()
+        else name
+    )
+
+
 class CreateActionSettingsPage(CreateBasePage):
     PAGE_KEY = PageKeys.ACTION_SETTINGS
     TUTORIAL_RESOURCE_PREFIX_TRIGGER = "CreateSettingsTrigger"
@@ -136,12 +144,14 @@ class CreateActionSettingsPage(CreateBasePage):
                 self._calc_selector_widget.updateExtraDescription(
                     settings.function_settings.code
                 )
+                self._calc_selector_widget.data = settings.function_settings
                 self._current_calc_settings = settings
             elif settings.index == FuncType.OUTPUT:
                 self._output_selector_widget.updateText(settings.function_settings.name)
                 self._output_selector_widget.updateExtraDescription(
                     settings.function_settings.code
                 )
+                self._output_selector_widget.data = settings.function_settings
                 self._current_output_settings = settings
             self.enableCheck()
         self.updateDataSetSuggestions()
@@ -150,19 +160,20 @@ class CreateActionSettingsPage(CreateBasePage):
         super().loadPage()
         curr_settings: ActionSettings = self.getTempConfig()
         if curr_settings.type_:
-            enumType = helpers.findEnumByAttribute(
+            enum_type = helpers.findEnumByAttribute(
                 ActionTypeEnum, ENUM_DISPLAY, curr_settings.type_
             )
-            if self._action_type is None or self._action_type != enumType:
+            if self._action_type is not None and self._action_type != enum_type:
                 self.reset()
             else:
+                self._action_type = enum_type
                 if curr_settings.calc_function is not None:
                     with_helper = addHelperData(curr_settings.calc_function)
                     with_helper.index = FuncType.CALC
                     self.onFuncSelected(with_helper)
                 if (
                     curr_settings.output_function is not None
-                    and enumType == ActionTypeEnum.TRIGGER
+                    and enum_type == ActionTypeEnum.TRIGGER
                 ):
                     with_helper = addHelperData(curr_settings.output_function)
                     with_helper.index = FuncType.OUTPUT
@@ -181,6 +192,7 @@ class CreateActionSettingsPage(CreateBasePage):
             self.updateDataSetSuggestions()
 
         self.loadAvailableInputTable()
+        self.checkSelectedInSettings(curr_settings)
 
     def loadAvailableInputTable(self):
         """
@@ -233,7 +245,13 @@ class CreateActionSettingsPage(CreateBasePage):
                     ]
                 )
 
-    def availableSelected(self, index: QtCore.QModelIndex):
+    def availableSelected(
+        self,
+        index: QtCore.QModelIndex,
+        rename: str | None = None,
+        requires_new: bool = False,
+        amount_of_data: int = 1,
+    ):
         """User has clicked available table so we add it to the selected model for display"""
         if (
             index is not None
@@ -266,13 +284,23 @@ class CreateActionSettingsPage(CreateBasePage):
                 )
                 source_item = QtGui.QStandardItem(display_name)
                 source_item.setData(true_name, SELECTED_TRUE_NAME_ROLE)
-                name_item = QtGui.QStandardItem(name)
+                name_item = QtGui.QStandardItem(name if rename is None else rename)
                 requires_new_item = QtGui.QStandardItem()
                 requires_new_item.setCheckable(True)
+                requires_new_item.setCheckState(
+                    QtCore.Qt.CheckState.Checked
+                    if requires_new
+                    else QtCore.Qt.CheckState.Unchecked
+                )
                 source_item.setEditable(False)
                 name_item.setEditable(True)
                 self._selected_input_table_model.appendRow(
-                    [source_item, name_item, requires_new_item, QtGui.QStandardItem(1)]
+                    [
+                        source_item,
+                        name_item,
+                        requires_new_item,
+                        QtGui.QStandardItem(amount_of_data),
+                    ]
                 )
                 self._ui.selectedInputTable.openPersistentEditor(
                     self._selected_input_table_model.index(
@@ -281,6 +309,28 @@ class CreateActionSettingsPage(CreateBasePage):
                     )
                 )
                 self.enableCheck()
+                self.updateDataSetSuggestions()
+
+    def checkSelectedInSettings(self, curr_settings: ActionSettings):
+        cur_group = ""
+        for row in range(self._available_input_table_model.rowCount()):
+            index = self._available_input_table_model.index(row, AVAILABLE_NAME_COLUMN)
+            group_index = index.siblingAtColumn(AVAILABLE_GROUP_COLUMN)
+            if (
+                group_index.isValid()
+                and group_index.data(QtCore.Qt.ItemDataRole.DisplayRole) is not None
+            ):
+                cur_group = group_index.data(QtCore.Qt.ItemDataRole.DisplayRole)
+            name = getTrueName(
+                cur_group, index.data(QtCore.Qt.ItemDataRole.DisplayRole)
+            )
+            if name in curr_settings.input_:
+                self.availableSelected(
+                    index,
+                    rename=curr_settings.input_[name].name,
+                    requires_new=curr_settings.input_[name].requires_new,
+                    amount_of_data=curr_settings.input_[name].period,
+                )
 
     def validate(self):
         return (

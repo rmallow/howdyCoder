@@ -37,3 +37,7 @@ class FuncSelectorPageBase(
     def setDefaultPrompt(self, prompt_name: str):
         """Can be overriden in child page to set default prompt"""
         pass
+
+    def setData(self, data: typing.Any) -> None:
+        """Can be overriden in child page to pass in data at show time"""
+        pass

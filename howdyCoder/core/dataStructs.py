@@ -92,6 +92,7 @@ class Parameter(JSONWizard, metaclass=property_wizard):
 
     name: str = ""
     value: typing.Any = None
+    type_: str = ""
 
 
 @dataclass

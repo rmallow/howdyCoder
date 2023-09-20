@@ -63,14 +63,17 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
         self.ui.key_set_widget.key_name = openAIUtil.OPEN_AI_API_KEY_NAME
         self.ui.key_set_widget._key_validation_function = openAIUtil.testValid
-        self.ui.key_set_widget.output_function = self.ui.call_api_button.setEnabled
+        self.ui.key_set_widget.output_function = self.enableAPIControls
+
         cur_val = openAIUtil.testValidKeySet()
         self.ui.key_set_widget.setStatus(cur_val)
-        self.ui.call_api_button.setEnabled(cur_val)
+        self.ui.create_new_api_button.setEnabled(cur_val)
+        self.ui.modify_api_button.setEnabled(cur_val)
 
         self.setupPromptCombo()
 
-        self.ui.call_api_button.released.connect(self.callApiButton)
+        self.ui.create_new_api_button.released.connect(self.createNewAPIButton)
+        self.ui.modify_api_button.released.connect(self.modifyAPIButton)
         self._code_edit_timer = QtCore.QTimer()
         self._code_edit_timer.setSingleShot(True)
         self._code_edit_timer.setInterval(WAIT_FOR_TEXT_EDITING_TO_END)
@@ -94,9 +97,11 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.selectButton.released.connect(self.sendFunctionConfig)
         self.ui.saveButton.released.connect(self.saveCode)
 
+        self._saved_query = ""
+
     def setupPromptCombo(self):
-        for k, v in promptSingleton.prompts.items():
-            self.ui.prompt_combo_box.addItem(k, v)
+        for k in promptSingleton.prompts.keys():
+            self.ui.prompt_combo_box.addItem(k)
 
     def updateData(self) -> None:
         self.ui.codeEdit.clear()
@@ -184,24 +189,41 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                 file_dlg_return[0], self._current_function_settings
             )
 
-    def enableControls(self, enable):
+    def enableControls(self, enable: bool):
         self.ui.saveButton.setEnabled(enable)
         self.ui.selectButton.setEnabled(enable)
 
-    def callApiButton(self):
+    def enableAPIControls(self, enable: bool):
+        self.ui.create_new_api_button.setEnabled(enable)
+        self.ui.modify_api_button.setEnabled(enable)
+
+    def callAPI(self, system_prompt: str, user_prompt: str) -> None:
         self.ui.codeEdit.setEnabled(False)
         self.ui.prompt_text_edit.setEnabled(False)
-        self.ui.call_api_button.setEnabled(False)
-        system_prompt = self.ui.prompt_combo_box.currentData(
-            QtCore.Qt.ItemDataRole.UserRole
-        )
-        self.user_prompt = self.ui.prompt_text_edit.toPlainText()
+        self.ui.create_new_api_button.setEnabled(False)
+        self.ui.modify_api_button.setEnabled(False)
+        self._saved_query = self.ui.prompt_text_edit.toPlainText()
         self.ui.prompt_text_edit.setPlainText("... Generating, Please Wait ...")
         self.thread, self.worker = genericWorker.createThreadAndWorker(
             openAIUtil.getChatCompletion,
             self.apiResponse,
             system_prompt,
-            self.user_prompt,
+            user_prompt,
+        )
+
+    def createNewAPIButton(self):
+        user_prompt = self.ui.prompt_text_edit.toPlainText()
+        self.callAPI(
+            promptSingleton.getPrompt(self.ui.prompt_combo_box.currentText()),
+            user_prompt,
+        )
+
+    def modifyAPIButton(self):
+        user_prompt = self.ui.prompt_text_edit.toPlainText()
+        code = self.ui.codeEdit.toPlainText()
+        self.callAPI(
+            promptSingleton.makeModifyPrompt(self.ui.prompt_combo_box.currentText()),
+            user_prompt + "\n" + code,
         )
 
     def apiResponse(self, response: str):
@@ -209,8 +231,8 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.code_explanation.setPlainText(response)
         self.ui.codeEdit.setEnabled(True)
         self.ui.prompt_text_edit.setEnabled(True)
-        self.ui.call_api_button.setEnabled(True)
-        self.ui.prompt_text_edit.setPlainText(self.user_prompt)
+        self.ui.create_new_api_button.setEnabled(True)
+        self.ui.prompt_text_edit.setPlainText(self._saved_query)
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         """Setting how far out the explanation box should expand to"""
@@ -234,3 +256,9 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             self.enableControls(True)
         else:
             self.enableControls(False)
+
+    def setData(self, data: typing.Any):
+        if data is not None and isinstance(data, FunctionSettings):
+            self.ui.codeEdit.setPlainText(data.code)
+            self.validateCode()
+            self.ui.entry_function_edit.setText(data.name)

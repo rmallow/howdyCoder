@@ -1,4 +1,6 @@
 from ...core.dataStructs import ItemSettings, Parameter
+from .. import pathSelector
+from .. import funcSelector
 from .. import editableTable
 
 from ...core.commonGlobals import (
@@ -73,6 +75,12 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
             valueKey = self.getValueKey(index)
             if ParameterEnum.DESCRIPTION in self.values[valueKey]:
                 return self.values[valueKey][ParameterEnum.DESCRIPTION]
+        elif (
+            role == QtCore.Qt.ItemDataRole.DisplayRole
+            or role == QtCore.Qt.ItemDataRole.EditRole
+        ):
+            if index in self.selector_widgets:
+                return ""
         return super().data(index, role)
 
     def getSuggestedParameters(self):
@@ -101,6 +109,7 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 and ParameterEnum.VALUE in value
                 and ParameterEnum.NAME in value
                 and value[ParameterEnum.NAME]
+                and value[ParameterEnum.VALUE] is not None
             ):
                 if value[ParameterEnum.TYPE] == editableTable.EditorType.FUNC.display:
                     """If it is a setup func add to that section instead of parameters"""
@@ -110,7 +119,48 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 else:
                     """else add to parameter section as normal"""
                     config.parameters[value[ParameterEnum.NAME]] = Parameter(
-                        value[ParameterEnum.NAME], value[ParameterEnum.VALUE]
+                        value[ParameterEnum.NAME],
+                        value[ParameterEnum.VALUE],
+                        value[ParameterEnum.TYPE],
                     )
 
         return returnConfig
+
+    def setDataFromSettings(self, settings: ItemSettings) -> None:
+        for name, param_settings in settings.parameters.items():
+            self.appendValue()
+            index = self.index(
+                self.rowCount() - 1, getattr(ParameterEnum.NAME, ENUM_VALUE)
+            )
+            self.setData(index, name)
+            self.setData(
+                index.siblingAtColumn(getattr(ParameterEnum.TYPE, ENUM_VALUE)),
+                param_settings.type_,
+            )
+            if param_settings.type_ in editableTable.SELECTOR_TYPES:
+                self.itemSelected(
+                    pathSelector.PathWithHelperData(
+                        index.siblingAtColumn(getattr(ParameterEnum.VALUE, ENUM_VALUE)),
+                        param_settings.value,
+                    )
+                )
+            else:
+                self.setData(
+                    index.siblingAtColumn(getattr(ParameterEnum.VALUE, ENUM_VALUE)),
+                    param_settings.value,
+                )
+        for name, setup_func_settings in settings.setup_functions.items():
+            self.appendValue()
+            index = self.index(
+                self.rowCount() - 1, getattr(ParameterEnum.NAME, ENUM_VALUE)
+            )
+            self.setData(index, name)
+            self.setData(
+                index.siblingAtColumn(getattr(ParameterEnum.TYPE, ENUM_VALUE)),
+                editableTable.EditorType.FUNC,
+            )
+            with_helper = funcSelector.addHelperData(setup_func_settings)
+            with_helper.index = index.siblingAtColumn(
+                getattr(ParameterEnum.VALUE, ENUM_VALUE)
+            )
+            self.itemSelected(with_helper)
