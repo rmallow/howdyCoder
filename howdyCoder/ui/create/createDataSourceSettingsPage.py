@@ -16,17 +16,14 @@ from ...core.commonGlobals import (
     DataSourcesTypeEnum,
     InputType,
 )
-from ...core.dataStructs import FunctionSettings
-
 import typing
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 
-OUTPUT_HELP = """
-Since functions are able to be made outside of this environment, this setup wizard can't tell you what data the function will output, unless the function specifies in docstring. \n
-In the case the ouput isn't specified, using the + and - buttons here, you can assign output names that will appear in the action portion later. \n
-If you don't do this you won't be able to see the data from this data source. \n
-For further questions, consult documentation.
+OUTPUT_HELP_FUNCTION = """Since functions are able to be made outside of this environment, this setup wizard can't tell you what data the function will output, unless the AI that generates the code specifies.\nIf the AI did specify, we have added these to the suggestion box and you can add them to the output box using the + and - buttons here.\nAfter adding the outputs, double click them to change their names.\nIf you don't do this you won't be able to see the data from this data source.\nFor further questions, consult the user manual."""
+
+OUTPUT_HELP_INPUT = """
+Output not selectable for input and is automatically the name of the data source.
 """
 
 
@@ -54,6 +51,8 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self._data_source_type = None
         self._outputModel = editableTable.PartialReadOnlyList()
         self._ui.outputView.setModel(self._outputModel)
+
+        self._outputModel.dataChanged.connect(self.setSuggestedOutput)
 
         # output view wiring
         self._ui.addOutputButton.pressed.connect(self.addOutput)
@@ -138,6 +137,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self._ui.stackedWidget.currentWidget().data = (
                 self._current_settings.function_settings
             )
+            self.setSuggestedOutput()
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             """Nothing more to do with settings, but make sure that we keep output to name of data source"""
             output_strings = [self.getTempConfig().name]
@@ -168,29 +168,31 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             except AttributeError as e:
                 """Not all have this, it's ok"""
                 pass
-            if (
-                self._data_source_type == DataSourcesTypeEnum.STREAM
-                or self._data_source_type == DataSourcesTypeEnum.INPUT
-            ):
+            if self._data_source_type == DataSourcesTypeEnum.INPUT:
                 self._ui.addOutputButton.setEnabled(False)
                 self._ui.removeOutputButton.setEnabled(False)
                 self._ui.outputHelpText.setText("")
-            else:
+                """If it's input, there's only one output and that is the name of the data source"""
+                self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_INPUT
+                self._ui.outputHelpText.setText(OUTPUT_HELP_INPUT)
+                self._ui.suggested_output_box.hide()
+                if index := self._input_combo.findText(curr_settings.input_type) != -1:
+                    self._input_combo.setCurrentIndex(index)
+                    self.onSpecificSettingsSelected(curr_settings.input_type)
+            elif (
+                self._data_source_type == DataSourcesTypeEnum.FUNC
+                or self._data_source_type == DataSourcesTypeEnum.THREADED
+            ):
                 if curr_settings.get_function is not None:
                     self.onSpecificSettingsSelected(
                         addHelperData(curr_settings.get_function)
                     )
                 self._ui.addOutputButton.setEnabled(True)
                 self._ui.removeOutputButton.setEnabled(True)
-                self._ui.outputHelpText.setText(OUTPUT_HELP)
                 self._outputModel.setStringList(curr_settings.output)
-            self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_FUNC
-            if self._data_source_type == DataSourcesTypeEnum.INPUT:
-                """If it's input, there's only one output and that is the name of the data source"""
-                self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_INPUT
-                if index := self._input_combo.findText(curr_settings.input_type) != -1:
-                    self._input_combo.setCurrentIndex(index)
-                    self.onSpecificSettingsSelected(curr_settings.input_type)
+                self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_FUNC
+                self._ui.outputHelpText.setText(OUTPUT_HELP_FUNCTION)
+                self._ui.suggested_output_box.show()
             self.enableCheck()
 
     def removeOutput(self):
@@ -260,4 +262,12 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             if self._data_source_type == DataSourcesTypeEnum.FUNC
             or self._data_source_type == DataSourcesTypeEnum.THREADED
             else self._urlTreeSelect.getTutorialClasses()
+        )
+
+    @QtCore.Slot()
+    def setSuggestedOutput(self, *args, **kwargs):
+        self.addToSuggestedListWidget(
+            self._ui.suggested_output,
+            set(self._outputModel.stringList()),
+            self._current_settings.function_settings.suggested_output,
         )

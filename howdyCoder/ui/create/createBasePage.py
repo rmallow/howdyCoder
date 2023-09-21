@@ -1,6 +1,6 @@
 from ...core.dataStructs import AlgoSettings, ScriptSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
-from ..util import abstractQt
+from ..util import abstractQt, qtResourceManager
 from ...core.commonGlobals import GROUP_SET, ProgramTypes
 from ..uiConstants import PageKeys
 
@@ -114,3 +114,22 @@ class CreateBasePage(
         """
         for child in self.findChildren(QtWidgets.QAbstractScrollArea):
             child.viewport().repaint()
+
+    def addToSuggestedListWidget(
+        self,
+        list_widget: QtWidgets.QListWidget,
+        current: typing.Set[str],
+        suggested: typing.List[str],
+    ):
+        def getIcon(name):
+            return qtResourceManager.getResourceByName(
+                "icons",
+                ("checkmark_green.png" if name in current else "x_red.png"),
+            )
+
+        list_widget.clear()
+        added = set()
+        for name in suggested:
+            if name not in added:
+                list_widget.addItem(QtWidgets.QListWidgetItem(getIcon(name), name))
+                added.add(name)

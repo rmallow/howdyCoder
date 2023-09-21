@@ -431,7 +431,6 @@ class CreateActionSettingsPage(CreateBasePage):
             self.updateDataSetSuggestions()
 
     def updateDataSetSuggestions(self):
-        self._ui.suggested_data_set.clear()
         current = set()
         for row in range(self._selected_input_table_model.rowCount()):
             current.add(
@@ -439,28 +438,13 @@ class CreateActionSettingsPage(CreateBasePage):
                     QtCore.Qt.ItemDataRole.DisplayRole
                 )
             )
-
-        def getIcon(name):
-            nonlocal current
-            return qtResourceManager.getResourceByName(
-                "icons",
-                ("checkmark_green.png" if name in current else "x_red.png"),
-            )
-
-        added = set()
+        suggested = []
         if self._current_calc_settings is not None:
-            for name in self._current_calc_settings.suggested_data:
-                added.add(name)
-                self._ui.suggested_data_set.addItem(
-                    QtWidgets.QListWidgetItem(getIcon(name), name)
-                )
-
+            suggested += self._current_calc_settings.suggested_data
         if (
             self._current_output_settings is not None
             and self._action_type == ActionTypeEnum.TRIGGER
         ):
-            for name in self._current_output_settings.suggested_data:
-                if name not in added:
-                    self._ui.suggested_data_set.addItem(
-                        QtWidgets.QListWidgetItem(getIcon(name), name)
-                    )
+            suggested += self._current_output_settings.suggested_data
+
+        self.addToSuggestedListWidget(self._ui.suggested_data_set, current, suggested)

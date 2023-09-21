@@ -25,18 +25,36 @@ TOO_FEW_FUNCTIONS_ERROR_STATUS = ERROR_ENCOUNTERED + "Must be at least one funct
 
 GOOD_STATUS = "No errors found, Code good to go"
 
+OUTPUT_TEXT = "output:"
+
+
+def getSuggestedOutput(response):
+    start = response.lower().find(OUTPUT_TEXT)
+    end = -1
+    if start != -1:
+        for x in range(start + len(OUTPUT_TEXT), len(response)):
+            if response[x] == "\n" or response[x] == ".":
+                end = x
+                break
+    output = response[start + len(OUTPUT_TEXT) : end].strip()
+    if output:
+        return [o.strip() for o in output.split(",")]
+    return []
+
 
 def createFunctionConfig(
     functions: typing.List[ast.FunctionDef],
     entry_function: str,
     imports: list,
     import_statements: list,
+    suggested_output=None,
 ):
     return FunctionSettings(
         "\n\n".join([ast.unparse(function) for function in functions]),
         entry_function,
         imports,
         import_statements,
+        suggested_output if suggested_output is not None else [],
     )
 
 
@@ -68,7 +86,6 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         cur_val = openAIUtil.testValidKeySet()
         self.ui.key_set_widget.setStatus(cur_val)
         self.ui.create_new_api_button.setEnabled(cur_val)
-        self.ui.modify_api_button.setEnabled(cur_val)
 
         self.setupPromptCombo()
 
@@ -122,7 +139,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             self.ui.codeEdit.setEnabled(False)
             self.ui.entry_function_edit.setEnabled(False)
             self.ui.statusLabel.setText(COMPILING_STATUS)
-            self._current_function_settings = None
+            self._current_function_settings = FunctionSettings()
             self._current_functions = []
             self.valid_code = False
             try:
@@ -177,10 +194,12 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     @QtCore.Slot()
     def sendFunctionConfig(self):
+        self.addSuggestedOutput()
         self.funcSelected.emit(self._current_function_settings)
 
     @QtCore.Slot()
     def saveCode(self):
+        self.addSuggestedOutput()
         """Save a function in the code edit to either an exisiting AFL file or a new AFL file"""
         file_dlg_return = QtWidgets.QFileDialog.getSaveFileName(
             self, "Select an Algo Function Library", ".", "Algo Function Library(*.afl)"
@@ -263,3 +282,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             self.ui.codeEdit.setPlainText(data.code)
             self.validateCode()
             self.ui.entry_function_edit.setText(data.name)
+
+    def addSuggestedOutput(self):
+        response = self.code_explanation.toPlainText()
+        self._current_function_settings.suggested_output = getSuggestedOutput(response)

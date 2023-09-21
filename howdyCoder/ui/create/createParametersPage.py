@@ -92,25 +92,16 @@ class CreateBaseParametersPage(CreateBasePage):
         return super().loadPage()
 
     def setParametersLabel(self, *args, **kwrags):
-        helper_data = self.getHelperData()
-        self._ui.parameter_list_widget.clear()
-        for param_list in (
-            helper_data.suggested_parameters,
-            self._parameterModel.getSuggestedParameters(),
-        ):
-            for param in param_list:
-                if param != DATA_SET:
-                    icon = qtResourceManager.getResourceByName(
-                        "icons",
-                        (
-                            "checkmark_green.png"
-                            if param in self._parameterModel.current_names
-                            else "x_red.png"
-                        ),
-                    )
-                    self._ui.parameter_list_widget.addItem(
-                        QtWidgets.QListWidgetItem(icon, param)
-                    )
+        self.addToSuggestedListWidget(
+            self._ui.parameter_list_widget,
+            self._parameterModel.current_names,
+            [
+                param
+                for param in self.getHelperData().suggested_parameters
+                + self._parameterModel.getSuggestedParameters()
+                if param != DATA_SET
+            ],
+        )
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
