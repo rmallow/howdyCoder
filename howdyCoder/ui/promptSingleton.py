@@ -5,7 +5,7 @@ import typing
 import os
 import functools
 
-FILE_KEY = "file"
+FILES_KEY = "files"
 MODIFY_SECTION = "Modify"
 
 
@@ -30,12 +30,16 @@ if first_import == True:
     config.read(PROMPTS_FILE)
 
     for section in config.sections():
-        if FILE_KEY in config[section]:
-            with open(
-                os.path.join(os.path.dirname(PROMPTS_FILE), config[section][FILE_KEY]),
-                "r",
-            ) as f:
-                if section != MODIFY_SECTION:
-                    prompts[section] = f.read()
-                else:
-                    _modify_prompt = f.read()
+        prompt_list = []
+        if FILES_KEY in config[section]:
+            file_list = config[section][FILES_KEY]
+            for file_name in file_list.split(","):
+                with open(
+                    os.path.join(os.path.dirname(PROMPTS_FILE), file_name),
+                    "r",
+                ) as f:
+                    prompt_list.append(f.read())
+            if section != MODIFY_SECTION:
+                prompts[section] = "\n".join(prompt_list)
+            else:
+                _modify_prompt = "\n".join(prompt_list)

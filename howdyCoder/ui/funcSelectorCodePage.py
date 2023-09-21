@@ -167,6 +167,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                         )
                         self.valid_code = True
                         self.enableControls(True)
+                        self.enableAPIControls(True)
                         self.ui.statusLabel.setText(GOOD_STATUS)
                 else:
                     self.ui.statusLabel.setText(TOO_FEW_FUNCTIONS_ERROR_STATUS)
