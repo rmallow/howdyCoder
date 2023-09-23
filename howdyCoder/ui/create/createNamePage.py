@@ -1,5 +1,5 @@
 from ...core.dataStructs import AlgoSettings
-from .createBasePage import CreateBasePage
+from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createNamePage
 
@@ -31,21 +31,20 @@ class CreateNamePage(CreateBasePage):
     ):
         super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
 
-        self.next_enabled = False
         self._ui = ui_createNamePage.Ui_CreateNamePage()
         self._ui.setupUi(self)
         self._last_name = ""
+        self._name_exists = False
 
-        self._ui.nameEdit.textChanged.connect(self.validate)
+        self._ui.nameEdit.textChanged.connect(self.doesAlgoNameExist)
 
-    def validate(self) -> bool:
+    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
         """Check if the name is entered and valid, if it is then check if it exists in the configs already"""
-        if self._ui.nameEdit.text().strip() != self._last_name and self.validateText(
-            self._ui.nameEdit.text()
-        ):
-            self._last_name = self._ui.nameEdit.text().strip()
-            self.doesAlgoNameExist.emit(self._last_name)
-        return True
+        return {
+            self._ui.nameEdit: ItemValidity.getEnum(
+                self.validateText(self._ui.nameEdit.text()) and not self._name_exists
+            )
+        }
 
     def save(self) -> None:
         """Replace the name in the settings"""
@@ -55,7 +54,6 @@ class CreateNamePage(CreateBasePage):
         self._ui.label.setText(
             f"{LABEL_TEXT_LEFT}{self.creator_type.value}{LABEL_TEXT_RIGHT}"
         )
-        self.next_enabled = False
         self._ui.nameEdit.clear()
 
     def loadPage(self) -> None:
@@ -67,8 +65,11 @@ class CreateNamePage(CreateBasePage):
 
     @QtCore.Slot()
     def doesNameExistSlot(self, exists_already: bool) -> None:
-        self.next_enabled = not exists_already
-        self.enableNext.emit(self.next_enabled)
+        self._name_exists = exists_already
+        if exists_already:
+            self._ui.status_label.setText("Name already exists, pick something else")
+        else:
+            self._ui.status_label.setText("")
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

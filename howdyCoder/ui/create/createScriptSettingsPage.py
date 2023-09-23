@@ -1,5 +1,5 @@
 from ...core.dataStructs import ScriptSettings, ActionSettings
-from .createBasePage import CreateBasePage
+from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles.ui_createScriptSettingsPage import Ui_CreateScriptSettingsPage
 from ..funcSelector import FunctionSettingsWithHelperData
@@ -35,7 +35,6 @@ class CreateScriptSettingsPage(CreateBasePage):
         self._current_settings: FunctionSettingsWithHelperData = None
         self._ui.funcSelectorWidget.itemSelected.connect(self.settingsSelected)
         self._ui.funcSelectorWidget.setDefaultPrompt("Script")
-        self.next_enabled = False
 
     def loadPage(self):
         self._ui.funcSelectorWidget.updateChildData()
@@ -52,8 +51,12 @@ class CreateScriptSettingsPage(CreateBasePage):
     def getTutorialClasses(self) -> typing.List:
         return [self] + self._ui.funcSelectorWidget.getTutorialClasses()
 
-    def validate(self) -> bool:
-        return self._current_settings is not None
+    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+        return {
+            self._ui.funcSelectorWidget: ItemValidity.getEnum(
+                self._current_settings is not None
+            )
+        }
 
     def save(self) -> None:
         self.getHelperData().suggested_parameters = (
@@ -67,7 +70,6 @@ class CreateScriptSettingsPage(CreateBasePage):
 
     def settingsSelected(self, function_settings: FunctionSettingsWithHelperData):
         self._current_settings = function_settings
-        self.enableCheck()
 
     def reset(self) -> None:
         self._current_settings = None

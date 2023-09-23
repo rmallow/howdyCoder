@@ -1,5 +1,5 @@
 from ...core.dataStructs import AlgoSettings, DataSourceSettings
-from .createBasePage import CreateBasePage
+from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createDataSourceSettingsPage
 
@@ -46,7 +46,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
 
         self._ui = ui_createDataSourceSettingsPage.Ui_CreateDataSourceSettingsPage()
         self._ui.setupUi(self)
-        self.next_enabled = False
         self._current_settings = None
         self._data_source_type = None
         self._outputModel = editableTable.PartialReadOnlyList()
@@ -147,7 +146,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         ):
             self._outputModel.setStringList(output_strings)
             self._outputModel.setReadOnlyNum(len(output_strings))
-        self.enableCheck()
 
     def loadPage(self) -> None:
         super().loadPage()
@@ -193,7 +191,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_FUNC
                 self._ui.outputHelpText.setText(OUTPUT_HELP_FUNCTION)
                 self._ui.suggested_output_box.show()
-            self.enableCheck()
 
     def removeOutput(self):
         selection = self._ui.outputView.selectionModel().selectedIndexes()
@@ -205,7 +202,6 @@ class CreateDataSourceSettingsPage(CreateBasePage):
     def addOutput(self):
         newOutput = f"output{self._outputModel.rowCount()}"
         self._outputModel.setStringList(self._outputModel.stringList() + [newOutput])
-        self.enableCheck()
 
     def save(self) -> None:
         curr: DataSourceSettings = self.getTempConfig()
@@ -231,11 +227,15 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             else:
                 curr.output = strings
 
-    def validate(self) -> bool:
-        return self._current_settings is not None and self._outputModel.rowCount()
+    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+        return {
+            self._ui.stackedWidget: ItemValidity.getEnum(
+                self._current_settings is not None
+            ),
+            self._ui.outputView: ItemValidity.getEnum(self._outputModel.rowCount() > 0),
+        }
 
     def reset(self) -> None:
-        self.next_enabled = False
         self._current_settings = None
         self._data_source_type = None
         self._outputModel.setStringList([])

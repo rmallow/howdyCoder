@@ -67,6 +67,16 @@ class Ui_CreateNamePage(object):
 
         self.verticalLayout.addWidget(self.widget)
 
+        self.status_label = QLabel(CreateNamePage)
+        self.status_label.setObjectName(u"status_label")
+        font2 = QFont()
+        font2.setPointSize(18)
+        self.status_label.setFont(font2)
+        self.status_label.setStyleSheet(u"color: red")
+        self.status_label.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout.addWidget(self.status_label)
+
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.MinimumExpanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
@@ -81,5 +91,6 @@ class Ui_CreateNamePage(object):
         CreateNamePage.setWindowTitle(QCoreApplication.translate("CreateNamePage", u"createNamePage", None))
         self.label.setText(QCoreApplication.translate("CreateNamePage", u"Enter a name for the algo for reference", None))
         self.nameEdit.setText("")
+        self.status_label.setText("")
     # retranslateUi
 

@@ -12,6 +12,18 @@ from enum import Enum
 from PySide6 import QtWidgets, QtCore
 
 
+class ItemValidity(Enum):
+    VALID = "Valid"
+    INVALID = "Invalid"
+    WARNING = "Warning"
+
+    def getEnum(valid: bool):
+        if valid:
+            return ItemValidity.VALID
+        else:
+            return ItemValidity.INVALID
+
+
 @dataclass
 class HelperData:
     suggested_parameters: typing.List[str] = field(default_factory=list)
@@ -32,7 +44,6 @@ class CreateBasePage(
 
     nextPage = QtCore.Signal()
     manualExit = QtCore.Signal(PageKeys)
-    enableNext = QtCore.Signal(bool)
     enableBack = QtCore.Signal(bool)
 
     def __init__(
@@ -51,7 +62,6 @@ class CreateBasePage(
         self.temp_config: ItemSettings = None  # assigned after the fact
         self.helper_data: HelperData = None  # assigned after the fact
         self.creator_type: ProgramTypes = None  # assigned after the fact
-        self.next_enabled = True
         self.back_enabled = True
 
     def __new__(self, *args, **kwargs):
@@ -73,23 +83,17 @@ class CreateBasePage(
     def populateParameters(self):
         pass
 
-    def enableCheck(self):
-        """Can be used as a slot for changing inputs on each page"""
-        self.next_enabled = self.validate()
-        self.enableNext.emit(self.next_enabled)
-
     def validateText(self, text: str) -> bool:
         """Return true if text exists and first letter isn't a number, this doesn't need to be crazy"""
-        return text.strip() and not text.strip()[0].isnumeric()
+        return bool(text.strip() and not text.strip()[0].isnumeric())
 
     @abstractmethod
     def loadPage(self):
         pass
 
-    @abstractmethod
-    def validate(self) -> bool:
-        """Return true if all the page fields are valid"""
-        return False
+    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+        """Return a mapping of widget to a result of validation for said widget"""
+        return {}
 
     @abstractmethod
     def save(self) -> None:

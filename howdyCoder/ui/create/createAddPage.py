@@ -32,7 +32,6 @@ class CreateAddPageBase(CreateBasePage):
             self._ui.topText.setText(top_text)
         self._dataSourcesModel = QtGui.QStandardItemModel()
         self._ui.dataSourcesView.setModel(self._dataSourcesModel)
-        self.next_enabled = False
         self._skip_page: PageKeys = skip_page
         self._ui.addButton.released.connect(self.nextPage)
         self._ui.skipButton.released.connect(
@@ -43,9 +42,6 @@ class CreateAddPageBase(CreateBasePage):
 
     def save(self) -> None:
         pass
-
-    def validate(self) -> bool:
-        return True
 
     def reset(self) -> None:
         self._ui.skipButton.setEnabled(False)

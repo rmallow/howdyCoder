@@ -1,5 +1,5 @@
 from ...core.dataStructs import ActionSettings, AlgoSettings, InputSettings
-from .createBasePage import CreateBasePage
+from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createActionSettingsPage
 
@@ -66,7 +66,6 @@ class CreateActionSettingsPage(CreateBasePage):
 
         self._ui = ui_createActionSettingsPage.Ui_CreateActionSettingsPage()
         self._ui.setupUi(self)
-        self.next_enabled = False
         self._action_type = None
         self._current_calc_settings: FunctionSettingsWithHelperData = None
         self._current_output_settings: FunctionSettingsWithHelperData = None
@@ -128,7 +127,6 @@ class CreateActionSettingsPage(CreateBasePage):
         for e in ActionDataType:
             self._ui.dataTypeCombo.addItem(getattr(e, ENUM_DISPLAY), e)
         self._ui.dataTypeCombo.setCurrentIndex(-1)
-        self._ui.dataTypeCombo.currentIndexChanged.connect(self.enableCheck)
         # TODO add back in input data type
         self._ui.data_type_box.hide()
 
@@ -153,7 +151,6 @@ class CreateActionSettingsPage(CreateBasePage):
                 )
                 self._output_selector_widget.data = settings.function_settings
                 self._current_output_settings = settings
-            self.enableCheck()
         self.updateDataSetSuggestions()
 
     def loadPage(self) -> None:
@@ -308,7 +305,6 @@ class CreateActionSettingsPage(CreateBasePage):
                         SELECTED_AMOUNT_OF_DATA_COLUMN,
                     )
                 )
-                self.enableCheck()
                 self.updateDataSetSuggestions()
 
     def checkSelectedInSettings(self, curr_settings: ActionSettings):
@@ -332,21 +328,24 @@ class CreateActionSettingsPage(CreateBasePage):
                     amount_of_data=curr_settings.input_[name].period,
                 )
 
-    def validate(self):
-        return (
-            self._selected_input_table_model.rowCount() > 0
-            and self._current_calc_settings is not None
-            and (
+    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+        return {
+            self._ui.selectedInputTable: ItemValidity.getEnum(
+                self._selected_input_table_model.rowCount() > 0
+            ),
+            self._ui.calcFuncWidget: ItemValidity.getEnum(
+                self._current_calc_settings is not None
+            ),
+            self._ui.outputFuncWidget: ItemValidity.getEnum(
                 self._action_type == ActionTypeEnum.EVENT
                 or self._current_output_settings is not None
-            )
-        )
+            ),
+        }
         # TODO add back in input data type
         # and self._ui.dataTypeCombo.currentIndex() >= 0
 
     def reset(self) -> None:
         self._curr_selected = set()
-        self.next_enabled = False
         self._current_calc_settings = None
         self._current_output_settings = None
         self._calc_selector_widget.resetText()
@@ -370,7 +369,6 @@ class CreateActionSettingsPage(CreateBasePage):
                 selection[0].siblingAtColumn(SELECTED_SOURCE_COLUMN).data()
             )
             self._selected_input_table_model.removeRow(selection[0].row())
-            self.enableCheck()
             self.updateDataSetSuggestions()
 
     def save(self) -> None:

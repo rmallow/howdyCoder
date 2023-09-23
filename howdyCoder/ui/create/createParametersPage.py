@@ -53,9 +53,6 @@ class CreateBaseParametersPage(CreateBasePage):
     def singleShotStateChanged(self, _):
         self._ui.time_edit.setEnabled(not self._ui.single_shot_check.isChecked())
 
-    def validate(self) -> bool:
-        return True
-
     def save(self) -> None:
         """
         Checking if temp config exists gets around an issue with exiting from a section

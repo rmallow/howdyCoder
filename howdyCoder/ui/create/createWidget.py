@@ -5,12 +5,12 @@ from ...core.dataStructs import (
     ProgramSettings,
     ScriptSettings,
 )
-from .createBasePage import CreateBasePage, HelperData
+from .createBasePage import CreateBasePage, HelperData, ItemValidity
 
 # various pages
 from .createNamePage import CreateNamePage
 from .createAddPage import CreateActionAddPage, CreateDataSourceAddPage
-from .createDataSourceTypePage import CreateDataSourceTypePage
+from .createTypePage import CreateDataSourceTypePage, CreateActionTypePage
 from .createDataSourceSettingsPage import CreateDataSourceSettingsPage
 from .createParametersPage import (
     CreateDataSourceParametersPage,
@@ -22,7 +22,6 @@ from .createConfirmPage import (
     CreateActionConfirmPage,
     CreateFinalConfirmPage,
 )
-from .createActionTypePage import CreateActionTypePage
 from .createActionSettingsPage import CreateActionSettingsPage
 from .createScriptSettingsPage import CreateScriptSettingsPage
 
@@ -34,7 +33,7 @@ from ..util import animations, abstractQt
 
 from ...core.commonGlobals import DATA_SOURCES, ACTION_LIST, ProgramTypes
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from dataclass_wizard import asdict
 import typing
@@ -112,6 +111,9 @@ class CreateWidget(
         self.current_config = None
         self._sub_configs = {}
 
+        self._animation_group = QtCore.QParallelAnimationGroup(self)
+        self._graphics_effects = []
+
     def getCurrentPageList(self):
         return PROGRAM_TYPE_TO_PAGES.get(self._creator_type, [])
 
@@ -158,9 +160,6 @@ class CreateWidget(
             self._current_index != 0
             and self._create_widgets_list[self._current_index].back_enabled
         )
-        self._ui.nextButton.setEnabled(
-            self._create_widgets_list[self._current_index].next_enabled
-        )
 
     def changePage(self, newIndex: int):
         """Change the page to the given page with an animation, save the current page and check its validity"""
@@ -175,7 +174,8 @@ class CreateWidget(
             self._ui.backButton.setEnabled(False)
             self._ui.exitButton.setEnabled(False)
             currentPage = self._create_widgets_list[self._current_index]
-            if valid_page := currentPage.validate():
+
+            if valid_page := all(v for v in currentPage.validate().values()):
                 currentPage.save()
             # Get keys from the page before the page we are loading and put it in the page we are loading
             if newIndex > 0:
@@ -210,7 +210,63 @@ class CreateWidget(
             )
             self.reset()
         else:
-            self.changePage(self._current_index + 1)
+            if self._animation_group.state() == self._animation_group.State.Stopped:
+                for x in range(self._animation_group.animationCount()):
+                    a = self._animation_group.takeAnimation(x)
+                    a.deleteLater()
+                validated_widgets = self._create_widgets_list[
+                    self._current_index
+                ].validate()
+                warning_found = False
+                for widget, status in validated_widgets.items():
+                    if status == ItemValidity.INVALID:
+                        self.createColorBlinkAnimation(widget)
+                    elif status == ItemValidity.WARNING:
+                        warning_found = True
+                if self._animation_group.animationCount() > 0:
+                    self._animation_group.finished.connect(self.pageAnimationFinished)
+                    self._animation_group.setLoopCount(3)
+                    self._animation_group.start()
+                else:
+                    message_box = None
+                    if warning_found:
+                        message_box = QtWidgets.QMessageBox(self)
+                        message_box.setText("Are you sure you want to continue?")
+                        message_box.setInformativeText(
+                            "Not all of the suggested items have been added. Althought not required, it's probably a good idea to listen to the suggestion."
+                        )
+                        message_box.setStandardButtons(
+                            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                        )
+                        message_box.setDefaultButton(QtWidgets.QMessageBox.No)
+                        message_box.setWindowModality(
+                            QtCore.Qt.WindowModality.ApplicationModal
+                        )
+                    if (
+                        not warning_found
+                        or message_box.exec_ == QtWidgets.QMessageBox.Yes
+                    ):
+                        self.changePage(self._current_index + 1)
+
+    def createColorBlinkAnimation(self, widget):
+        """Create color blink animation for a widget and add it to the group"""
+        effect = QtWidgets.QGraphicsColorizeEffect(self)
+        effect.setColor(QtGui.QColor(255, 0, 0))
+        effect.setStrength(0.1)
+        self._graphics_effects.append(effect)
+        widget.setGraphicsEffect(effect)
+        animation = QtCore.QPropertyAnimation(effect, QtCore.QByteArray(b"strength"))
+        animation.setStartValue(0.5)
+        animation.setEndValue(0)
+        animation.setDuration(1200)
+        self._animation_group.addAnimation(animation)
+
+    def pageAnimationFinished(self):
+        for effect in self._graphics_effects:
+            effect: QtWidgets.QGraphicsColorizeEffect
+            effect.setEnabled(False)
+            effect.deleteLater()
+        self._graphics_effects = []
 
     def setButtonText(self):
         self._ui.nextButton.setText(
@@ -252,7 +308,7 @@ class CreateWidget(
         after widget animation is done, enable button and update widget
         """
         self._ui.backButton.setEnabled(self._create_widgets_list[newIndex].back_enabled)
-        self._ui.nextButton.setEnabled(self._create_widgets_list[newIndex].next_enabled)
+        self._ui.nextButton.setEnabled(True)
         self._ui.exitButton.setEnabled(True)
         if self._create_widgets_list[newIndex].EXIT_LABEL:
             self._ui.exitButton.setText(self._create_widgets_list[newIndex].EXIT_LABEL)
@@ -335,6 +391,5 @@ class CreateWidget(
         # don't want clicking through till animation is over so we disable button on press
         for page in self._create_widgets_list:
             page.nextPage.connect(self.nextPressed)
-            page.enableNext.connect(self._ui.nextButton.setEnabled)
             page.enableBack.connect(self._ui.backButton.setEnabled)
             page.manualExit.connect(self.exitPressed)

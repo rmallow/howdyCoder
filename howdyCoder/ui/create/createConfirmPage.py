@@ -26,7 +26,6 @@ class CreateConfirmBasePage(CreateBasePage):
         self._ui = ui_createDataSourceConfirmPage.Ui_CreateDataSourceConfirmPage()
         self._ui.setupUi(self)
         self._ui.label.setText(top_text)
-        self.next_enabled = False
 
         self._ui.addButton.released.connect(lambda: self.manualExit.emit(self.EXIT))
         self._ui.confirmButton.released.connect(self.confirmConfig)
@@ -39,7 +38,6 @@ class CreateConfirmBasePage(CreateBasePage):
         )
         if self.getConfig() != self.getTempConfig():
             self.getTempConfig().clear()
-        self.enableNext.emit(True)
         self.enableBack.emit(False)
         self._ui.confirmButton.setEnabled(False)
 
@@ -55,9 +53,6 @@ class CreateConfirmBasePage(CreateBasePage):
         self._ui.configTextView.setPlainText(
             yaml.dump(self.getConfigForView(), default_flow_style=False, indent=4)
         )
-
-    def validate(self) -> bool:
-        return True
 
     def reset(self) -> None:
         self._ui.addButton.setEnabled(True)
@@ -120,7 +115,6 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
             current_config, self.TOP_TEXT, self.TUTORIAL_RESOURCE_PREFIX, parent
         )
         # there's no confirm/add another next is finish and back is start over
-        self.next_enabled = True
         self.back_enabled = False
         self._ui.addButton.setEnabled(False)
         self._ui.confirmButton.setEnabled(False)
