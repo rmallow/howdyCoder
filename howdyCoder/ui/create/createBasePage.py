@@ -63,6 +63,7 @@ class CreateBasePage(
         self.helper_data: HelperData = None  # assigned after the fact
         self.creator_type: ProgramTypes = None  # assigned after the fact
         self.back_enabled = True
+        self.next_enabled = True
 
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)

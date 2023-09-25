@@ -75,6 +75,8 @@ class CreateWidget(
 ):
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
     addProgram = QtCore.Signal(object)
+    doesProgramNameExist = QtCore.Signal(str)
+    nameExists = QtCore.Signal(bool)
 
     TUTORIAL_RESOURCE_PREFIX = "CreateWidget"
 
@@ -130,6 +132,9 @@ class CreateWidget(
             p.temp_config = self._sub_configs.get(p.GROUP, None)
             p.helper_data = self.helper_data
             p.creator_type = self._creator_type
+            if isinstance(p, CreateNamePage):
+                p.doesProgramNameExist.connect(self.doesProgramNameExist)
+                self.nameExists.connect(p.doesNameExistSlot)
             self._create_widgets_list.append(p)
         self._current_index: int = 0
 
@@ -160,6 +165,9 @@ class CreateWidget(
             self._current_index != 0
             and self._create_widgets_list[self._current_index].back_enabled
         )
+        self._ui.backButton.setEnabled(
+            self._create_widgets_list[self._current_index].next_enabled
+        )
 
     def changePage(self, newIndex: int):
         """Change the page to the given page with an animation, save the current page and check its validity"""
@@ -175,7 +183,9 @@ class CreateWidget(
             self._ui.exitButton.setEnabled(False)
             currentPage = self._create_widgets_list[self._current_index]
 
-            if valid_page := all(v for v in currentPage.validate().values()):
+            if valid_page := all(
+                v != ItemValidity.INVALID for v in currentPage.validate().values()
+            ):
                 currentPage.save()
             # Get keys from the page before the page we are loading and put it in the page we are loading
             if newIndex > 0:
@@ -308,7 +318,7 @@ class CreateWidget(
         after widget animation is done, enable button and update widget
         """
         self._ui.backButton.setEnabled(self._create_widgets_list[newIndex].back_enabled)
-        self._ui.nextButton.setEnabled(True)
+        self._ui.nextButton.setEnabled(self._create_widgets_list[newIndex].next_enabled)
         self._ui.exitButton.setEnabled(True)
         if self._create_widgets_list[newIndex].EXIT_LABEL:
             self._ui.exitButton.setText(self._create_widgets_list[newIndex].EXIT_LABEL)
@@ -393,3 +403,6 @@ class CreateWidget(
             page.nextPage.connect(self.nextPressed)
             page.enableBack.connect(self._ui.backButton.setEnabled)
             page.manualExit.connect(self.exitPressed)
+
+        self._ui.nextButton.setEnabled(True)
+        self._ui.exitButton.setEnabled(True)

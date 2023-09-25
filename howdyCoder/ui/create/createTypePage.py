@@ -102,10 +102,10 @@ class CreateDataSourceTypePage(CreateTypePage):
     Use a given function call as the source of the data. \n
     On the next page you can choose what function to use.
     """,
-        DataSourcesTypeEnum.THREADED.display: """
-    A more advanced version of Func data source. \n
-    Only necessary if the funciton would normally be used in a multithreaded environment.
-    """,
+        #        DataSourcesTypeEnum.THREADED.display: """
+        #    A more advanced version of Func data source. \n
+        #    Only necessary if the funciton would normally be used in a multithreaded environment.
+        #    """,
         DataSourcesTypeEnum.INPUT.display: """
     Take user input data as the source of the data. \n
     When this option is used, after the program is created, a window can be opened that has the selected input option for inputting user data. \n

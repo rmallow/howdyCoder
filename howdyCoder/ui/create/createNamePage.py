@@ -22,7 +22,7 @@ class CreateNamePage(CreateBasePage):
 
     GROUP = NONE_GROUP
 
-    doesAlgoNameExist = QtCore.Signal(str)
+    doesProgramNameExist = QtCore.Signal(str)
 
     def __init__(
         self,
@@ -36,7 +36,7 @@ class CreateNamePage(CreateBasePage):
         self._last_name = ""
         self._name_exists = False
 
-        self._ui.nameEdit.textChanged.connect(self.doesAlgoNameExist)
+        self._ui.nameEdit.textChanged.connect(self.doesProgramNameExist)
 
     def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
         """Check if the name is entered and valid, if it is then check if it exists in the configs already"""
@@ -61,6 +61,7 @@ class CreateNamePage(CreateBasePage):
             f"{LABEL_TEXT_LEFT}{self.creator_type.value}{LABEL_TEXT_RIGHT}"
         )
         self._ui.nameEdit.setText(self.getConfig().name)
+        self.doesProgramNameExist.emit(self.getConfig().name)
         return super().loadPage()
 
     @QtCore.Slot()

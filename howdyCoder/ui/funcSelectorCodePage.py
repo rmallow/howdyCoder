@@ -30,7 +30,7 @@ OUTPUT_TEXT = "output:"
 
 def getSuggestedOutput(response):
     start = response.lower().find(OUTPUT_TEXT)
-    end = -1
+    end = len(response)
     if start != -1:
         for x in range(start + len(OUTPUT_TEXT), len(response)):
             if response[x] == "\n" or response[x] == ".":
@@ -218,6 +218,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.modify_api_button.setEnabled(enable)
 
     def callAPI(self, system_prompt: str, user_prompt: str) -> None:
+        self.enableControls(False)
         self.ui.codeEdit.setEnabled(False)
         self.ui.prompt_text_edit.setEnabled(False)
         self.ui.create_new_api_button.setEnabled(False)
@@ -279,7 +280,8 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     def setData(self, data: typing.Any):
         if data is not None and isinstance(data, FunctionSettings):
-            self.ui.codeEdit.setPlainText(data.code)
+            full_code = "\n".join(data.import_statements) + "\n\n" + data.code
+            self.ui.codeEdit.setPlainText(full_code)
             self.validateCode()
             self.ui.entry_function_edit.setText(data.name)
 

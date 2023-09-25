@@ -86,7 +86,9 @@ class UserFuncCaller:
             else:
                 exception_str = f"Exception while calling function named: {self.name}\n"
             exception_str += "-" * 10 + f"\n{e}"
-            mpLogging.error(exception_str, group=FUNC_GROUP)
+            mpLogging.error(
+                exception_str, description=traceback.format_exc(), group=FUNC_GROUP
+            )
             return None, None, None
 
     def filterArguments(self, passed_in_kwarg: typing.Dict[str, Any]) -> dict[str, Any]:

@@ -39,6 +39,7 @@ class CreateAddPageBase(CreateBasePage):
         )
         self._ui.editButton.released.connect(self.editConfig)
         self._ui.removeButton.released.connect(self.removeSelected)
+        self.next_enabled = False
 
     def save(self) -> None:
         pass
@@ -50,6 +51,7 @@ class CreateAddPageBase(CreateBasePage):
         return super().reset()
 
     def setGroupModel(self):
+        self._dataSourcesModel.clear()
         for k, v in self.getConfigGroup().items():
             item = QtGui.QStandardItem(f"{k} : {v.type_}")
             item.setData(k, NAME_ROLE)
