@@ -258,6 +258,19 @@
        <widget class="QWidget" name="widget_7" native="true">
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>The Name, Type, and Value columns must all have valid values for each row for the parameter to be saved. Otherwise it will not be saved and will not be accessible by the function.</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QWidget" name="buttonWidget" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>

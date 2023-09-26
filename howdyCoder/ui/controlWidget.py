@@ -145,8 +145,9 @@ class ControlWidget(
     @QtCore.Slot()
     def removeWidget(self, uid: int, refresh=True) -> None:
         if uid in self._algo_widgets:
+            name = self._algo_widgets[uid].data.name
             if self._algo_widgets[uid].data.mode == Modes.STOPPED:
-                self.shutdownProgram.emit(self._algo_widgets[uid].data.name)
+                self.shutdownProgram.emit(name)
             else:
                 if uid in self._algo_input_windows:
                     self._algo_input_windows[uid].hide()
@@ -154,6 +155,7 @@ class ControlWidget(
                     del self._algo_input_windows[uid]
                 self._algo_widgets[uid].deleteLater()
                 del self._algo_widgets[uid]
+                self.program_dict.remove(name)
                 if refresh:
                     self.addWidgets()
 

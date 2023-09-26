@@ -1,5 +1,5 @@
 from ...core.dataStructs import ActionSettings, AlgoSettings, DataSourceSettings
-from .createBasePage import CreateBasePage
+from .createBasePage import CreateBasePage, ItemValidity
 from ..qtUiFiles import ui_createDataSourceParametersPage
 from ..uiConstants import PageKeys
 from . import parameterTable
@@ -102,6 +102,11 @@ class CreateBaseParametersPage(CreateBasePage):
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
+
+    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+        return {
+            None: self.suggested_validity,
+        }
 
 
 class CreateDataSourceParametersPage(CreateBaseParametersPage):

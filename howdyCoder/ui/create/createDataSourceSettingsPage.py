@@ -233,6 +233,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
                 self._current_settings is not None
             ),
             self._ui.outputView: ItemValidity.getEnum(self._outputModel.rowCount() > 0),
+            None: self.suggested_validity,
         }
 
     def reset(self) -> None:

@@ -254,7 +254,7 @@ class CreateWidget(
                         )
                     if (
                         not warning_found
-                        or message_box.exec_ == QtWidgets.QMessageBox.Yes
+                        or message_box.exec_() == QtWidgets.QMessageBox.Yes
                     ):
                         self.changePage(self._current_index + 1)
 

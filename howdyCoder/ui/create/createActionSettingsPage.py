@@ -340,6 +340,7 @@ class CreateActionSettingsPage(CreateBasePage):
                 self._action_type == ActionTypeEnum.EVENT
                 or self._current_output_settings is not None
             ),
+            None: self.suggested_validity,
         }
         # TODO add back in input data type
         # and self._ui.dataTypeCombo.currentIndex() >= 0

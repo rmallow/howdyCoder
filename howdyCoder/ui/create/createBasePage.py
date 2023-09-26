@@ -64,6 +64,7 @@ class CreateBasePage(
         self.creator_type: ProgramTypes = None  # assigned after the fact
         self.back_enabled = True
         self.next_enabled = True
+        self.suggested_validity = ItemValidity.VALID
 
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
@@ -126,7 +127,12 @@ class CreateBasePage(
         current: typing.Set[str],
         suggested: typing.List[str],
     ):
+        all_found = True
+
         def getIcon(name):
+            nonlocal all_found
+            if name not in current:
+                all_found = False
             return qtResourceManager.getResourceByName(
                 "icons",
                 ("checkmark_green.png" if name in current else "x_red.png"),
@@ -138,3 +144,6 @@ class CreateBasePage(
             if name not in added:
                 list_widget.addItem(QtWidgets.QListWidgetItem(getIcon(name), name))
                 added.add(name)
+        self.suggested_validity = (
+            ItemValidity.VALID if all_found else ItemValidity.WARNING
+        )
