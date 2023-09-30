@@ -6,6 +6,7 @@ from .mainModel import mainModel
 from .modInstallDialog import ModInstallDialog
 from .tutorialOverlay import AbstractTutorialClass
 from .create.creatorTypeWindow import CreatorTypeWindow
+from .keySetWindow import KeySetWindow
 
 from .util import abstractQt
 
@@ -148,6 +149,9 @@ class MainWindow(
 
         self.creator_type_window = None
 
+        self._key_window = KeySetWindow(self)
+        self._ui.actionAPI_Key.triggered.connect(self._key_window.show)
+
         self.show()
 
     @QtCore.Slot()
@@ -235,7 +239,7 @@ class MainWindow(
         button_response = QtWidgets.QMessageBox.question(
             self,
             "Are you sure you want to shutdown?",
-            "Are you sure you want to shutdown? Shutting down will close this window and the currently blocks.",
+            "Are you sure you want to shutdown? Shutting down will close this window and the current running programs.",
         )
         if button_response == QtWidgets.QMessageBox.StandardButton.Yes:
             self._main_model.shutdown()

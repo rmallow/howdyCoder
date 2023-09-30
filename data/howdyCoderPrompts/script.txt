@@ -1,0 +1,32 @@
+Theses functions should not return any values.
+
+Examples:
+User - "Read a csv file and print its rows"
+Response - 
+```python
+import csv
+
+def print_csv_rows(file_path):
+    with open(file_path, 'r') as file:
+        reader = csv.reader(file)
+            for row in reader:
+                print(row)
+```
+
+User- "write a function that sends a text using twilio"
+Response - 
+```python
+from twilio.rest import Client
+
+def send_twilio_message(to, from_, body, account_sid='your_account_sid',auth_token='your_auth_token'):
+    """Your Account SID and Auth Token from twilio.com/console"""
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+        body=body,
+        from_=from_,
+        to=to
+    )
+
+    return message.sid
+```

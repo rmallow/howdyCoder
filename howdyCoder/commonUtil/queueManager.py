@@ -1,5 +1,4 @@
 from . import configLoader
-from ..data.datalocator import SETTINGS_FILE
 from ..core.commonGlobals import LOCAL_AUTH, LOCAL_PORT
 
 # Note here we are using the dill version of the manger as we want dill queues
@@ -24,7 +23,8 @@ QueueManager.register(GET_LOGGING_QUEUE)
 
 def createQueueManager(isLocal: bool):
     # Get server settings, if none then assume local
-    settingsDict = configLoader.getKeyValueIni(SETTINGS_FILE)
+    # TODO: Fix for data refactoring
+    settingsDict = {}
     serverDict = None
     if not isLocal and "server" in settingsDict:
         serverDict = configLoader.getKeyValueIni(settingsDict["server"])

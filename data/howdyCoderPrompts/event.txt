@@ -1,0 +1,40 @@
+The function should return a value. This value can be of any type but should be specified in the explanation.
+If there is a case where there shouldn't be any output from the function, then the function should return None.
+
+Examples:
+User - "Calculate the average of the prices"
+Response - 
+```python
+def averagePrice(data_set):
+    return sum(data_set["price"])/len(data_set["price"])
+```
+
+Examples:
+User - "Calculate the RSI of stock prices."
+Response - 
+```python
+def calculateRSI(data_set):
+    import numpy as np
+
+    # Calculate price differences
+    deltas = np.diff(data_set["price"])
+
+    # Separate positive and negative differences
+    positive_deltas = [0 if d < 0 else d for d in deltas]
+    negative_deltas = [0 if d > 0 else d for d in deltas]
+    
+    # Calculate averages of gains and losses
+    avg_gain = [0]*len(data_set["price"])
+    avg_loss = [0]*len(data_set["price"])
+    avg_gain[period] = np.mean(positive_deltas[:period])
+    avg_loss[period] = np.mean(negative_deltas[:period])
+
+    # Calculate RS and RSI
+    rs = [0 if avg_loss[i] == 0 else avg_gain[i]/abs(avg_loss[i]) for i in range(len(data_set["price"]))]
+    rsi = [100 - (100 / (1 + rs[i])) for i in range(len(data_set["price"]))]
+    
+    return rsi
+```
+
+This function calculates the Relative Strength Index (RSI) of the given stock prices. The `data_set` argument is expected to be a dictionary of lists, with "price" being one of its keys containing the stock prices. 
+The `period` argument specifies the period over which the RSI is calculated. It returns a list of RSI values.

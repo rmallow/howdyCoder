@@ -1,21 +1,26 @@
 import openai
 from . import keyringUtil
+from ..core import keySingleton
 import re
 
-MODEL = "gpt-4"
-OPEN_AI_API_KEY_NAME = "OPEN_AI_API_KEY"
+
+OPEN_AI_KEYRING_NAME = "OPEN_AI_API_KEY"
+OPEN_AI_KEY_DATA_NAME = "Open AI (Chat GPT)"
+
+COMPLETION_MODEL = "gpt-4"
+TRANSCRIPTION_MODEL = "whisper-1"
+
+PIP_SERACH = "pip"
+CODE_INDICATOR = "```"
+PYTHON_SEARCH = CODE_INDICATOR + "python"
 
 
-def setKeyDecorator(func):
-    def inner(*args, **kwargs):
-        openai.api_key = keyringUtil.getKey(OPEN_AI_API_KEY_NAME)
-        return func(*args, **kwargs)
-
-    return inner
+def setKey(key: str):
+    openai.api_key = key
 
 
 def setKeyFromKeyring():
-    openai.api_key = keyringUtil.getKey(OPEN_AI_API_KEY_NAME)
+    openai.api_key = keyringUtil.getKey(OPEN_AI_KEYRING_NAME)
 
 
 def testValidKeySet() -> bool:
@@ -40,10 +45,9 @@ def testValid(key: str) -> bool:
     return ret_val
 
 
-@setKeyDecorator
 def getChatCompletion(system_prompt: str, user_prompt: str):
     completion = openai.ChatCompletion.create(
-        model="gpt-4",
+        model=COMPLETION_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -55,17 +59,9 @@ def getChatCompletion(system_prompt: str, user_prompt: str):
     return content
 
 
-@setKeyDecorator
 def transcribeAudio(audio_file):
     audio_file = open(audio_file, "rb")
-    return openai.Audio.transcribe("whisper-1", audio_file)
-
-
-PIP_SERACH = "pip"
-CODE_INDICATOR = "```"
-PYTHON_SEARCH = CODE_INDICATOR + "python"
-
-import re
+    return openai.Audio.transcribe(TRANSCRIPTION_MODEL, audio_file)
 
 
 def remove(rem: str, my_string: str):
@@ -93,7 +89,8 @@ def getPythonCodeOnly(code: str):
     return res if res else code
 
 
-first_load = True
-if first_load:
-    first_load = False
-    setKeyFromKeyring()
+# on first import add to singleton
+keySingleton.addKeySetData(
+    OPEN_AI_KEY_DATA_NAME,
+    keySingleton.KeySetData(OPEN_AI_KEYRING_NAME, setKey, testValid),
+)

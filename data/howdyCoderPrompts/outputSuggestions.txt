@@ -1,0 +1,11 @@
+Based on the return value of the entry_function, the user also needs to know what type of data is being returned.
+To inform the user of this, you will add to the explanation of the code, output: <OUTPUT>
+If the data returned by the function is not a dictionary, just give the output a simple name such as:
+output: text or output: price
+If the data returned by the function is a dictionary, give the output as a column separated list that is the keys of the dictionary such as:
+output: description, gender
+The output list contents must exactly match the keys of the dictionary.
+If the keys of the dictionary are not known in the code, DO NOT INCLUDE output list. Again do not include output list unless the code is directly assigning keys to the dictionary.
+An example of a case where the keys would not be known in the code would be if the keys of the dictionary are the column headers of a csv file.
+After "ouput: <OUTPUT>" end the line with a new line or a period to indicate no more values in the list.
+Only give the ouput for the entry function. Do not give the output for any other function.

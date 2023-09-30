@@ -27,20 +27,10 @@
     <number>2</number>
    </property>
    <item>
-    <widget class="QLabel" name="infoLabel">
-     <property name="text">
-      <string>Paste code or query the API to generate code for you. The bottom editor will check that the code compiles and is compatible. If there is an error, the error message will be displayed at the bottom. Based on the type of function you are requesting from the API select an initial prompt from the combo box below.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
+    <widget class="KeyMonitorWidget" name="key_monitor_widget" native="true"/>
    </item>
    <item>
-    <widget class="KeySetWidget" name="key_set_widget" native="true"/>
-   </item>
-   <item>
-    <widget class="QWidget" name="widget_4" native="true">
+    <widget class="QWidget" name="prompt_select_box" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <property name="leftMargin">
        <number>0</number>
@@ -91,6 +81,21 @@
        </spacer>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="infoLabel">
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>If using AI generation in app, enter your prompt here. Click Create New Function to create a new function based on the prompt below. Click Modify Function to modify the current entered code based on the prompt you've provided. Additional information will be given to the AI with your prompts to assist with making compatible code.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -245,7 +250,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Only have code entered in the text edit box below. If there is more than just code, such as AI explanation, delete that. Oftentimes AI will generate a main function with helper functions, enter the entry point function that is supposed to be called first in the box above. This function name must be found in the code below.</string>
+      <string>If you are not using AI generation in app, paste your code will below. The code in the editor will be analyzed for compilation errors. If the AI provided an explanation it will be shown in the explanation expander. If your code has multiple functions, enter the entry function above. The AI generated code should handle this automatically.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -366,9 +371,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KeySetWidget</class>
+   <class>KeyMonitorWidget</class>
    <extends>QWidget</extends>
-   <header>..keySetWidget</header>
+   <header>..keyMonitorWidget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

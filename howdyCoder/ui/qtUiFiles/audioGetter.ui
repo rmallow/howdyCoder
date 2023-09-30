@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Hit the record button to start recording, hit space when active is checked. Hit the same button to stop recording, or space when active is checked. Once recorded, the audio will be transcribed as text before being sent off. This requires a Chat GPT Api Key. If active is checked the recording will automatically be sent otherwise hit enter to send. (Experimental)</string>
+      <string>Hit the record button to start recording, hit space when active is checked. Hit the same button to stop recording, or space when active is checked. Once recorded, the audio will be transcribed as text before being sent off.  If active is checked the recording will automatically be sent otherwise hit enter to send. (Experimental)</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -28,7 +28,7 @@
     </widget>
    </item>
    <item>
-    <widget class="KeySetWidget" name="key_set_widget" native="true"/>
+    <widget class="KeyMonitorWidget" name="key_monitor_widget" native="true"/>
    </item>
    <item>
     <widget class="QWidget" name="control_box" native="true">
@@ -110,9 +110,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KeySetWidget</class>
+   <class>KeyMonitorWidget</class>
    <extends>QWidget</extends>
-   <header>..keySetWidget</header>
+   <header>..keyMonitorWidget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

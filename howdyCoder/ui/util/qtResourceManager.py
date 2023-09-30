@@ -34,9 +34,3 @@ def getResourceByName(prefix: str, name: str, folder=None) -> QtGui.QPixmap:
         return QtGui.QPixmap(f"{path}/{name}")
     assert False, "invalid res name"
     return QtGui.QPixmap()
-
-
-"""Singleton Module"""
-first_import = True
-if first_import == True:
-    first_import = False

@@ -1,6 +1,5 @@
 # Local common includes
 from .core.dataStructs import ProgramStatusData, Modes, ProgramSettings
-from .data.datalocator import SETTINGS_FILE
 from .core.commonGlobals import ITEM, LOCAL_AUTH, LOCAL_PORT, ProgramTypes
 from .core.commonGlobals import IMPORTS
 
@@ -62,7 +61,7 @@ class mainframe(commandProcessor):
         logging.getLogger().setLevel(logging.INFO)
 
         # Load defaults
-        self.loader = configLoader.ConfigLoader(SETTINGS_FILE)
+        self.loader = configLoader.ConfigLoader()
 
         # Set up multiprocessing items
         self.process_dict = {}
@@ -128,10 +127,6 @@ class mainframe(commandProcessor):
         self.addCmdFunc(msg.CommandType.INSTALL_PACKAGE, mainframe.installPackages)
         self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToProgram)
         self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, mainframe.passCommandToProgram)
-
-        # Get other config files to load
-        config = configparser.ConfigParser()
-        config.read(SETTINGS_FILE)
 
         # init all managers
         self.type_to_manager = {

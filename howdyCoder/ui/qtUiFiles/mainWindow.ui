@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>763</width>
-    <height>745</height>
+    <width>1188</width>
+    <height>927</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -108,6 +108,7 @@
    <addaction name="actionStatus"/>
    <addaction name="actionLoad_Config"/>
    <addaction name="actionLogging"/>
+   <addaction name="actionAPI_Key"/>
    <addaction name="invisible_action"/>
    <addaction name="action_help_menu"/>
   </widget>
@@ -192,6 +193,14 @@
   <action name="action_documentation">
    <property name="text">
     <string>Documentation</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionAPI_Key">
+   <property name="text">
+    <string>Key Window</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>

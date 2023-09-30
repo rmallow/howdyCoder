@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QHBoxLayout, QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy,
     QSpacerItem, QVBoxLayout, QWidget)
 
-from ..keySetWidget import KeySetWidget
+from ..keyMonitorWidget import KeyMonitorWidget
 
 class Ui_FuncSelectorCodePage(object):
     def setupUi(self, FuncSelectorCodePage):
@@ -29,28 +29,22 @@ class Ui_FuncSelectorCodePage(object):
         self.verticalLayout = QVBoxLayout(FuncSelectorCodePage)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(2, 2, 2, 2)
-        self.infoLabel = QLabel(FuncSelectorCodePage)
-        self.infoLabel.setObjectName(u"infoLabel")
-        self.infoLabel.setWordWrap(True)
+        self.key_monitor_widget = KeyMonitorWidget(FuncSelectorCodePage)
+        self.key_monitor_widget.setObjectName(u"key_monitor_widget")
 
-        self.verticalLayout.addWidget(self.infoLabel)
+        self.verticalLayout.addWidget(self.key_monitor_widget)
 
-        self.key_set_widget = KeySetWidget(FuncSelectorCodePage)
-        self.key_set_widget.setObjectName(u"key_set_widget")
-
-        self.verticalLayout.addWidget(self.key_set_widget)
-
-        self.widget_4 = QWidget(FuncSelectorCodePage)
-        self.widget_4.setObjectName(u"widget_4")
-        self.horizontalLayout_4 = QHBoxLayout(self.widget_4)
+        self.prompt_select_box = QWidget(FuncSelectorCodePage)
+        self.prompt_select_box.setObjectName(u"prompt_select_box")
+        self.horizontalLayout_4 = QHBoxLayout(self.prompt_select_box)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.prompt_label = QLabel(self.widget_4)
+        self.prompt_label = QLabel(self.prompt_select_box)
         self.prompt_label.setObjectName(u"prompt_label")
 
         self.horizontalLayout_4.addWidget(self.prompt_label)
 
-        self.prompt_combo_box = QComboBox(self.widget_4)
+        self.prompt_combo_box = QComboBox(self.prompt_select_box)
         self.prompt_combo_box.setObjectName(u"prompt_combo_box")
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -66,7 +60,16 @@ class Ui_FuncSelectorCodePage(object):
         self.horizontalLayout_4.addItem(self.horizontalSpacer_5)
 
 
-        self.verticalLayout.addWidget(self.widget_4)
+        self.verticalLayout.addWidget(self.prompt_select_box)
+
+        self.infoLabel = QLabel(FuncSelectorCodePage)
+        self.infoLabel.setObjectName(u"infoLabel")
+        font = QFont()
+        font.setPointSize(15)
+        self.infoLabel.setFont(font)
+        self.infoLabel.setWordWrap(True)
+
+        self.verticalLayout.addWidget(self.infoLabel)
 
         self.promptBox = QWidget(FuncSelectorCodePage)
         self.promptBox.setObjectName(u"promptBox")
@@ -85,9 +88,9 @@ class Ui_FuncSelectorCodePage(object):
         sizePolicy2.setVerticalStretch(1)
         sizePolicy2.setHeightForWidth(self.prompt_text_edit.sizePolicy().hasHeightForWidth())
         self.prompt_text_edit.setSizePolicy(sizePolicy2)
-        font = QFont()
-        font.setPointSize(16)
-        self.prompt_text_edit.setFont(font)
+        font1 = QFont()
+        font1.setPointSize(16)
+        self.prompt_text_edit.setFont(font1)
         self.prompt_text_edit.setTabStopDistance(4.000000000000000)
 
         self.horizontalLayout_6.addWidget(self.prompt_text_edit)
@@ -173,7 +176,7 @@ class Ui_FuncSelectorCodePage(object):
         sizePolicy4.setVerticalStretch(5)
         sizePolicy4.setHeightForWidth(self.codeEdit.sizePolicy().hasHeightForWidth())
         self.codeEdit.setSizePolicy(sizePolicy4)
-        self.codeEdit.setFont(font)
+        self.codeEdit.setFont(font1)
         self.codeEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.codeEdit.setTabStopDistance(4.000000000000000)
 
@@ -223,14 +226,14 @@ class Ui_FuncSelectorCodePage(object):
 
     def retranslateUi(self, FuncSelectorCodePage):
         FuncSelectorCodePage.setWindowTitle(QCoreApplication.translate("FuncSelectorCodePage", u"FuncSelectorCodePage", None))
-        self.infoLabel.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Paste code or query the API to generate code for you. The bottom editor will check that the code compiles and is compatible. If there is an error, the error message will be displayed at the bottom. Based on the type of function you are requesting from the API select an initial prompt from the combo box below.", None))
         self.prompt_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Initial Prompt:", None))
+        self.infoLabel.setText(QCoreApplication.translate("FuncSelectorCodePage", u"If using AI generation in app, enter your prompt here. Click Create New Function to create a new function based on the prompt below. Click Modify Function to modify the current entered code based on the prompt you've provided. Additional information will be given to the AI with your prompts to assist with making compatible code.", None))
         self.prompt_text_edit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"AI prompt goes here.", None))
         self.label_2.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Send to AI:", None))
         self.create_new_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Create New Function", None))
         self.modify_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Modify Function", None))
         self.entry_function_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Entry Function Name:", None))
-        self.label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Only have code entered in the text edit box below. If there is more than just code, such as AI explanation, delete that. Oftentimes AI will generate a main function with helper functions, enter the entry point function that is supposed to be called first in the box above. This function name must be found in the code below.", None))
+        self.label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"If you are not using AI generation in app, paste your code will below. The code in the editor will be analyzed for compilation errors. If the AI provided an explanation it will be shown in the explanation expander. If your code has multiple functions, enter the entry function above. The AI generated code should handle this automatically.", None))
         self.codeEdit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"Code goes here.", None))
         self.statusLabel.setText("")
         self.saveStatusLabel.setText("")

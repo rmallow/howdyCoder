@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QHBoxLayout,
     QLabel, QPlainTextEdit, QPushButton, QSizePolicy,
     QVBoxLayout, QWidget)
 
-from ..keySetWidget import KeySetWidget
+from ..keyMonitorWidget import KeyMonitorWidget
 from . import res_rc
 
 class Ui_AudioGetter(object):
@@ -36,10 +36,10 @@ class Ui_AudioGetter(object):
 
         self.verticalLayout.addWidget(self.label)
 
-        self.key_set_widget = KeySetWidget(AudioGetter)
-        self.key_set_widget.setObjectName(u"key_set_widget")
+        self.key_monitor_widget = KeyMonitorWidget(AudioGetter)
+        self.key_monitor_widget.setObjectName(u"key_monitor_widget")
 
-        self.verticalLayout.addWidget(self.key_set_widget)
+        self.verticalLayout.addWidget(self.key_monitor_widget)
 
         self.control_box = QWidget(AudioGetter)
         self.control_box.setObjectName(u"control_box")
@@ -103,7 +103,7 @@ class Ui_AudioGetter(object):
 
     def retranslateUi(self, AudioGetter):
         AudioGetter.setWindowTitle(QCoreApplication.translate("AudioGetter", u"Audio Getter", None))
-        self.label.setText(QCoreApplication.translate("AudioGetter", u"Hit the record button to start recording, hit space when active is checked. Hit the same button to stop recording, or space when active is checked. Once recorded, the audio will be transcribed as text before being sent off. This requires a Chat GPT Api Key. If active is checked the recording will automatically be sent otherwise hit enter to send. (Experimental)", None))
+        self.label.setText(QCoreApplication.translate("AudioGetter", u"Hit the record button to start recording, hit space when active is checked. Hit the same button to stop recording, or space when active is checked. Once recorded, the audio will be transcribed as text before being sent off.  If active is checked the recording will automatically be sent otherwise hit enter to send. (Experimental)", None))
         self.active_check.setText(QCoreApplication.translate("AudioGetter", u"Active", None))
         self.input_label.setText(QCoreApplication.translate("AudioGetter", u"Input Device:", None))
         self.record_button.setText(QCoreApplication.translate("AudioGetter", u"Record", None))

@@ -1,4 +1,4 @@
-from ..data.datalocator import LIBRARIES_FILE
+from ..core import datalocator
 
 from ..commonUtil import astUtil
 from ..commonUtil import mpLogging
@@ -167,27 +167,8 @@ def getLibraries() -> typing.List[Library]:
 
 
 """If the library singleton is being loaded for the first time run some initalization code"""
-first_import = True
-if first_import == True:
-    first_import = False
-    """Load libraries from library file using ExtendedInterpolation
-        ExtendedInterpolation will expand the variables in the file for us"""
-    config = configparser.ConfigParser(
-        interpolation=configparser.ExtendedInterpolation(),
-        defaults={"root": os.path.dirname(LIBRARIES_FILE)},
-        allow_no_value=True,
-    )
-    config.read(LIBRARIES_FILE)
-
-    # we don't want to try to load any default values
-    # these default values are only for making parsing easier
-    ignore_defaults = set()
-    for key, _ in config.items(config.default_section):
-        ignore_defaults.add(key)
-
-    # we'll make sure we're not parsing any default keys
-    for section in config.sections():
-        if section != "locations":
-            for key, value in config.items(section):
-                if key not in ignore_defaults:
-                    loadLibrary(value, key, section)
+# we'll make sure we're not parsing any default keys
+for section_key, section_config in datalocator.getConfig(datalocator.LIBRARIES).items():
+    if section_key != "locations":
+        for key, value in section_config.items():
+            loadLibrary(value, key, section_key)

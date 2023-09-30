@@ -109,13 +109,9 @@ class AudioGetter(InputGetterBase):
         self._ui = Ui_AudioGetter()
         self._ui.setupUi(self)
 
-        self._ui.key_set_widget.key_name = openAIUtil.OPEN_AI_API_KEY_NAME
-        self._ui.key_set_widget._key_validation_function = openAIUtil.testValid
-        self._ui.key_set_widget.output_function = self.setValidAPI
-        cur_val = openAIUtil.testValidKeySet()
-        self._ui.key_set_widget.setStatus(cur_val)
-        self._valid_api = cur_val
-        self.setValidAPI(cur_val)
+        self._ui.key_monitor_widget.allKeysValid.connect(self.setValidAPI)
+
+        self._ui.key_monitor_widget.watchKey(openAIUtil.OPEN_AI_KEY_DATA_NAME)
 
         self._ui.record_button.released.connect(self.recordHit)
 
@@ -129,7 +125,8 @@ class AudioGetter(InputGetterBase):
         self._transcribing_worker = None
         self._is_recording = False
 
-    def setValidAPI(self, val):
+    @QtCore.Slot()
+    def setValidAPI(self, val: bool):
         self._valid_api = val
         self._ui.record_button.setEnabled(self._valid_api)
 

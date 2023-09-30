@@ -1,6 +1,5 @@
-from ..data.datalocator import PROMPTS_FILE
+from ..core import datalocator
 
-import configparser
 import typing
 import os
 import functools
@@ -23,23 +22,20 @@ def makeModifyPrompt(other_prompt_key: str) -> str:
 
 
 """If the prompt singleton is being loaded for the first time run some initalization code"""
-first_import = True
-if first_import == True:
-    first_import = False
-    config = configparser.ConfigParser()
-    config.read(PROMPTS_FILE)
-
-    for section in config.sections():
-        prompt_list = []
-        if FILES_KEY in config[section]:
-            file_list = config[section][FILES_KEY]
-            for file_name in file_list.split(","):
-                with open(
-                    os.path.join(os.path.dirname(PROMPTS_FILE), file_name),
-                    "r",
-                ) as f:
-                    prompt_list.append(f.read())
-            if section != MODIFY_SECTION:
-                prompts[section] = "\n".join(prompt_list)
-            else:
-                _modify_prompt = "\n".join(prompt_list)
+for section, values in datalocator.getConfig(datalocator.PROMPTS).items():
+    prompt_list = []
+    if FILES_KEY in values:
+        file_list = values[FILES_KEY]
+        for file_name in file_list.split(","):
+            with open(
+                os.path.join(
+                    datalocator.getDataDirPath(datalocator.PROMPTS),
+                    file_name,
+                ),
+                "r",
+            ) as f:
+                prompt_list.append(f.read())
+        if section != MODIFY_SECTION:
+            prompts[section] = "\n".join(prompt_list)
+        else:
+            _modify_prompt = "\n".join(prompt_list)

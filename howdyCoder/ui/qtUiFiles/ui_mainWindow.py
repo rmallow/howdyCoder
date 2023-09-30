@@ -29,7 +29,7 @@ class Ui_HowdyCoder(object):
     def setupUi(self, HowdyCoder):
         if not HowdyCoder.objectName():
             HowdyCoder.setObjectName(u"HowdyCoder")
-        HowdyCoder.resize(763, 745)
+        HowdyCoder.resize(1188, 927)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -71,6 +71,9 @@ class Ui_HowdyCoder(object):
         self.action_documentation = QAction(HowdyCoder)
         self.action_documentation.setObjectName(u"action_documentation")
         self.action_documentation.setMenuRole(QAction.NoRole)
+        self.actionAPI_Key = QAction(HowdyCoder)
+        self.actionAPI_Key.setObjectName(u"actionAPI_Key")
+        self.actionAPI_Key.setMenuRole(QAction.NoRole)
         self.centralwidget = QWidget(HowdyCoder)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -124,6 +127,7 @@ class Ui_HowdyCoder(object):
         self.toolBar.addAction(self.actionStatus)
         self.toolBar.addAction(self.actionLoad_Config)
         self.toolBar.addAction(self.actionLogging)
+        self.toolBar.addAction(self.actionAPI_Key)
         self.toolBar.addAction(self.invisible_action)
         self.toolBar.addAction(self.action_help_menu)
 
@@ -152,6 +156,7 @@ class Ui_HowdyCoder(object):
         self.invisible_action.setText("")
         self.action_tutorial.setText(QCoreApplication.translate("HowdyCoder", u"Tutorial", None))
         self.action_documentation.setText(QCoreApplication.translate("HowdyCoder", u"Documentation", None))
+        self.actionAPI_Key.setText(QCoreApplication.translate("HowdyCoder", u"Key Window", None))
         self.changePageButton.setText(QCoreApplication.translate("HowdyCoder", u"Go To Output Page", None))
         self.toolBar.setWindowTitle(QCoreApplication.translate("HowdyCoder", u"toolBar", None))
     # retranslateUi

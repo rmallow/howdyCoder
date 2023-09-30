@@ -1,7 +1,8 @@
-from .mainframe import mainframe
+from .core import datalocator
 
 import logging
-
+import os
+import sys
 import argparse
 import threading
 import traceback
@@ -17,7 +18,24 @@ def start():
         help="Start both ui and server for full local app",
         action="store_true",
     )
+    default_data_path = os.path.join(
+        os.path.dirname(
+            os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))
+        ),
+        "data",
+    )
+    parser.add_argument(
+        "-d",
+        "--data",
+        help="Point to location of data directory",
+        default=default_data_path,
+        type=str,
+    )
     args, _ = parser.parse_known_args()
+
+    datalocator.setDataPath(args.data)
+    # the very first thing we want to do is import datalocator and then set it, after this we can do other imports that could rely on it
+    from .mainframe import mainframe
 
     isLocal: bool = False
     if args.local:

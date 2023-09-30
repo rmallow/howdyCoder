@@ -77,14 +77,12 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.enableControls(False)
 
         self._current_function_settings: FunctionSettings = FunctionSettings()
-        self.valid_code = True
+        self.valid_code = False
 
-        self.ui.key_set_widget.key_name = openAIUtil.OPEN_AI_API_KEY_NAME
-        self.ui.key_set_widget._key_validation_function = openAIUtil.testValid
-        self.ui.key_set_widget.output_function = self.enableAPIControls
+        self.ui.key_monitor_widget.watchKey(openAIUtil.OPEN_AI_KEY_DATA_NAME)
+        self.ui.key_monitor_widget.allKeysValid.connect(self.enableAPIControls)
 
         cur_val = openAIUtil.testValidKeySet()
-        self.ui.key_set_widget.setStatus(cur_val)
         self.ui.create_new_api_button.setEnabled(cur_val)
 
         self.setupPromptCombo()
@@ -115,6 +113,8 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.saveButton.released.connect(self.saveCode)
 
         self._saved_query = ""
+
+        self.ui.prompt_select_box.hide()
 
     def setupPromptCombo(self):
         for k in promptSingleton.prompts.keys():
@@ -184,7 +184,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                         )
                         self.valid_code = True
                         self.enableControls(True)
-                        self.enableAPIControls(True)
+                        self.enableAPIControls(self.ui.key_monitor_widget.all_valid)
                         self.ui.statusLabel.setText(GOOD_STATUS)
                 else:
                     self.ui.statusLabel.setText(TOO_FEW_FUNCTIONS_ERROR_STATUS)
@@ -213,9 +213,10 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.saveButton.setEnabled(enable)
         self.ui.selectButton.setEnabled(enable)
 
+    @QtCore.Slot()
     def enableAPIControls(self, enable: bool):
         self.ui.create_new_api_button.setEnabled(enable)
-        self.ui.modify_api_button.setEnabled(enable)
+        self.ui.modify_api_button.setEnabled(enable and self.valid_code)
 
     def callAPI(self, system_prompt: str, user_prompt: str) -> None:
         self.enableControls(False)

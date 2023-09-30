@@ -1,0 +1,15 @@
+The resulting function should only return True or False. No other value should be returned from the function.
+
+Examples:
+User - "determine if a given word is in some text"
+Response - "
+```python
+def word_in_text(data_set, word):
+    for text in data_set["text"]:
+        if word in text:
+            return True
+    return False
+```
+In the function 'word_in_text', the first argument 'data_set' should be a dictionary wherein one of its keys is "text". The value for 'data_set["text"]' should be a list of text strings. The second argument 'word' is the word you want to find in some text within the data set.
+
+The function goes through each text string in 'data_set["text"]' and checks if the given word can be found in the string. If it does, it immediately returns True. If it has gone through all the strings and hasn't found the word, it returns False. Note that the search is case-sensitive."
