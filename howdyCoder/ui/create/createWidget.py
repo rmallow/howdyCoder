@@ -29,7 +29,7 @@ from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createWidget
 from ..tutorialOverlay import AbstractTutorialClass
 
-from ..util import animations, abstractQt
+from ..util import animations, abstractQt, nonNativeQMessageBox
 
 from ...core.commonGlobals import DATA_SOURCES, ACTION_LIST, ProgramTypes
 
@@ -227,24 +227,29 @@ class CreateWidget(
                 validated_widgets = self._create_widgets_list[
                     self._current_index
                 ].validate()
-                warning_found = False
-                for widget, status in validated_widgets.items():
+                warnings = []
+                for widget_or_warning_str, status in validated_widgets.items():
                     if status == ItemValidity.INVALID:
-                        self.createColorBlinkAnimation(widget)
+                        self.createColorBlinkAnimation(widget_or_warning_str)
                     elif status == ItemValidity.WARNING:
-                        warning_found = True
+                        warnings.append(widget_or_warning_str)
                 if self._animation_group.animationCount() > 0:
                     self._animation_group.finished.connect(self.pageAnimationFinished)
                     self._animation_group.setLoopCount(3)
                     self._animation_group.start()
                 else:
                     message_box = None
-                    if warning_found:
-                        message_box = QtWidgets.QMessageBox(self)
-                        message_box.setText("Are you sure you want to continue?")
-                        message_box.setInformativeText(
-                            "Not all of the suggested items have been added. Althought not required, it's probably a good idea to listen to the suggestion."
+                    if warnings:
+                        message_box = (
+                            nonNativeQMessageBox.NonNativeQMessageBoxQMessageBox(self)
                         )
+                        message_box.setText("Are you sure you want to continue?")
+                        info_text = (
+                            "Some warnings have been encountered. Althought not required, it's probably a good idea to fix the warnings:\n"
+                            + "\n".join(warnings)
+                        )
+                        message_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        message_box.setInformativeText(info_text)
                         message_box.setStandardButtons(
                             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
                         )
@@ -252,10 +257,7 @@ class CreateWidget(
                         message_box.setWindowModality(
                             QtCore.Qt.WindowModality.ApplicationModal
                         )
-                    if (
-                        not warning_found
-                        or message_box.exec_() == QtWidgets.QMessageBox.Yes
-                    ):
+                    if not warnings or message_box.exec() == QtWidgets.QMessageBox.Yes:
                         self.changePage(self._current_index + 1)
 
     def createColorBlinkAnimation(self, widget):

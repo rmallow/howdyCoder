@@ -36,9 +36,8 @@ def getSuggestedOutput(response):
             if response[x] == "\n" or response[x] == ".":
                 end = x
                 break
-    output = response[start + len(OUTPUT_TEXT) : end].strip()
-    if output:
-        return [o.strip() for o in output.split(",")]
+        if output := response[start + len(OUTPUT_TEXT) : end].strip():
+            return [o.strip() for o in output.split(",")]
     return []
 
 

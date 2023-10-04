@@ -52,7 +52,7 @@ class CreateTypePage(CreateBasePage):
         else:
             self._ui.typeDescription.setText(NO_SELECTION_TEXT)
 
-    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+    def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         return {
             self._ui.typeView: ItemValidity.getEnum(
                 self._ui.typeView.currentRow() != -1

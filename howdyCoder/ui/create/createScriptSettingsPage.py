@@ -51,7 +51,7 @@ class CreateScriptSettingsPage(CreateBasePage):
     def getTutorialClasses(self) -> typing.List:
         return [self] + self._ui.funcSelectorWidget.getTutorialClasses()
 
-    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+    def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         return {
             self._ui.funcSelectorWidget: ItemValidity.getEnum(
                 self._current_settings is not None

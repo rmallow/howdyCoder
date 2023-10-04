@@ -328,7 +328,7 @@ class CreateActionSettingsPage(CreateBasePage):
                     amount_of_data=curr_settings.input_[name].period,
                 )
 
-    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+    def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         return {
             self._ui.selectedInputTable: ItemValidity.getEnum(
                 self._selected_input_table_model.rowCount() > 0
@@ -340,7 +340,7 @@ class CreateActionSettingsPage(CreateBasePage):
                 self._action_type == ActionTypeEnum.EVENT
                 or self._current_output_settings is not None
             ),
-            None: self.suggested_validity,
+            "Some suggested data set have not been assigned.": self.suggested_validity,
         }
         # TODO add back in input data type
         # and self._ui.dataTypeCombo.currentIndex() >= 0

@@ -1,5 +1,5 @@
 from ...core.dataStructs import AlgoSettings
-from .createBasePage import CreateBasePage
+from .createBasePage import CreateBasePage, ItemValidity
 from ..qtUiFiles import ui_createDataSourceConfirmPage
 from ..uiConstants import PageKeys
 
@@ -64,6 +64,15 @@ class CreateConfirmBasePage(CreateBasePage):
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
+
+    def validate(self):
+        return {
+            "The configuration has not been confirmed and will NOT be saved if you continue": (
+                ItemValidity.WARNING
+                if self._ui.confirmButton.isEnabled()
+                else ItemValidity.VALID
+            ),
+        }
 
 
 class CreateDataSourceConfirmPage(CreateConfirmBasePage):

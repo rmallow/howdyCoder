@@ -38,7 +38,7 @@ class CreateNamePage(CreateBasePage):
 
         self._ui.nameEdit.textChanged.connect(self.doesProgramNameExist)
 
-    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+    def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         """Check if the name is entered and valid, if it is then check if it exists in the configs already"""
         return {
             self._ui.nameEdit: ItemValidity.getEnum(

@@ -227,13 +227,13 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             else:
                 curr.output = strings
 
-    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+    def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         return {
             self._ui.stackedWidget: ItemValidity.getEnum(
                 self._current_settings is not None
             ),
             self._ui.outputView: ItemValidity.getEnum(self._outputModel.rowCount() > 0),
-            None: self.suggested_validity,
+            "Some suggested data source outputs have not been added.": self.suggested_validity,
         }
 
     def reset(self) -> None:

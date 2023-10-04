@@ -29,7 +29,7 @@ class Ui_HowdyCoder(object):
     def setupUi(self, HowdyCoder):
         if not HowdyCoder.objectName():
             HowdyCoder.setObjectName(u"HowdyCoder")
-        HowdyCoder.resize(1188, 927)
+        HowdyCoder.resize(708, 747)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

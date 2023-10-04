@@ -103,9 +103,9 @@ class CreateBaseParametersPage(CreateBasePage):
     def getTutorialClasses(self) -> typing.List:
         return [self]
 
-    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+    def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         return {
-            None: self.suggested_validity,
+            "Some suggested parameters have not been added.": self.suggested_validity,
         }
 
 

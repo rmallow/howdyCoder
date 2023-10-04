@@ -93,7 +93,7 @@ class CreateBasePage(
     def loadPage(self):
         pass
 
-    def validate(self) -> typing.Dict[QtWidgets.QWidget, ItemValidity]:
+    def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         """Return a mapping of widget to a result of validation for said widget"""
         return {}
 
