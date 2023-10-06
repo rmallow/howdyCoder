@@ -4,3 +4,6 @@
 [submodule "howdyCoderPrompts"]
 	path = howdyCoderPrompts
 	url = git@github.com:rmallow/howdyCoderPrompts.git
+[submodule "data/howdyCoderPrompts"]
+	path = data/howdyCoderPrompts
+	url = https://github.com/rmallow/howdyCoderPrompts.git
