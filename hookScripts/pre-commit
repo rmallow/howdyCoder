@@ -1,1 +1,1 @@
-python versionIncrement.py
+python hookScripts/versionIncrement.py
