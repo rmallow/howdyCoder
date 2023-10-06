@@ -3,7 +3,6 @@
 **/.DS_Store
 env
 .vscode
-hookScripts
 notes
 log
 deprecated
