@@ -71,18 +71,18 @@ class CreateAddPageBase(CreateBasePage):
         return name
 
     def removeSelected(self):
-        del self.getConfigGroup()[self.getCurrentSelectionName()]
-        self.setGroupModel()
+        if curr := self.getCurrentSelectionName():
+            del self.getConfigGroup()[curr]
+            self.setGroupModel()
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
 
     def editConfig(self):
-        self.getTempConfig().clear()
-        self.getTempConfig().inPlaceCopy(
-            self.getConfigGroup()[self.getCurrentSelectionName()]
-        )
-        self.nextPage.emit()
+        if curr := self.getCurrentSelectionName():
+            self.getTempConfig().clear()
+            self.getTempConfig().inPlaceCopy(self.getConfigGroup()[curr])
+            self.nextPage.emit()
 
 
 class CreateDataSourceAddPage(CreateAddPageBase):

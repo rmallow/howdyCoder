@@ -241,7 +241,7 @@ class CreateWidget(
                     message_box = None
                     if warnings:
                         message_box = (
-                            nonNativeQMessageBox.NonNativeQMessageBoxQMessageBox(self)
+                            nonNativeQMessageBox.NonNativeQMessageBox(self)
                         )
                         message_box.setText("Are you sure you want to continue?")
                         info_text = (

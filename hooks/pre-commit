@@ -1,2 +1,2 @@
-python hookScripts/versionIncrement.py
+python hooks/versionIncrement.py
 git add __version__.py
