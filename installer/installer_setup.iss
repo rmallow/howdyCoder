@@ -41,6 +41,9 @@ Source: "..\requirements.txt"; DestDir: "{app}"
 Source: "..\howdyCoder\*"; DestDir: "{app}\howdyCoder"; Excludes: "*\__pycache__\*, \__pycache__\*, *.ui"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "setup_script*.ps1"; DestDir: "{tmp}"
 Source: "start.ps1"; DestDir: "{app}"
+Source: "..\material.css.template"; DestDir: "{app}"
+Source: "..\data\*.txt"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\data\*.ini"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs    
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]
