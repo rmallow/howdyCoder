@@ -67,7 +67,9 @@ class Action:
         self.just_started = False
 
         # some actions might not take any input from the feed
-        self.input_info_map: typing.Dict[str, InputSettings] = action_settings.input_
+        self.input_info_map: typing.Dict[str, InputSettings] = {
+            k.lower(): v for k, v in action_settings.input_.items()
+        }
         if self.input_info_map:
             self.any_requires_new = any(
                 v.requires_new for v in self.input_info_map.values()

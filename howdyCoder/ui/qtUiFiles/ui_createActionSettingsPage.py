@@ -123,6 +123,7 @@ class Ui_CreateActionSettingsPage(object):
         self.availableInputTable.setFont(font1)
         self.availableInputTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.availableInputTable.setSelectionMode(QAbstractItemView.NoSelection)
+        self.availableInputTable.horizontalHeader().setStretchLastSection(True)
 
         self.verticalLayout_3.addWidget(self.availableInputTable)
 
@@ -143,6 +144,7 @@ class Ui_CreateActionSettingsPage(object):
         self.selectedInputTable.setObjectName(u"selectedInputTable")
         self.selectedInputTable.setFont(font1)
         self.selectedInputTable.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.selectedInputTable.horizontalHeader().setStretchLastSection(True)
 
         self.verticalLayout_2.addWidget(self.selectedInputTable)
 

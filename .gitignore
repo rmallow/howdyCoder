@@ -11,6 +11,7 @@ config/
 installer/installer_output/
 installer/HowdyCoder.app/
 installer/HowdyCoder.zip
+installer/data
 
 # Distribution / packaging
 .Python

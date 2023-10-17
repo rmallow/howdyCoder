@@ -79,7 +79,7 @@ class CreateActionSettingsPage(CreateBasePage):
         )
         self._ui.selectedInputTable.setModel(self._selected_input_table_model)
         self._ui.selectedInputTable.horizontalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.ResizeMode.Stretch
+            QtWidgets.QHeaderView.ResizeMode.Interactive
         )
         self._selected_input_table_model.itemChanged.connect(
             self.selectedTableModelItemChanged
@@ -96,7 +96,7 @@ class CreateActionSettingsPage(CreateBasePage):
         )
         self._ui.availableInputTable.setModel(self._available_input_table_model)
         self._ui.availableInputTable.horizontalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.ResizeMode.Stretch
+            QtWidgets.QHeaderView.ResizeMode.Interactive
         )
         self._ui.availableInputTable.setMouseTracking(True)
 
