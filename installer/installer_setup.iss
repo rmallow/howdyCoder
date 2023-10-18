@@ -22,7 +22,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
-OutputBaseFilename=installer
+OutputBaseFilename=howdyCoder
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
