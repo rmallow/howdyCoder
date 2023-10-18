@@ -66,7 +66,7 @@ class Ui_FuncSelector(object):
     # setupUi
 
     def retranslateUi(self, FuncSelector):
-        FuncSelector.setWindowTitle(QCoreApplication.translate("FuncSelector", u"Func Selector", None))
+        FuncSelector.setWindowTitle(QCoreApplication.translate("FuncSelector", u"Function Selector", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.codePage), QCoreApplication.translate("FuncSelector", u"Code", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.libPage), QCoreApplication.translate("FuncSelector", u"Library", None))
     # retranslateUi
