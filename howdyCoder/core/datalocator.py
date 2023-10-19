@@ -76,6 +76,7 @@ def setDataPath(path: str):
 
     for group in config[FILES]:
         inner_config = configparser.ConfigParser()
+        inner_config.optionxform = str
         inner_data_file_path = os.path.join(_data_path, config.get(FILES, group))
         inner_config.read(inner_data_file_path)
         _config_values[group] = DataFile(
