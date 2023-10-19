@@ -43,5 +43,5 @@ def addKeySetData(display_name: str, data: KeySetData):
 settings_config = datalocator.getConfig(datalocator.SETTINGS)
 if KEYS in settings_config:
     for k, v in settings_config[KEYS].items():
-        if v:
+        if v == str(True):
             key_status[k] = KeyStatus("", False, True)

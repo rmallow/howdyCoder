@@ -46,6 +46,7 @@ def modifyValue(group: str, section: str, key: str, value: str):
     if group in _config_values:
         _config_values[group].config[key] = value
         parser = configparser.ConfigParser()
+        parser.optionxform = str
         file_path = getDataFilePath(group)
         parser.read(file_path)
         if section not in parser.sections():
