@@ -223,7 +223,8 @@ class CreateWidget(
             if self._animation_group.state() == self._animation_group.State.Stopped:
                 for x in range(self._animation_group.animationCount()):
                     a = self._animation_group.takeAnimation(x)
-                    a.deleteLater()
+                    if a:
+                        a.deleteLater()
                 validated_widgets = self._create_widgets_list[
                     self._current_index
                 ].validate()
@@ -240,9 +241,7 @@ class CreateWidget(
                 else:
                     message_box = None
                     if warnings:
-                        message_box = (
-                            nonNativeQMessageBox.NonNativeQMessageBox(self)
-                        )
+                        message_box = nonNativeQMessageBox.NonNativeQMessageBox(self)
                         message_box.setText("Are you sure you want to continue?")
                         info_text = (
                             "Some warnings have been encountered. Althought not required, it's probably a good idea to fix the warnings:\n"

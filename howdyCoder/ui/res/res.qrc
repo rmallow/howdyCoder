@@ -35,7 +35,6 @@
   </qresource>
   <qresource prefix="CreateSettingsTrigger">
     <file>Tutorial/CreateSettingsTrigger_5.png</file>
-    <file>Tutorial/CreateSettingsTrigger_4.png</file>
     <file>Tutorial/CreateSettingsTrigger_3.png</file>
     <file>Tutorial/CreateSettingsTrigger_2.png</file>
     <file>Tutorial/CreateSettingsTrigger_1.png</file>
@@ -45,7 +44,6 @@
     <file>Tutorial/CreateTypeAction_2.png</file>
   </qresource>
   <qresource prefix="CreateSettingsEvent">
-    <file>Tutorial/CreateSettingsEvent_4.png</file>
     <file>Tutorial/CreateSettingsEvent_3.png</file>
     <file>Tutorial/CreateSettingsEvent_2.png</file>
     <file>Tutorial/CreateSettingsEvent_1.png</file>
