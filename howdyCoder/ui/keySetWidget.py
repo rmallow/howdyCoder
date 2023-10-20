@@ -4,7 +4,7 @@ from ..core.keySingleton import KeySetData
 
 import typing
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from .qtUiFiles.ui_keySetWidget import Ui_KeySetWidget
 
 SET_API_KEY = "Key was validated and set."
@@ -32,6 +32,11 @@ class KeySetWidget(QtWidgets.QWidget):
         self._ui.store_button.released.connect(self.storeKey)
         self._ui.retrieve_button.released.connect(self.retrieveKey)
         self._ui.always_retrieve_button.released.connect(self.alwaysRetrieveKey)
+        self._ui.user_manual_button.released.connect(
+            lambda: QtGui.QDesktopServices.openUrl(
+                QtCore.QUrl("https://howdycoder.io/docs/apikeys.html")
+            )
+        )
 
     @QtCore.Slot()
     def setKey(self) -> bool:

@@ -207,6 +207,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="prompt_error">
+     <property name="styleSheet">
+      <string notr="true">color:red;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="widget_3" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="leftMargin">

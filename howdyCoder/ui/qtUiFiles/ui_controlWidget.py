@@ -15,8 +15,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QPushButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QSizePolicy, QVBoxLayout, QWidget)
 
 class Ui_ControlWidget(object):
     def setupUi(self, ControlWidget):
@@ -35,37 +34,6 @@ class Ui_ControlWidget(object):
 
         self.verticalLayout.addWidget(self.mainWidget)
 
-        self.widget = QWidget(ControlWidget)
-        self.widget.setObjectName(u"widget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(1)
-        sizePolicy1.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
-        self.widget.setSizePolicy(sizePolicy1)
-        self.horizontalLayout = QHBoxLayout(self.widget)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer)
-
-        self.controlAllButton = QPushButton(self.widget)
-        self.controlAllButton.setObjectName(u"controlAllButton")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.controlAllButton.sizePolicy().hasHeightForWidth())
-        self.controlAllButton.setSizePolicy(sizePolicy2)
-        self.controlAllButton.setMinimumSize(QSize(150, 50))
-
-        self.horizontalLayout.addWidget(self.controlAllButton)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer_2)
-
-
-        self.verticalLayout.addWidget(self.widget)
-
 
         self.retranslateUi(ControlWidget)
 
@@ -74,6 +42,5 @@ class Ui_ControlWidget(object):
 
     def retranslateUi(self, ControlWidget):
         ControlWidget.setWindowTitle(QCoreApplication.translate("ControlWidget", u"Control Widget", None))
-        self.controlAllButton.setText(QCoreApplication.translate("ControlWidget", u"Start All", None))
     # retranslateUi
 

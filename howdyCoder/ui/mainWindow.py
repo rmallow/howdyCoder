@@ -78,9 +78,6 @@ class MainWindow(
         # Set up signal and slots
 
         self._ui.actionLoad_Config.triggered.connect(self.config_window.show)
-        self._ui.actionStart_All.triggered.connect(self.checkModules)
-        self._ui.controlPage.ui.controlAllButton.released.connect(self.checkModules)
-        self._ui.actionEnd_All.triggered.connect(self._main_model.sendCmdEndAll)
         self.config_window.accepted.connect(self.loadConfig)
         self._ui.controlPage.new_block_widget.ui.createButton.pressed.connect(
             self.newBlockWidgetSelected
@@ -103,7 +100,7 @@ class MainWindow(
         )
         self._ui.action_documentation.triggered.connect(
             lambda: QtGui.QDesktopServices.openUrl(
-                QtCore.QUrl("https://howdycoder.io/documentation")
+                QtCore.QUrl("https://howdycoder.io/docs/index.html")
             )
         )
 

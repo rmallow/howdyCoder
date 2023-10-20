@@ -103,8 +103,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionStart_All"/>
-   <addaction name="actionEnd_All"/>
    <addaction name="actionStatus"/>
    <addaction name="actionLoad_Config"/>
    <addaction name="actionLogging"/>
@@ -112,17 +110,6 @@
    <addaction name="invisible_action"/>
    <addaction name="action_help_menu"/>
   </widget>
-  <action name="actionStart_All">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Start All</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::NoRole</enum>
-   </property>
-  </action>
   <action name="actionStatus">
    <property name="text">
     <string>Status</string>
@@ -142,17 +129,6 @@
   <action name="actionLogging">
    <property name="text">
     <string>Logging</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::NoRole</enum>
-   </property>
-  </action>
-  <action name="actionEnd_All">
-   <property name="text">
-    <string>End All</string>
-   </property>
-   <property name="toolTip">
-    <string>End All</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>

@@ -25,7 +25,6 @@ class KeyMonitorWidget(QtWidgets.QWidget):
         layout.addWidget(self.label)
         self.setLayout(layout)
 
-        self.timer = QtCore.QTimer()
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.onTimer)
         self.timer.start(GUI_REFRESH_INTERVAL)

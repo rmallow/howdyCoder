@@ -59,7 +59,6 @@ class MousePosGetter(InputGetterBase):
         self._ui = Ui_MousePosGetter()
         self._ui.setupUi(self)
 
-        self.timer = QtCore.QTimer()
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.updatePos)
         self.timer.start(GUI_REFRESH_INTERVAL)

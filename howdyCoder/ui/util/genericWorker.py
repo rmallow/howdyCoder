@@ -27,5 +27,9 @@ class GenericWorker(QtCore.QObject):
 
     @QtCore.Slot()
     def run(self):
-        res = self.function(*self.args, **self.kwargs)
+        res = None
+        try:
+            res = self.function(*self.args, **self.kwargs)
+        except Exception:
+            pass
         self.finished.emit(res)

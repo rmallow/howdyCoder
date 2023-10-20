@@ -131,6 +131,12 @@ class Ui_FuncSelectorCodePage(object):
 
         self.verticalLayout.addWidget(self.widget_2)
 
+        self.prompt_error = QLabel(FuncSelectorCodePage)
+        self.prompt_error.setObjectName(u"prompt_error")
+        self.prompt_error.setStyleSheet(u"color:red;")
+
+        self.verticalLayout.addWidget(self.prompt_error)
+
         self.widget_3 = QWidget(FuncSelectorCodePage)
         self.widget_3.setObjectName(u"widget_3")
         self.horizontalLayout_3 = QHBoxLayout(self.widget_3)
@@ -232,6 +238,7 @@ class Ui_FuncSelectorCodePage(object):
         self.label_2.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Send to AI:", None))
         self.create_new_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Create New Function", None))
         self.modify_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Modify Function", None))
+        self.prompt_error.setText("")
         self.entry_function_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Entry Function Name:", None))
         self.label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"If you are not using AI generation in app, paste your code will below. The code in the editor will be analyzed for compilation errors. If the AI provided an explanation it will be shown in the explanation expander. If your code has multiple functions, enter the entry function above. The AI generated code should handle this automatically.", None))
         self.codeEdit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"Code goes here.", None))

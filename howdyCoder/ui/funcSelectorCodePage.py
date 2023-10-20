@@ -14,6 +14,8 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 WAIT_FOR_TEXT_EDITING_TO_END = 2000
 
+WAIT_FOR_OPEN_AI = 60000
+
 COMPILING_STATUS = "Compiling Code"
 ERROR_ENCOUNTERED = "Error encountered: "
 COMPILE_ERROR_STATUS = ERROR_ENCOUNTERED + "Code Compilation"
@@ -26,6 +28,10 @@ TOO_FEW_FUNCTIONS_ERROR_STATUS = ERROR_ENCOUNTERED + "Must be at least one funct
 GOOD_STATUS = "No errors found, Code good to go"
 
 OUTPUT_TEXT = "output:"
+
+PROMPT_ERROR_MSG = (
+    "Error encountered trying to generate code, please try again in a bit."
+)
 
 
 def getSuggestedOutput(response):
@@ -219,6 +225,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     def callAPI(self, system_prompt: str, user_prompt: str) -> None:
         self.enableControls(False)
+        self.ui.prompt_error.setText("")
         self.ui.codeEdit.setEnabled(False)
         self.ui.prompt_text_edit.setEnabled(False)
         self.ui.create_new_api_button.setEnabled(False)
@@ -231,6 +238,19 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             system_prompt,
             user_prompt,
         )
+        self._generate_timeout_timer = QtCore.QTimer(self)
+        self._generate_timeout_timer.setSingleShot(True)
+        self._generate_timeout_timer.setInterval(WAIT_FOR_OPEN_AI)
+        self._generate_timeout_timer.timeout.connect(self.terminateThread)
+        self._generate_timeout_timer.start()
+
+    def terminateThread(self):
+        try:
+            if self.thread and self.thread.isRunning():
+                self.thread.terminate()
+                self.apiResponse(None)
+        except RuntimeError:
+            pass  # thread was deleted
 
     def createNewAPIButton(self):
         user_prompt = self.ui.prompt_text_edit.toPlainText()
@@ -248,8 +268,12 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         )
 
     def apiResponse(self, response: str):
-        self.ui.codeEdit.setPlainText(openAIUtil.getPythonCodeOnly(response))
-        self.code_explanation.setPlainText(response)
+        if response is not None:
+            self.ui.codeEdit.setPlainText(openAIUtil.getPythonCodeOnly(response))
+            self.code_explanation.setPlainText(response)
+            self.ui.prompt_error.setText("")
+        else:
+            self.ui.prompt_error.setText(PROMPT_ERROR_MSG)
         self.ui.codeEdit.setEnabled(True)
         self.ui.prompt_text_edit.setEnabled(True)
         self.ui.create_new_api_button.setEnabled(True)
