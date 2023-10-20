@@ -29,6 +29,7 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
         super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
         self._ui = ui_funcSelectorLibPage.Ui_FuncSelectorLibPage()
         self._ui.setupUi(self)
+        self._ui.search_box.hide()
 
         # setup model
         self._libModel: QtGui.QStandardItemModel = QtGui.QStandardItemModel()

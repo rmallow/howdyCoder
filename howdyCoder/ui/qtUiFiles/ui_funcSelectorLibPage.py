@@ -54,22 +54,22 @@ class Ui_FuncSelectorLibPage(object):
 
         self.verticalLayout.addWidget(self.widget_2)
 
-        self.widget_3 = QWidget(FuncSelectorLibPage)
-        self.widget_3.setObjectName(u"widget_3")
-        self.horizontalLayout_3 = QHBoxLayout(self.widget_3)
+        self.search_box = QWidget(FuncSelectorLibPage)
+        self.search_box.setObjectName(u"search_box")
+        self.horizontalLayout_3 = QHBoxLayout(self.search_box)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.label = QLabel(self.widget_3)
+        self.label = QLabel(self.search_box)
         self.label.setObjectName(u"label")
 
         self.horizontalLayout_3.addWidget(self.label)
 
-        self.lineEdit = QLineEdit(self.widget_3)
+        self.lineEdit = QLineEdit(self.search_box)
         self.lineEdit.setObjectName(u"lineEdit")
 
         self.horizontalLayout_3.addWidget(self.lineEdit)
 
 
-        self.verticalLayout.addWidget(self.widget_3)
+        self.verticalLayout.addWidget(self.search_box)
 
         self.widget_4 = QWidget(FuncSelectorLibPage)
         self.widget_4.setObjectName(u"widget_4")
