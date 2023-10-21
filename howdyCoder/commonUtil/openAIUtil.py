@@ -53,10 +53,7 @@ def getChatCompletion(system_prompt: str, user_prompt: str):
             {"role": "user", "content": user_prompt},
         ],
     )
-    choices = completion.choices
-    first_message = choices[0].message
-    content = first_message["content"]
-    return content
+    return completion.choices[0].message["content"]
 
 
 def transcribeAudio(audio_file):

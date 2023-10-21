@@ -74,7 +74,7 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
                 return combo
         elif editorType == EditorType.NUMBER:
             spin = QtWidgets.QDoubleSpinBox(parent)
-            spin.setRange(-9999999999999, 9999999999999)
+            spin.setRange(-999999, 999999)
             return spin
         if index in index.model().selector_indexes:
             selector_widget = None

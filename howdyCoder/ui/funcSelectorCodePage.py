@@ -14,7 +14,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 WAIT_FOR_TEXT_EDITING_TO_END = 2000
 
-WAIT_FOR_OPEN_AI = 60000
+CODE_GENERATION_TIMEOUT = 45000
 
 COMPILING_STATUS = "Compiling Code"
 ERROR_ENCOUNTERED = "Error encountered: "
@@ -118,7 +118,11 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.saveButton.released.connect(self.saveCode)
 
         self._saved_query = ""
-
+        self._current_api_call_id = 0
+        self._generate_code_timer = QtCore.QTimer()
+        self._generate_code_timer.setSingleShot(True)
+        self._generate_code_timer.setInterval(CODE_GENERATION_TIMEOUT)
+        self._generate_code_timer.timeout.connect(self.codeGenerationTimeout)
         self.ui.prompt_select_box.hide()
 
     def setupPromptCombo(self):
@@ -220,10 +224,15 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     @QtCore.Slot()
     def enableAPIControls(self, enable: bool):
-        self.ui.create_new_api_button.setEnabled(enable)
-        self.ui.modify_api_button.setEnabled(enable and self.valid_code)
+        self.ui.create_new_api_button.setEnabled(
+            enable and not self._generate_code_timer.isActive()
+        )
+        self.ui.modify_api_button.setEnabled(
+            enable and self.valid_code and self.ui.create_new_api_button.isEnabled()
+        )
 
     def callAPI(self, system_prompt: str, user_prompt: str) -> None:
+        self._generate_code_timer.stop()
         self.enableControls(False)
         self.ui.prompt_error.setText("")
         self.ui.codeEdit.setEnabled(False)
@@ -232,25 +241,24 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.modify_api_button.setEnabled(False)
         self._saved_query = self.ui.prompt_text_edit.toPlainText()
         self.ui.prompt_text_edit.setPlainText("... Generating, Please Wait ...")
-        self.thread, self.worker = genericWorker.createThreadAndWorker(
+        self._current_api_call_id += 1
+        runnable = genericWorker.GenericRunnable(
+            self._current_api_call_id,
             openAIUtil.getChatCompletion,
-            self.apiResponse,
             system_prompt,
             user_prompt,
         )
-        self._generate_timeout_timer = QtCore.QTimer(self)
-        self._generate_timeout_timer.setSingleShot(True)
-        self._generate_timeout_timer.setInterval(WAIT_FOR_OPEN_AI)
-        self._generate_timeout_timer.timeout.connect(self.terminateThread)
-        self._generate_timeout_timer.start()
+        runnable.signals.finished.connect(self.apiResponse)
+        QtCore.QThreadPool.globalInstance().start(runnable, self._current_api_call_id)
+        self._generate_code_timer.start()
 
-    def terminateThread(self):
-        try:
-            if self.thread and self.thread.isRunning():
-                self.thread.terminate()
-                self.apiResponse(None)
-        except RuntimeError:
-            pass  # thread was deleted
+    def codeGenerationTimeout(self):
+        self._current_api_call_id += 1
+        self.ui.prompt_error.setText(PROMPT_ERROR_MSG)
+        self.ui.prompt_text_edit.setPlainText(self._saved_query)
+        self.ui.codeEdit.setEnabled(True)
+        self.ui.prompt_text_edit.setEnabled(True)
+        self.ui.create_new_api_button.setEnabled(True)
 
     def createNewAPIButton(self):
         user_prompt = self.ui.prompt_text_edit.toPlainText()
@@ -267,17 +275,21 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             user_prompt + "\n" + code,
         )
 
-    def apiResponse(self, response: str):
-        if response is not None:
-            self.ui.codeEdit.setPlainText(openAIUtil.getPythonCodeOnly(response))
-            self.code_explanation.setPlainText(response)
-            self.ui.prompt_error.setText("")
-        else:
-            self.ui.prompt_error.setText(PROMPT_ERROR_MSG)
-        self.ui.codeEdit.setEnabled(True)
-        self.ui.prompt_text_edit.setEnabled(True)
-        self.ui.create_new_api_button.setEnabled(True)
-        self.ui.prompt_text_edit.setPlainText(self._saved_query)
+    def apiResponse(self, response: genericWorker.RunnableReturn):
+        if response is not None and response.id_ == self._current_api_call_id:
+            self._generate_code_timer.stop()
+            if response.value is not None:
+                self.ui.codeEdit.setPlainText(
+                    openAIUtil.getPythonCodeOnly(response.value)
+                )
+                self.code_explanation.setPlainText(response.value)
+                self.ui.prompt_error.setText("")
+            else:
+                self.ui.prompt_error.setText(PROMPT_ERROR_MSG)
+            self.ui.codeEdit.setEnabled(True)
+            self.ui.prompt_text_edit.setEnabled(True)
+            self.ui.create_new_api_button.setEnabled(True)
+            self.ui.prompt_text_edit.setPlainText(self._saved_query)
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         """Setting how far out the explanation box should expand to"""

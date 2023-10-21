@@ -35,6 +35,8 @@ def addKeySetData(display_name: str, data: KeySetData):
             key_status[display_name].valid = data.validation_function(
                 key_status[display_name].current
             )
+            if key_status[display_name].valid:
+                data.set_function(key_status[display_name].current)
     else:
         key_status[display_name] = KeyStatus()
         datalocator.modifyValue(datalocator.SETTINGS, KEYS, display_name, str(False))
