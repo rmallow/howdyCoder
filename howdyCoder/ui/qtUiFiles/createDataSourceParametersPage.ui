@@ -260,7 +260,7 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>The Name, Type, and Value columns must all have valid values for each row for the parameter to be saved. Otherwise it will not be saved and will not be accessible by the function.</string>
+            <string>The Name, Type, and Value columns must all have valid values for each row for the parameter to be saved. Otherwise it will not be saved and will not be accessible by the function. Double click on an item to change its value.</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

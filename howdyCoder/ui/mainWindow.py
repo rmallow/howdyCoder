@@ -149,6 +149,7 @@ class MainWindow(
         self._key_window = KeySetWindow(self)
         self._ui.actionAPI_Key.triggered.connect(self._key_window.show)
 
+        self.resize(QtGui.QGuiApplication.primaryScreen().size())
         self.show()
 
     @QtCore.Slot()
