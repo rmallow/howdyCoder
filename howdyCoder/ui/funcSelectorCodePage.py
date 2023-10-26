@@ -123,7 +123,11 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self._generate_code_timer.setSingleShot(True)
         self._generate_code_timer.setInterval(CODE_GENERATION_TIMEOUT)
         self._generate_code_timer.timeout.connect(self.codeGenerationTimeout)
-        self.ui.prompt_select_box.hide()
+        self.ui.prompt_user_manual_button.released.connect(
+            lambda: QtGui.QDesktopServices.openUrl(
+                QtCore.QUrl("https://howdycoder.io/docs/prompts.html")
+            )
+        )
 
     def setupPromptCombo(self):
         for k in promptSingleton.prompts.keys():

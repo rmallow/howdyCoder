@@ -46,13 +46,21 @@
       </property>
       <item>
        <widget class="QLabel" name="prompt_label">
+        <property name="font">
+         <font>
+          <pointsize>15</pointsize>
+         </font>
+        </property>
         <property name="text">
-         <string>Initial Prompt:</string>
+         <string>Current Prompt:</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QComboBox" name="prompt_combo_box">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -68,14 +76,50 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_5">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Maximum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>To see the prompt used by Howdy Coder, go the user manual page and find the prompt matching the current prompt selection.</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="prompt_user_manual_button">
+        <property name="text">
+         <string>User Manual</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>461</width>
-          <height>5</height>
+          <width>40</width>
+          <height>20</height>
          </size>
         </property>
        </spacer>
@@ -91,7 +135,7 @@
       </font>
      </property>
      <property name="text">
-      <string>If using AI generation in app, enter your prompt here. Click Create New Function to create a new function based on the prompt below. Click Modify Function to modify the current entered code based on the prompt you've provided. Additional information will be given to the AI with your prompts to assist with making compatible code.</string>
+      <string>If using AI generation in app, enter your code request here. Click Create New Function to create a new function based on the prompt below. Click Modify Function to modify the current entered code based on the request you've provided. The current prompt will also be given to the AI with your request to assist with making compatible code.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -136,7 +180,7 @@
          <double>4.000000000000000</double>
         </property>
         <property name="placeholderText">
-         <string>AI prompt goes here.</string>
+         <string>AI code request goes here.</string>
         </property>
        </widget>
       </item>
@@ -259,8 +303,13 @@
    </item>
    <item>
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>If you are not using AI generation in app, paste your code will below. The code in the editor will be analyzed for compilation errors. If the AI provided an explanation it will be shown in the explanation expander. If your code has multiple functions, enter the entry function above. The AI generated code should handle this automatically.</string>
+      <string>If you are not using AI generation in app, paste your code will below. You can copy the prompt from the user manual and add your request to your own LLM to generate the code without using an API Key. Paste only the code in the text editor below. The code in the editor will be analyzed for compilation errors. If the AI provided an explanation it will be shown in the explanation expander. If your code has multiple functions, enter the entry function above. The AI generated code should handle this automatically.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

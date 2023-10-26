@@ -41,11 +41,15 @@ class Ui_FuncSelectorCodePage(object):
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.prompt_label = QLabel(self.prompt_select_box)
         self.prompt_label.setObjectName(u"prompt_label")
+        font = QFont()
+        font.setPointSize(15)
+        self.prompt_label.setFont(font)
 
         self.horizontalLayout_4.addWidget(self.prompt_label)
 
         self.prompt_combo_box = QComboBox(self.prompt_select_box)
         self.prompt_combo_box.setObjectName(u"prompt_combo_box")
+        self.prompt_combo_box.setEnabled(False)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -55,17 +59,31 @@ class Ui_FuncSelectorCodePage(object):
 
         self.horizontalLayout_4.addWidget(self.prompt_combo_box)
 
-        self.horizontalSpacer_5 = QSpacerItem(461, 5, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Maximum, QSizePolicy.Minimum)
 
-        self.horizontalLayout_4.addItem(self.horizontalSpacer_5)
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_4)
+
+        self.label_3 = QLabel(self.prompt_select_box)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setAlignment(Qt.AlignCenter)
+        self.label_3.setWordWrap(True)
+
+        self.horizontalLayout_4.addWidget(self.label_3)
+
+        self.prompt_user_manual_button = QPushButton(self.prompt_select_box)
+        self.prompt_user_manual_button.setObjectName(u"prompt_user_manual_button")
+
+        self.horizontalLayout_4.addWidget(self.prompt_user_manual_button)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_2)
 
 
         self.verticalLayout.addWidget(self.prompt_select_box)
 
         self.infoLabel = QLabel(FuncSelectorCodePage)
         self.infoLabel.setObjectName(u"infoLabel")
-        font = QFont()
-        font.setPointSize(15)
         self.infoLabel.setFont(font)
         self.infoLabel.setWordWrap(True)
 
@@ -161,6 +179,7 @@ class Ui_FuncSelectorCodePage(object):
 
         self.label = QLabel(FuncSelectorCodePage)
         self.label.setObjectName(u"label")
+        self.label.setFont(font)
         self.label.setWordWrap(True)
 
         self.verticalLayout.addWidget(self.label)
@@ -232,15 +251,17 @@ class Ui_FuncSelectorCodePage(object):
 
     def retranslateUi(self, FuncSelectorCodePage):
         FuncSelectorCodePage.setWindowTitle(QCoreApplication.translate("FuncSelectorCodePage", u"FuncSelectorCodePage", None))
-        self.prompt_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Initial Prompt:", None))
-        self.infoLabel.setText(QCoreApplication.translate("FuncSelectorCodePage", u"If using AI generation in app, enter your prompt here. Click Create New Function to create a new function based on the prompt below. Click Modify Function to modify the current entered code based on the prompt you've provided. Additional information will be given to the AI with your prompts to assist with making compatible code.", None))
-        self.prompt_text_edit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"AI prompt goes here.", None))
+        self.prompt_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Current Prompt:", None))
+        self.label_3.setText(QCoreApplication.translate("FuncSelectorCodePage", u"To see the prompt used by Howdy Coder, go the user manual page and find the prompt matching the current prompt selection.", None))
+        self.prompt_user_manual_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"User Manual", None))
+        self.infoLabel.setText(QCoreApplication.translate("FuncSelectorCodePage", u"If using AI generation in app, enter your code request here. Click Create New Function to create a new function based on the prompt below. Click Modify Function to modify the current entered code based on the request you've provided. The current prompt will also be given to the AI with your request to assist with making compatible code.", None))
+        self.prompt_text_edit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"AI code request goes here.", None))
         self.label_2.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Send to AI:", None))
         self.create_new_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Create New Function", None))
         self.modify_api_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Modify Function", None))
         self.prompt_error.setText("")
         self.entry_function_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Entry Function Name:", None))
-        self.label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"If you are not using AI generation in app, paste your code will below. The code in the editor will be analyzed for compilation errors. If the AI provided an explanation it will be shown in the explanation expander. If your code has multiple functions, enter the entry function above. The AI generated code should handle this automatically.", None))
+        self.label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"If you are not using AI generation in app, paste your code will below. You can copy the prompt from the user manual and add your request to your own LLM to generate the code without using an API Key. Paste only the code in the text editor below. The code in the editor will be analyzed for compilation errors. If the AI provided an explanation it will be shown in the explanation expander. If your code has multiple functions, enter the entry function above. The AI generated code should handle this automatically.", None))
         self.codeEdit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"Code goes here.", None))
         self.statusLabel.setText("")
         self.saveStatusLabel.setText("")
