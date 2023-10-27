@@ -95,6 +95,9 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         )
 
         self._input_combo = QtWidgets.QComboBox(self._ui.stackedWidget)
+        font = self._input_combo.font()
+        font.setPointSize(17)
+        self._input_combo.setFont(font)
         for e in InputType:
             self._input_combo.addItem(e.value)
         self._input_combo.setCurrentIndex(-1)

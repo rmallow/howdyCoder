@@ -28,6 +28,9 @@ class Ui_CreateDataSourceSettingsPage(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.label = QLabel(CreateDataSourceSettingsPage)
         self.label.setObjectName(u"label")
+        font = QFont()
+        font.setPointSize(15)
+        self.label.setFont(font)
         self.label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout.addWidget(self.label)
@@ -46,6 +49,7 @@ class Ui_CreateDataSourceSettingsPage(object):
         self.outputHelpText.setObjectName(u"outputHelpText")
         sizePolicy.setHeightForWidth(self.outputHelpText.sizePolicy().hasHeightForWidth())
         self.outputHelpText.setSizePolicy(sizePolicy)
+        self.outputHelpText.setFont(font)
         self.outputHelpText.setAlignment(Qt.AlignCenter)
         self.outputHelpText.setWordWrap(True)
 
@@ -78,19 +82,6 @@ class Ui_CreateDataSourceSettingsPage(object):
 
         self.verticalLayout.addWidget(self.suggested_output_box)
 
-        self.outputView = QListView(CreateDataSourceSettingsPage)
-        self.outputView.setObjectName(u"outputView")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(2)
-        sizePolicy2.setHeightForWidth(self.outputView.sizePolicy().hasHeightForWidth())
-        self.outputView.setSizePolicy(sizePolicy2)
-        font = QFont()
-        font.setPointSize(30)
-        self.outputView.setFont(font)
-
-        self.verticalLayout.addWidget(self.outputView)
-
         self.widget_8 = QWidget(CreateDataSourceSettingsPage)
         self.widget_8.setObjectName(u"widget_8")
         self.horizontalLayout_5 = QHBoxLayout(self.widget_8)
@@ -98,23 +89,36 @@ class Ui_CreateDataSourceSettingsPage(object):
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.addOutputButton = QPushButton(self.widget_8)
         self.addOutputButton.setObjectName(u"addOutputButton")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.addOutputButton.sizePolicy().hasHeightForWidth())
-        self.addOutputButton.setSizePolicy(sizePolicy3)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.addOutputButton.sizePolicy().hasHeightForWidth())
+        self.addOutputButton.setSizePolicy(sizePolicy2)
 
         self.horizontalLayout_5.addWidget(self.addOutputButton)
 
         self.removeOutputButton = QPushButton(self.widget_8)
         self.removeOutputButton.setObjectName(u"removeOutputButton")
-        sizePolicy3.setHeightForWidth(self.removeOutputButton.sizePolicy().hasHeightForWidth())
-        self.removeOutputButton.setSizePolicy(sizePolicy3)
+        sizePolicy2.setHeightForWidth(self.removeOutputButton.sizePolicy().hasHeightForWidth())
+        self.removeOutputButton.setSizePolicy(sizePolicy2)
 
         self.horizontalLayout_5.addWidget(self.removeOutputButton)
 
 
         self.verticalLayout.addWidget(self.widget_8)
+
+        self.outputView = QListView(CreateDataSourceSettingsPage)
+        self.outputView.setObjectName(u"outputView")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(2)
+        sizePolicy3.setHeightForWidth(self.outputView.sizePolicy().hasHeightForWidth())
+        self.outputView.setSizePolicy(sizePolicy3)
+        font1 = QFont()
+        font1.setPointSize(30)
+        self.outputView.setFont(font1)
+
+        self.verticalLayout.addWidget(self.outputView)
 
 
         self.retranslateUi(CreateDataSourceSettingsPage)

@@ -16,6 +16,11 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Select settings for the data source</string>
      </property>
@@ -41,6 +46,11 @@
        <horstretch>0</horstretch>
        <verstretch>1</verstretch>
       </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
      </property>
      <property name="text">
       <string>Since functions are able to be made outside of this environment, this setup wizard can't tell you what data the function will output, unless the AI that generates the code specifies.
@@ -96,21 +106,6 @@ For further questions, consult the user manual.</string>
     </widget>
    </item>
    <item>
-    <widget class="QListView" name="outputView">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>2</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>30</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QWidget" name="widget_8" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <property name="leftMargin">
@@ -152,6 +147,21 @@ For further questions, consult the user manual.</string>
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListView" name="outputView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>2</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>30</pointsize>
+      </font>
+     </property>
     </widget>
    </item>
   </layout>

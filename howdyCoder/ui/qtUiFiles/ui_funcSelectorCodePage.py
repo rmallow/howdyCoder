@@ -252,7 +252,7 @@ class Ui_FuncSelectorCodePage(object):
     def retranslateUi(self, FuncSelectorCodePage):
         FuncSelectorCodePage.setWindowTitle(QCoreApplication.translate("FuncSelectorCodePage", u"FuncSelectorCodePage", None))
         self.prompt_label.setText(QCoreApplication.translate("FuncSelectorCodePage", u"Current Prompt:", None))
-        self.label_3.setText(QCoreApplication.translate("FuncSelectorCodePage", u"To see the prompt used by Howdy Coder, go the user manual page and find the prompt matching the current prompt selection.", None))
+        self.label_3.setText(QCoreApplication.translate("FuncSelectorCodePage", u"To see the prompt used by Howdy Coder, go to the user manual page and find the prompt matching the current prompt selection combo.", None))
         self.prompt_user_manual_button.setText(QCoreApplication.translate("FuncSelectorCodePage", u"User Manual", None))
         self.infoLabel.setText(QCoreApplication.translate("FuncSelectorCodePage", u"If using AI generation in app, enter your code request here. Click Create New Function to create a new function based on the prompt below. Click Modify Function to modify the current entered code based on the request you've provided. The current prompt will also be given to the AI with your request to assist with making compatible code.", None))
         self.prompt_text_edit.setPlaceholderText(QCoreApplication.translate("FuncSelectorCodePage", u"AI code request goes here.", None))

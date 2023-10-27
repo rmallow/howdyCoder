@@ -94,7 +94,7 @@
       <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>To see the prompt used by Howdy Coder, go the user manual page and find the prompt matching the current prompt selection.</string>
+         <string>To see the prompt used by Howdy Coder, go to the user manual page and find the prompt matching the current prompt selection combo.</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
