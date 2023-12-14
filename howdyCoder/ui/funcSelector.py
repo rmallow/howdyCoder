@@ -26,7 +26,7 @@ def addHelperData(
     return FunctionSettingsWithHelperData(
         None,
         function_settings,
-        astUtil.getSuggestedParameterNames(root, function_settings.name),
+        astUtil.getSuggestedParameterNames(root, function_settings),
         astUtil.getSuggestedDataSetNames(root),
     )
 

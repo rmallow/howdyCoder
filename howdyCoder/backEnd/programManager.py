@@ -27,19 +27,11 @@ class ProgramManager(ABC):
 
         def assignUserFuncCaller(c, k, v):
             nonlocal user_funcs
-            if v is not None:
-                user_funcs.append(userFuncCaller.UserFuncCaller(**v))
-                c[k][USER_FUNC] = user_funcs[-1]
-
-        def handleSetupFuncs(c, k, v):
-            for f_name, f_value in v.items():
-                assignUserFuncCaller(v, f_name, f_value)
+            if c is not None:
+                user_funcs.append(userFuncCaller.UserFuncCaller(**c))
+                c[k] = user_funcs[-1]
 
         configLoader.dfsConfigDict(
-            config,
-            lambda k: k.lower().endswith("function") and k != USER_FUNC,
-            assignUserFuncCaller,
+            config, lambda k: k == USER_FUNC, assignUserFuncCaller
         )
-
-        configLoader.dfsConfigDict(config, lambda k: k == SETUP_FUNCS, handleSetupFuncs)
         return user_funcs

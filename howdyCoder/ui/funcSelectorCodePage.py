@@ -1,10 +1,9 @@
-import PySide6.QtGui
 from .funcSelectorPageBase import FuncSelectorPageBase
 from .qtUiFiles import ui_funcSelectorCodePage
-from .util import qtResourceManager, expander, genericWorker
+from .util import expander, genericWorker
 
 from . import librarySingleton, promptSingleton
-from ..commonUtil import astUtil, keyringUtil, openAIUtil
+from ..commonUtil import astUtil, openAIUtil
 from ..core.dataStructs import FunctionSettings
 
 import ast
@@ -33,6 +32,8 @@ PROMPT_ERROR_MSG = (
     "Error encountered trying to generate code, please try again in a bit."
 )
 
+RESERVED_KEY_WORDS = set(["entry", "output", "setup"])
+
 
 def getSuggestedOutput(response):
     start = response.lower().find(OUTPUT_TEXT)
@@ -47,11 +48,18 @@ def getSuggestedOutput(response):
     return []
 
 
+def createSetupString(settings: FunctionSettings) -> str:
+    return f"\nsetup:" + "\n".join(
+        [f"{v} : {k}" for k, v in settings.internal_setup_functions.items()]
+    )
+
+
 def createFunctionConfig(
     functions: typing.List[ast.FunctionDef],
     entry_function: str,
     imports: list,
     import_statements: list,
+    internal_setup_functions: dict,
     suggested_output=None,
 ):
     return FunctionSettings(
@@ -59,7 +67,9 @@ def createFunctionConfig(
         entry_function,
         imports,
         import_statements,
+        None,
         suggested_output if suggested_output is not None else [],
+        internal_setup_functions if internal_setup_functions is not None else {},
     )
 
 
@@ -128,6 +138,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                 QtCore.QUrl("https://howdycoder.io/docs/prompts.html")
             )
         )
+        self._internal_setup_funcs = {}
 
     def setupPromptCombo(self):
         for k in promptSingleton.prompts.keys():
@@ -139,16 +150,68 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.prompt_text_edit.clear()
         self.ui.entry_function_edit.clear()
         self.code_explanation.clear()
+        self._internal_setup_funcs = {}
         return super().updateData()
 
     def codeChanged(self):
         self._code_edit_timer.start()
         self.enableControls(False)
 
+    def setEntryFunction(self):
+        if len(self._current_functions) == 1:
+            self.ui.entry_function_edit.setText(self._current_functions[0].name)
+            self.ui.entry_function_edit.setEnabled(False)
+        else:
+            func_name = self._current_functions[-1].name
+            index = self.code_explanation.toPlainText().find("entry:")
+            if index != -1:
+                new_line = self.code_explanation.toPlainText().find("\n", index)
+                potential_name = self.code_explanation.toPlainText()[
+                    index + len("entry:") : new_line
+                ].strip()
+                if any(f.name == potential_name for f in self._current_functions):
+                    func_name = potential_name
+            self.ui.entry_function_edit.setText(func_name)
+            self.ui.entry_function_edit.setEnabled(True)
+
+    def setSetupFunctions(self):
+        self._internal_setup_funcs = {}
+        text = self.code_explanation.toPlainText()
+        index = text.find("setup:")
+        last = index + len("setup:")
+        if index != -1:
+            colon_index = text.find(":", last)
+            while colon_index != -1:
+                first_word = text[last:colon_index].strip()
+                new_line = text.find("\n", colon_index)
+                end = len(text)
+                char_found = False
+                for x in range(colon_index + 1, len(text)):
+                    if not text[x].isspace():
+                        char_found = True
+                    elif char_found:
+                        end = x
+                        break
+                second_word = text[colon_index + 1 : end].strip()
+                if (
+                    any(c.isspace() for c in first_word)
+                    or first_word in RESERVED_KEY_WORDS
+                    or any(c.isspace() for c in second_word)
+                    or second_word in RESERVED_KEY_WORDS
+                ):
+                    break
+                self._internal_setup_funcs[second_word] = first_word
+                last = new_line + 1
+                colon_index = text.find(":", last)
+
     def validateCode(self):
         """Disable the text edit and validate the code entered into the text edit"""
-        # disable at start and re enable after validation
         if self.ui.codeEdit.toPlainText():
+            # if it's the full response copy and pasted then parse that first
+            if self.ui.codeEdit.toPlainText().find(openAIUtil.PYTHON_SEARCH) != -1:
+                self.parseAIResponse(self.ui.codeEdit.toPlainText())
+                return
+            # disable at start and re enable after validation
             self.ui.codeEdit.setEnabled(False)
             self.ui.entry_function_edit.setEnabled(False)
             self.ui.statusLabel.setText(COMPILING_STATUS)
@@ -168,33 +231,15 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                     if self._current_functions[0].args.posonlyargs:
                         self.ui.statusLabel.setText(POSONLY_ARGS_ERROR_STATUS)
                     else:
-                        if len(self._current_functions) == 1:
-                            self.ui.entry_function_edit.setText(
-                                self._current_functions[0].name
-                            )
-                            self.ui.entry_function_edit.setEnabled(False)
-                        else:
-                            func_name = self._current_functions[-1].name
-                            index = self.code_explanation.toPlainText().find("entry:")
-                            if index != -1:
-                                new_line = self.code_explanation.toPlainText().find(
-                                    "\n"
-                                )
-                                potential_name = self.code_explanation.toPlainText()[
-                                    index + len("entry:") : new_line
-                                ].strip()
-                                if any(
-                                    f.name == potential_name
-                                    for f in self._current_functions
-                                ):
-                                    func_name = potential_name
-                            self.ui.entry_function_edit.setText(func_name)
-                            self.ui.entry_function_edit.setEnabled(True)
+                        self.setEntryFunction()
+                        self.setSetupFunctions()
                         self._current_function_settings = createFunctionConfig(
                             self._current_functions,
                             self.ui.entry_function_edit.text(),
                             *astUtil.getImportsUnique(root),
+                            self._internal_setup_funcs,
                         )
+                        self.addSuggestedOutput()
                         self.valid_code = True
                         self.enableControls(True)
                         self.enableAPIControls(self.ui.key_monitor_widget.all_valid)
@@ -207,12 +252,12 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     @QtCore.Slot()
     def sendFunctionConfig(self):
-        self.addSuggestedOutput()
+        self.validateSetupFunctionsExist()
         self.funcSelected.emit(self._current_function_settings)
 
     @QtCore.Slot()
     def saveCode(self):
-        self.addSuggestedOutput()
+        self.validateSetupFunctionsExist()
         """Save a function in the code edit to either an exisiting AFL file or a new AFL file"""
         file_dlg_return = QtWidgets.QFileDialog.getSaveFileName(
             self, "Select an Algo Function Library", ".", "Algo Function Library(*.afl)"
@@ -274,26 +319,37 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
     def modifyAPIButton(self):
         user_prompt = self.ui.prompt_text_edit.toPlainText()
         code = self.ui.codeEdit.toPlainText()
+        full_user_prompt = (
+            f"{user_prompt}\n{code}\nentry:{self._current_function_settings.name}"
+        )
+        if self._current_function_settings.internal_setup_functions:
+            full_user_prompt += createSetupString(self._current_function_settings)
+        if self._current_function_settings.suggested_output:
+            full_user_prompt += f"\noutput:" + ",".join(
+                self._current_function_settings.suggested_output
+            )
         self.callAPI(
             promptSingleton.makeModifyPrompt(self.ui.prompt_combo_box.currentText()),
-            user_prompt + "\n" + code,
+            full_user_prompt,
         )
 
     def apiResponse(self, response: genericWorker.RunnableReturn):
         if response is not None and response.id_ == self._current_api_call_id:
             self._generate_code_timer.stop()
             if response.value is not None:
-                self.ui.codeEdit.setPlainText(
-                    openAIUtil.getPythonCodeOnly(response.value)
-                )
-                self.code_explanation.setPlainText(response.value)
-                self.ui.prompt_error.setText("")
+                self.parseAIResponse(response.value)
             else:
                 self.ui.prompt_error.setText(PROMPT_ERROR_MSG)
             self.ui.codeEdit.setEnabled(True)
             self.ui.prompt_text_edit.setEnabled(True)
             self.ui.create_new_api_button.setEnabled(True)
             self.ui.prompt_text_edit.setPlainText(self._saved_query)
+
+    def parseAIResponse(self, ai_response: str) -> None:
+        if ai_response:
+            self.ui.codeEdit.setPlainText(openAIUtil.getPythonCodeOnly(ai_response))
+            self.code_explanation.setPlainText(ai_response)
+            self.ui.prompt_error.setText("")
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         """Setting how far out the explanation box should expand to"""
@@ -321,10 +377,24 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
     def setData(self, data: typing.Any):
         if data is not None and isinstance(data, FunctionSettings):
             full_code = "\n".join(data.import_statements) + "\n\n" + data.code
+            setup_text = createSetupString(data)
+            self.code_explanation.setPlainText(setup_text)
             self.ui.codeEdit.setPlainText(full_code)
             self.validateCode()
             self.ui.entry_function_edit.setText(data.name)
+            self._current_function_settings.internal_setup_functions = (
+                data.internal_setup_functions
+            )
 
     def addSuggestedOutput(self):
         response = self.code_explanation.toPlainText()
         self._current_function_settings.suggested_output = getSuggestedOutput(response)
+
+    def validateSetupFunctionsExist(self):
+        for function_name in list(
+            self._current_function_settings.internal_setup_functions.keys()
+        ):
+            if not any(f.name == function_name for f in self._current_functions):
+                del self._current_function_settings.internal_setup_functions[
+                    function_name
+                ]

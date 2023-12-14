@@ -15,6 +15,9 @@ class dataFunc(dataBase):
         self.setupFuncs: typing.Dict[str, UserFuncCaller] = {
             k: v.user_function for k, v in data_source_settings.setup_functions.items()
         }
+        self._internal_setup_functions = (
+            data_source_settings.get_function.internal_setup_functions
+        )
 
         # add the pass back dict so that the func can add data here and continue to use it if so desired
         passback_dict = {}
@@ -37,4 +40,9 @@ class dataFunc(dataBase):
         for key, function_settings in self.setupFuncs.items():
             self.parameters |= {
                 key: function_settings.user_function(**self.parameters)[0]
+            }
+
+        for func_name, parm_name in self._internal_setup_functions.items():
+            self.parameters |= {
+                parm_name: self.getFunc.callFunc(func_name, **self.parameters)[0]
             }

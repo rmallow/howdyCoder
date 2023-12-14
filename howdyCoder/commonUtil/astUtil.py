@@ -1,4 +1,5 @@
 from ..core.commonGlobals import DATA_SET
+from ..core.dataStructs import FunctionSettings
 
 import ast
 from collections import namedtuple
@@ -42,7 +43,7 @@ def getFunctions(root: ast.Module) -> typing.List[ast.FunctionDef]:
 
 
 def getSuggestedParameterNames(
-    root: ast.Module, entry_function: str
+    root: ast.Module, func_settings: FunctionSettings
 ) -> typing.List[str]:
     function_defs = getFunctions(root)
     """
@@ -50,12 +51,26 @@ def getSuggestedParameterNames(
     posonlyargs - as of right now we don't pass in any posonlyargs, and they are not allowed
     args and kwonlyargs - these we do pass in and will return
     vararg and kwarg - these are *args and **kwargs type arguments and will be ignored as we don't suggest these
+
+    we add the value of internal setup functions to parameters as those will be set by the functions
     """
     parameters = set()
+    internal_parameters = set(func_settings.internal_setup_functions.values())
     for f in function_defs:
-        if f.name == entry_function:
-            parameters.update([arg.arg for arg in f.args.args])
-            parameters.update([arg.arg for arg in f.args.kwonlyargs])
+        if (
+            f.name == func_settings.name
+            or f.name in func_settings.internal_setup_functions
+        ):
+            parameters.update(
+                [arg.arg for arg in f.args.args if arg.arg not in internal_parameters]
+            )
+            parameters.update(
+                [
+                    arg.arg
+                    for arg in f.args.kwonlyargs
+                    if arg.arg not in internal_parameters
+                ]
+            )
     return list(parameters)
 
 

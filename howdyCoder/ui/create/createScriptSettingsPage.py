@@ -2,7 +2,7 @@ from ...core.dataStructs import ScriptSettings, ActionSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles.ui_createScriptSettingsPage import Ui_CreateScriptSettingsPage
-from ..funcSelector import FunctionSettingsWithHelperData
+from ..funcSelector import FunctionSettingsWithHelperData, addHelperData
 
 from ...core.commonGlobals import NONE_GROUP, ActionTypeEnum, ENUM_DISPLAY
 
@@ -37,16 +37,9 @@ class CreateScriptSettingsPage(CreateBasePage):
         self._ui.funcSelectorWidget.setDefaultPrompt("Script")
 
     def loadPage(self):
+        curr: ActionSettings = self.getTempConfig().action
         self._ui.funcSelectorWidget.updateChildData()
-        if self._current_settings:
-            full_code_str = (
-                "\n".join(self._current_settings.function_settings.import_statements)
-                + "\n"
-                + self._current_settings.function_settings.code
-            )
-            self._ui.funcSelectorWidget.ui.codeWidget.ui.codeEdit.setPlainText(
-                full_code_str
-            )
+        self._ui.funcSelectorWidget.setData(curr.calc_function)
 
     def getTutorialClasses(self) -> typing.List:
         return [self] + self._ui.funcSelectorWidget.getTutorialClasses()
@@ -62,11 +55,12 @@ class CreateScriptSettingsPage(CreateBasePage):
         self.getHelperData().suggested_parameters = (
             self._current_settings.suggested_parameters
         )
-        self.getConfig().action = ActionSettings(
-            getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY),
-            getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY),
-            calc_function=self._current_settings.function_settings,
-        )
+        if self.getConfig().action is None:
+            self.getConfig().action = ActionSettings(
+                getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY),
+                getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY),
+            )
+        self.getConfig().action.calc_function = self._current_settings.function_settings
 
     def settingsSelected(self, function_settings: FunctionSettingsWithHelperData):
         self._current_settings = function_settings

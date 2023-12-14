@@ -217,7 +217,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             curr.get_function = self._current_settings.function_settings
             self.getHelperData().suggested_parameters = (
                 astUtil.getSuggestedParameterNames(
-                    astUtil.getRoot(curr.get_function.code), curr.get_function.name
+                    astUtil.getRoot(curr.get_function.code), curr.get_function
                 )
             )
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:

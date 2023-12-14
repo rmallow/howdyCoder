@@ -59,6 +59,10 @@ class Action:
             str, UserFuncCaller
         ] = action_settings.setup_functions
 
+        self._calc_internal_setup_functions = (
+            action_settings.calc_function.internal_setup_functions
+        )
+
         self.is_first: bool = True
         self.aggregate: bool = action_settings.aggregate
         self.flatten: bool = action_settings.flatten
@@ -191,4 +195,9 @@ class Action:
         for key, function_settings in self.setupFuncs.items():
             self.parameters |= {
                 key: function_settings.user_function(**self.parameters)[0]
+            }
+
+        for func_name, parm_name in self._calc_internal_setup_functions.items():
+            self.parameters |= {
+                parm_name: self.calcFunc.callFunc(func_name, **self.parameters)[0]
             }

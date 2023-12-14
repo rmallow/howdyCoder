@@ -3,10 +3,17 @@ from ..core.commonGlobals import FUNC_GROUP
 
 import typing
 from typing import Any
+from dataclasses import dataclass
 import inspect
 import traceback
 import io
 from contextlib import redirect_stdout, redirect_stderr
+
+
+@dataclass
+class FunctionArgSpecs:
+    has_var_kwarg: bool
+    arg_names: typing.List[str]
 
 
 class UserFuncCaller:
@@ -31,9 +38,7 @@ class UserFuncCaller:
         )
         self.name: str = name
         self._function_scope: typing.Dict = {}
-        self._functionArgNames: list[str] = []
-        self._hasVarArg: bool = False
-        self._hasVarKwargs: bool = False
+        self._function_name_to_arg_specs: typing.Dict[str, FunctionArgSpecs] = {}
 
     def setup(self):
         for imp in self._import_statements:
@@ -57,41 +62,43 @@ class UserFuncCaller:
             )
         else:
             # probably worked so lets proceed like normal
-            self.defineArgumentFilters()
+            self.defineArgumentFilters(self.name)
             res = self.name in self._function_scope
         return res
 
     def __call__(self, *args, **kwargs):
         """Wrapper function to call func, so that userFuncCaller can still be used as a regular function"""
-        return self.callFunc(*args, **kwargs)
+        return self.callFunc(self.name, *args, **kwargs)
 
-    def callFunc(self, *args, _caller_name="", **kwargs) -> Any:
+    def callFunc(self, function_name: str, *args, _caller_name="", **kwargs) -> Any:
         """
         Call the function in a hopefully safe-ish manner
         Keyword arguments will be filtered out but arguments will be passed forward
         also get any data that was going to stdout or stderr and return that
         """
-        filteredParamters = self.filterArguments(kwargs)
+        filteredParamters = self.filterArguments(function_name, kwargs)
         try:
             with redirect_stderr(io.StringIO()) as f_err:
                 with redirect_stdout(io.StringIO()) as f_std:
-                    ret_val = self._function_scope[self.name](
+                    ret_val = self._function_scope[function_name](
                         *args, **filteredParamters
                     )
             return ret_val, f_std.getvalue(), f_err.getvalue()
         except Exception as e:
             exception_str = ""
             if _caller_name:
-                exception_str = f"Exception while calling from {_caller_name} a function named: {self.name}\n"
+                exception_str = f"Exception while calling from {_caller_name} a function named: {function_name}\n"
             else:
-                exception_str = f"Exception while calling function named: {self.name}\n"
+                exception_str = (
+                    f"Exception while calling function named: {function_name}\n"
+                )
             exception_str += "-" * 10 + f"\n{e}"
-            mpLogging.error(
-                exception_str, description=traceback.format_exc(), group=FUNC_GROUP
-            )
+            mpLogging.error(exception_str, group=FUNC_GROUP)
             return None, None, None
 
-    def filterArguments(self, passed_in_kwarg: typing.Dict[str, Any]) -> dict[str, Any]:
+    def filterArguments(
+        self, function_name: str, passed_in_kwarg: typing.Dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Compare the kwargs to argument mapping and filter out if **kwarg is not present
         Meant to make it safe to call without worrying about passing in extra kwargs for unkown functions
@@ -102,14 +109,16 @@ class UserFuncCaller:
         Returns:
             A dict to be used as the new kwargs for the function call
         """
-
-        if not self._hasVarKwargs:
+        if function_name not in self._function_name_to_arg_specs:
+            self.defineArgumentFilters(function_name)
+        function_arg_specs = self._function_name_to_arg_specs[function_name]
+        if not function_arg_specs.has_var_kwarg:
             # sadly **kwargs was not included on passed in function
             # so we're going to filter out the arguments that won't be used now
-            if len(self._functionArgNames) > 0:
+            if len(function_arg_specs.arg_names) > 0:
                 return {
                     name: passed_in_kwarg[name]
-                    for name in self._functionArgNames
+                    for name in function_arg_specs.arg_names
                     if name in passed_in_kwarg
                 }
             else:
@@ -118,21 +127,24 @@ class UserFuncCaller:
 
         return passed_in_kwarg
 
-    def defineArgumentFilters(self):
+    def defineArgumentFilters(self, function_name: str):
         """
         Go through arguments and determine argument names and if special arguments are present
         """
-        sig = inspect.signature(self._function_scope[self.name])
+        sig = inspect.signature(self._function_scope[function_name])
+        has_var_kwarg = False
+        arg_names = []
         for param in sig.parameters.values():
             """
             POSITIONAL_ONLY not currently supported
             """
             if param.kind == inspect.Parameter.VAR_KEYWORD:
-                self._hasVarKwargs = True
-            elif param.kind == inspect.Parameter.VAR_POSITIONAL:
-                self._hasVarArg = True
+                has_var_kwarg = True
             elif (
                 param.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
                 or param.kind == inspect.Parameter.KEYWORD_ONLY
             ):
-                self._functionArgNames.append(param.name)
+                arg_names.append(param.name)
+        self._function_name_to_arg_specs[function_name] = FunctionArgSpecs(
+            has_var_kwarg, arg_names
+        )

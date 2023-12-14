@@ -21,6 +21,9 @@ class ModInstallDialog(QtWidgets.QDialog):
         self._ui = ui_modInstallDialog.Ui_ModInstallDialog()
         self._ui.setupUi(self)
         self._table_model = QtGui.QStandardItemModel(self)
+        self._table_model.setHorizontalHeaderLabels(
+            ["Module", "Status", "Package Name"]
+        )
         self._ui.tableView.setModel(self._table_model)
         self.current_code = None
         self._all_installed = True
@@ -30,7 +33,7 @@ class ModInstallDialog(QtWidgets.QDialog):
 
     def updateTable(self, code, modules):
         self._ui.install_label.setText("")
-        self._table_model.clear()
+        self._table_model.removeRows(0, self._table_model.rowCount())
         self.current_code = code
         # do first loop so all of the uninstalled modules are grouped
         self._all_installed = True
@@ -71,6 +74,7 @@ class ModInstallDialog(QtWidgets.QDialog):
             self.accept()
 
     def installPressed(self):
+        self._ui.tableView.setCurrentIndex(self._table_model.index(0, 0))
         self._ui.install_button.setEnabled(False)
         self._ui.install_label.setText(INSTALL_TEXT)
         packages = []

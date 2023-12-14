@@ -74,6 +74,8 @@ class FunctionSettings(JSONWizard, metaclass=property_wizard):
     import_statements: typing.List[str] = field(default_factory=list)
     user_function: typing.Any = None
     suggested_output: typing.List[str] = field(default_factory=list)
+    # internal_setup_functions: name of function -> parameter name
+    internal_setup_functions: typing.Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
