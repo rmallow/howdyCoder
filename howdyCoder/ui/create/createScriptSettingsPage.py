@@ -38,8 +38,9 @@ class CreateScriptSettingsPage(CreateBasePage):
 
     def loadPage(self):
         curr: ActionSettings = self.getTempConfig().action
-        self._ui.funcSelectorWidget.updateChildData()
-        self._ui.funcSelectorWidget.setData(curr.calc_function)
+        if curr is not None:
+            self._ui.funcSelectorWidget.updateChildData()
+            self._ui.funcSelectorWidget.setData(curr.calc_function)
 
     def getTutorialClasses(self) -> typing.List:
         return [self] + self._ui.funcSelectorWidget.getTutorialClasses()

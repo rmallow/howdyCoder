@@ -46,7 +46,7 @@ class KeyMonitorWidget(QtWidgets.QWidget):
                 self.allKeysValid.emit(False)
             self.label.setText(
                 helpers.listToFormattedString(
-                    "Keys either not set or not valid, set these keys in the Key Window at the top bar: ",
+                    "Keys are either not set or not valid, set these keys in the Key Window: ",
                     invalid,
                 )
             )

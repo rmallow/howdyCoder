@@ -6,10 +6,12 @@ import functools
 
 FILES_KEY = "files"
 MODIFY_SECTION = "Modify"
+ONLINE_CHAT_SECTION = "Online Chat"
 
 
 prompts: typing.Dict[str, str] = {}
-_modify_prompt = ""
+
+_hidden_sections = {MODIFY_SECTION: "", ONLINE_CHAT_SECTION: ""}
 
 
 def getPrompt(prompt_key: str) -> str:
@@ -18,7 +20,12 @@ def getPrompt(prompt_key: str) -> str:
 
 @functools.cache
 def makeModifyPrompt(other_prompt_key: str) -> str:
-    return _modify_prompt + "\n" + getPrompt(other_prompt_key)
+    return _hidden_sections[MODIFY_SECTION] + "\n" + getPrompt(other_prompt_key)
+
+
+@functools.cache
+def makeOnlinePrompt(other_prompt_key: str) -> str:
+    return getPrompt(other_prompt_key) + "\n" + _hidden_sections[ONLINE_CHAT_SECTION]
 
 
 """If the prompt singleton is being loaded for the first time run some initalization code"""
@@ -35,7 +42,7 @@ for section, values in datalocator.getConfig(datalocator.PROMPTS).items():
                 "r",
             ) as f:
                 prompt_list.append(f.read())
-        if section != MODIFY_SECTION:
+        if section not in _hidden_sections:
             prompts[section] = "\n".join(prompt_list)
         else:
-            _modify_prompt = "\n".join(prompt_list)
+            _hidden_sections[section] = "\n".join(prompt_list)

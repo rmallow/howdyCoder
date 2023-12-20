@@ -38,3 +38,7 @@ class SelectorBase(
     def setData(self, data: typing.Any) -> None:
         """Can be overriden in child selector to pass in data at show time"""
         pass
+
+    def reset(self) -> None:
+        """Can be overriden in child selector reset"""
+        pass

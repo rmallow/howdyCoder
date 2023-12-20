@@ -78,9 +78,7 @@ class CreateBaseParametersPage(CreateBasePage):
 
     def loadPage(self) -> None:
         curr = self.getTempConfig()
-        time = QtCore.QTime()
-        time.addSecs(curr.period)
-        self._ui.time_edit.setTime(time)
+        self._ui.time_edit.setTime(QtCore.QTime(0, 0, 0).addSecs(curr.period))
         self._ui.flattenedCheck.setChecked(curr.flatten)
         self._ui.single_shot_check.setChecked(curr.single_shot)
         self._parameterModel.clear()
@@ -89,16 +87,18 @@ class CreateBaseParametersPage(CreateBasePage):
         return super().loadPage()
 
     def setParametersLabel(self, *args, **kwrags):
+        suggested_parmesean = [
+            param
+            for param in self.getHelperData().suggested_parameters
+            + self._parameterModel.getSuggestedParameters()
+            if param != DATA_SET
+        ]
         self.addToSuggestedListWidget(
             self._ui.parameter_list_widget,
             self._parameterModel.current_names,
-            [
-                param
-                for param in self.getHelperData().suggested_parameters
-                + self._parameterModel.getSuggestedParameters()
-                if param != DATA_SET
-            ],
+            suggested_parmesean,
         )
+        self._ui.parameterView.itemDelegate().setCompleterStrings(suggested_parmesean)
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

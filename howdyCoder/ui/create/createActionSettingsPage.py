@@ -8,7 +8,7 @@ from ..selectorWidget import SelectorWidget
 from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData, addHelperData
 
 from ..util.spinBoxDelegate import SpinBoxDelegate
-from ..util import qtResourceManager
+from ..util import qtUtil
 
 from ...commonUtil import helpers
 from ...core.commonGlobals import (
@@ -93,6 +93,9 @@ class CreateActionSettingsPage(CreateBasePage):
                 disallowed_default_value=1,
                 parent=self._ui.selectedInputTable,
             ),
+        )
+        self._ui.selectedInputTable.setItemDelegateForColumn(
+            SELECTED_NAME_COLUMN, qtUtil.CompleterDelegate(self._ui.selectedInputTable)
         )
         self._ui.availableInputTable.setModel(self._available_input_table_model)
         self._ui.availableInputTable.horizontalHeader().setSectionResizeMode(
@@ -447,3 +450,6 @@ class CreateActionSettingsPage(CreateBasePage):
             suggested += self._current_output_settings.suggested_data
 
         self.addToSuggestedListWidget(self._ui.suggested_data_set, current, suggested)
+        self._ui.selectedInputTable.itemDelegateForColumn(
+            SELECTED_NAME_COLUMN
+        ).setCompleterStrings(suggested)

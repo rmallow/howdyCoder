@@ -31,7 +31,8 @@ class ParameterEnum(Enum):
         editableTable.EditorType.COMBO,
         [
             editableTable.EditorType.STRING.display,
-            editableTable.EditorType.NUMBER.display,
+            editableTable.EditorType.INTEGER.display,
+            editableTable.EditorType.DECIMAL.display,
             editableTable.EditorType.FUNC.display,
             editableTable.EditorType.FILE.display,
             editableTable.EditorType.FOLDER.display,
@@ -47,6 +48,10 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
         super().__init__(ParameterEnum)
         self.values: typing.List[typing.Dict[ParameterEnum, str]] = []
         self.current_names: typing.Set[str] = set()
+
+    def clear(self):
+        self.current_names.clear()
+        super().clear()
 
     def setData(
         self,

@@ -105,7 +105,7 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
 
     name: str = ""
     type_: str = ""
-    flatten: bool = False
+    flatten: bool = True
     period: int = 1
     single_shot: bool = False
     parameters: typing.Dict[str, Parameter] = field(default_factory=dict)

@@ -41,3 +41,7 @@ class FuncSelectorPageBase(
     def setData(self, data: typing.Any) -> None:
         """Can be overriden in child page to pass in data at show time"""
         pass
+
+    def reset(self) -> None:
+        """Can be overriden in child page reset"""
+        pass

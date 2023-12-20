@@ -3,6 +3,7 @@ from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createDataSourceSettingsPage
 
+from ..util.qtUtil import CompleterDelegate
 from .. import editableTable
 from ..selectorWidget import SelectorWidget
 from ..funcSelector import FuncSelector, addHelperData
@@ -49,6 +50,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self._current_settings = None
         self._data_source_type = None
         self._outputModel = editableTable.PartialReadOnlyList()
+        self._ui.outputView.setItemDelegate(CompleterDelegate(self._ui.outputView))
         self._ui.outputView.setModel(self._outputModel)
 
         self._outputModel.dataChanged.connect(self.setSuggestedOutput)
@@ -274,4 +276,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self._ui.suggested_output,
             set(self._outputModel.stringList()),
             self._current_settings.function_settings.suggested_output,
+        )
+        self._ui.outputView.itemDelegate().setCompleterStrings(
+            self._current_settings.function_settings.suggested_output
         )

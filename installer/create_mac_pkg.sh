@@ -12,3 +12,4 @@ xcrun stapler staple HowdyCoder.app
 /usr/local/bin/packagesbuild --project HowdyCoder.pkgproj
 xcrun notarytool submit installer_output/HowdyCoder.pkg --wait -k ../../../Apple_Connect/AuthKey_CL4R868UJB.p8 -d CL4R868UJB -i 9764afda-07eb-4902-a15a-adafbea5c5bd
 xcrun stapler staple installer_output/HowdyCoder.pkg
+rm -rf data

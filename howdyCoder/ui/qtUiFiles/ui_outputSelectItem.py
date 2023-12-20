@@ -22,7 +22,7 @@ class Ui_OutputSelectItem(object):
     def setupUi(self, OutputSelectItem):
         if not OutputSelectItem.objectName():
             OutputSelectItem.setObjectName(u"OutputSelectItem")
-        OutputSelectItem.resize(432, 99)
+        OutputSelectItem.resize(432, 118)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

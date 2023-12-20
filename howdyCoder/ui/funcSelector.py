@@ -84,3 +84,6 @@ class FuncSelector(SelectorBase):
 
     def setData(self, data: typing.Any) -> None:
         self.applyToPages(lambda page: page.setData(data))
+
+    def reset(self) -> None:
+        self.applyToPages(lambda page: page.reset())

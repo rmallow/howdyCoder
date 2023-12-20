@@ -4,6 +4,7 @@ from .selectorBase import HelperData
 from .selectorWidget import SelectorWidget
 
 from .util.abstractQt import getAbstactQtResolver, handleAbstractMethods
+from .util import qtUtil
 
 from ..commonUtil import helpers
 
@@ -27,11 +28,12 @@ class EditorType(Enum):
 
     STRING = 0, "string"
     COMBO = 1, "combo"
-    NUMBER = 2, "number"
-    FUNC = 3, "function"
-    FILE = 4, PathType.FILE.value
-    FOLDER = 5, PathType.FOLDER.value
-    ANY = 5, "any"
+    INTEGER = 2, "integer"
+    DECIMAL = 3, "decimal"
+    FUNC = 4, "function"
+    FILE = 5, PathType.FILE.value
+    FOLDER = 6, PathType.FOLDER.value
+    ANY = 7, "any"
 
 
 SELECTOR_TYPES = set(
@@ -39,18 +41,13 @@ SELECTOR_TYPES = set(
 )
 
 
-def getEditorTypeList():
-    return [e.display for e in EditorType]
-
-
-class TableOrientation(Enum):
-    ADD_ROWS = 0
-    ADD_COLUMNS = 1
-
-
 class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
+        self._completer_strings: typing.List[str] = []
         super().__init__(parent)
+
+    def setCompleterStrings(self, string_list):
+        self._completer_strings = string_list
 
     def createEditor(
         self,
@@ -72,9 +69,12 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
                 for comboValue in comboValues:
                     combo.addItem(comboValue)
                 return combo
-        elif editorType == EditorType.NUMBER:
-            spin = QtWidgets.QDoubleSpinBox(parent)
+        elif editorType == EditorType.INTEGER:
+            spin = QtWidgets.QSpinBox(parent)
             spin.setRange(-999999, 999999)
+            return spin
+        elif editorType == EditorType.DECIMAL:
+            spin = QtWidgets.QDoubleSpinBox(parent)
             return spin
         if index in index.model().selector_indexes:
             selector_widget = None
@@ -93,7 +93,9 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
 
             index.model().selector_widgets[index] = selector_widget
             return selector_widget
-        return super().createEditor(parent, option, index)
+        editor = super().createEditor(parent, option, index)
+        qtUtil.setCompleter(editor, self._completer_strings)
+        return editor
 
     def setModelData(
         self,
@@ -108,7 +110,8 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
         if (
             editorType == EditorType.STRING
             or editorType == EditorType.ANY
-            or editorType == EditorType.NUMBER
+            or editorType == EditorType.INTEGER
+            or editorType == EditorType.DECIMAL
         ):
             return super().setModelData(editor, model, index)
         elif editorType == EditorType.COMBO:

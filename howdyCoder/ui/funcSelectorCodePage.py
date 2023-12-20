@@ -3,6 +3,7 @@ from .qtUiFiles import ui_funcSelectorCodePage
 from .util import expander, genericWorker
 
 from . import librarySingleton, promptSingleton
+from .util.qtUtil import setWordWrapOnButton
 from ..commonUtil import astUtil, openAIUtil
 from ..core.dataStructs import FunctionSettings
 
@@ -98,6 +99,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.key_monitor_widget.allKeysValid.connect(self.enableAPIControls)
 
         cur_val = openAIUtil.testValidKeySet()
+        self.ui.prompt_box.setVisible(cur_val)
         self.ui.create_new_api_button.setEnabled(cur_val)
 
         self.setupPromptCombo()
@@ -138,11 +140,19 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                 QtCore.QUrl("https://howdycoder.io/docs/prompts.html")
             )
         )
+        self.ui.prompt_copy_button.released.connect(self.copyPromptToClipboard)
         self._internal_setup_funcs = {}
 
     def setupPromptCombo(self):
         for k in promptSingleton.prompts.keys():
             self.ui.prompt_combo_box.addItem(k)
+
+    def copyPromptToClipboard(self):
+        clippy = QtGui.QGuiApplication.clipboard()
+        if self.ui.prompt_combo_box.currentText() in promptSingleton.prompts:
+            clippy.setText(
+                promptSingleton.makeOnlinePrompt(self.ui.prompt_combo_box.currentText())
+            )
 
     def updateData(self) -> None:
         self.ui.codeEdit.clear()
@@ -182,7 +192,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         if index != -1:
             colon_index = text.find(":", last)
             while colon_index != -1:
-                first_word = text[last:colon_index].strip()
+                first_word = text[last:colon_index].split()[-1].strip()
                 new_line = text.find("\n", colon_index)
                 end = len(text)
                 char_found = False
@@ -192,15 +202,16 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                     elif char_found:
                         end = x
                         break
-                second_word = text[colon_index + 1 : end].strip()
+                func_name = text[colon_index + 1 : end].strip()
                 if (
                     any(c.isspace() for c in first_word)
                     or first_word in RESERVED_KEY_WORDS
-                    or any(c.isspace() for c in second_word)
-                    or second_word in RESERVED_KEY_WORDS
+                    or any(c.isspace() for c in func_name)
+                    or func_name in RESERVED_KEY_WORDS
+                    or not self.nameInCurrentFunctions(func_name)
                 ):
                     break
-                self._internal_setup_funcs[second_word] = first_word
+                self._internal_setup_funcs[func_name] = first_word
                 last = new_line + 1
                 colon_index = text.find(":", last)
 
@@ -273,6 +284,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     @QtCore.Slot()
     def enableAPIControls(self, enable: bool):
+        self.ui.prompt_box.setVisible(False)
         self.ui.create_new_api_button.setEnabled(
             enable and not self._generate_code_timer.isActive()
         )
@@ -398,3 +410,14 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
                 del self._current_function_settings.internal_setup_functions[
                     function_name
                 ]
+
+    def nameInCurrentFunctions(self, func_name):
+        for func in self._current_functions:
+            if func.name == func_name:
+                return True
+        return False
+
+    def reset(self):
+        self.ui.codeEdit.clear()
+        self.ui.entry_function_edit.clear()
+        self.ui.prompt_text_edit.clear()
