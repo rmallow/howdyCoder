@@ -40,8 +40,6 @@ class FuncSelector(SelectorBase):
 
     def __init__(self, parent=None):
         super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent)
-        # set always on top flag
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         # Load UI file and setup UI with layout
         self.ui = ui_funcSelector.Ui_FuncSelector()
         self.ui.setupUi(self)

@@ -29,6 +29,8 @@ class SelectorWidget(QtWidgets.QWidget):
         self._selector.setDefaultPrompt(self.default_prompt)
         self._selector.show()
         self._selector.showNormal()
+        self._selector.raise_()
+        self._selector.activateWindow()
         self._selector.setData(self.data)
 
     def updateText(self, text):
