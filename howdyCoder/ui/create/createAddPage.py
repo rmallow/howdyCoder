@@ -15,6 +15,18 @@ NAME_ROLE = QtCore.Qt.ItemDataRole.UserRole + 1
 
 
 class CreateAddPageBase(CreateBasePage):
+    """
+
+    DEPRECATED
+    DEPRECATED
+    DEPRECATED
+    DEPRECATED
+    DEPRECATED
+    DEPRECATED
+    DEPRECATED
+
+    """
+
     TUTORIAL_RESOURCE_PREFIX = "CreateAdd"
 
     def __init__(
@@ -47,7 +59,7 @@ class CreateAddPageBase(CreateBasePage):
     def reset(self) -> None:
         self._ui.skipButton.setEnabled(False)
         self._dataSourcesModel.clear()
-        self.getTempConfig().clear()
+        self.getConfig().clear()
         return super().reset()
 
     def setGroupModel(self):
@@ -60,7 +72,7 @@ class CreateAddPageBase(CreateBasePage):
 
     def loadPage(self):
         super().loadPage()
-        self.getTempConfig().clear()
+        self.getConfig().clear()
         self.setGroupModel()
 
     def getCurrentSelectionName(self):
@@ -80,8 +92,8 @@ class CreateAddPageBase(CreateBasePage):
 
     def editConfig(self):
         if curr := self.getCurrentSelectionName():
-            self.getTempConfig().clear()
-            self.getTempConfig().inPlaceCopy(self.getConfigGroup()[curr])
+            self.getConfig().clear()
+            self.getConfig().inPlaceCopy(self.getConfigGroup()[curr])
             self.nextPage.emit()
 
 

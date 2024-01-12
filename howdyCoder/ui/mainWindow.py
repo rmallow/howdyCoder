@@ -131,7 +131,7 @@ class MainWindow(
         self._ui.changePageButton.released.connect(
             lambda: self._ui.stackedWidget.setCurrentWidget(
                 self._ui.controlPage
-                if self._ui.stackedWidget.currentWidget() == self._ui.outputPage
+                if self._ui.stackedWidget.currentWidget() != self._ui.outputPage
                 else self._ui.outputPage
             )
         )
@@ -150,7 +150,9 @@ class MainWindow(
         self._ui.actionAPI_Key.triggered.connect(self._key_window.show)
 
         self.resize(QtGui.QGuiApplication.primaryScreen().availableSize())
+
         self.show()
+        self.testFunc()
 
     @QtCore.Slot()
     def loadConfig(self):
@@ -161,7 +163,7 @@ class MainWindow(
         cur_page = self._ui.stackedWidget.currentWidget()
         self._ui.changePageButton.setText(
             "Go to Control Page"
-            if cur_page == self._ui.outputPage
+            if cur_page != self._ui.controlPage
             else "Go to Output Page"
         )
         self._ui.changePageButton.setHidden(cur_page == self._ui.createPage)
@@ -271,3 +273,6 @@ class MainWindow(
     def creatorTypeWindowFinished(self, result: int):
         if result == QtWidgets.QDialog.DialogCode.Accepted:
             self.loadCreatePage(self.creator_type_window.getTypeSelected())
+
+    def testFunc(self):
+        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/crypto_trader.yml")

@@ -37,7 +37,7 @@ class CreateScriptSettingsPage(CreateBasePage):
         self._ui.funcSelectorWidget.setDefaultPrompt("Script")
 
     def loadPage(self):
-        curr: ActionSettings = self.getTempConfig().action
+        curr: ActionSettings = self.getConfig().action
         if curr is not None:
             self._ui.funcSelectorWidget.updateChildData()
             self._ui.funcSelectorWidget.setData(curr.calc_function)

@@ -15,9 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPlainTextEdit,
-    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QLabel, QPlainTextEdit, QSizePolicy,
+    QVBoxLayout, QWidget)
 
 class Ui_CreateDataSourceConfirmPage(object):
     def setupUi(self, CreateDataSourceConfirmPage):
@@ -50,35 +49,6 @@ class Ui_CreateDataSourceConfirmPage(object):
 
         self.verticalLayout.addWidget(self.label_2)
 
-        self.buttonWidget = QWidget(CreateDataSourceConfirmPage)
-        self.buttonWidget.setObjectName(u"buttonWidget")
-        self.horizontalLayout = QHBoxLayout(self.buttonWidget)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer)
-
-        self.confirmButton = QPushButton(self.buttonWidget)
-        self.confirmButton.setObjectName(u"confirmButton")
-
-        self.horizontalLayout.addWidget(self.confirmButton)
-
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer_3)
-
-        self.addButton = QPushButton(self.buttonWidget)
-        self.addButton.setObjectName(u"addButton")
-
-        self.horizontalLayout.addWidget(self.addButton)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer_2)
-
-
-        self.verticalLayout.addWidget(self.buttonWidget)
-
 
         self.retranslateUi(CreateDataSourceConfirmPage)
 
@@ -89,7 +59,5 @@ class Ui_CreateDataSourceConfirmPage(object):
         CreateDataSourceConfirmPage.setWindowTitle(QCoreApplication.translate("CreateDataSourceConfirmPage", u"CreateDataSourceConfirmPage", None))
         self.label.setText(QCoreApplication.translate("CreateDataSourceConfirmPage", u"The final config for your data source. Confirm to add or use the back buttons to go back and modify.", None))
         self.label_2.setText("")
-        self.confirmButton.setText(QCoreApplication.translate("CreateDataSourceConfirmPage", u"Confirm", None))
-        self.addButton.setText(QCoreApplication.translate("CreateDataSourceConfirmPage", u"Add Another", None))
     # retranslateUi
 

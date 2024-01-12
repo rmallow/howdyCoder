@@ -6,6 +6,12 @@ LOOP_INTERVAL_MSECS = 300
 GUI_REFRESH_INTERVAL = 500
 
 
+class CreateWizardItemType(str, Enum):
+    SCRIPT = "script"
+    ACTION = "action"
+    DATA_SOURCE = "data_source"
+
+
 class outputTypesEnum(Enum):
     FEED = "Feed"
     GRAPH = "Graph"

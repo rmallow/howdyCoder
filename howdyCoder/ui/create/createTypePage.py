@@ -59,25 +59,16 @@ class CreateTypePage(CreateBasePage):
             ),
             self._ui.nameEdit: ItemValidity.getEnum(
                 self.validateText(self._ui.nameEdit.text())
-                and (
-                    self._ui.nameEdit.text().strip() not in self.getConfigGroup()
-                    or self._ui.nameEdit.text().strip() == self.getTempConfig().name
-                )
             ),
         }
 
     def save(self) -> None:
         """Set the name as a new dict with the type"""
         new_type = self._ui.typeView.currentItem().text()
-        if new_type != self.getTempConfig().type_:
-            self.getTempConfig().clear()
-        if (
-            self.getTempConfig().name
-            and self.getTempConfig().name in self.getConfigGroup()
-        ):
-            del self.getConfigGroup()[self.getTempConfig().name]
-        self.getTempConfig().name = self._ui.nameEdit.text().strip()
-        self.getTempConfig().type_ = new_type
+        if new_type != self.getConfig().type_:
+            self.getConfig().clear()
+        self.getConfig().name = self._ui.nameEdit.text().strip()
+        self.getConfig().type_ = new_type
 
     def reset(self) -> None:
         self._ui.typeView.selectionModel().clearSelection()
@@ -85,11 +76,11 @@ class CreateTypePage(CreateBasePage):
 
     def loadPage(self) -> None:
         items = self._ui.typeView.findItems(
-            self.getTempConfig().type_, QtCore.Qt.MatchFlag.MatchExactly
+            self.getConfig().type_, QtCore.Qt.MatchFlag.MatchExactly
         )
         if items:
             self._ui.typeView.setCurrentRow(self._ui.typeView.row(items[0]))
-        self._ui.nameEdit.setText(self.getTempConfig().name)
+        self._ui.nameEdit.setText(self.getConfig().name)
         return super().loadPage()
 
     def getTutorialClasses(self) -> typing.List:

@@ -1,8 +1,8 @@
 from ...core.dataStructs import AlgoSettings, ScriptSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt, qtResourceManager
-from ...core.commonGlobals import GROUP_SET, ProgramTypes
-from ..uiConstants import PageKeys
+from ...core.commonGlobals import GROUP_SET
+from ..uiConstants import PageKeys, CreateWizardItemType
 
 from dataclasses import dataclass, field
 from abc import abstractmethod
@@ -61,7 +61,7 @@ class CreateBasePage(
         self.current_config: AlgoSettings = current_config
         self.temp_config: ItemSettings = None  # assigned after the fact
         self.helper_data: HelperData = None  # assigned after the fact
-        self.creator_type: ProgramTypes = None  # assigned after the fact
+        self.creator_type: CreateWizardItemType = None  # assigned after the fact
         self.back_enabled = True
         self.next_enabled = True
         self.suggested_validity = ItemValidity.VALID
@@ -72,12 +72,6 @@ class CreateBasePage(
 
     def getConfig(self) -> typing.Union[AlgoSettings, ScriptSettings]:
         return self.current_config
-
-    def getTempConfig(self) -> ItemSettings:
-        return self.temp_config if self.temp_config is not None else self.getConfig()
-
-    def getConfigGroup(self):
-        return self.getConfig().getGroupDict(self.GROUP)
 
     def getHelperData(self):
         return self.helper_data if self.helper_data is not None else HelperData()

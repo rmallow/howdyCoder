@@ -144,7 +144,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             self.setSuggestedOutput()
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             """Nothing more to do with settings, but make sure that we keep output to name of data source"""
-            output_strings = [self.getTempConfig().name]
+            output_strings = [self.getConfig().name]
         if (
             self._data_source_type != DataSourcesTypeEnum.FUNC
             and self._data_source_type != DataSourcesTypeEnum.THREADED
@@ -154,7 +154,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
 
     def loadPage(self) -> None:
         super().loadPage()
-        curr_settings: DataSourceSettings = self.getTempConfig()
+        curr_settings: DataSourceSettings = self.getConfig()
         if curr_settings.type_:
             enumType = helpers.findEnumByAttribute(
                 DataSourcesTypeEnum, ENUM_DISPLAY, curr_settings.type_
@@ -209,7 +209,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
         self._outputModel.setStringList(self._outputModel.stringList() + [newOutput])
 
     def save(self) -> None:
-        curr: DataSourceSettings = self.getTempConfig()
+        curr: DataSourceSettings = self.getConfig()
         if self._data_source_type == DataSourcesTypeEnum.STREAM:
             curr.key = self._current_settings.url
         elif (

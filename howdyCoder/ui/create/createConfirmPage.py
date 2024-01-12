@@ -27,22 +27,8 @@ class CreateConfirmBasePage(CreateBasePage):
         self._ui.setupUi(self)
         self._ui.label.setText(top_text)
 
-        self._ui.addButton.released.connect(lambda: self.manualExit.emit(self.EXIT))
-        self._ui.confirmButton.released.connect(self.confirmConfig)
-
-    @QtCore.Slot()
-    def confirmConfig(self) -> None:
-        # add temp config to full config, enable next and disable back
-        self.getConfigGroup()[self.getTempConfig().name] = copy.deepcopy(
-            self.getTempConfig()
-        )
-        if self.getConfig() != self.getTempConfig():
-            self.getTempConfig().clear()
-        self.enableBack.emit(False)
-        self._ui.confirmButton.setEnabled(False)
-
     def getConfigForView(self):
-        return {self.getTempConfig().name: asdict(self.getTempConfig())}
+        return {self.getConfig().name: asdict(self.getConfig())}
 
     def loadPage(self) -> None:
         """
@@ -54,25 +40,12 @@ class CreateConfirmBasePage(CreateBasePage):
             yaml.dump(self.getConfigForView(), default_flow_style=False, indent=4)
         )
 
-    def reset(self) -> None:
-        self._ui.addButton.setEnabled(True)
-        self._ui.confirmButton.setEnabled(True)
-
     def save(self) -> None:
         # saving of the temp config to the full config is done via the confirm button
         pass
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
-
-    def validate(self):
-        return {
-            "The configuration has not been confirmed and will NOT be saved if you continue": (
-                ItemValidity.WARNING
-                if self._ui.confirmButton.isEnabled()
-                else ItemValidity.VALID
-            ),
-        }
 
 
 class CreateDataSourceConfirmPage(CreateConfirmBasePage):
@@ -125,8 +98,6 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
         )
         # there's no confirm/add another next is finish and back is start over
         self.back_enabled = False
-        self._ui.addButton.setEnabled(False)
-        self._ui.confirmButton.setEnabled(False)
         self._ui.buttonWidget.hide()
 
     def getConfigForView(self):

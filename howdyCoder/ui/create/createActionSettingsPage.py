@@ -158,7 +158,7 @@ class CreateActionSettingsPage(CreateBasePage):
 
     def loadPage(self) -> None:
         super().loadPage()
-        curr_settings: ActionSettings = self.getTempConfig()
+        curr_settings: ActionSettings = self.getConfig()
         if curr_settings.type_:
             enum_type = helpers.findEnumByAttribute(
                 ActionTypeEnum, ENUM_DISPLAY, curr_settings.type_
@@ -376,7 +376,7 @@ class CreateActionSettingsPage(CreateBasePage):
             self.updateDataSetSuggestions()
 
     def save(self) -> None:
-        action_settings: ActionSettings = self.getTempConfig()
+        action_settings: ActionSettings = self.getConfig()
         action_settings.calc_function = self._current_calc_settings.function_settings
         if self._action_type == ActionTypeEnum.TRIGGER:
             action_settings.output_function = (

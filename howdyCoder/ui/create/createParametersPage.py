@@ -61,8 +61,8 @@ class CreateBaseParametersPage(CreateBasePage):
         when we exit, so when the save is called on this page (because it's technically valid) it throws
         an error trying to save to a temp config that doesn't exist
         """
-        if self.getTempConfig():
-            curr = self.getTempConfig()
+        if self.getConfig():
+            curr = self.getConfig()
             self._parameterModel.getData(curr)
             curr.flatten = self._ui.flattenedCheck.isChecked()
             curr.period = max(
@@ -77,7 +77,7 @@ class CreateBaseParametersPage(CreateBasePage):
         self._ui.single_shot_check.setChecked(False)
 
     def loadPage(self) -> None:
-        curr = self.getTempConfig()
+        curr = self.getConfig()
         self._ui.time_edit.setTime(QtCore.QTime(0, 0, 0).addSecs(curr.period))
         self._ui.flattenedCheck.setChecked(curr.flatten)
         self._ui.single_shot_check.setChecked(curr.single_shot)
@@ -129,7 +129,7 @@ class CreateDataSourceParametersPage(CreateBaseParametersPage):
 
     def loadPage(self):
         super().loadPage()
-        if self.getTempConfig().type_ == getattr(
+        if self.getConfig().type_ == getattr(
             DataSourcesTypeEnum.INPUT, ENUM_DISPLAY, ""
         ):
             self._ui.period_and_flatten_box.hide()
@@ -160,9 +160,7 @@ class CreateActionParametersPage(CreateBaseParametersPage):
         self._ui.periodWidgetBox.hide()
 
     def loadPage(self) -> None:
-        if self.getTempConfig().type_ == getattr(
-            ActionTypeEnum.TRIGGER, ENUM_DISPLAY, ""
-        ):
+        if self.getConfig().type_ == getattr(ActionTypeEnum.TRIGGER, ENUM_DISPLAY, ""):
             self._ui.period_and_flatten_box.hide()
         else:
             self._ui.period_and_flatten_box.show()
