@@ -1,4 +1,4 @@
-from ...core.dataStructs import AlgoSettings, ScriptSettings, ItemSettings
+from ...core.dataStructs import ScriptSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt, qtResourceManager
 from ...core.commonGlobals import GROUP_SET
@@ -48,7 +48,7 @@ class CreateBasePage(
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         resource_prefix: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
@@ -58,8 +58,7 @@ class CreateBasePage(
         assert (
             self.GROUP and self.GROUP in GROUP_SET
         ), "GROUP not correctly assigned by sub class"
-        self.current_config: AlgoSettings = current_config
-        self.temp_config: ItemSettings = None  # assigned after the fact
+        self.current_config: ItemSettings = current_config
         self.helper_data: HelperData = None  # assigned after the fact
         self.creator_type: CreateWizardItemType = None  # assigned after the fact
         self.back_enabled = True
@@ -70,7 +69,7 @@ class CreateBasePage(
         abstractQt.handleAbstractMethods(self)
         return super().__new__(self, *args, **kwargs)
 
-    def getConfig(self) -> typing.Union[AlgoSettings, ScriptSettings]:
+    def getConfig(self) -> ItemSettings:
         return self.current_config
 
     def getHelperData(self):

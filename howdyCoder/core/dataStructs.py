@@ -117,6 +117,10 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
     def inPlaceCopy(self, other):
         self.__dict__ = other.__dict__.copy()
 
+    def isDataSource(self):
+        assert False, "checking if abstract class is data source"
+        return False
+
 
 @dataclass
 class ActionSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
@@ -128,6 +132,9 @@ class ActionSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
     aggregate: str = ""
     calc_function: FunctionSettings | None = None
     output_function: FunctionSettings | None = None
+
+    def isDataSource(self):
+        return False
 
 
 @dataclass
@@ -143,6 +150,9 @@ class DataSourceSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
     input_type: str = ""
     key: str = ""
 
+    def isDataSource(self):
+        return True
+
 
 USER_FUNC = "user_function"
 SETUP_FUNCS = "setup_functions"
@@ -153,7 +163,7 @@ if test_once:
 
     assert any(
         field.name == SETUP_FUNCS for field in fields(ItemSettings)
-    ), "Changed setuup funcs field name without changing string"
+    ), "Changed setup funcs field name without changing string"
     assert any(
         field.name == USER_FUNC for field in fields(FunctionSettings)
     ), "Changed user func field name without changing string"
@@ -179,6 +189,12 @@ class AlgoSettings(JSONWizard, metaclass=property_wizard):
         elif group == DATA_SOURCES:
             return self.data_sources
         assert False, "invalid group"
+
+    def addItem(self, item: ItemSettings):
+        if item.isDataSource():
+            self.data_sources[item.name] = item
+        else:
+            self.action_list[item.name] = item
 
 
 @dataclass

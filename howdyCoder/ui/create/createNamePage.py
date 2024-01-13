@@ -1,4 +1,4 @@
-from ...core.dataStructs import AlgoSettings
+from ...core.dataStructs import ItemSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createNamePage
@@ -26,7 +26,7 @@ class CreateNamePage(CreateBasePage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)

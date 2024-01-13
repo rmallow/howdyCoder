@@ -9,7 +9,12 @@ from ..qtUiFiles import ui_algoTopoView
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
 
-from ...core.dataStructs import ProgramSettings, AlgoSettings, DataSourceSettings
+from ...core.dataStructs import (
+    ProgramSettings,
+    AlgoSettings,
+    DataSourceSettings,
+    ItemSettings,
+)
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
@@ -35,6 +40,8 @@ class AlgoTopoView(
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
     TUTORIAL_RESOURCE_PREFIX = "None"
+
+    openWizard = QtCore.Signal(ItemSettings)
 
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
@@ -63,6 +70,7 @@ class AlgoTopoView(
         self._signal_controller.contextResult.connect(self.contextResult)
         self._current_hover_item = ""
         self._current_selected_item = ""
+        self.current_settings: ProgramSettings = None
 
     def changeColorHelper(self, name, color):
         if name in self.current_items:
@@ -189,6 +197,10 @@ class AlgoTopoView(
         )
         self._ui.graphicsView.setScene(self._scene)
 
+    def addItemToConfig(self, settings: ItemSettings):
+        self.current_settings.settings.addItem(settings)
+        self.setConfig(self.current_settings)
+
     def copyItem(self, name):
         is_ds = isinstance(self.current_items[name].item_settings, DataSourceSettings)
         copied_settings = copy.deepcopy(self.current_items[name].item_settings)
@@ -203,12 +215,7 @@ class AlgoTopoView(
             x += 1
         new_name = f"{name}_copy_{x}"
         copied_settings.name = new_name
-        (
-            self.current_settings.settings.data_sources
-            if is_ds
-            else self.current_settings.settings.action_list
-        )[new_name] = copied_settings
-        self.setConfig(self.current_settings)
+        self.addItemToConfig(copied_settings)
 
     def editItem(self, name):
         pass

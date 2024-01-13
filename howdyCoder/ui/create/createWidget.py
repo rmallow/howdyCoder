@@ -1,5 +1,10 @@
 from typing import List
-from ...core.dataStructs import ProgramTypes, ProgramSettings, ItemSettings, ScriptSettings
+from ...core.dataStructs import (
+    ProgramTypes,
+    ProgramSettings,
+    ItemSettings,
+    ScriptSettings,
+)
 
 from ..qtUiFiles import ui_createWidget
 from ..tutorialOverlay import AbstractTutorialClass
@@ -42,6 +47,7 @@ class CreateWidget(
         self._creator_type: ProgramTypes = None
 
         self._ui.createWizard.addItem.connect(self.addItem)
+        self._ui.algoTopoView.openWizard.connect(self.openWizard)
 
     def setCurrentType(self, type_: str, creator_config: ProgramSettings):
         self._creator_type = ProgramTypes(type_)
@@ -62,10 +68,25 @@ class CreateWidget(
         return [self]
 
     @QtCore.Slot()
-    def addItem(self, config: ItemSettings):
+    def addItem(self, item_settings: ItemSettings):
         """
         The create wizard has finished editing and has sent back the finished item config
         If it's a script, then we wrap it in a program settings and emit that
         If it's an algo, we add it to the topoview page and switch to that"""
         if self._creator_type == ProgramTypes.SCRIPT:
-            
+            self.addProgram.emit(
+                asdict(
+                    ProgramSettings(
+                        self._creator_type.value,
+                        item_settings.name,
+                        ScriptSettings(item_settings, item_settings.name),
+                    )
+                )
+            )
+        else:
+            self._ui.algoTopoView.addItemToConfig(item_settings)
+            self._ui.stackedWidget.setCurrentWidget(self._ui.algoTopoView)
+
+    @QtCore.Slot()
+    def openWizard(self, item_settings: ItemSettings):
+        pass

@@ -1,6 +1,5 @@
 from ...core.dataStructs import (
     ActionSettings,
-    AlgoSettings,
     DataSourceSettings,
     ItemSettings,
     ScriptSettings,

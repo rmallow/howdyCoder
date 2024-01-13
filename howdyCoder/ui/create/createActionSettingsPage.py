@@ -1,4 +1,4 @@
-from ...core.dataStructs import ActionSettings, AlgoSettings, InputSettings
+from ...core.dataStructs import ActionSettings, ItemSettings, InputSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createActionSettingsPage
@@ -57,7 +57,7 @@ class CreateActionSettingsPage(CreateBasePage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(

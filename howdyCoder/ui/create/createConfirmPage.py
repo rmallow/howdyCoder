@@ -1,4 +1,4 @@
-from ...core.dataStructs import AlgoSettings
+from ...core.dataStructs import ItemSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..qtUiFiles import ui_createDataSourceConfirmPage
 from ..uiConstants import PageKeys
@@ -16,7 +16,7 @@ import yaml
 class CreateConfirmBasePage(CreateBasePage):
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         top_text: str,
         resouce_prefix: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
@@ -56,7 +56,7 @@ class CreateDataSourceConfirmPage(CreateConfirmBasePage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -72,7 +72,7 @@ class CreateActionConfirmPage(CreateConfirmBasePage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -90,7 +90,7 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(

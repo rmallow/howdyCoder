@@ -1,4 +1,4 @@
-from ...core.dataStructs import ActionSettings, AlgoSettings, DataSourceSettings
+from ...core.dataStructs import ActionSettings, ItemSettings, DataSourceSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..qtUiFiles import ui_createDataSourceParametersPage
 from ..uiConstants import PageKeys
@@ -24,7 +24,7 @@ from PySide6 import QtWidgets, QtCore
 class CreateBaseParametersPage(CreateBasePage):
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         period_text: str,
         resource_preifx: str,
         parent: typing.Optional[QtWidgets.QWidget] = None,
@@ -117,7 +117,7 @@ class CreateDataSourceParametersPage(CreateBaseParametersPage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -148,7 +148,7 @@ class CreateActionParametersPage(CreateBaseParametersPage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -176,7 +176,7 @@ class CreateScriptParametersPage(CreateBaseParametersPage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(

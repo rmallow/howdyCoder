@@ -4,7 +4,7 @@ from ...core.commonGlobals import (
     ActionTypeEnum,
     DataSourcesTypeEnum,
 )
-from ...core.dataStructs import AlgoSettings
+from ...core.dataStructs import ItemSettings
 from ..uiConstants import PageKeys
 from .createBasePage import CreateBasePage, ItemValidity
 
@@ -14,15 +14,13 @@ import typing
 
 from PySide6 import QtWidgets, QtGui, QtCore
 
-from ...core.dataStructs import AlgoSettings
-
 NO_SELECTION_TEXT = "Select a type to the left to view its description"
 
 
 class CreateTypePage(CreateBasePage):
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         type_label: str,
         type_dict: typing.Dict[str, str],
         resource_prefix: str,
@@ -113,7 +111,7 @@ class CreateDataSourceTypePage(CreateTypePage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
@@ -146,7 +144,7 @@ class CreateActionTypePage(CreateTypePage):
 
     def __init__(
         self,
-        current_config: AlgoSettings,
+        current_config: ItemSettings,
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(
