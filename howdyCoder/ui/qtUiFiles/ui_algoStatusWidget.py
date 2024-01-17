@@ -179,18 +179,6 @@ class Ui_AlgoStatusWidget(object):
 
         self.horizontalLayout_4.addWidget(self.logging_list_widget)
 
-        self.edit_button = QPushButton(self.logging_widget)
-        self.edit_button.setObjectName(u"edit_button")
-        sizePolicy9 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        sizePolicy9.setHorizontalStretch(20)
-        sizePolicy9.setVerticalStretch(0)
-        sizePolicy9.setHeightForWidth(self.edit_button.sizePolicy().hasHeightForWidth())
-        self.edit_button.setSizePolicy(sizePolicy9)
-        self.edit_button.setMinimumSize(QSize(100, 40))
-        self.edit_button.setMaximumSize(QSize(110, 40))
-
-        self.horizontalLayout_4.addWidget(self.edit_button)
-
 
         self.verticalLayout_3.addWidget(self.logging_widget)
 
@@ -203,55 +191,36 @@ class Ui_AlgoStatusWidget(object):
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 12)
         self.start_button = QPushButton(self.widget)
         self.start_button.setObjectName(u"start_button")
-        sizePolicy10 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy10.setHorizontalStretch(0)
-        sizePolicy10.setVerticalStretch(0)
-        sizePolicy10.setHeightForWidth(self.start_button.sizePolicy().hasHeightForWidth())
-        self.start_button.setSizePolicy(sizePolicy10)
+        sizePolicy9 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy9.setHorizontalStretch(0)
+        sizePolicy9.setVerticalStretch(0)
+        sizePolicy9.setHeightForWidth(self.start_button.sizePolicy().hasHeightForWidth())
+        self.start_button.setSizePolicy(sizePolicy9)
         self.start_button.setMinimumSize(QSize(100, 40))
         self.start_button.setMaximumSize(QSize(110, 40))
 
         self.horizontalLayout_3.addWidget(self.start_button)
 
-        self.remove_button = QPushButton(self.widget)
-        self.remove_button.setObjectName(u"remove_button")
-        sizePolicy10.setHeightForWidth(self.remove_button.sizePolicy().hasHeightForWidth())
-        self.remove_button.setSizePolicy(sizePolicy10)
-        self.remove_button.setMinimumSize(QSize(100, 40))
-        self.remove_button.setMaximumSize(QSize(110, 40))
+        self.shutdown_button = QPushButton(self.widget)
+        self.shutdown_button.setObjectName(u"shutdown_button")
+        sizePolicy10 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        sizePolicy10.setHorizontalStretch(0)
+        sizePolicy10.setVerticalStretch(0)
+        sizePolicy10.setHeightForWidth(self.shutdown_button.sizePolicy().hasHeightForWidth())
+        self.shutdown_button.setSizePolicy(sizePolicy10)
+        self.shutdown_button.setMinimumSize(QSize(100, 40))
+        self.shutdown_button.setMaximumSize(QSize(110, 40))
 
-        self.horizontalLayout_3.addWidget(self.remove_button)
+        self.horizontalLayout_3.addWidget(self.shutdown_button)
 
-        self.save_button = QPushButton(self.widget)
-        self.save_button.setObjectName(u"save_button")
-        sizePolicy11 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        sizePolicy11.setHorizontalStretch(0)
-        sizePolicy11.setVerticalStretch(0)
-        sizePolicy11.setHeightForWidth(self.save_button.sizePolicy().hasHeightForWidth())
-        self.save_button.setSizePolicy(sizePolicy11)
-        self.save_button.setMinimumSize(QSize(100, 40))
-        self.save_button.setMaximumSize(QSize(110, 40))
+        self.tool_button = QPushButton(self.widget)
+        self.tool_button.setObjectName(u"tool_button")
+        sizePolicy9.setHeightForWidth(self.tool_button.sizePolicy().hasHeightForWidth())
+        self.tool_button.setSizePolicy(sizePolicy9)
+        self.tool_button.setMinimumSize(QSize(100, 40))
+        self.tool_button.setMaximumSize(QSize(110, 40))
 
-        self.horizontalLayout_3.addWidget(self.save_button)
-
-        self.input_button = QPushButton(self.widget)
-        self.input_button.setObjectName(u"input_button")
-        self.input_button.setEnabled(False)
-        sizePolicy11.setHeightForWidth(self.input_button.sizePolicy().hasHeightForWidth())
-        self.input_button.setSizePolicy(sizePolicy11)
-        self.input_button.setMinimumSize(QSize(100, 40))
-        self.input_button.setMaximumSize(QSize(110, 40))
-
-        self.horizontalLayout_3.addWidget(self.input_button)
-
-        self.export_button = QPushButton(self.widget)
-        self.export_button.setObjectName(u"export_button")
-        sizePolicy11.setHeightForWidth(self.export_button.sizePolicy().hasHeightForWidth())
-        self.export_button.setSizePolicy(sizePolicy11)
-        self.export_button.setMinimumSize(QSize(100, 40))
-        self.export_button.setMaximumSize(QSize(110, 40))
-
-        self.horizontalLayout_3.addWidget(self.export_button)
+        self.horizontalLayout_3.addWidget(self.tool_button)
 
 
         self.verticalLayout_3.addWidget(self.widget)
@@ -271,11 +240,8 @@ class Ui_AlgoStatusWidget(object):
         self.data_count_value.setText("")
         self.status_label.setText("")
         self.logging_label.setText(QCoreApplication.translate("AlgoStatusWidget", u"Logging:", None))
-        self.edit_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Edit", None))
         self.start_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Start", None))
-        self.remove_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Remove", None))
-        self.save_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Save Config", None))
-        self.input_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Input", None))
-        self.export_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Export", None))
+        self.shutdown_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Shutdown", None))
+        self.tool_button.setText(QCoreApplication.translate("AlgoStatusWidget", u"Tools", None))
     # retranslateUi
 

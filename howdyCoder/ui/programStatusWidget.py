@@ -1,11 +1,17 @@
 from __future__ import annotations
 
-import PySide6.QtGui
-from ..core.dataStructs import AlgoSettings, Modes, ProgramSettings
+from ..core.dataStructs import Modes
 from .uiConstants import GUI_REFRESH_INTERVAL
 from .qtUiFiles import ui_algoStatusWidget
 from .programData import ProgramWidgetData
 from .tutorialOverlay import AbstractTutorialClass
+from .contextMenu import (
+    ContextResult,
+    ContextResultType,
+    createAndDisplayMenu,
+    handleContextResult,
+)
+
 
 from .util import abstractQt, qtResourceManager
 
@@ -50,6 +56,8 @@ class ProgramStatusWidget(
 ):
     TUTORIAL_RESOURCE_PREFIX = "AlgoStatusWidget"
 
+    contextResult = QtCore.Signal(ContextResult)
+
     def __init__(
         self,
         data: ProgramWidgetData,
@@ -62,16 +70,15 @@ class ProgramStatusWidget(
         self.ui = ui_algoStatusWidget.Ui_AlgoStatusWidget()
         self.ui.setupUi(self)
         self.ui.name_label.setText(self.data.name)
-        self.ui.save_button.released.connect(self.saveConfig)
         self._input_found = False
         if data.config.type_ == ProgramTypes.ALGO.value:
             for v in data.config.settings.data_sources.values():
                 if v.type_ == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY):
                     self._input_found = True
         elif data.config.type_ == ProgramTypes.SCRIPT:
-            self.ui.input_button.hide()
-            self.ui.export_button.hide()
             self.ui.feedLengthBox.hide()
+        self.ui.tool_button.released.connect(self.createToolMenu)
+
         self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self.refresh)
         self._timer.start(GUI_REFRESH_INTERVAL)
@@ -84,21 +91,12 @@ class ProgramStatusWidget(
         self.ui.status_label.setText(self.data.mode.value)
         self.ui.data_count_value.setText(str(self.data.data_count))
         self.ui.runtime_value.setText(helpers.getStrElapsedTime(self.data.runtime))
-        self.ui.remove_button.setEnabled(self.data.mode != Modes.STARTED)
-        self.ui.export_button.setEnabled(self.data.mode != Modes.STANDBY)
-        self.ui.input_button.setEnabled(
-            self._input_found and self.data.mode != Modes.STANDBY
-        )
+        self.ui.shutdown_button.setEnabled(self.data.mode != Modes.STANDBY)
         self.ui.start_button.setText(
             "Stop" if self.data.mode == Modes.STARTED else "Start"
         )
-        self.ui.remove_button.setText(
-            "Shutdown" if self.data.mode == Modes.STOPPED else "Remove"
-        )
-
         self.updateLogging()
 
-    @QtCore.Slot()
     def saveConfig(self):
         if file_path := QtWidgets.QFileDialog.getSaveFileName(filter="Config (*.yml)")[
             0
@@ -135,6 +133,19 @@ class ProgramStatusWidget(
                 item = self.ui.logging_list_widget.item(x)
                 item.setText(str(self.data.logging_count[item.data(LOG_LEVEL_ROLE)]))
 
-    def resizeEvent(self, event: QtCore.QResizeEvent) -> None:
-        super().resizeEvent(event)
-        self.ui.edit_button.setMaximumWidth(self.ui.export_button.width())
+    def createToolMenu(self):
+        context_actions = [ContextResultType.SAVE, ContextResultType.COPY]
+        if (
+            self.data.mode != Modes.STANDBY
+            and self.data.config.type_ != ProgramTypes.SCRIPT
+        ):
+            context_actions.append(ContextResultType.EXPORT)
+            if self._input_found:
+                context_actions.append(ContextResultType.INPUT)
+        if self.data.mode != Modes.STARTED:
+            context_actions.append(ContextResultType.REMOVE)
+        if self.data.mode == Modes.STANDBY:
+            context_actions.append(ContextResultType.EDIT)
+        createAndDisplayMenu(
+            QtGui.QCursor.pos(), context_actions, self.contextResult, self.data.name
+        )

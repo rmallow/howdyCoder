@@ -1,4 +1,4 @@
-from ...core.dataStructs import ScriptSettings, ItemSettings
+from ...core.dataStructs import ProgramSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt, qtResourceManager
 from ...core.commonGlobals import GROUP_SET
@@ -59,8 +59,13 @@ class CreateBasePage(
             self.GROUP and self.GROUP in GROUP_SET
         ), "GROUP not correctly assigned by sub class"
         self.current_config: ItemSettings = current_config
+        """
+        These variables are assigned after init and can't be used in a constructor, in the future this could be changed
+        if all subclasses were to takes *args and/or **kwargs as they should
+        """
         self.helper_data: HelperData = None  # assigned after the fact
         self.creator_type: CreateWizardItemType = None  # assigned after the fact
+        self.program_settings: ProgramSettings = None  # assigned after the fact
         self.back_enabled = True
         self.next_enabled = True
         self.suggested_validity = ItemValidity.VALID
@@ -71,6 +76,9 @@ class CreateBasePage(
 
     def getConfig(self) -> ItemSettings:
         return self.current_config
+
+    def getProgramSettings(self) -> ProgramSettings:
+        return self.program_settings
 
     def getHelperData(self):
         return self.helper_data if self.helper_data is not None else HelperData()
@@ -95,7 +103,6 @@ class CreateBasePage(
         """Save the page's values into the config or for UI only info into data structures"""
         pass
 
-    @abstractmethod
     def reset(self) -> None:
         """Clear the widget fields and reset it for new entries"""
         return

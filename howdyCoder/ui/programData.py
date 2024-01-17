@@ -24,7 +24,6 @@ class ProgramWidgetData:
 
 
 class ProgramDict(QtCore.QObject):
-    nameExists = QtCore.Signal(bool)
     dataChanged = QtCore.Signal()
 
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
@@ -53,7 +52,6 @@ class ProgramDict(QtCore.QObject):
 
     @QtCore.Slot()
     def contains(self, name):
-        self.nameExists.emit(name in self._programs)
         return name in self._programs
 
     def remove(self, name: str):
@@ -90,3 +88,6 @@ class ProgramDict(QtCore.QObject):
     def updateProgramLogging(self, code: str, logging_details: typing.Dict[str, str]):
         if code in self._programs:
             self._programs[code].logging_count[logging_details["levelno"]] += 1
+
+    def getNames(self) -> typing.Set[str]:
+        return set(self._programs.keys())

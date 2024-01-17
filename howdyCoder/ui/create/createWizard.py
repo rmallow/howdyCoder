@@ -2,13 +2,12 @@ from ...core.dataStructs import (
     ActionSettings,
     DataSourceSettings,
     ItemSettings,
-    ScriptSettings,
+    ProgramSettings,
 )
 from .createBasePage import CreateBasePage, HelperData, ItemValidity
 
 # various pages
 from .createNamePage import CreateNamePage
-from .createAddPage import CreateActionAddPage, CreateDataSourceAddPage
 from .createTypePage import CreateDataSourceTypePage, CreateActionTypePage
 from .createDataSourceSettingsPage import CreateDataSourceSettingsPage
 from .createParametersPage import (
@@ -30,11 +29,8 @@ from ..tutorialOverlay import AbstractTutorialClass
 
 from ..util import animations, abstractQt, nonNativeQMessageBox
 
-from ...core.commonGlobals import DATA_SOURCES, ACTION_LIST, ProgramTypes
-
 from PySide6 import QtWidgets, QtCore, QtGui
 
-from dataclass_wizard import asdict
 import typing
 import copy
 
@@ -82,7 +78,7 @@ class CreateWizard(
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
-    addItem = QtCore.Signal(object)
+    addItem = QtCore.Signal(ItemSettings)
 
     TUTORIAL_RESOURCE_PREFIX = "CreateWidget"
 
@@ -116,7 +112,7 @@ class CreateWizard(
         self._ui.exitButton.released.connect(self.exitPressed)
 
         self._current_index: int = 0
-        self.current_config = None
+        self.current_config: ItemSettings = None
 
         self._animation_group = QtCore.QParallelAnimationGroup(self)
         self._graphics_effects = []
@@ -126,8 +122,7 @@ class CreateWizard(
 
     def loadCreationWidgets(
         self,
-        parent_signal_name_check: QtCore.Signal,
-        parent_signal_name_answer: QtCore.Signal,
+        program_settings: ProgramSettings,
     ) -> None:
         """
         Based on the mapping provided use the factory functions to create and load into the list
@@ -140,9 +135,7 @@ class CreateWizard(
             p = widget_class(self.current_config, self)
             p.helper_data = self.helper_data
             p.creator_type = self._creator_type
-            if isinstance(p, CreateNamePage):
-                p.doesProgramNameExist.connect(parent_signal_name_check)
-                parent_signal_name_answer.connect(p.doesNameExistSlot)
+            p.program_settings = program_settings
             self._create_widgets_list.append(p)
         self._current_index: int = 0
 
@@ -353,45 +346,32 @@ class CreateWizard(
             self.current_config.clear()
 
     def exitPressed(self, exit_page=None):
-        if exit_page is None:
-            exit_page = self._current_exit_page
-        if exit_page is PageKeys.NO_PAGE:
-            self.reset()
-            self.addItem.emit({})
-        else:
-            index = None
-            for i, v in enumerate(self.getCurrentPageList()):
-                if v.PAGE_KEY is exit_page:
-                    index = i
-            if index is not None:
-                self.resetPages(index)
-                self.changePage(index)
+        self.addItem.emit(None)
 
     def getTutorialClasses(self) -> typing.List:
         return [self] + self._create_widgets_list[
             self._current_index
         ].getTutorialClasses()
 
-    def setCurrentType(
+    def setCurrentWizardType(
         self,
         type_: CreateWizardItemType,
-        creator_config: ItemSettings,
-        parent_signal_name_check: QtCore.Signal,
-        parent_signal_name_answer: QtCore.Signal,
+        item_settings: ItemSettings,
+        program_settings: ProgramSettings,
     ):
         for page in self._create_widgets_list:
             page.deleteLater()
         self._creator_type = type_
         # must reset before we assign values
         self.reset()
-        if creator_config is None:
+        if item_settings is None:
             self.current_config = CREATE_WIZARD_ITEM_TYPE_TO_SETTING_STRUCT[
                 self._creator_type
             ]()
         else:
-            self.current_config = copy.deepcopy(creator_config.settings)
+            self.current_config = copy.deepcopy(item_settings)
 
-        self.loadCreationWidgets(parent_signal_name_check, parent_signal_name_answer)
+        self.loadCreationWidgets(program_settings)
         self.loadProgressSteps()
         self.loadCurrentPage()
 

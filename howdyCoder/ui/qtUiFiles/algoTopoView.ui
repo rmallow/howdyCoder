@@ -6,14 +6,70 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>529</width>
-    <height>416</height>
+    <width>784</width>
+    <height>583</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>AlgoTopoView</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QWidget" name="widget_3" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLineEdit" name="nameEdit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>3</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="bottomText">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>5</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>15</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Use the tools below, or right click an item for editing. Click Finish when you are done.</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="finishButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Finish</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item>
     <widget class="QWidget" name="widget_2" native="true">
      <property name="sizePolicy">
@@ -35,24 +91,6 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
-       <widget class="QLabel" name="bottomText">
-        <property name="font">
-         <font>
-          <pointsize>15</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Click add to start adding a new item  or select a item and hit remove to delete.</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QWidget" name="widget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -88,7 +126,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>20</width>
              <height>20</height>
             </size>
            </property>
@@ -117,7 +155,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>20</width>
              <height>20</height>
             </size>
            </property>
@@ -146,22 +184,16 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>20</width>
              <height>20</height>
             </size>
            </property>
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="finishButton">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QPushButton" name="copyButton">
            <property name="text">
-            <string>Finish</string>
+            <string>Copy</string>
            </property>
           </widget>
          </item>

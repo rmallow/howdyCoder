@@ -301,31 +301,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="edit_button">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-          <horstretch>20</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Edit</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -376,7 +351,32 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="remove_button">
+       <widget class="QPushButton" name="shutdown_button">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Shutdown</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="tool_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -396,85 +396,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Remove</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="save_button">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Save Config</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="input_button">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Input</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="export_button">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Export</string>
+         <string>Tools</string>
         </property>
        </widget>
       </item>

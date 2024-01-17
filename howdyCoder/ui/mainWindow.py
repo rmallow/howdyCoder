@@ -15,6 +15,7 @@ from .create.createNamePage import CreateNamePage
 
 from ..core.dataStructs import Modes, ProgramSettings
 
+import copy
 import typing
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -108,14 +109,11 @@ class MainWindow(
         self._ui.createPage.addProgram.connect(
             lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
         )
-        self._ui.createPage.doesProgramNameExist.connect(
-            self._main_model.program_dict.contains
-        )
-        self._main_model.program_dict.nameExists.connect(self._ui.createPage.nameExists)
         self._ui.controlPage.startProgram.connect(self.algoStartControlBox)
         self._ui.controlPage.shutdownProgram.connect(self.algoShutdownControlBox)
         self._ui.controlPage.exportData.connect(self.algoExportControlBox)
         self._ui.controlPage.editProgram.connect(self.editProgramConfig)
+        self._ui.controlPage.copyProgram.connect(self._main_model.copyProgram)
         self._ui.controlPage.inputEntered.connect(self._main_model.inputEntered)
         self._main_model.program_dict.dataChanged.connect(
             self._ui.controlPage.compareDataToCurrentWidgets
@@ -261,13 +259,16 @@ class MainWindow(
     def loadCreatePage(
         self, creator_type: str, creator_config: ProgramSettings | None = None
     ):
-        self._ui.createPage.setCurrentType(creator_type, creator_config)
+        self._ui.createPage.setCurrentProgramType(creator_type, creator_config)
         self._ui.stackedWidget.setCurrentWidget(self._ui.createPage)
 
     @QtCore.Slot()
     def editProgramConfig(self, code: str) -> None:
         widgetData = self._main_model.program_dict.getData(code)
-        self.loadCreatePage(widgetData.config.type_, creator_config=widgetData.config)
+        self.loadCreatePage(
+            widgetData.config.type_, creator_config=copy.deepcopy(widgetData.config)
+        )
+        self._main_model.program_dict.remove(code)
 
     @QtCore.Slot()
     def creatorTypeWindowFinished(self, result: int):

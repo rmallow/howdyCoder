@@ -173,10 +173,12 @@ if test_once:
 class AlgoSettings(JSONWizard, metaclass=property_wizard):
     _dataclass_parse_type_ = "AlgoSettings"
 
+    DEFAULT_NAME = "new_algo"
+
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
-    name: str = ""
+    name: str = DEFAULT_NAME
     data_sources: typing.Dict[str, DataSourceSettings] = field(default_factory=dict)
     action_list: typing.Dict[str, ActionSettings] = field(default_factory=dict)
 
@@ -196,16 +198,26 @@ class AlgoSettings(JSONWizard, metaclass=property_wizard):
         else:
             self.action_list[item.name] = item
 
+    def removeItem(self, item: ItemSettings):
+        if item.isDataSource():
+            if item.name in self.data_sources:
+                del self.data_sources[item.name]
+        else:
+            if item.name in self.action_list:
+                del self.action_list[item.name]
+
 
 @dataclass
 class ScriptSettings(JSONWizard, metaclass=property_wizard):
     _dataclass_parse_type_ = "ScriptSettings"
 
+    DEFAULT_NAME = "new_script"
+
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
     action: ActionSettings = None
-    name: str = ""
+    name: str = DEFAULT_NAME
 
     def clear(self):
         self.__init__()

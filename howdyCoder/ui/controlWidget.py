@@ -5,6 +5,7 @@ from .programData import ProgramDict, ProgramWidgetData
 from .tutorialOverlay import AbstractTutorialClass
 from .inputBox import InputBox
 from .inputWindow import InputWindow
+from .contextMenu import handleContextResult, ContextResultType
 
 from .util import abstractQt
 
@@ -53,6 +54,7 @@ class ControlWidget(
     startProgram = QtCore.Signal(str)
     shutdownProgram = QtCore.Signal(str)
     editProgram = QtCore.Signal(str)
+    copyProgram = QtCore.Signal(str)
     exportData = QtCore.Signal(str)
     inputEntered = QtCore.Signal(InputData)
 
@@ -129,14 +131,11 @@ class ControlWidget(
                 w.ui.start_button.released.connect(
                     lambda: self.startProgram.emit(data.name)
                 )
-                w.ui.export_button.released.connect(
-                    lambda: self.exportData.emit(data.name)
+                w.contextResult.connect(
+                    lambda res: handleContextResult(
+                        self, res, ControlWidget.CONTEXT_RESULT_FUNCTIONS
+                    )
                 )
-                w.ui.edit_button.released.connect(
-                    lambda: self.editProgram.emit(data.name)
-                )
-                w.ui.remove_button.released.connect(lambda: self.removeWidget(m))
-                w.ui.input_button.released.connect(lambda: self.createInputWindow(m))
                 self._algo_widgets[m] = w
             for r in to_remove_ids:
                 self.removeWidget(r, refresh=False)
@@ -146,18 +145,18 @@ class ControlWidget(
     def removeWidget(self, uid: int, refresh=True) -> None:
         if uid in self._algo_widgets:
             name = self._algo_widgets[uid].data.name
-            if self._algo_widgets[uid].data.mode == Modes.STOPPED:
-                self.shutdownProgram.emit(name)
-            else:
-                if uid in self._algo_input_windows:
-                    self._algo_input_windows[uid].hide()
-                    self._algo_input_windows[uid].deleteLater()
-                    del self._algo_input_windows[uid]
-                self._algo_widgets[uid].deleteLater()
-                del self._algo_widgets[uid]
-                self.program_dict.remove(name)
-                if refresh:
-                    self.addWidgets()
+            if uid in self._algo_input_windows:
+                self._algo_input_windows[uid].hide()
+                self._algo_input_windows[uid].deleteLater()
+                del self._algo_input_windows[uid]
+            self._algo_widgets[uid].deleteLater()
+            del self._algo_widgets[uid]
+            self.program_dict.remove(name)
+            if refresh:
+                self.addWidgets()
+
+    def removeWidgetByName(self, name: str):
+        self.removeWidget(self.program_dict.getData(name).uid)
 
     def getTutorialClasses(self) -> typing.List:
         return (
@@ -171,7 +170,8 @@ class ControlWidget(
         )
 
     @QtCore.Slot()
-    def createInputWindow(self, uid: int):
+    def createInputWindow(self, name: str):
+        uid = self.program_dict.getData(name).uid
         if uid not in self._algo_input_windows:
             inputs = []
             if uid in self._algo_widgets and (
@@ -199,3 +199,15 @@ class ControlWidget(
     def inputPassThrough(self, input_data: InputData, code: str):
         input_data.code = code
         self.inputEntered.emit(input_data)
+
+    def saveMenu(self, name: str):
+        self._algo_widgets[self.program_dict.getData(name).uid].saveConfig()
+
+    CONTEXT_RESULT_FUNCTIONS = {
+        ContextResultType.SAVE: saveMenu,
+        ContextResultType.EXPORT: lambda obj, name: obj.exportData.emit(name),
+        ContextResultType.INPUT: createInputWindow,
+        ContextResultType.REMOVE: removeWidgetByName,
+        ContextResultType.EDIT: lambda obj, name: obj.editProgram.emit(name),
+        ContextResultType.COPY: lambda obj, name: obj.copyProgram.emit(name),
+    }

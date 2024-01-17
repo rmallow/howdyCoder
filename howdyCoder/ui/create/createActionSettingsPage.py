@@ -201,7 +201,10 @@ class CreateActionSettingsPage(CreateBasePage):
         while events are single output (for now?)
         """
         cur_row = 0
-        for k, v in self.getConfig().getGroupDict(DATA_SOURCES).items():
+        self._available_input_table_model.clear()
+        for k, v in (
+            self.getProgramSettings().settings.getGroupDict(DATA_SOURCES).items()
+        ):
             ds_group = QtGui.QStandardItem(f"{k}")
             self._available_input_table_model.setItem(
                 cur_row, AVAILABLE_GROUP_COLUMN, ds_group
@@ -233,7 +236,9 @@ class CreateActionSettingsPage(CreateBasePage):
                     cur_row, AVAILABLE_GROUP_COLUMN, len(output), 1
                 )
             cur_row += len(output)
-        for k, v in self.getConfig().getGroupDict(ACTION_LIST).items():
+        for k, v in (
+            self.getProgramSettings().settings.getGroupDict(ACTION_LIST).items()
+        ):
             if v.type_ == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
                 self._available_input_table_model.appendRow(
                     [
@@ -294,12 +299,14 @@ class CreateActionSettingsPage(CreateBasePage):
                 )
                 source_item.setEditable(False)
                 name_item.setEditable(True)
+                amount_item = QtGui.QStandardItem(amount_of_data)
+                amount_item.setData(amount_of_data, QtCore.Qt.ItemDataRole.EditRole)
                 self._selected_input_table_model.appendRow(
                     [
                         source_item,
                         name_item,
                         requires_new_item,
-                        QtGui.QStandardItem(amount_of_data),
+                        amount_item,
                     ]
                 )
                 self._ui.selectedInputTable.openPersistentEditor(

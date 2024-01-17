@@ -4,17 +4,19 @@ from .programData import ProgramDict
 
 from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, ProgramTypes
 from ..commonUtil import queueManager as qm
-from ..commonUtil.helpers import getStrTime
+from ..commonUtil.helpers import getStrTime, getDupeName
 from ..commonUtil import mpLogging, configLoader
 
 from ..core import message as msg
 from ..core import messageKey
 from ..backEnd.util.commandProcessor import commandProcessor
 
-from dataclasses import asdict
+import copy
+from dataclass_wizard import asdict, fromdict
 from collections import deque, Counter, defaultdict
 import time
 import typing
+
 from PySide6 import QtCore
 
 OUTPUT = "Output"
@@ -196,10 +198,9 @@ class mainModel(commandProcessor, QtCore.QObject):
             if config := self._config_loader.loadAndReplaceYamlFile(
                 program_config_file_path
             ):
-                self.addProgram(config)
+                self.addProgram(fromdict(ProgramSettings, config))
 
-    @QtCore.Slot()
-    def addProgram(self, program_config: typing.Dict):
+    def addProgramDict(self, program_config: typing.Dict):
         """
         Send it to the mainframe for processing
         program_config could be blank, which means we're just exiting creator
@@ -212,6 +213,21 @@ class mainModel(commandProcessor, QtCore.QObject):
                     program_config,
                 )
             )
+
+    @QtCore.Slot()
+    def addProgram(self, program_settings: ProgramSettings):
+        if self.program_dict.contains(program_settings.name):
+            program_settings.name = getDupeName(
+                program_settings.name, self.program_dict.getNames()
+            )
+            program_settings.settings.name = program_settings.name
+        self.addProgramDict(asdict(program_settings))
+
+    @QtCore.Slot()
+    def copyProgram(self, code: str):
+        if program_data := self.program_dict.getData(code):
+            copied_settings = copy.deepcopy(program_data.config)
+            self.addProgram(copied_settings)
 
     def handleCreated(self, _, details: msg.message = None):
         """Mainframe wants us to know this item was created"""

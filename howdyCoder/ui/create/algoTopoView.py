@@ -1,9 +1,15 @@
 from .algoTopoItem import (
     ConnectedRectItem,
     TopoSignalController,
-    ContextResultType,
-    ContextResult,
 )
+
+from ..contextMenu import (
+    ContextResultType,
+    createAndDisplayMenu,
+    ContextResult,
+    handleContextResult,
+)
+
 from ..qtUiFiles import ui_algoTopoView
 
 from ..tutorialOverlay import AbstractTutorialClass
@@ -14,15 +20,17 @@ from ...core.dataStructs import (
     AlgoSettings,
     DataSourceSettings,
     ItemSettings,
+    ActionSettings,
 )
 
-from PySide6 import QtWidgets, QtCore, QtGui
+from ...commonUtil.helpers import getDupeName
 
-from dataclass_wizard import asdict
 import typing
 import copy
 from collections import defaultdict
 from enum import IntEnum, auto
+
+from PySide6 import QtWidgets, QtCore, QtGui
 
 COLUMN_SPACING = 250
 DISTANCE_BETWEEN = 50
@@ -34,6 +42,22 @@ class SceneZIndex(IntEnum):
     ITEM = auto()
 
 
+class AlgoTopoScene(QtWidgets.QGraphicsScene):
+    def __init__(self, signal_controller, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._signal_controller = signal_controller
+
+    def contextMenuEvent(self, event: QtWidgets.QGraphicsSceneContextMenuEvent) -> None:
+        super().contextMenuEvent(event)
+        # event could be accepted by an item, iff not we will display a context menu here
+        if not event.isAccepted():
+            createAndDisplayMenu(
+                event.screenPos(),
+                [ContextResultType.ADD_ACTION, ContextResultType.ADD_DATA_SOURCE],
+                self._signal_controller.contextResult,
+            )
+
+
 class AlgoTopoView(
     AbstractTutorialClass,
     QtWidgets.QWidget,
@@ -42,6 +66,11 @@ class AlgoTopoView(
     TUTORIAL_RESOURCE_PREFIX = "None"
 
     openWizard = QtCore.Signal(ItemSettings)
+    addItem = QtCore.Signal(ItemSettings)
+    editItem = QtCore.Signal(ItemSettings)
+    finished = QtCore.Signal(str)
+    # remove by item settings so we know if ds or not
+    removeItem = QtCore.Signal(ItemSettings)
 
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
@@ -67,10 +96,39 @@ class AlgoTopoView(
         self._signal_controller.mouseEnter.connect(self.itemHoverEnter)
         self._signal_controller.mouseLeft.connect(self.itemHoverLeft)
         self._signal_controller.mouseRelease.connect(self.itemSelected)
-        self._signal_controller.contextResult.connect(self.contextResult)
+        self._signal_controller.contextResult.connect(
+            lambda res: handleContextResult(
+                self, res, AlgoTopoView.CONTEXT_RESULT_FUNCTIONS
+            )
+        )
         self._current_hover_item = ""
         self._current_selected_item = ""
         self.current_settings: ProgramSettings = None
+
+        self._scene = AlgoTopoScene(self._signal_controller, parent=self)
+
+        self._ui.addButton.released.connect(self.displayAddMenu)
+        self._ui.removeButton.released.connect(
+            lambda: self.removeItemMenu(self._current_selected_item)
+        )
+        self._ui.editButton.released.connect(
+            lambda: self.editItemMenu(self._current_selected_item)
+        )
+        self._ui.copyButton.released.connect(
+            lambda: self.copyItemMenu(self._current_selected_item)
+        )
+        self._ui.finishButton.released.connect(
+            lambda: self.finished.emit(self._ui.nameEdit.text())
+        )
+
+    def reset(self):
+        self._ui.nameEdit.clear()
+        self.current_items = {}
+        self.line_mapping = {}
+        self._current_hover_item = ""
+        self._current_selected_item = ""
+        self.current_settings = None
+        self._scene.clear()
 
     def changeColorHelper(self, name, color):
         if name in self.current_items:
@@ -137,6 +195,7 @@ class AlgoTopoView(
     def itemHoverLeft(self):
         if self._current_hover_item:
             self.highlightNodes(self._current_hover_item, QtCore.Qt.GlobalColor.black)
+        self._current_hover_item = ""
 
     def createLine(self, name_p1: str, name_p2: str):
         if name_p1 in self.current_items and name_p2 in self.current_items:
@@ -157,10 +216,10 @@ class AlgoTopoView(
             self.line_mapping[(name_p1, name_p2)] = line
 
     def setConfig(self, creator_config: ProgramSettings):
-        self._scene = QtWidgets.QGraphicsScene()
+        self.reset()
+        self._ui.nameEdit.setText(creator_config.name)
         self.current_settings = copy.deepcopy(creator_config)
         self.getTopoSort(creator_config.settings)
-        self.current_items = {}
         max_height = 0
         for x in range(len(self.levels)):
             last_y = DISTANCE_BETWEEN
@@ -197,45 +256,46 @@ class AlgoTopoView(
         )
         self._ui.graphicsView.setScene(self._scene)
 
-    def addItemToConfig(self, settings: ItemSettings):
-        self.current_settings.settings.addItem(settings)
-        self.setConfig(self.current_settings)
-
-    def copyItem(self, name):
-        is_ds = isinstance(self.current_items[name].item_settings, DataSourceSettings)
+    def copyItemMenu(self, name: str) -> str:
         copied_settings = copy.deepcopy(self.current_items[name].item_settings)
-        if is_ds:
-            name = copied_settings.name
-        x = 1
-        while f"{name}_copy_{x}" in (
+        copied_settings.name = getDupeName(
+            copied_settings.name,
             self.current_settings.settings.data_sources
-            if is_ds
-            else self.current_settings.settings.action_list
-        ):
-            x += 1
-        new_name = f"{name}_copy_{x}"
-        copied_settings.name = new_name
-        self.addItemToConfig(copied_settings)
+            if self.current_items[name].item_settings.isDataSource()
+            else self.current_settings.settings.action_list,
+        )
+        self.addItem.emit(copied_settings)
 
-    def editItem(self, name):
-        pass
+    def editItemMenu(self, name):
+        self.editItem.emit(self.current_items[name].item_settings)
 
-    def removeItem(self, name):
-        pass
+    def removeItemMenu(self, name):
+        self.removeItem.emit(self.current_items[name].item_settings)
 
-    CONTEXT_RESULT_FUNCTIONS = {
-        ContextResultType.COPY: copyItem,
-        ContextResultType.EDIT: editItem,
-        ContextResultType.REMOVE: removeItem,
-    }
+    def addActionMenu(self, _):
+        self.openWizard.emit(ActionSettings())
 
-    def contextResult(self, context_result: ContextResult):
-        if context_result.type_ in AlgoTopoView.CONTEXT_RESULT_FUNCTIONS:
-            AlgoTopoView.CONTEXT_RESULT_FUNCTIONS[context_result.type_](
-                self, context_result.name
-            )
-        else:
-            assert False, "Invalid context result type"
+    def addDataSourceMenu(self, _):
+        self.openWizard.emit(DataSourceSettings())
 
     def getTutorialClasses(self) -> typing.List:
         return [self]
+
+    @QtCore.Slot()
+    def displayAddMenu(self):
+        createAndDisplayMenu(
+            QtGui.QCursor.pos(),
+            [ContextResultType.ADD_ACTION, ContextResultType.ADD_DATA_SOURCE],
+            self._signal_controller.contextResult,
+        )
+
+    def noBlankName(self) -> str:
+        return self._ui.nameEdit.text()
+
+    CONTEXT_RESULT_FUNCTIONS = {
+        ContextResultType.COPY: copyItemMenu,
+        ContextResultType.EDIT: editItemMenu,
+        ContextResultType.REMOVE: removeItemMenu,
+        ContextResultType.ADD_ACTION: addActionMenu,
+        ContextResultType.ADD_DATA_SOURCE: addDataSourceMenu,
+    }

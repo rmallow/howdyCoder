@@ -22,8 +22,6 @@ class CreateNamePage(CreateBasePage):
 
     GROUP = NONE_GROUP
 
-    doesProgramNameExist = QtCore.Signal(str)
-
     def __init__(
         self,
         current_config: ItemSettings,
@@ -34,15 +32,12 @@ class CreateNamePage(CreateBasePage):
         self._ui = ui_createNamePage.Ui_CreateNamePage()
         self._ui.setupUi(self)
         self._last_name = ""
-        self._name_exists = False
-
-        self._ui.nameEdit.textChanged.connect(self.doesProgramNameExist)
 
     def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         """Check if the name is entered and valid, if it is then check if it exists in the configs already"""
         return {
             self._ui.nameEdit: ItemValidity.getEnum(
-                self.validateText(self._ui.nameEdit.text()) and not self._name_exists
+                self.validateText(self._ui.nameEdit.text())
             )
         }
 
@@ -61,16 +56,7 @@ class CreateNamePage(CreateBasePage):
             f"{LABEL_TEXT_LEFT}{self.creator_type.value}{LABEL_TEXT_RIGHT}"
         )
         self._ui.nameEdit.setText(self.getConfig().name)
-        self.doesProgramNameExist.emit(self.getConfig().name)
         return super().loadPage()
-
-    @QtCore.Slot()
-    def doesNameExistSlot(self, exists_already: bool) -> None:
-        self._name_exists = exists_already
-        if exists_already:
-            self._ui.status_label.setText("Name already exists, pick something else")
-        else:
-            self._ui.status_label.setText("")
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QGraphicsSceneContextMenuEvent, QGraphicsSceneHoverEvent
+from ..contextMenu import ContextResultType, createAndDisplayMenu
 from ...core.dataStructs import ItemSettings
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -6,18 +6,6 @@ from PySide6 import QtWidgets, QtCore, QtGui
 import typing
 from dataclasses import dataclass
 from enum import Enum
-
-
-class ContextResultType(Enum):
-    REMOVE = "Remove"
-    EDIT = "Edit"
-    COPY = "Copy"
-
-
-@dataclass(frozen=True)
-class ContextResult:
-    type_: ContextResultType = ContextResultType.REMOVE
-    name: str = ""
 
 
 DISTANCE_FROM_BOUNDARY = 15
@@ -111,7 +99,7 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
         self._signal_controller.mouseEnter.emit(self._name)
         return super().hoverEnterEvent(event)
 
-    def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
+    def hoverLeaveEvent(self, event: QtWidgets.QGraphicsSceneHoverEvent) -> None:
         self._signal_controller.mouseLeft.emit()
         return super().hoverLeaveEvent(event)
 
@@ -150,15 +138,17 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
             line_item.setRect(0, 0, width, 0)
         self.setRect(0, 0, width, last_y + ITEM_MARGIN)
 
-    def contextMenuEvent(self, event: QGraphicsSceneContextMenuEvent) -> None:
+    ITEM_CONTEXT_RESULT_TYPES = [
+        ContextResultType.COPY,
+        ContextResultType.EDIT,
+        ContextResultType.REMOVE,
+    ]
+
+    def contextMenuEvent(self, event: QtWidgets.QGraphicsSceneContextMenuEvent) -> None:
         event.accept()
-        menu = QtWidgets.QMenu()
-        for context_type_enum in ContextResultType:
-            action = menu.addAction(context_type_enum.value)
-            context_res = ContextResult(context_type_enum, self._name)
-            action.triggered.connect(
-                lambda _=None, val=context_res: self._signal_controller.contextResult.emit(
-                    val
-                )
-            )
-        menu.exec(event.screenPos())
+        createAndDisplayMenu(
+            event.screenPos(),
+            ConnectedRectItem.ITEM_CONTEXT_RESULT_TYPES,
+            self._signal_controller.contextResult,
+            name=self._name,
+        )

@@ -48,3 +48,13 @@ def listToFormattedString(label: str, str_list: typing.List[str]) -> str:
     else:
         res = f"{label} {str_list[0]}"
     return res
+
+
+def getDupeName(
+    name: str, name_container, copy_label: str = "_copy_", starting_number: int = 1
+) -> str:
+    """Sure it should be a binary search, but why bother"""
+    x = starting_number
+    while f"{name}{copy_label}{x}" in (name_container):
+        x += 1
+    return f"{name}_copy_{x}"
