@@ -42,19 +42,17 @@ GRAPH_COLORS = [
 class PageKeys(Enum):
     NO_PAGE = "None"
     NAME = "Name"
-    ADD_DATA_SOURCE = "Add Data Source"
-    DATA_SOURCE_TYPE = "Data Source Type"
-    DATA_SOURCE_SETTINGS = "Data Source Settings"
-    DATA_SOURCE_PARAMETERS = "Data Source Parameters"
-    CONFRIM_DATA_SOURCE = "Confirm Data Source"
+    PARAMETERS = "Parameters"
+    SETTINGS = "Settings"
+    CONFRIM = "Confirm"
     ADD_ACTION = "Add Action"
     ACTION_TYPE = "Action Type"
-    ACTION_SETTINGS = "Action Settings"
-    ACTION_PARAMETERS = "Action Parameters"
-    CONFIRM_ACTION = "Confirm Action"
+    ACTION = "Action"
+    ADD_DATA_SOURCE = "Add Data Source"
+    DATA_SOURCE_TYPE = "Data Source Type"
+    DATA_SOURCE = "Data Source"
+    SCRIPT = "Script"
     FINAL_CONFIRM = "Final Confirm"
-    SCRIPT_SETTINGS = "Script Settings"
-    SCRIPT_PARAMETERS = "Script Parameters"
 
 
 PROGRESS_BAR_HEIGHT = 10

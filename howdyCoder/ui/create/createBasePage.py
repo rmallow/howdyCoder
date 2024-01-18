@@ -1,7 +1,6 @@
 from ...core.dataStructs import ProgramSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt, qtResourceManager
-from ...core.commonGlobals import GROUP_SET
 from ..uiConstants import PageKeys, CreateWizardItemType
 
 from dataclasses import dataclass, field
@@ -40,7 +39,6 @@ class CreateBasePage(
     PAGE_KEY: Enum = None
     EXIT: Enum = None
     EXIT_LABEL: str = "Exit Creator"
-    GROUP = ""
 
     nextPage = QtCore.Signal()
     manualExit = QtCore.Signal(PageKeys)
@@ -55,9 +53,6 @@ class CreateBasePage(
     ) -> None:
         super().__init__(resource_prefix, parent, f)
         assert self.PAGE_KEY, "PAGE_KEY not assigned by sub class"
-        assert (
-            self.GROUP and self.GROUP in GROUP_SET
-        ), "GROUP not correctly assigned by sub class"
         self.current_config: ItemSettings = current_config
         """
         These variables are assigned after init and can't be used in a constructor, in the future this could be changed

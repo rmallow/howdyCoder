@@ -1,7 +1,7 @@
 from ...core.dataStructs import ItemSettings, DataSourceSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
-from ..qtUiFiles import ui_createDataSourceSettingsPage
+from ..qtUiFiles import ui_createDataSourcePage
 
 from ..util.qtUtil import CompleterDelegate
 from .. import editableTable
@@ -28,13 +28,11 @@ Output not selectable for input and is automatically the name of the data source
 """
 
 
-class CreateDataSourceSettingsPage(CreateBasePage):
-    PAGE_KEY = PageKeys.DATA_SOURCE_SETTINGS
+class CreateDataSourcePage(CreateBasePage):
+    PAGE_KEY = PageKeys.DATA_SOURCE
 
     TUTORIAL_RESOURCE_PREFIX_FUNC = "CreateSettingsDataSource"
     TUTORIAL_RESOURCE_PREFIX_INPUT = "CreateSettingsInput"
-
-    GROUP = DATA_SOURCES
 
     def __init__(
         self,
@@ -45,7 +43,7 @@ class CreateDataSourceSettingsPage(CreateBasePage):
             current_config, self.TUTORIAL_RESOURCE_PREFIX_FUNC, parent=parent
         )
 
-        self._ui = ui_createDataSourceSettingsPage.Ui_CreateDataSourceSettingsPage()
+        self._ui = ui_createDataSourcePage.Ui_CreateDataSourcePage()
         self._ui.setupUi(self)
         self._current_settings = None
         self._data_source_type = None

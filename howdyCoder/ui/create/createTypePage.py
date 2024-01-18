@@ -106,8 +106,6 @@ class CreateDataSourceTypePage(CreateTypePage):
 
     TUTORIAL_RESOURCE_PREFIX = "CreateTypeDataSource"
 
-    GROUP = DATA_SOURCES
-
     def __init__(
         self,
         current_config: ItemSettings,
@@ -125,7 +123,6 @@ class CreateDataSourceTypePage(CreateTypePage):
 class CreateActionTypePage(CreateTypePage):
     PAGE_KEY = PageKeys.ACTION_TYPE
     EXIT = PageKeys.ADD_ACTION
-    GROUP = ACTION_LIST
 
     TUTORIAL_RESOURCE_PREFIX = "CreateTypeAction"
 

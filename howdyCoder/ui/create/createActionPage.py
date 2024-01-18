@@ -1,7 +1,7 @@
 from ...core.dataStructs import ActionSettings, ItemSettings, InputSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
-from ..qtUiFiles import ui_createActionSettingsPage
+from ..qtUiFiles import ui_createActionPage
 
 from .. import highlightModel
 from ..selectorWidget import SelectorWidget
@@ -49,8 +49,8 @@ def getTrueName(group, name):
     )
 
 
-class CreateActionSettingsPage(CreateBasePage):
-    PAGE_KEY = PageKeys.ACTION_SETTINGS
+class CreateActionPage(CreateBasePage):
+    PAGE_KEY = PageKeys.ACTION
     TUTORIAL_RESOURCE_PREFIX_TRIGGER = "CreateSettingsTrigger"
     TUTORIAL_RESOURCE_PREFIX_EVENT = "CreateSettingsEvent"
     GROUP = ACTION_LIST
@@ -64,7 +64,7 @@ class CreateActionSettingsPage(CreateBasePage):
             current_config, self.TUTORIAL_RESOURCE_PREFIX_EVENT, parent=parent
         )
 
-        self._ui = ui_createActionSettingsPage.Ui_CreateActionSettingsPage()
+        self._ui = ui_createActionPage.Ui_CreateActionPage()
         self._ui.setupUi(self)
         self._action_type = None
         self._current_calc_settings: FunctionSettingsWithHelperData = None

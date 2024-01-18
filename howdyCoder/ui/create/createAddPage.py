@@ -100,7 +100,6 @@ class CreateAddPageBase(CreateBasePage):
 class CreateDataSourceAddPage(CreateAddPageBase):
     PAGE_KEY = PageKeys.ADD_DATA_SOURCE
     EXIT = PageKeys.NO_PAGE
-    GROUP = DATA_SOURCES
 
     def __init__(
         self,
@@ -113,7 +112,6 @@ class CreateDataSourceAddPage(CreateAddPageBase):
 class CreateActionAddPage(CreateAddPageBase):
     PAGE_KEY = PageKeys.ADD_ACTION
     EXIT = PageKeys.ADD_DATA_SOURCE
-    GROUP = ACTION_LIST
 
     def __init__(
         self,

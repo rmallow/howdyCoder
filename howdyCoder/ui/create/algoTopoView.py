@@ -215,7 +215,7 @@ class AlgoTopoView(
             item_p2.addLine(line, False)
             self.line_mapping[(name_p1, name_p2)] = line
 
-    def setConfigFirst(self, creator_config: ProgramSettings):
+    def setConfigFirstTime(self, creator_config: ProgramSettings):
         self._ui.nameEdit.clear()
         self._ui.nameEdit.setText(creator_config.name)
         self.setConfig(creator_config)
@@ -270,10 +270,10 @@ class AlgoTopoView(
         )
         self.addItem.emit(copied_settings)
 
-    def editItemMenu(self, name):
+    def editItemMenu(self, name: str):
         self.editItem.emit(self.current_items[name].item_settings)
 
-    def removeItemMenu(self, name):
+    def removeItemMenu(self, name: str):
         self.removeItem.emit(self.current_items[name].item_settings)
 
     def addActionMenu(self, _):

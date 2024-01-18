@@ -51,12 +51,9 @@ IMPORT_STATEMENTS = "import_statements"
 MAPPING = "mapping"
 
 
-NONE_GROUP = "None"
 SCRIPT = "script"
 DATA_SOURCES = "data_sources"
 ACTION_LIST = "action_list"
-
-GROUP_SET = set([NONE_GROUP, DATA_SOURCES, ACTION_LIST, SCRIPT])
 
 
 class ProgramTypes(str, Enum):

@@ -9,19 +9,22 @@ from .createBasePage import CreateBasePage, HelperData, ItemValidity
 # various pages
 from .createNamePage import CreateNamePage
 from .createTypePage import CreateDataSourceTypePage, CreateActionTypePage
-from .createDataSourceSettingsPage import CreateDataSourceSettingsPage
+from .createDataSourcePage import CreateDataSourcePage
 from .createParametersPage import (
-    CreateDataSourceParametersPage,
-    CreateActionParametersPage,
-    CreateScriptParametersPage,
+    CreateParametersPage,
 )
 from .createConfirmPage import (
-    CreateDataSourceConfirmPage,
-    CreateActionConfirmPage,
-    CreateFinalConfirmPage,
+    CreateConfirmPage,
 )
-from .createActionSettingsPage import CreateActionSettingsPage
-from .createScriptSettingsPage import CreateScriptSettingsPage
+
+from .createSettingsPage import (
+    CreateSettingsActionPage,
+    CreateSettingsDataSourcePage,
+    CreateSettingsScriptPage,
+)
+
+from .createActionPage import CreateActionPage
+from .createScriptPage import CreateScriptPage
 
 from ..uiConstants import PageKeys, CreateWizardItemType
 from ..qtUiFiles import ui_createWizard
@@ -37,24 +40,27 @@ import copy
 
 SCRIPT_CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
     CreateNamePage,
-    CreateScriptSettingsPage,
-    CreateScriptParametersPage,
-    CreateFinalConfirmPage,
+    CreateScriptPage,
+    CreateParametersPage,
+    CreateSettingsScriptPage,
+    CreateConfirmPage,
 ]
 
 ACTION_CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
     CreateActionTypePage,
-    CreateActionSettingsPage,
-    CreateActionParametersPage,
-    CreateActionConfirmPage,
+    CreateActionPage,
+    CreateParametersPage,
+    CreateSettingsActionPage,
+    CreateConfirmPage,
 ]
 
 
 DATA_SOURCE_CREATION_WIDGET_PAGES: typing.List[CreateBasePage] = [
     CreateDataSourceTypePage,
-    CreateDataSourceSettingsPage,
-    CreateDataSourceParametersPage,
-    CreateDataSourceConfirmPage,
+    CreateDataSourcePage,
+    CreateParametersPage,
+    CreateSettingsDataSourcePage,
+    CreateConfirmPage,
 ]
 
 CREATE_WIZARD_ITEM_TYPE_TO_PAGES: typing.Dict[
@@ -132,7 +138,7 @@ class CreateWizard(
         ), "Duplicate Creation Widget Page Keys"
         self._create_widgets_list = []
         for widget_class in self.getCurrentPageList():
-            p = widget_class(self.current_config, self)
+            p = widget_class(self.current_config, parent=self)
             p.helper_data = self.helper_data
             p.creator_type = self._creator_type
             p.program_settings = program_settings
@@ -173,11 +179,6 @@ class CreateWizard(
     def changePage(self, newIndex: int):
         """Change the page to the given page with an animation, save the current page and check its validity"""
         if newIndex >= 0 and newIndex < len(self._create_widgets_list):
-            if (
-                self._create_widgets_list[self._current_index].GROUP
-                != self._create_widgets_list[newIndex].GROUP
-            ):
-                self.helper_data.clear()
             # disable both the buttons, at the end of the animation they'll be reenabled
             self._ui.nextButton.setEnabled(False)
             self._ui.backButton.setEnabled(False)

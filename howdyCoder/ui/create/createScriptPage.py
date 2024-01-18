@@ -1,10 +1,9 @@
 from ...core.dataStructs import ScriptSettings, ActionSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
-from ..qtUiFiles.ui_createScriptSettingsPage import Ui_CreateScriptSettingsPage
-from ..funcSelector import FunctionSettingsWithHelperData, addHelperData
+from ..qtUiFiles.ui_createScriptPage import Ui_CreateScriptPage
+from ..funcSelector import FunctionSettingsWithHelperData
 
-from ...core.commonGlobals import NONE_GROUP, ActionTypeEnum, ENUM_DISPLAY
 
 import typing
 import copy
@@ -13,13 +12,11 @@ from dataclass_wizard import asdict
 from PySide6 import QtWidgets, QtCore
 
 
-class CreateScriptSettingsPage(CreateBasePage):
-    PAGE_KEY = PageKeys.SCRIPT_SETTINGS
+class CreateScriptPage(CreateBasePage):
+    PAGE_KEY = PageKeys.SCRIPT
     EXIT = PageKeys.NAME
 
     TUTORIAL_RESOURCE_PREFIX = "test"
-
-    GROUP = NONE_GROUP
 
     def __init__(
         self,
@@ -27,7 +24,7 @@ class CreateScriptSettingsPage(CreateBasePage):
         parent: typing.Optional[QtWidgets.QWidget] = None,
     ):
         super().__init__(current_config, self.TUTORIAL_RESOURCE_PREFIX, parent=parent)
-        self._ui = Ui_CreateScriptSettingsPage()
+        self._ui = Ui_CreateScriptPage()
         self._ui.setupUi(self)
         self._ui.funcSelectorWidget.embedded = True
 

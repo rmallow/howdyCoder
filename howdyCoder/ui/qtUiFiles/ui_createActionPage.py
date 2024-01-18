@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'createActionSettingsPage.ui'
+## Form generated from reading UI file 'createActionPage.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -20,14 +20,14 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QHBox
     QListWidgetItem, QPushButton, QSizePolicy, QTableView,
     QVBoxLayout, QWidget)
 
-class Ui_CreateActionSettingsPage(object):
-    def setupUi(self, CreateActionSettingsPage):
-        if not CreateActionSettingsPage.objectName():
-            CreateActionSettingsPage.setObjectName(u"CreateActionSettingsPage")
-        CreateActionSettingsPage.resize(887, 837)
-        self.verticalLayout = QVBoxLayout(CreateActionSettingsPage)
+class Ui_CreateActionPage(object):
+    def setupUi(self, CreateActionPage):
+        if not CreateActionPage.objectName():
+            CreateActionPage.setObjectName(u"CreateActionPage")
+        CreateActionPage.resize(887, 837)
+        self.verticalLayout = QVBoxLayout(CreateActionPage)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.calc_func_label = QLabel(CreateActionSettingsPage)
+        self.calc_func_label = QLabel(CreateActionPage)
         self.calc_func_label.setObjectName(u"calc_func_label")
         font = QFont()
         font.setPointSize(15)
@@ -37,14 +37,14 @@ class Ui_CreateActionSettingsPage(object):
 
         self.verticalLayout.addWidget(self.calc_func_label)
 
-        self.calcFuncWidget = QWidget(CreateActionSettingsPage)
+        self.calcFuncWidget = QWidget(CreateActionPage)
         self.calcFuncWidget.setObjectName(u"calcFuncWidget")
         self.horizontalLayout_2 = QHBoxLayout(self.calcFuncWidget)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
 
         self.verticalLayout.addWidget(self.calcFuncWidget)
 
-        self.triggerWidget = QWidget(CreateActionSettingsPage)
+        self.triggerWidget = QWidget(CreateActionPage)
         self.triggerWidget.setObjectName(u"triggerWidget")
         self.verticalLayout_4 = QVBoxLayout(self.triggerWidget)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
@@ -67,7 +67,7 @@ class Ui_CreateActionSettingsPage(object):
 
         self.verticalLayout.addWidget(self.triggerWidget)
 
-        self.label = QLabel(CreateActionSettingsPage)
+        self.label = QLabel(CreateActionPage)
         self.label.setObjectName(u"label")
         self.label.setFont(font)
         self.label.setAlignment(Qt.AlignCenter)
@@ -75,7 +75,7 @@ class Ui_CreateActionSettingsPage(object):
 
         self.verticalLayout.addWidget(self.label)
 
-        self.suggested_data_set = QListWidget(CreateActionSettingsPage)
+        self.suggested_data_set = QListWidget(CreateActionPage)
         self.suggested_data_set.setObjectName(u"suggested_data_set")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -88,7 +88,7 @@ class Ui_CreateActionSettingsPage(object):
 
         self.verticalLayout.addWidget(self.suggested_data_set)
 
-        self.data_set_label = QLabel(CreateActionSettingsPage)
+        self.data_set_label = QLabel(CreateActionPage)
         self.data_set_label.setObjectName(u"data_set_label")
         self.data_set_label.setFont(font)
         self.data_set_label.setAlignment(Qt.AlignCenter)
@@ -96,7 +96,7 @@ class Ui_CreateActionSettingsPage(object):
 
         self.verticalLayout.addWidget(self.data_set_label)
 
-        self.widget = QWidget(CreateActionSettingsPage)
+        self.widget = QWidget(CreateActionPage)
         self.widget.setObjectName(u"widget")
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
@@ -168,7 +168,7 @@ class Ui_CreateActionSettingsPage(object):
 
         self.verticalLayout.addWidget(self.widget)
 
-        self.data_type_box = QWidget(CreateActionSettingsPage)
+        self.data_type_box = QWidget(CreateActionPage)
         self.data_type_box.setObjectName(u"data_type_box")
         self.horizontalLayout_5 = QHBoxLayout(self.data_type_box)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
@@ -189,20 +189,20 @@ class Ui_CreateActionSettingsPage(object):
         self.verticalLayout.addWidget(self.data_type_box)
 
 
-        self.retranslateUi(CreateActionSettingsPage)
+        self.retranslateUi(CreateActionPage)
 
-        QMetaObject.connectSlotsByName(CreateActionSettingsPage)
+        QMetaObject.connectSlotsByName(CreateActionPage)
     # setupUi
 
-    def retranslateUi(self, CreateActionSettingsPage):
-        CreateActionSettingsPage.setWindowTitle(QCoreApplication.translate("CreateActionSettingsPage", u"CreateActionSettingsPage", None))
-        self.calc_func_label.setText(QCoreApplication.translate("CreateActionSettingsPage", u"Select the function that will operate on the data. Select by hitting the button below which will open a window for selection. The function selected determines what input is needed, so when selecting a function make sure the input you've seleced above works with that function. For more information on required input, see the documentation or guides. Extra parameters will be set on the next page.", None))
-        self.label_6.setText(QCoreApplication.translate("CreateActionSettingsPage", u"For triggers, assign a output function to be performed if the above function returns true. The splitting of these functions is done to enable reusability of functions. Although, you can just do your intended outputting in the above function. This makes the below output function not required.", None))
-        self.label.setText(QCoreApplication.translate("CreateActionSettingsPage", u"The below are names that we parsed from the functions that accessed data_set. It is suggested to assign inputs to these names, unless you know otherwise.", None))
-        self.data_set_label.setText(QCoreApplication.translate("CreateActionSettingsPage", u"From the left table,  select which columns you'd need as input. These will be added to the table on the right.  For use in the function, you can rename them in the table on the right as needed. To remove, select a row in the input table and then hit the remove button.", None))
-        self.label_2.setText(QCoreApplication.translate("CreateActionSettingsPage", u"Available Inputs", None))
-        self.label_3.setText(QCoreApplication.translate("CreateActionSettingsPage", u"Selected Input", None))
-        self.removeButton.setText(QCoreApplication.translate("CreateActionSettingsPage", u"Remove", None))
-        self.label_5.setText(QCoreApplication.translate("CreateActionSettingsPage", u"Select the data type that you'd like to be the input for your function", None))
+    def retranslateUi(self, CreateActionPage):
+        CreateActionPage.setWindowTitle(QCoreApplication.translate("CreateActionPage", u"CreateActionPage", None))
+        self.calc_func_label.setText(QCoreApplication.translate("CreateActionPage", u"Select the function that will operate on the data. Select by hitting the button below which will open a window for selection. The function selected determines what input is needed, so when selecting a function make sure the input you've seleced above works with that function. For more information on required input, see the documentation or guides. Extra parameters will be set on the next page.", None))
+        self.label_6.setText(QCoreApplication.translate("CreateActionPage", u"For triggers, assign a output function to be performed if the above function returns true. The splitting of these functions is done to enable reusability of functions. Although, you can just do your intended outputting in the above function. This makes the below output function not required.", None))
+        self.label.setText(QCoreApplication.translate("CreateActionPage", u"The below are names that we parsed from the functions that accessed data_set. It is suggested to assign inputs to these names, unless you know otherwise.", None))
+        self.data_set_label.setText(QCoreApplication.translate("CreateActionPage", u"From the left table,  select which columns you'd need as input. These will be added to the table on the right.  For use in the function, you can rename them in the table on the right as needed. To remove, select a row in the input table and then hit the remove button.", None))
+        self.label_2.setText(QCoreApplication.translate("CreateActionPage", u"Available Inputs", None))
+        self.label_3.setText(QCoreApplication.translate("CreateActionPage", u"Selected Input", None))
+        self.removeButton.setText(QCoreApplication.translate("CreateActionPage", u"Remove", None))
+        self.label_5.setText(QCoreApplication.translate("CreateActionPage", u"Select the data type that you'd like to be the input for your function", None))
     # retranslateUi
 

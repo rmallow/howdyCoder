@@ -3,7 +3,6 @@ from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles import ui_createNamePage
 
-from ...core.commonGlobals import NONE_GROUP
 
 import typing
 
@@ -19,8 +18,6 @@ class CreateNamePage(CreateBasePage):
     EXIT_LABEL = "Exit Creator"
 
     TUTORIAL_RESOURCE_PREFIX = "None"
-
-    GROUP = NONE_GROUP
 
     def __init__(
         self,

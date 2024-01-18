@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'createScriptSettingsPage.ui'
+## Form generated from reading UI file 'createScriptPage.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -20,32 +20,32 @@ from PySide6.QtWidgets import (QApplication, QLabel, QSizePolicy, QVBoxLayout,
 
 from ..funcSelector import FuncSelector
 
-class Ui_CreateScriptSettingsPage(object):
-    def setupUi(self, CreateScriptSettingsPage):
-        if not CreateScriptSettingsPage.objectName():
-            CreateScriptSettingsPage.setObjectName(u"CreateScriptSettingsPage")
-        CreateScriptSettingsPage.resize(590, 482)
-        self.verticalLayout = QVBoxLayout(CreateScriptSettingsPage)
+class Ui_CreateScriptPage(object):
+    def setupUi(self, CreateScriptPage):
+        if not CreateScriptPage.objectName():
+            CreateScriptPage.setObjectName(u"CreateScriptPage")
+        CreateScriptPage.resize(590, 482)
+        self.verticalLayout = QVBoxLayout(CreateScriptPage)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.label = QLabel(CreateScriptSettingsPage)
+        self.label = QLabel(CreateScriptPage)
         self.label.setObjectName(u"label")
         self.label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout.addWidget(self.label)
 
-        self.funcSelectorWidget = FuncSelector(CreateScriptSettingsPage)
+        self.funcSelectorWidget = FuncSelector(CreateScriptPage)
         self.funcSelectorWidget.setObjectName(u"funcSelectorWidget")
 
         self.verticalLayout.addWidget(self.funcSelectorWidget)
 
 
-        self.retranslateUi(CreateScriptSettingsPage)
+        self.retranslateUi(CreateScriptPage)
 
-        QMetaObject.connectSlotsByName(CreateScriptSettingsPage)
+        QMetaObject.connectSlotsByName(CreateScriptPage)
     # setupUi
 
-    def retranslateUi(self, CreateScriptSettingsPage):
-        CreateScriptSettingsPage.setWindowTitle(QCoreApplication.translate("CreateScriptSettingsPage", u"CreateScriptSettingsPage", None))
-        self.label.setText(QCoreApplication.translate("CreateScriptSettingsPage", u"Input the script or select it from a library", None))
+    def retranslateUi(self, CreateScriptPage):
+        CreateScriptPage.setWindowTitle(QCoreApplication.translate("CreateScriptPage", u"CreateScriptPage", None))
+        self.label.setText(QCoreApplication.translate("CreateScriptPage", u"Input the script or select it from a library", None))
     # retranslateUi
 
