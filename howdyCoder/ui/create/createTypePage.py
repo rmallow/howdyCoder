@@ -3,6 +3,7 @@ from ...core.commonGlobals import (
     DATA_SOURCES,
     ActionTypeEnum,
     DataSourcesTypeEnum,
+    ENUM_DISPLAY,
 )
 from ...core.dataStructs import ItemSettings
 from ..uiConstants import PageKeys
@@ -42,7 +43,8 @@ class CreateTypePage(CreateBasePage):
         self._ui.typeView.currentRowChanged.connect(self.typeSelected)
         self._ui.typeView.setCurrentRow(-1)
 
-    def typeSelected(self, row: int):
+    @QtCore.Slot()
+    def typeSelected(self, row: int) -> None:
         if row >= 0 and row < self._ui.typeView.count():
             self._ui.typeDescription.setText(
                 self._ui.typeView.item(row).data(QtCore.Qt.ItemDataRole.UserRole)
@@ -93,7 +95,7 @@ class CreateDataSourceTypePage(CreateTypePage):
     """,
         #        DataSourcesTypeEnum.THREADED.display: """
         #    A more advanced version of Func data source. \n
-        #    Only necessary if the funciton would normally be used in a multithreaded environment.
+        #    Only necessary if the function would normally be used in a multithreaded environment.
         #    """,
         DataSourcesTypeEnum.INPUT.display: """
     Take user input data as the source of the data. \n
@@ -118,6 +120,15 @@ class CreateDataSourceTypePage(CreateTypePage):
             self.TUTORIAL_RESOURCE_PREFIX,
             parent=parent,
         )
+
+    @QtCore.Slot()
+    def typeSelected(self, row: int) -> None:
+        super().typeSelected(row)
+        current_type = self._ui.typeView.item(row).text()
+        if current_type == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY, ""):
+            self.setSkipPages.emit([PageKeys.PARAMETERS, PageKeys.SETTINGS])
+        else:
+            self.setSkipPages.emit([])
 
 
 class CreateActionTypePage(CreateTypePage):
@@ -150,3 +161,12 @@ class CreateActionTypePage(CreateTypePage):
             self.TUTORIAL_RESOURCE_PREFIX,
             parent=parent,
         )
+
+    @QtCore.Slot()
+    def typeSelected(self, row: int) -> None:
+        super().typeSelected(row)
+        current_type = self._ui.typeView.item(row).text()
+        if current_type == getattr(ActionTypeEnum.TRIGGER, ENUM_DISPLAY, ""):
+            self.setSkipPages.emit([PageKeys.SETTINGS])
+        else:
+            self.setSkipPages.emit([])

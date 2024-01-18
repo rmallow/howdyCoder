@@ -43,6 +43,7 @@ class CreateBasePage(
     nextPage = QtCore.Signal()
     manualExit = QtCore.Signal(PageKeys)
     enableBack = QtCore.Signal(bool)
+    setSkipPages = QtCore.Signal(list)
 
     def __init__(
         self,

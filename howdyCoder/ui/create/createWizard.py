@@ -123,6 +123,8 @@ class CreateWizard(
         self._animation_group = QtCore.QParallelAnimationGroup(self)
         self._graphics_effects = []
 
+        self._skip_pages: typing.Set[PageKeys] = set()
+
     def getCurrentPageList(self):
         return CREATE_WIZARD_ITEM_TYPE_TO_PAGES.get(self._creator_type, [])
 
@@ -176,9 +178,9 @@ class CreateWizard(
             self._create_widgets_list[self._current_index].next_enabled
         )
 
-    def changePage(self, newIndex: int):
+    def changePage(self, new_index: int):
         """Change the page to the given page with an animation, save the current page and check its validity"""
-        if newIndex >= 0 and newIndex < len(self._create_widgets_list):
+        if new_index >= 0 and new_index < len(self._create_widgets_list):
             # disable both the buttons, at the end of the animation they'll be reenabled
             self._ui.nextButton.setEnabled(False)
             self._ui.backButton.setEnabled(False)
@@ -189,22 +191,39 @@ class CreateWizard(
                 v != ItemValidity.INVALID for v in currentPage.validate().values()
             ):
                 currentPage.save()
+            if abs(new_index - self._current_index) == 1:
+                """
+                Determine what direction we are going (forward or back)
+                Then if the new page is one we're supposed to skip, then skip it
+                """
+                change = new_index - self._current_index
+                while self._create_widgets_list[
+                    new_index
+                ].PAGE_KEY in self._skip_pages and (
+                    new_index != 0 or new_index != len(self._create_widgets_list) - 1
+                ):
+                    self._ui.progressSteps.setCompletedStep(
+                        new_index,
+                        True,
+                    )
+                    new_index += change
+
             # Get keys from the page before the page we are loading and put it in the page we are loading
-            if newIndex > 0:
-                self._create_widgets_list[newIndex].loadPage()
+            if new_index > 0:
+                self._create_widgets_list[new_index].loadPage()
             animations.fadeStart(
                 self._ui.createWidgetBox,
                 self._create_widgets_list[self._current_index],
-                self._create_widgets_list[newIndex],
+                self._create_widgets_list[new_index],
                 self._createWidgetBoxLayout,
-                finishedSlot=lambda: self.animationFinished(newIndex),
+                finishedSlot=lambda: self.animationFinished(new_index),
             )
             self._ui.progressSteps.setCompletedStep(
                 self._current_index,
                 valid_page,
             )
-            self._ui.progressSteps.goTo(newIndex)
-            self._current_index = newIndex
+            self._ui.progressSteps.goTo(new_index)
+            self._current_index = new_index
             self.setButtonText()
 
     def nextPressed(self):
@@ -212,7 +231,6 @@ class CreateWizard(
         if self._current_index == len(self._create_widgets_list) - 1:
             # The main window will change from the create widget to control
             self.addItem.emit(self.current_config)
-            self.reset()
         else:
             if self._animation_group.state() == self._animation_group.State.Stopped:
                 for x in range(self._animation_group.animationCount()):
@@ -285,19 +303,23 @@ class CreateWizard(
         self.changePage(self._current_index - 1)
         self._ui.nextButton.setText("Next")
 
-    def animationFinished(self, newIndex: int):
+    def animationFinished(self, new_index: int):
         """
         after widget animation is done, enable button and update widget
         """
-        self._ui.backButton.setEnabled(self._create_widgets_list[newIndex].back_enabled)
-        self._ui.nextButton.setEnabled(self._create_widgets_list[newIndex].next_enabled)
+        self._ui.backButton.setEnabled(
+            self._create_widgets_list[new_index].back_enabled
+        )
+        self._ui.nextButton.setEnabled(
+            self._create_widgets_list[new_index].next_enabled
+        )
         self._ui.exitButton.setEnabled(True)
-        if self._create_widgets_list[newIndex].EXIT_LABEL:
-            self._ui.exitButton.setText(self._create_widgets_list[newIndex].EXIT_LABEL)
-        if self._create_widgets_list[newIndex].EXIT:
-            self._current_exit_page = self._create_widgets_list[newIndex].EXIT
-        self._create_widgets_list[newIndex].update()
-        self._create_widgets_list[newIndex].drawingFix()
+        if self._create_widgets_list[new_index].EXIT_LABEL:
+            self._ui.exitButton.setText(self._create_widgets_list[new_index].EXIT_LABEL)
+        if self._create_widgets_list[new_index].EXIT:
+            self._current_exit_page = self._create_widgets_list[new_index].EXIT
+        self._create_widgets_list[new_index].update()
+        self._create_widgets_list[new_index].drawingFix()
         self._ui.scrollArea.viewport().update()
 
     @QtCore.Slot()
@@ -320,6 +342,7 @@ class CreateWizard(
         self.changePage(0)
         self.helper_data.clear()
         self._ui.progressSteps.resetDisplay()
+        self._skip_pages = set()
         if self.current_config is not None:
             self.current_config.clear()
 
@@ -330,6 +353,10 @@ class CreateWizard(
         return [self] + self._create_widgets_list[
             self._current_index
         ].getTutorialClasses()
+
+    @QtCore.Slot()
+    def setSkipPages(self, skip_pages: typing.List[PageKeys]) -> None:
+        self._skip_pages = set(skip_pages)
 
     def setCurrentWizardType(
         self,
@@ -351,13 +378,15 @@ class CreateWizard(
 
         self.loadCreationWidgets(program_settings)
         self.loadProgressSteps()
-        self.loadCurrentPage()
 
         # don't want clicking through till animation is over so we disable button on press
         for page in self._create_widgets_list:
             page.nextPage.connect(self.nextPressed)
             page.enableBack.connect(self._ui.backButton.setEnabled)
             page.manualExit.connect(self.exitPressed)
+            page.setSkipPages.connect(self.setSkipPages)
+
+        self.loadCurrentPage()
 
         self._ui.nextButton.setEnabled(True)
         self._ui.exitButton.setEnabled(True)
