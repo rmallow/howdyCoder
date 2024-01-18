@@ -129,7 +129,7 @@ class MainWindow(
         self._ui.changePageButton.released.connect(
             lambda: self._ui.stackedWidget.setCurrentWidget(
                 self._ui.controlPage
-                if self._ui.stackedWidget.currentWidget() != self._ui.outputPage
+                if self._ui.stackedWidget.currentWidget() == self._ui.outputPage
                 else self._ui.outputPage
             )
         )
@@ -165,25 +165,6 @@ class MainWindow(
             else "Go to Output Page"
         )
         self._ui.changePageButton.setHidden(cur_page == self._ui.createPage)
-
-    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
-        screen = self.screen().geometry()
-        resize = False
-        width = self.width()
-        height = self.height()
-
-        if self.width() > screen.width():
-            resize = True
-            width = screen.width()
-
-        if self.height() > screen.height():
-            resize = True
-            height = screen.height()
-
-        if resize:
-            QtCore.QTimer.singleShot(0, lambda: self.resize(width, height))
-        else:
-            return super().resizeEvent(event)
 
     @QtCore.Slot()
     def algoStartControlBox(self, code):

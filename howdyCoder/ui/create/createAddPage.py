@@ -100,7 +100,6 @@ class CreateAddPageBase(CreateBasePage):
 class CreateDataSourceAddPage(CreateAddPageBase):
     PAGE_KEY = PageKeys.ADD_DATA_SOURCE
     EXIT = PageKeys.NO_PAGE
-    EXIT_LABEL = "Exit Creator"
     GROUP = DATA_SOURCES
 
     def __init__(
@@ -114,7 +113,6 @@ class CreateDataSourceAddPage(CreateAddPageBase):
 class CreateActionAddPage(CreateAddPageBase):
     PAGE_KEY = PageKeys.ADD_ACTION
     EXIT = PageKeys.ADD_DATA_SOURCE
-    EXIT_LABEL = "Exit Action Creator"
     GROUP = ACTION_LIST
 
     def __init__(

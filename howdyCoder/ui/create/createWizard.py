@@ -278,34 +278,11 @@ class CreateWizard(
             if self._current_index == len(self._create_widgets_list) - 1
             else "Next"
         )
-        self._ui.backButton.setText(
-            "Start Over"
-            if self._current_index == len(self._create_widgets_list) - 1
-            else "Back"
-        )
 
     def backPressed(self):
         """Go back a page"""
-        if self._current_index == len(self._create_widgets_list) - 1:
-            # The back button/start over button was hit on the last page
-            # rest all the pages
-            message_box = QtWidgets.QMessageBox(self)
-            message_box.setText("Are you sure you want to start over?")
-            message_box.setInformativeText("The algo you've made will be deleted.")
-            message_box.setStandardButtons(
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
-            )
-            message_box.setDefaultButton(QtWidgets.QMessageBox.No)
-            message_box.setWindowModality(
-                QtCore.Qt.WindowModality.ApplicationModal
-            )  # redundancy for macOS
-            if message_box.exec_() == QtWidgets.QMessageBox.No:
-                return
-            self.reset()
-        else:
-            self.changePage(self._current_index - 1)
+        self.changePage(self._current_index - 1)
         self._ui.nextButton.setText("Next")
-        self._ui.backButton.setText("Back")
 
     def animationFinished(self, newIndex: int):
         """

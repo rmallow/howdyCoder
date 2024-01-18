@@ -143,6 +143,8 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self.ui.prompt_copy_button.released.connect(self.copyPromptToClipboard)
         self._internal_setup_funcs = {}
 
+        self.api_success = False
+
     def setupPromptCombo(self):
         for k in promptSingleton.prompts.keys():
             self.ui.prompt_combo_box.addItem(k)
@@ -294,6 +296,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
 
     def callAPI(self, system_prompt: str, user_prompt: str) -> None:
         self._generate_code_timer.stop()
+        self.api_success = False
         self.enableControls(False)
         self.ui.prompt_error.setText("")
         self.ui.codeEdit.setEnabled(False)
@@ -314,12 +317,13 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         self._generate_code_timer.start()
 
     def codeGenerationTimeout(self):
-        self._current_api_call_id += 1
-        self.ui.prompt_error.setText(PROMPT_ERROR_MSG)
-        self.ui.prompt_text_edit.setPlainText(self._saved_query)
-        self.ui.codeEdit.setEnabled(True)
-        self.ui.prompt_text_edit.setEnabled(True)
-        self.ui.create_new_api_button.setEnabled(True)
+        if not self.api_success:
+            self._current_api_call_id += 1
+            self.ui.prompt_error.setText(PROMPT_ERROR_MSG)
+            self.ui.prompt_text_edit.setPlainText(self._saved_query)
+            self.ui.codeEdit.setEnabled(True)
+            self.ui.prompt_text_edit.setEnabled(True)
+            self.ui.create_new_api_button.setEnabled(True)
 
     def createNewAPIButton(self):
         user_prompt = self.ui.prompt_text_edit.toPlainText()
@@ -346,8 +350,9 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
         )
 
     def apiResponse(self, response: genericWorker.RunnableReturn):
+        """This will be called from another thread"""
         if response is not None and response.id_ == self._current_api_call_id:
-            self._generate_code_timer.stop()
+            self.api_success = True
             if response.value is not None:
                 self.parseAIResponse(response.value)
             else:

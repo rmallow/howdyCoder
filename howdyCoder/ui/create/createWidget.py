@@ -8,6 +8,8 @@ from ...core.dataStructs import (
     AlgoSettings,
 )
 
+from ...core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY
+
 from .createWizard import CreateWizardItemType
 
 from ..qtUiFiles import ui_createWidget
@@ -65,9 +67,14 @@ class CreateWidget(
                 self.current_settings = ProgramSettings(
                     type_,
                     ScriptSettings.DEFAULT_NAME,
-                    ScriptSettings(action=ActionSettings()),
+                    ScriptSettings(
+                        action=ActionSettings(
+                            ScriptSettings.DEFAULT_NAME,
+                            getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY),
+                        )
+                    ),
                 )
-            self.openWizard(creator_settings.settings.action)
+            self.openWizard(self.current_settings.settings.action)
         else:
             if self.current_settings is None:
                 self.current_settings = ProgramSettings(
@@ -75,7 +82,7 @@ class CreateWidget(
                     name=AlgoSettings.DEFAULT_NAME,
                     settings=AlgoSettings(),
                 )
-            self._ui.algoTopoView.setConfig(self.current_settings)
+            self._ui.algoTopoView.setConfigFirstTime(self.current_settings)
             self._ui.stackedWidget.setCurrentWidget(self._ui.algoTopoView)
 
     def getTutorialClasses(self) -> List:

@@ -120,9 +120,9 @@ class AlgoTopoView(
         self._ui.finishButton.released.connect(
             lambda: self.finished.emit(self._ui.nameEdit.text())
         )
+        self._ui.nameEdit.textChanged.connect(self.noBlankName)
 
     def reset(self):
-        self._ui.nameEdit.clear()
         self.current_items = {}
         self.line_mapping = {}
         self._current_hover_item = ""
@@ -215,9 +215,13 @@ class AlgoTopoView(
             item_p2.addLine(line, False)
             self.line_mapping[(name_p1, name_p2)] = line
 
+    def setConfigFirst(self, creator_config: ProgramSettings):
+        self._ui.nameEdit.clear()
+        self._ui.nameEdit.setText(creator_config.name)
+        self.setConfig(creator_config)
+
     def setConfig(self, creator_config: ProgramSettings):
         self.reset()
-        self._ui.nameEdit.setText(creator_config.name)
         self.current_settings = copy.deepcopy(creator_config)
         self.getTopoSort(creator_config.settings)
         max_height = 0
@@ -289,8 +293,10 @@ class AlgoTopoView(
             self._signal_controller.contextResult,
         )
 
+    @QtCore.Slot()
     def noBlankName(self) -> str:
-        return self._ui.nameEdit.text()
+        if not self._ui.nameEdit.text():
+            self._ui.nameEdit.setText(AlgoSettings.DEFAULT_NAME)
 
     CONTEXT_RESULT_FUNCTIONS = {
         ContextResultType.COPY: copyItemMenu,

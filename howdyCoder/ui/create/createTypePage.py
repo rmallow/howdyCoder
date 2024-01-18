@@ -103,7 +103,6 @@ class CreateDataSourceTypePage(CreateTypePage):
     }
     PAGE_KEY = PageKeys.DATA_SOURCE_TYPE
     EXIT = PageKeys.ADD_DATA_SOURCE
-    EXIT_LABEL = "Exit Data Source Creator"
 
     TUTORIAL_RESOURCE_PREFIX = "CreateTypeDataSource"
 

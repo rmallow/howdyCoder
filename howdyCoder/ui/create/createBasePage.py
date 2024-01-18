@@ -39,7 +39,7 @@ class CreateBasePage(
 ):
     PAGE_KEY: Enum = None
     EXIT: Enum = None
-    EXIT_LABEL: str = ""
+    EXIT_LABEL: str = "Exit Creator"
     GROUP = ""
 
     nextPage = QtCore.Signal()

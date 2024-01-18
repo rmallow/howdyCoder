@@ -16,7 +16,6 @@ from PySide6 import QtWidgets, QtCore
 class CreateScriptSettingsPage(CreateBasePage):
     PAGE_KEY = PageKeys.SCRIPT_SETTINGS
     EXIT = PageKeys.NAME
-    EXIT_LABEL = "Exit Script Creator"
 
     TUTORIAL_RESOURCE_PREFIX = "test"
 
@@ -37,7 +36,7 @@ class CreateScriptSettingsPage(CreateBasePage):
         self._ui.funcSelectorWidget.setDefaultPrompt("Script")
 
     def loadPage(self):
-        curr: ActionSettings = self.getConfig().action
+        curr: ActionSettings = self.getConfig()
         if curr is not None:
             self._ui.funcSelectorWidget.updateChildData()
             self._ui.funcSelectorWidget.setData(curr.calc_function)
@@ -56,12 +55,7 @@ class CreateScriptSettingsPage(CreateBasePage):
         self.getHelperData().suggested_parameters = (
             self._current_settings.suggested_parameters
         )
-        if self.getConfig().action is None:
-            self.getConfig().action = ActionSettings(
-                getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY),
-                getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY),
-            )
-        self.getConfig().action.calc_function = self._current_settings.function_settings
+        self.getConfig().calc_function = self._current_settings.function_settings
 
     def settingsSelected(self, function_settings: FunctionSettingsWithHelperData):
         self._current_settings = function_settings

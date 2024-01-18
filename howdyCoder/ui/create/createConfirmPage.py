@@ -97,8 +97,6 @@ class CreateFinalConfirmPage(CreateConfirmBasePage):
             current_config, self.TOP_TEXT, self.TUTORIAL_RESOURCE_PREFIX, parent
         )
         # there's no confirm/add another next is finish and back is start over
-        self.back_enabled = False
-        self._ui.buttonWidget.hide()
 
     def getConfigForView(self):
         return {self.getConfig().name: asdict(self.getConfig())}
