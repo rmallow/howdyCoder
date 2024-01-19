@@ -32,6 +32,9 @@ class Ui_CreateSettingsBasePage(object):
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
         self.label.setSizePolicy(sizePolicy)
+        font = QFont()
+        font.setPointSize(20)
+        self.label.setFont(font)
         self.label.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout.addWidget(self.label)

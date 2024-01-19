@@ -21,12 +21,6 @@ import typing
 
 from PySide6 import QtWidgets, QtCore
 
-OUTPUT_HELP_FUNCTION = """Since functions are able to be made outside of this environment, this setup wizard can't tell you what data the function will output, unless the AI that generates the code specifies.\nIf the AI did specify, we have added these to the suggestion box and you can add them to the output box using the + and - buttons here.\nAfter adding the outputs, double click them to change their names.\nIf you don't do this you won't be able to see the data from this data source.\nFor further questions, consult the user manual."""
-
-OUTPUT_HELP_INPUT = """
-Output not selectable for input and is automatically the name of the data source.
-"""
-
 
 class CreateDataSourcePage(CreateBasePage):
     PAGE_KEY = PageKeys.DATA_SOURCE
@@ -153,6 +147,7 @@ class CreateDataSourcePage(CreateBasePage):
     def loadPage(self) -> None:
         super().loadPage()
         curr_settings: DataSourceSettings = self.getConfig()
+        self._ui.output_box.show()
         if curr_settings.type_:
             enumType = helpers.findEnumByAttribute(
                 DataSourcesTypeEnum, ENUM_DISPLAY, curr_settings.type_
@@ -174,8 +169,8 @@ class CreateDataSourcePage(CreateBasePage):
                 self._ui.removeOutputButton.setEnabled(False)
                 self._ui.outputHelpText.setText("")
                 """If it's input, there's only one output and that is the name of the data source"""
+                self._ui.output_box.hide()
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_INPUT
-                self._ui.outputHelpText.setText(OUTPUT_HELP_INPUT)
                 self._ui.suggested_output_box.hide()
                 if index := self._input_combo.findText(curr_settings.input_type) != -1:
                     self._input_combo.setCurrentIndex(index)
@@ -184,15 +179,14 @@ class CreateDataSourcePage(CreateBasePage):
                 self._data_source_type == DataSourcesTypeEnum.FUNC
                 or self._data_source_type == DataSourcesTypeEnum.THREADED
             ):
+                self._outputModel.setStringList(curr_settings.output)
                 if curr_settings.get_function is not None:
                     self.onSpecificSettingsSelected(
                         addHelperData(curr_settings.get_function)
                     )
                 self._ui.addOutputButton.setEnabled(True)
                 self._ui.removeOutputButton.setEnabled(True)
-                self._outputModel.setStringList(curr_settings.output)
                 self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_FUNC
-                self._ui.outputHelpText.setText(OUTPUT_HELP_FUNCTION)
                 self._ui.suggested_output_box.show()
 
     def removeOutput(self):
