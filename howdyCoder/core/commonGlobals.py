@@ -74,12 +74,12 @@ class DataSourcesTypeEnum(AdvancedEnum):
     SIM = 4, "sim", True
 
 
-class ActionTypeEnum(AdvancedEnum):
-    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
-
-    EVENT = 0, "event"
-    TRIGGER = 1, "trigger"
-    SCRIPT = 2, "script"
+class ActionTypeEnum(Enum):
+    EVENT = "event"
+    TRIGGER = "trigger"
+    SCRIPT = "script"
+    TEXT_MERGER = "text merger"
+    CALCULATOR = "calculator"
 
 
 class ActionDataType(AdvancedEnum):

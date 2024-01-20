@@ -2,10 +2,10 @@ from .funcSelectorPageBase import FuncSelectorPageBase
 from .qtUiFiles import ui_funcSelectorCodePage
 from .util import expander, genericWorker
 
-from . import librarySingleton, promptSingleton
-from .util.qtUtil import setWordWrapOnButton
+from . import promptSingleton
 from ..commonUtil import astUtil, openAIUtil
 from ..core.dataStructs import FunctionSettings
+from ..core import libraryBase
 
 import ast
 import typing
@@ -276,7 +276,7 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             self, "Select an Algo Function Library", ".", "Algo Function Library(*.afl)"
         )
         if file_dlg_return and file_dlg_return[0]:
-            librarySingleton.saveToLibrary(
+            libraryBase.saveToLibrary(
                 file_dlg_return[0], self._current_function_settings
             )
 

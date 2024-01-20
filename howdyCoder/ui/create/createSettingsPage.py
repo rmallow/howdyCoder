@@ -77,7 +77,7 @@ class CreateSettingsActionPage(CreateSettingsBasePage):
         )
 
     def hideAnyWidgets(self):
-        if self.getConfig().type_ == getattr(ActionTypeEnum.TRIGGER, ENUM_DISPLAY, ""):
+        if self.getConfig().type_ == ActionTypeEnum.TRIGGER.value:
             self._setting_widgets[FLATTEN_LABEL].hide()
 
 

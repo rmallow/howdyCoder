@@ -70,7 +70,7 @@ class CreateWidget(
                     ScriptSettings(
                         action=ActionSettings(
                             ScriptSettings.DEFAULT_NAME,
-                            getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY),
+                            ActionTypeEnum.SCRIPT.value,
                         )
                     ),
                 )

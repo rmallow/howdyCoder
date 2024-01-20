@@ -1,8 +1,9 @@
 from .funcSelectorPageBase import FuncSelectorPageBase
 from .qtUiFiles import ui_funcSelectorLibPage
 
-from . import librarySingleton
 
+from ..core import librarySingleton
+from ..core.libraryBase import Library
 from ..core.dataStructs import FunctionSettings
 
 import ast
@@ -109,7 +110,7 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
                     return
         self._ui.funcDescription.document().setPlainText("Not a valid function!!!")
 
-    def addLibray(self, library: librarySingleton.Library):
+    def addLibray(self, library: Library):
         """Find the correct group and add the library to that group"""
         if library is not None:
             # first determine if the library has a group

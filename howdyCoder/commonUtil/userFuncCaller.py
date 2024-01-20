@@ -29,6 +29,7 @@ class UserFuncCaller:
         code: str = "",
         import_statements: typing.List[str] = None,
         name: str = "",
+        internal_parameters: typing.Dict[str, typing.Any] = None,
         *args,
         **kwargs,
     ):
@@ -37,6 +38,7 @@ class UserFuncCaller:
             import_statements if import_statements else []
         )
         self.name: str = name
+        self._internal_parameters = internal_parameters if internal_parameters else {}
         self._function_scope: typing.Dict = {}
         self._function_name_to_arg_specs: typing.Dict[str, FunctionArgSpecs] = {}
 
@@ -76,12 +78,12 @@ class UserFuncCaller:
         Keyword arguments will be filtered out but arguments will be passed forward
         also get any data that was going to stdout or stderr and return that
         """
-        filteredParamters = self.filterArguments(function_name, kwargs)
+        filtered_paramters = self.filterArguments(function_name, kwargs)
         try:
             with redirect_stderr(io.StringIO()) as f_err:
                 with redirect_stdout(io.StringIO()) as f_std:
                     ret_val = self._function_scope[function_name](
-                        *args, **filteredParamters
+                        *args, **filtered_paramters
                     )
             return ret_val, f_std.getvalue(), f_err.getvalue()
         except Exception as e:
@@ -112,20 +114,22 @@ class UserFuncCaller:
         if function_name not in self._function_name_to_arg_specs:
             self.defineArgumentFilters(function_name)
         function_arg_specs = self._function_name_to_arg_specs[function_name]
+        # passed in will override internal, internals should be named to prevent this if necessary
+        merged = passed_in_kwarg | self._internal_parameters
         if not function_arg_specs.has_var_kwarg:
             # sadly **kwargs was not included on passed in function
             # so we're going to filter out the arguments that won't be used now
             if len(function_arg_specs.arg_names) > 0:
                 return {
-                    name: passed_in_kwarg[name]
+                    name: merged[name]
                     for name in function_arg_specs.arg_names
-                    if name in passed_in_kwarg
+                    if name in merged
                 }
             else:
                 # no **kwargs and function has no arguments so pass in nothing
                 return {}
 
-        return passed_in_kwarg
+        return merged
 
     def defineArgumentFilters(self, function_name: str):
         """

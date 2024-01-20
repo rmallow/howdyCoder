@@ -314,10 +314,6 @@ class CreateWizard(
             self._create_widgets_list[new_index].next_enabled
         )
         self._ui.exitButton.setEnabled(True)
-        if self._create_widgets_list[new_index].EXIT_LABEL:
-            self._ui.exitButton.setText(self._create_widgets_list[new_index].EXIT_LABEL)
-        if self._create_widgets_list[new_index].EXIT:
-            self._current_exit_page = self._create_widgets_list[new_index].EXIT
         self._create_widgets_list[new_index].update()
         self._create_widgets_list[new_index].drawingFix()
         self._ui.scrollArea.viewport().update()

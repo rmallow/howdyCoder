@@ -126,7 +126,7 @@ class mainOutputViewModel(QtCore.QObject):
                         columns.extend(ds_config.output)
 
                 for act_key, act_config in config.settings.action_list.items():
-                    if act_config.type_ == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY):
+                    if act_config.type_ == ActionTypeEnum.EVENT.value:
                         columns.append(act_key)
             self.addItem(self.program_combo_model, config.name, columns)
 

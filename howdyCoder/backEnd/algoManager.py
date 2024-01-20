@@ -75,7 +75,7 @@ class AlgoManager(ProgramManager):
             # if it is an event but not an aggregate then add the name to column names
             # so it can be selected later
             if (
-                creator_type == getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY)
+                creator_type == ActionTypeEnum.EVENT.value
                 and not action_settings.aggregate
             ):
                 self.columnNames.append(name)

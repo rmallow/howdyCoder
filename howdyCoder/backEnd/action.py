@@ -51,7 +51,6 @@ class Action:
         self.actionType: str = action_settings.type_
         self.calcFunc: UserFuncCaller = action_settings.calc_function.user_function
         self.name: str = action_settings.name.lower()
-        self.parameters: dict = action_settings.parameters
         self.parameters: typing.Dict[str, typing.Any] = {
             v.name: v.value for v in action_settings.parameters.values()
         }

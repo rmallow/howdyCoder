@@ -14,8 +14,6 @@ LABEL_TEXT_RIGHT = " for reference"
 
 class CreateNamePage(CreateBasePage):
     PAGE_KEY = PageKeys.NAME
-    EXIT = PageKeys.NO_PAGE
-    EXIT_LABEL = "Exit Creator"
 
     TUTORIAL_RESOURCE_PREFIX = "None"
 

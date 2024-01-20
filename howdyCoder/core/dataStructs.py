@@ -76,6 +76,8 @@ class FunctionSettings(JSONWizard, metaclass=property_wizard):
     suggested_output: typing.List[str] = field(default_factory=list)
     # internal_setup_functions: name of function -> parameter name
     internal_setup_functions: typing.Dict[str, str] = field(default_factory=dict)
+    # this doesn't need to be Parameters as we won't be displaying this to user
+    internal_parameters: typing.Dict[str, typing.Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -105,6 +107,7 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
 
     name: str = ""
     type_: str = ""
+    sub_type: str = ""
     flatten: bool = True
     period: int = 1
     single_shot: bool = False

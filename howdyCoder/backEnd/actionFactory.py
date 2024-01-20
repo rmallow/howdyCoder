@@ -8,9 +8,9 @@ from .aggregateParameter import aggregateParameter
 from ..core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY
 
 _ACTION_FACTORY_TYPES = {
-    getattr(ActionTypeEnum.EVENT, ENUM_DISPLAY): event,
-    getattr(ActionTypeEnum.TRIGGER, ENUM_DISPLAY): trigger,
-    getattr(ActionTypeEnum.SCRIPT, ENUM_DISPLAY): Action,
+    ActionTypeEnum.EVENT.value: event,
+    ActionTypeEnum.TRIGGER.value: trigger,
+    ActionTypeEnum.SCRIPT.value: Action,
     "aggregatedata": aggregateData,
     "aggregatedataparameter": aggregateDataParameter,
     "aggregateparameter": aggregateParameter,

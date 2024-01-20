@@ -37,8 +37,6 @@ class CreateBasePage(
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
     PAGE_KEY: Enum = None
-    EXIT: Enum = None
-    EXIT_LABEL: str = "Exit Creator"
 
     nextPage = QtCore.Signal()
     manualExit = QtCore.Signal(PageKeys)

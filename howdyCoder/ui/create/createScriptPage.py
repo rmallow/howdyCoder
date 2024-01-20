@@ -14,7 +14,6 @@ from PySide6 import QtWidgets, QtCore
 
 class CreateScriptPage(CreateBasePage):
     PAGE_KEY = PageKeys.SCRIPT
-    EXIT = PageKeys.NAME
 
     TUTORIAL_RESOURCE_PREFIX = "test"
 
