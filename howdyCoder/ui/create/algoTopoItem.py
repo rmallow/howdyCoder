@@ -1,3 +1,5 @@
+from ..variableTextEdit import VariableDragData
+
 from ..uiConstants import SceneMode
 from ..contextMenu import ContextResultType, createAndDisplayMenu
 from ...core.dataStructs import ItemSettings
@@ -12,13 +14,6 @@ from enum import Enum
 DISTANCE_FROM_BOUNDARY = 15
 ITEM_MARGIN = 10
 ITEM_TEXT_GAP = 16
-
-
-class TopoItemDragData(QtCore.QMimeData):
-    def __init__(self, text: str) -> None:
-        super().__init__()
-        self.text = text
-        self.setText(self.text)
 
 
 class ConnectedMixin:
@@ -115,7 +110,7 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
     def mouseMoveEvent(self, event: QtWidgets.QGraphicsSceneMouseEvent):
         if self.mode == SceneMode.ACTION:
             drag = QtGui.QDrag(event.widget())
-            drag_data = TopoItemDragData(self._name)
+            drag_data = VariableDragData(self._name)
             drag.setMimeData(drag_data)
             drag.exec(QtCore.Qt.DropAction.MoveAction)
         else:

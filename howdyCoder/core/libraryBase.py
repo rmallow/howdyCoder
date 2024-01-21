@@ -63,7 +63,7 @@ def loadLibraryPy(file_path: str) -> Library:
                     "",
                     "",
                     [
-                        FunctionSettings(f.name, all_code, imports, import_statements)
+                        FunctionSettings(all_code, f.name, imports, import_statements)
                         for f in functions
                         if functionCompiles(ast.unparse(f), file_path)
                     ],
@@ -138,11 +138,20 @@ def saveToLibrary(
 
 
 def pyToAfl(
-    file_path,
+    py_file_path,
+    config_file_path,
     name,
     group,
-    specific_function="",
+    specific_function,
     internal_setup_functions=None,
     suggested_output=None,
 ):
-    pass
+    lib = loadLibraryPy(py_file_path)
+    func_settings = next(
+        function for function in lib.functions if function.name == specific_function
+    )
+    if internal_setup_functions is not None:
+        func_settings.internal_setup_functions = internal_setup_functions
+    if suggested_output is not None:
+        func_settings.suggested_output = suggested_output
+    saveToLibrary(config_file_path, func_settings, name, group)

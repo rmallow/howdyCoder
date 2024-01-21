@@ -189,16 +189,17 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
         for line in self.line_mapping.values():
             line.show()
 
-        if mode == SceneMode.ACTION and current_action in self.current_items:
+        if mode == SceneMode.ACTION:
 
             def hideBoth(item: ConnectedRectItem):
                 item.hide()
                 item.hideConnectedLines()
 
-            for outgoing in self.outgoing_mapping[current_action]:
-                self.dfs(outgoing, self.outgoing_mapping, hideBoth, lambda _: None)
-            self.changeColorHelper(current_action, QtCore.Qt.GlobalColor.blue)
-            self.current_items[current_action].setSelectable(False)
+            if current_action in self.current_items:
+                for outgoing in self.outgoing_mapping[current_action]:
+                    self.dfs(outgoing, self.outgoing_mapping, hideBoth, lambda _: None)
+                self.changeColorHelper(current_action, QtCore.Qt.GlobalColor.blue)
+                self.current_items[current_action].setSelectable(False)
 
             for item in self.current_items.values():
                 if item.item_settings.type_ == ActionTypeEnum.TRIGGER.value:

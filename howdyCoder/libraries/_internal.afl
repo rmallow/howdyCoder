@@ -1,0 +1,21 @@
+functions:
+- code: "import typing\n\nVARIABLE_TEXT_LIST_ARG_NAME = \"_variable_text_list\"  #\
+    \ we represent arg name as a string so we can store it by same var\nSTARTING_BRACE\
+    \ = \"{\"\nENDING_BRACE = \"}\"\n\n\ndef isVarText(text: str):\n    return (\n\
+    \        len(text) >= 3\n        and text.startswith(STARTING_BRACE)\n       \
+    \ and text.endswith(ENDING_BRACE)\n    )\n\n\ndef textMerger(data_set: typing.Dict[str,\
+    \ str], *args, **kwargs):\n    \"\"\"For use in internal library\"\"\"\n    variable_text_list:\
+    \ typing.List[str] = kwargs[VARIABLE_TEXT_LIST_ARG_NAME]\n    for x in range(len(variable_text_list)):\n\
+    \        if isVarText(variable_text_list[x]):\n            variable_text_list[x]\
+    \ = str(data_set.get(variable_text_list[1:-1], \"\"))\n    return \"\".join(variable_text_list)\n"
+  import_statements:
+  - import typing
+  imports:
+  - typing
+  internal_parameters: {}
+  internal_setup_functions: {}
+  name: textMerger
+  suggested_output: []
+  user_function: null
+group: internal
+name: internal

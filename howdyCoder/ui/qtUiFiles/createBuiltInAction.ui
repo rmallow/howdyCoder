@@ -48,7 +48,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="textEdit">
+       <widget class="DropEditor" name="drag_edit">
         <property name="font">
          <font>
           <pointsize>17</pointsize>
@@ -63,7 +63,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="widget_2" native="true">
+    <widget class="QWidget" name="data_set_box" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
        <number>-1</number>
@@ -120,7 +120,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGraphicsView" name="graphicsView"/>
+          <widget class="QGraphicsView" name="graphics_view"/>
          </item>
         </layout>
        </widget>
@@ -163,7 +163,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QTableView" name="tableView"/>
+          <widget class="QTableView" name="selected_table_view"/>
          </item>
         </layout>
        </widget>
@@ -173,6 +173,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DropEditor</class>
+   <extends>QTextEdit</extends>
+   <header>..dropEditor</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
