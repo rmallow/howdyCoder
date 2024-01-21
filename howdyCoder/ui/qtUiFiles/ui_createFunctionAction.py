@@ -27,6 +27,15 @@ class Ui_CreateFunctionAction(object):
         CreateFunctionAction.resize(959, 805)
         self.verticalLayout = QVBoxLayout(CreateFunctionAction)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.label_4 = QLabel(CreateFunctionAction)
+        self.label_4.setObjectName(u"label_4")
+        font = QFont()
+        font.setPointSize(25)
+        self.label_4.setFont(font)
+        self.label_4.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout.addWidget(self.label_4)
+
         self.function_box_widget = QWidget(CreateFunctionAction)
         self.function_box_widget.setObjectName(u"function_box_widget")
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -54,9 +63,9 @@ class Ui_CreateFunctionAction(object):
         sizePolicy2.setVerticalStretch(2)
         sizePolicy2.setHeightForWidth(self.calc_func_label.sizePolicy().hasHeightForWidth())
         self.calc_func_label.setSizePolicy(sizePolicy2)
-        font = QFont()
-        font.setPointSize(15)
-        self.calc_func_label.setFont(font)
+        font1 = QFont()
+        font1.setPointSize(15)
+        self.calc_func_label.setFont(font1)
         self.calc_func_label.setAlignment(Qt.AlignCenter)
         self.calc_func_label.setWordWrap(True)
 
@@ -81,7 +90,7 @@ class Ui_CreateFunctionAction(object):
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.label_6 = QLabel(self.triggerWidget)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setFont(font)
+        self.label_6.setFont(font1)
         self.label_6.setAlignment(Qt.AlignCenter)
         self.label_6.setWordWrap(True)
 
@@ -114,7 +123,7 @@ class Ui_CreateFunctionAction(object):
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
         self.label.setSizePolicy(sizePolicy3)
-        self.label.setFont(font)
+        self.label.setFont(font1)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setWordWrap(True)
 
@@ -141,7 +150,7 @@ class Ui_CreateFunctionAction(object):
 
         self.data_set_label = QLabel(CreateFunctionAction)
         self.data_set_label.setObjectName(u"data_set_label")
-        self.data_set_label.setFont(font)
+        self.data_set_label.setFont(font1)
         self.data_set_label.setAlignment(Qt.AlignCenter)
         self.data_set_label.setWordWrap(True)
 
@@ -166,9 +175,9 @@ class Ui_CreateFunctionAction(object):
 
         self.availableInputTable = QTableView(self.widget_2)
         self.availableInputTable.setObjectName(u"availableInputTable")
-        font1 = QFont()
-        font1.setPointSize(18)
-        self.availableInputTable.setFont(font1)
+        font2 = QFont()
+        font2.setPointSize(18)
+        self.availableInputTable.setFont(font2)
         self.availableInputTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.availableInputTable.setSelectionMode(QAbstractItemView.NoSelection)
         self.availableInputTable.horizontalHeader().setStretchLastSection(True)
@@ -190,7 +199,7 @@ class Ui_CreateFunctionAction(object):
 
         self.selectedInputTable = QTableView(self.widget_3)
         self.selectedInputTable.setObjectName(u"selectedInputTable")
-        self.selectedInputTable.setFont(font1)
+        self.selectedInputTable.setFont(font2)
         self.selectedInputTable.setSelectionMode(QAbstractItemView.SingleSelection)
         self.selectedInputTable.horizontalHeader().setStretchLastSection(True)
 
@@ -223,13 +232,13 @@ class Ui_CreateFunctionAction(object):
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.label_5 = QLabel(self.data_type_box)
         self.label_5.setObjectName(u"label_5")
-        self.label_5.setFont(font)
+        self.label_5.setFont(font1)
 
         self.horizontalLayout_5.addWidget(self.label_5)
 
         self.dataTypeCombo = QComboBox(self.data_type_box)
         self.dataTypeCombo.setObjectName(u"dataTypeCombo")
-        self.dataTypeCombo.setFont(font)
+        self.dataTypeCombo.setFont(font1)
 
         self.horizontalLayout_5.addWidget(self.dataTypeCombo)
 
@@ -244,6 +253,7 @@ class Ui_CreateFunctionAction(object):
 
     def retranslateUi(self, CreateFunctionAction):
         CreateFunctionAction.setWindowTitle(QCoreApplication.translate("CreateFunctionAction", u"CreateFunctionAction", None))
+        self.label_4.setText(QCoreApplication.translate("CreateFunctionAction", u"Function", None))
         self.calc_func_label.setText(QCoreApplication.translate("CreateFunctionAction", u"Select the function that will operate on the data. Select by hitting the button below which will open a window for selection. The function selected determines what input is needed, so when selecting a function make sure the input you've seleced above works with that function. For more information on required input, see the documentation or guides. Extra parameters will be set on the next page.", None))
         self.label_6.setText(QCoreApplication.translate("CreateFunctionAction", u"For triggers, assign a output function to be performed if the above function returns true. The splitting of these functions is done to enable reusability of functions. Although, you can just do your intended outputting in the above function. This makes the below output function not required.", None))
         self.label.setText(QCoreApplication.translate("CreateFunctionAction", u"The below are names that we parsed from the functions that accessed data_set. It is suggested to assign inputs to these names, unless you know otherwise.", None))

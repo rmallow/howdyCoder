@@ -42,6 +42,10 @@ class CreateActionPage(CreateBasePage):
                 self._ui.stacked_widget.setCurrentWidget(
                     self._ui.create_function_action
                 )
+            elif self._action_type == ActionTypeEnum.TEXT_MERGER:
+                self._ui.stacked_widget.setCurrentWidget(
+                    self._ui.create_built_in_action
+                )
         self._ui.stacked_widget.currentWidget().loadPage()
 
     def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:

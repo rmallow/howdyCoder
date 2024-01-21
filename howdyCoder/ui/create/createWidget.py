@@ -1,4 +1,6 @@
-from typing import List
+from ..uiConstants import SceneMode
+from .createWizard import CreateWizardItemType
+
 from ...core.dataStructs import (
     ProgramTypes,
     ProgramSettings,
@@ -10,7 +12,6 @@ from ...core.dataStructs import (
 
 from ...core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY
 
-from .createWizard import CreateWizardItemType
 
 from ..qtUiFiles import ui_createWidget
 from ..tutorialOverlay import AbstractTutorialClass
@@ -83,9 +84,9 @@ class CreateWidget(
                     settings=AlgoSettings(),
                 )
             self._ui.algoTopoView.setConfigFirstTime(self.current_settings)
-            self._ui.stackedWidget.setCurrentWidget(self._ui.algoTopoView)
+            self.showTopoView()
 
-    def getTutorialClasses(self) -> List:
+    def getTutorialClasses(self) -> typing.List:
         return [self]
 
     @QtCore.Slot()
@@ -112,7 +113,7 @@ class CreateWidget(
                 if self._editing_item:
                     self.current_settings.settings.removeItem(self._editing_item)
                 self.addItemToSettings(copied_settings)
-            self._ui.stackedWidget.setCurrentWidget(self._ui.algoTopoView)
+            self.showTopoView()
         self._editing_item = None
 
     @QtCore.Slot()
@@ -136,6 +137,10 @@ class CreateWidget(
         self._editing_item = item_settings
         self.openWizard(item_settings)
 
+    def showTopoView(self):
+        self._ui.algoTopoView.scene.setMode(SceneMode.TOPO_VIEW)
+        self._ui.stackedWidget.setCurrentWidget(self._ui.algoTopoView)
+
     @QtCore.Slot()
     def openWizard(self, item_settings: ItemSettings):
         create_wizard_type = CreateWizardItemType.SCRIPT
@@ -149,5 +154,6 @@ class CreateWidget(
             create_wizard_type,
             item_settings,
             self.current_settings,
+            self._ui.algoTopoView.scene,
         )
         self._ui.stackedWidget.setCurrentWidget(self._ui.createWizard)

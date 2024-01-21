@@ -1,3 +1,5 @@
+from .algoTopoView import AlgoTopoScene
+
 from ...core.dataStructs import ProgramSettings, ItemSettings
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt, qtResourceManager
@@ -60,6 +62,7 @@ class CreateBasePage(
         self.helper_data: HelperData = None  # assigned after the fact
         self.creator_type: CreateWizardItemType = None  # assigned after the fact
         self.program_settings: ProgramSettings = None  # assigned after the fact
+        self.scene: AlgoTopoScene = None  # assigned after the fact
         self.back_enabled = True
         self.next_enabled = True
         self.suggested_validity = ItemValidity.VALID

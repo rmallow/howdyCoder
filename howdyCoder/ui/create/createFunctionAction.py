@@ -1,7 +1,8 @@
-from ...core.dataStructs import ActionSettings, ItemSettings, InputSettings
-from .createBasePage import CreateBasePage, ItemValidity
-from ..uiConstants import PageKeys
+from ...core.dataStructs import ActionSettings, InputSettings
+from .createBasePage import ItemValidity
 from ..qtUiFiles import ui_createFunctionAction
+from ..tutorialOverlay import AbstractTutorialClass
+from ..util import abstractQt
 
 from .. import highlightModel
 from ..selectorWidget import SelectorWidget
@@ -10,7 +11,6 @@ from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData, addHelp
 from ..util.spinBoxDelegate import SpinBoxDelegate
 from ..util import qtUtil
 
-from ...commonUtil import helpers
 from ...core.commonGlobals import (
     ENUM_DISPLAY,
     ActionTypeEnum,
@@ -47,15 +47,16 @@ def getTrueName(group, name):
     )
 
 
-class CreateFunctionAction(QtWidgets.QWidget):
+class CreateFunctionAction(
+    AbstractTutorialClass,
+    QtWidgets.QWidget,
+    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+):
     TUTORIAL_RESOURCE_PREFIX_TRIGGER = "CreateSettingsTrigger"
     TUTORIAL_RESOURCE_PREFIX_EVENT = "CreateSettingsEvent"
 
-    def __init__(
-        self,
-        parent: typing.Optional[QtWidgets.QWidget] = None,
-    ):
-        super().__init__(parent)
+    def __init__(self, *args, **kwargs):
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX_EVENT, *args, **kwargs)
         self._ui = ui_createFunctionAction.Ui_CreateFunctionAction()
         self._ui.setupUi(self)
         self._action_type = None
@@ -176,10 +177,10 @@ class CreateFunctionAction(QtWidgets.QWidget):
                 else "Trigger Calculation"
             )
             if self._action_type == ActionTypeEnum.EVENT:
-                self.parent_page.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_EVENT
+                self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_EVENT
                 self._ui.triggerWidget.setHidden(True)
             elif self._action_type == ActionTypeEnum.TRIGGER:
-                self.parent_page.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_TRIGGER
+                self.resource_prefix = self.TUTORIAL_RESOURCE_PREFIX_TRIGGER
                 self._ui.triggerWidget.setHidden(False)
             self.updateDataSetSuggestions()
 

@@ -14,6 +14,7 @@ class ContextResultType(Enum):
     SAVE = "Save"
     INPUT = "Input"
     EXPORT = "Export"
+    SELECT = "Select"
 
 
 @dataclass(frozen=True)

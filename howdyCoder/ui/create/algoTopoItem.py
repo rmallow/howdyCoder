@@ -1,3 +1,4 @@
+from ..uiConstants import SceneMode
 from ..contextMenu import ContextResultType, createAndDisplayMenu
 from ...core.dataStructs import ItemSettings
 
@@ -11,6 +12,13 @@ from enum import Enum
 DISTANCE_FROM_BOUNDARY = 15
 ITEM_MARGIN = 10
 ITEM_TEXT_GAP = 16
+
+
+class TopoItemDragData(QtCore.QMimeData):
+    def __init__(self, text: str) -> None:
+        super().__init__()
+        self.text = text
+        self.setText(self.text)
 
 
 class ConnectedMixin:
@@ -52,6 +60,10 @@ class ConnectedMixin:
         y_offset = self.boundingRect().y() + self.boundingRect().height() / 2
         return QtCore.QPointF(self.x() + x_offset, self.y() + y_offset)
 
+    def hideConnectedLines(self):
+        for line in self._lines:
+            line[0].hide()
+
 
 class TopoSignalController(QtCore.QObject):
     mouseEnter = QtCore.Signal(str)
@@ -72,10 +84,12 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
         **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.create_children(item_settings, item_name=item_name)
-        self.item_settings = item_settings
+        self.createChildren(item_settings, item_name=item_name)
+        self.item_settings: ItemSettings = item_settings
         self._name = item_name if item_name else item_settings.name
         self._signal_controller = signal_controller
+        self.mode: SceneMode = SceneMode.TOPO_VIEW
+        self.selectable: bool = True
 
         brush = QtGui.QBrush(QtCore.Qt.GlobalColor.white)
         self.setBrush(brush)
@@ -86,6 +100,26 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
 
         self._boundary_left = boundary_left
         self._boundary_right = boundary_right
+
+    def reset(self):
+        self.selectable = True
+        self.mode = SceneMode.TOPO_VIEW
+        self.show()
+
+    def setSelectable(self, selectable: bool):
+        self.selectable = selectable
+
+    def setMode(self, mode: SceneMode):
+        self.mode = mode
+
+    def mouseMoveEvent(self, event: QtWidgets.QGraphicsSceneMouseEvent):
+        if self.mode == SceneMode.ACTION:
+            drag = QtGui.QDrag(event.widget())
+            drag_data = TopoItemDragData(self._name)
+            drag.setMimeData(drag_data)
+            drag.exec(QtCore.Qt.DropAction.MoveAction)
+        else:
+            return super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
@@ -116,7 +150,7 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
         item.setPos(x, y)
         return item
 
-    def create_children(self, item_settings: ItemSettings, item_name=""):
+    def createChildren(self, item_settings: ItemSettings, item_name=""):
         text_list = [
             item_settings.type_,
             item_name if item_name else item_settings.name,
@@ -138,17 +172,22 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
             line_item.setRect(0, 0, width, 0)
         self.setRect(0, 0, width, last_y + ITEM_MARGIN)
 
-    ITEM_CONTEXT_RESULT_TYPES = [
+    ITEM_CONTEXT_RESULT_TOPO_TYPES = [
         ContextResultType.COPY,
         ContextResultType.EDIT,
         ContextResultType.REMOVE,
     ]
 
+    ITEM_CONTEXT_RESULT_ACTION_TYPES = [ContextResultType.SELECT]
+
     def contextMenuEvent(self, event: QtWidgets.QGraphicsSceneContextMenuEvent) -> None:
-        event.accept()
-        createAndDisplayMenu(
-            event.screenPos(),
-            ConnectedRectItem.ITEM_CONTEXT_RESULT_TYPES,
-            self._signal_controller.contextResult,
-            name=self._name,
-        )
+        if self.selectable:
+            event.accept()
+            createAndDisplayMenu(
+                event.screenPos(),
+                self.ITEM_CONTEXT_RESULT_TOPO_TYPES
+                if self.mode == SceneMode.TOPO_VIEW
+                else self.ITEM_CONTEXT_RESULT_ACTION_TYPES,
+                self._signal_controller.contextResult,
+                name=self._name,
+            )

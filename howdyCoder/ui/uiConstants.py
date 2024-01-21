@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 
 from PySide6.QtGui import QColorConstants
 
@@ -53,6 +53,11 @@ class PageKeys(Enum):
     DATA_SOURCE = "Data Source"
     SCRIPT = "Script"
     FINAL_CONFIRM = "Final Confirm"
+
+
+class SceneMode(Enum):
+    ACTION = auto()
+    TOPO_VIEW = auto()
 
 
 PROGRESS_BAR_HEIGHT = 10

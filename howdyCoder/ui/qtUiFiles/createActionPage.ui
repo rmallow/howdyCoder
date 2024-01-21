@@ -19,7 +19,7 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="page"/>
+     <widget class="CreateBuiltInAction" name="create_built_in_action"/>
      <widget class="CreateFunctionAction" name="create_function_action"/>
     </widget>
    </item>
@@ -30,6 +30,12 @@
    <class>CreateFunctionAction</class>
    <extends>QWidget</extends>
    <header>..create.createFunctionAction</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CreateBuiltInAction</class>
+   <extends>QWidget</extends>
+   <header>..create.createBuiltInAction</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

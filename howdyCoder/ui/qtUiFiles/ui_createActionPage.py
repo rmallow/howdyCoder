@@ -18,6 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QSizePolicy, QStackedWidget, QVBoxLayout,
     QWidget)
 
+from ..create.createBuiltInAction import CreateBuiltInAction
 from ..create.createFunctionAction import CreateFunctionAction
 
 class Ui_CreateActionPage(object):
@@ -29,9 +30,9 @@ class Ui_CreateActionPage(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.stacked_widget = QStackedWidget(CreateActionPage)
         self.stacked_widget.setObjectName(u"stacked_widget")
-        self.page = QWidget()
-        self.page.setObjectName(u"page")
-        self.stacked_widget.addWidget(self.page)
+        self.create_built_in_action = CreateBuiltInAction()
+        self.create_built_in_action.setObjectName(u"create_built_in_action")
+        self.stacked_widget.addWidget(self.create_built_in_action)
         self.create_function_action = CreateFunctionAction()
         self.create_function_action.setObjectName(u"create_function_action")
         self.stacked_widget.addWidget(self.create_function_action)

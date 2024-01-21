@@ -26,6 +26,8 @@ from .createSettingsPage import (
 from .createActionPage import CreateActionPage
 from .createScriptPage import CreateScriptPage
 
+from .algoTopoView import AlgoTopoScene
+
 from ..uiConstants import PageKeys, CreateWizardItemType
 from ..qtUiFiles import ui_createWizard
 from ..tutorialOverlay import AbstractTutorialClass
@@ -131,6 +133,7 @@ class CreateWizard(
     def loadCreationWidgets(
         self,
         program_settings: ProgramSettings,
+        scene: AlgoTopoScene,
     ) -> None:
         """
         Based on the mapping provided use the factory functions to create and load into the list
@@ -144,6 +147,7 @@ class CreateWizard(
             p.helper_data = self.helper_data
             p.creator_type = self._creator_type
             p.program_settings = program_settings
+            p.scene = scene
             self._create_widgets_list.append(p)
         self._current_index: int = 0
 
@@ -359,9 +363,11 @@ class CreateWizard(
         type_: CreateWizardItemType,
         item_settings: ItemSettings,
         program_settings: ProgramSettings,
+        scene: AlgoTopoScene,
     ):
         for page in self._create_widgets_list:
             page.deleteLater()
+        self._create_widgets_list = []
         self._creator_type = type_
         # must reset before we assign values
         self.reset()
@@ -372,7 +378,7 @@ class CreateWizard(
         else:
             self.current_config = copy.deepcopy(item_settings)
 
-        self.loadCreationWidgets(program_settings)
+        self.loadCreationWidgets(program_settings, scene)
         self.loadProgressSteps()
 
         # don't want clicking through till animation is over so we disable button on press
