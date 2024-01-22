@@ -136,7 +136,7 @@ class CreateWizard(
         for type_, widget_class_list in CREATE_WIZARD_ITEM_TYPE_TO_PAGES.items():
             self._all_create_widget_lists[type_] = []
             for widget_class in widget_class_list:
-                page = widget_class(self.current_config, parent=self)
+                page: CreateBasePage = widget_class(self.current_config, parent=self)
                 page.nextPage.connect(self.nextPressed)
                 page.enableBack.connect(self._ui.backButton.setEnabled)
                 page.manualExit.connect(self.exitPressed)
@@ -164,6 +164,9 @@ class CreateWizard(
             page.creator_type = self._creator_type
             page.program_settings = program_settings
             page.scene = scene
+            if page.graphicsEffect():
+                    page.graphicsEffect().setEnabled(False)
+                    page.graphicsEffect().deleteLater()
             page.reset()
             page.hide()
         self._current_create_widgets_list = self.getCurrentPageList()
@@ -182,12 +185,15 @@ class CreateWizard(
         """
         Clear out any widgets and set the layout to the current page
         """
-        for _ in range(0, self._createWidgetBoxLayout.count()):
-            layout_item = self._createWidgetBoxLayout.takeAt(0)
-            layout_item.widget().hide()
-        self._createWidgetBoxLayout.addWidget(
-            self._current_create_widgets_list[self._current_index]
-        )
+        if self._createWidgetBoxLayout.count():
+            self._createWidgetBoxLayout.replaceWidget(
+                self._createWidgetBoxLayout.itemAt(0).widget(),
+                self._current_create_widgets_list[self._current_index],
+            )
+        else:
+            self._createWidgetBoxLayout.addWidget(
+                self._current_create_widgets_list[self._current_index]
+            )
         self._current_create_widgets_list[self._current_index].show()
         self._current_create_widgets_list[self._current_index].loadPage()
         self._ui.backButton.setEnabled(
@@ -269,7 +275,7 @@ class CreateWizard(
                         warnings.append(widget_or_warning_str)
                 if self._animation_group.animationCount() > 0:
                     self._animation_group.finished.connect(self.pageAnimationFinished)
-                    self._animation_group.setLoopCount(3)
+                    self._animation_group.setLoopCount(2)
                     self._animation_group.start()
                 else:
                     message_box = None
