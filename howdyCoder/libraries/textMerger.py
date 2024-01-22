@@ -16,7 +16,9 @@ def isVarText(text: str):
 def textMerger(data_set: typing.Dict[str, str], *args, **kwargs):
     """For use in internal library"""
     variable_text_list: typing.List[str] = kwargs[VARIABLE_TEXT_LIST_ARG_NAME]
-    for x in range(len(variable_text_list)):
-        if isVarText(variable_text_list[x]):
-            variable_text_list[x] = str(data_set.get(variable_text_list[1:-1], ""))
-    return "".join(variable_text_list)
+    res = []
+    for text in variable_text_list:
+        if isVarText(text):
+            text = str(data_set.get(text[1:-1], "")[0])
+        res.append(text)
+    return "".join(res)

@@ -11,6 +11,7 @@ _ACTION_FACTORY_TYPES = {
     ActionTypeEnum.EVENT.value: event,
     ActionTypeEnum.TRIGGER.value: trigger,
     ActionTypeEnum.SCRIPT.value: Action,
+    ActionTypeEnum.TEXT_MERGER.value: event,
     "aggregatedata": aggregateData,
     "aggregatedataparameter": aggregateDataParameter,
     "aggregateparameter": aggregateParameter,

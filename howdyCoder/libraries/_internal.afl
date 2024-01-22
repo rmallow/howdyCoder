@@ -5,9 +5,10 @@ functions:
     \        len(text) >= 3\n        and text.startswith(STARTING_BRACE)\n       \
     \ and text.endswith(ENDING_BRACE)\n    )\n\n\ndef textMerger(data_set: typing.Dict[str,\
     \ str], *args, **kwargs):\n    \"\"\"For use in internal library\"\"\"\n    variable_text_list:\
-    \ typing.List[str] = kwargs[VARIABLE_TEXT_LIST_ARG_NAME]\n    for x in range(len(variable_text_list)):\n\
-    \        if isVarText(variable_text_list[x]):\n            variable_text_list[x]\
-    \ = str(data_set.get(variable_text_list[1:-1], \"\"))\n    return \"\".join(variable_text_list)\n"
+    \ typing.List[str] = kwargs[VARIABLE_TEXT_LIST_ARG_NAME]\n    res = []\n    for\
+    \ text in variable_text_list:\n        if isVarText(text):\n            text =\
+    \ str(data_set.get(text[1:-1], \"\")[0])\n        res.append(text)\n    return\
+    \ \"\".join(res)\n"
   import_statements:
   - import typing
   imports:

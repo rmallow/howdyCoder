@@ -16,7 +16,7 @@ DATA_SOURCE_FREQUENCY_DESCRIPTION = """Set how often you'd like to run the data 
 SCIRPT_FREQUENCY_DESCRIPTION = """Set how often you'd like to run the script in the period section or set single shot if you want it to run only once."""
 
 FLATTEN_LABEL = "Flatten"
-FLATTEN_DESCRIPTION = "Set if the output should be flattened. If any of the output is lists, flattening will cause each data point to be counted as individual data. If the ouput is a dict and contains multiple lists, flattening will only happen if all lists are the same length."
+FLATTEN_DESCRIPTION = "Set if the output should be flattened. If any of the output are lists, flattening will cause each data point to be counted as individual data. If the ouput is a dict and contains multiple lists, flattening will only happen if all lists are the same length."
 
 
 class CreateSettingsBasePage(CreateBasePage):

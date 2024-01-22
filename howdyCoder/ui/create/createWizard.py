@@ -153,6 +153,7 @@ class CreateWizard(
 
         for w in self._create_widgets_list:
             w.hide()
+        self.setButtonText()
 
     def loadProgressSteps(self) -> None:
         """

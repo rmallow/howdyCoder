@@ -5,7 +5,7 @@ from ..util import abstractQt
 from ..uiConstants import SceneMode
 from ..qtUiFiles import ui_createBuiltInAction
 
-from ...core.dataStructs import ActionSettings
+from ...core.dataStructs import ActionSettings, InputSettings
 from ...core import librarySingleton
 
 from ...libraries.textMerger import VARIABLE_TEXT_LIST_ARG_NAME, isVarText
@@ -14,6 +14,9 @@ import typing
 from collections import Counter
 
 from PySide6 import QtWidgets, QtCore, QtGui
+
+SELECTED_NAME_COLUMN = 0
+SELECTED_REQUIRES_NEW_COLUMN = 1
 
 
 class CreateBuiltInAction(
@@ -41,19 +44,20 @@ class CreateBuiltInAction(
         curr_settings: ActionSettings = self.parent_page.getConfig()
         self._ui.graphics_view.setScene(self.parent_page.scene)
         self.parent_page.scene.setMode(SceneMode.ACTION, curr_settings.name)
-        for i in curr_settings.input_.values():
-            self.addToSelectedTable(i.name, i.requires_new)
         if (
-            VARIABLE_TEXT_LIST_ARG_NAME
+            curr_settings.calc_function
+            and VARIABLE_TEXT_LIST_ARG_NAME
             in curr_settings.calc_function.internal_parameters
         ):
-            for text in curr_settings.calc_function.internal_parameters:
+            for text in curr_settings.calc_function.internal_parameters[
+                VARIABLE_TEXT_LIST_ARG_NAME
+            ]:
                 if (
                     isVarText(text)
-                    and text in self.parent_page.scene.current_items
-                    and self.parent_page.scene.current_items[text].isVisible()
+                    and text[1:-1] in self.parent_page.scene.current_items
+                    and self.parent_page.scene.current_items[text[1:-1]].isVisible()
                 ):
-                    self._ui.drag_edit.insertTextBlock(text)
+                    self._ui.drag_edit.insertTextBlock(text[1:-1])
                 else:
                     cursor = self._ui.drag_edit.textCursor()
                     cursor.movePosition(
@@ -81,6 +85,19 @@ class CreateBuiltInAction(
         curr_settings.calc_function.internal_parameters[
             VARIABLE_TEXT_LIST_ARG_NAME
         ] = self._ui.drag_edit.getVariableText()
+        for row in range(self._selected_input_table_model.rowCount()):
+            input_settings = InputSettings()
+            input_settings.name = self._selected_input_table_model.item(
+                row, SELECTED_NAME_COLUMN
+            ).text()
+            input_settings.requires_new = (
+                self._selected_input_table_model.item(
+                    row, SELECTED_REQUIRES_NEW_COLUMN
+                ).checkState()
+                == QtCore.Qt.CheckState.Checked
+            )
+            curr_settings.input_[input_settings.name] = input_settings
+        self._ui.graphics_view.setScene(QtWidgets.QGraphicsScene())
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

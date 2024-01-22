@@ -3,6 +3,7 @@ from .libraryBase import Library, loadLibraryPy, loadLibraryAfl
 
 import typing
 import pathlib
+import os
 import copy
 from functools import cache
 
@@ -14,6 +15,8 @@ _libraries: typing.List[Library] = []
 
 
 def loadLibrary(file_path: str, name: str = "", group: str = "") -> Library:
+    if "/" in file_path:
+        file_path = os.path.join(os.path.sep, *file_path.split("/"))
     lib = None
     if file_path.lower().endswith(".py"):
         lib = loadLibraryPy(file_path)

@@ -150,6 +150,7 @@ class CreateWidget(
                 if item_settings.isDataSource()
                 else CreateWizardItemType.ACTION
             )
+
         self._ui.createWizard.setCurrentWizardType(
             create_wizard_type,
             item_settings,
