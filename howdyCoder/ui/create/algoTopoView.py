@@ -1,8 +1,5 @@
 from ..uiConstants import SceneMode
-from .algoTopoItem import (
-    ConnectedRectItem,
-    TopoSignalController,
-)
+from .algoTopoItem import ConnectedRectItem, TopoSignalController, ColorRank, AlgoLine
 
 from ..contextMenu import (
     ContextResultType,
@@ -98,10 +95,10 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
                         del incoming_count[other]
         del self.levels[-1]
 
-    def highlightNodes(self, name: str, color: QtCore.Qt.GlobalColor):
-        pen = self.current_items[name].pen()
-        pen.setColor(color)
-        action = lambda item: item.setPen(pen)
+    def highlightNodes(
+        self, name: str, color: QtCore.Qt.GlobalColor | None, color_rank=ColorRank.BASE
+    ):
+        action = lambda item: item.changeColor(color, color_rank)
         self.dfs(name, self.outgoing_mapping, action, action)
         self.dfs(name, self.incoming_mapping, action, action)
 
@@ -109,13 +106,14 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
         if name_p1 in self.current_items and name_p2 in self.current_items:
             item_p1 = self.current_items[name_p1]
             item_p2 = self.current_items[name_p2]
-            line = self.addLine(
+            line = AlgoLine(
                 item_p1.getCenter().x(),
                 item_p1.getCenter().y(),
                 item_p2.getCenter().x(),
                 item_p2.getCenter().y(),
             )
-            pen = QtGui.QPen()
+            self.addItem(line)
+            pen = line.pen()
             pen.setWidthF(3)
             line.setPen(pen)
             line.setZValue(SceneZIndex.LINE.value)
@@ -124,24 +122,29 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
             self.line_mapping[(name_p1, name_p2)] = line
             self.line_mapping[(name_p2, name_p1)] = line
 
-    def changeColorHelper(self, name, color):
+    def changeColorHelper(
+        self,
+        name: str,
+        color: QtCore.Qt.GlobalColor | None,
+        color_rank: ColorRank = ColorRank.BASE,
+    ):
         if name in self.current_items:
-            pen = self.current_items[name].pen()
-            pen.setColor(color)
-            self.current_items[name].setPen(pen)
+            self.current_items[name].changeColor(color, color_rank)
 
     def itemSelected(self, name):
-        self.changeColorHelper(self.current_selected_item, QtCore.Qt.GlobalColor.black)
+        self.changeColorHelper(self.current_selected_item, None, ColorRank.SELECTED)
         self.current_selected_item = name
-        self.changeColorHelper(self.current_selected_item, QtCore.Qt.GlobalColor.yellow)
+        self.changeColorHelper(
+            self.current_selected_item, QtCore.Qt.GlobalColor.yellow, ColorRank.SELECTED
+        )
 
     def itemHoverEnter(self, name):
         self.current_hover_item = name
-        self.highlightNodes(name, QtCore.Qt.GlobalColor.red)
+        self.highlightNodes(name, QtCore.Qt.GlobalColor.red, ColorRank.HOVER)
 
     def itemHoverLeft(self):
         if self.current_hover_item:
-            self.highlightNodes(self.current_hover_item, QtCore.Qt.GlobalColor.black)
+            self.highlightNodes(self.current_hover_item, None, ColorRank.HOVER)
         self.current_hover_item = ""
 
     def setConfig(self, creator_config: ProgramSettings):
@@ -181,11 +184,11 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
             max_height,
         )
 
-    def setMode(self, mode: SceneMode, current_action: str = ""):
+    def setMode(self, mode: SceneMode, action_being_edited: str = ""):
         self.itemHoverLeft()
-        for name, item in self.current_items.items():
+        for _, item in self.current_items.items():
             item.setMode(mode)
-            self.changeColorHelper(name, QtCore.Qt.GlobalColor.black)
+            item.resetColor()
         for line in self.line_mapping.values():
             line.show()
 
@@ -195,11 +198,15 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
                 item.hide()
                 item.hideConnectedLines()
 
-            if current_action in self.current_items:
-                for outgoing in self.outgoing_mapping[current_action]:
+            if action_being_edited in self.current_items:
+                for outgoing in self.outgoing_mapping[action_being_edited]:
                     self.dfs(outgoing, self.outgoing_mapping, hideBoth, lambda _: None)
-                self.changeColorHelper(current_action, QtCore.Qt.GlobalColor.blue)
-                self.current_items[current_action].setSelectable(False)
+                self.changeColorHelper(
+                    action_being_edited,
+                    QtCore.Qt.GlobalColor.blue,
+                    ColorRank.CURRENT_EDIT,
+                )
+                self.current_items[action_being_edited].setSelectable(False)
 
             for item in self.current_items.values():
                 if item.item_settings.type_ == ActionTypeEnum.TRIGGER.value:

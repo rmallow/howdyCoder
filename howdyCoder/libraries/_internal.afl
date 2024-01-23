@@ -1,14 +1,15 @@
 functions:
 - code: "import typing\n\nVARIABLE_TEXT_LIST_ARG_NAME = \"_variable_text_list\"  #\
     \ we represent arg name as a string so we can store it by same var\nSTARTING_BRACE\
-    \ = \"{\"\nENDING_BRACE = \"}\"\n\n\ndef isVarText(text: str):\n    return (\n\
-    \        len(text) >= 3\n        and text.startswith(STARTING_BRACE)\n       \
-    \ and text.endswith(ENDING_BRACE)\n    )\n\n\ndef textMerger(data_set: typing.Dict[str,\
-    \ str], *args, **kwargs):\n    \"\"\"For use in internal library\"\"\"\n    variable_text_list:\
-    \ typing.List[str] = kwargs[VARIABLE_TEXT_LIST_ARG_NAME]\n    res = []\n    for\
-    \ text in variable_text_list:\n        if isVarText(text):\n            text =\
-    \ str(data_set.get(text[1:-1], \"\")[0])\n        res.append(text)\n    return\
-    \ \"\".join(res)\n"
+    \ = \"${\"\nENDING_BRACE = \"}\"\n\n\ndef isVarText(text: str):\n    return (\n\
+    \        len(text) > len(STARTING_BRACE) + len(ENDING_BRACE)\n        and text.startswith(STARTING_BRACE)\n\
+    \        and text.endswith(ENDING_BRACE)\n    )\n\n\ndef textMerger(data_set:\
+    \ typing.Dict[str, str], *args, **kwargs):\n    \"\"\"For use in internal library\"\
+    \"\"\n    variable_text_list: typing.List[str] = kwargs[VARIABLE_TEXT_LIST_ARG_NAME]\n\
+    \    res = []\n    for text in variable_text_list:\n        if isVarText(text):\n\
+    \            text = str(\n                data_set.get(text[len(STARTING_BRACE)\
+    \ : -len(ENDING_BRACE)], \"\")[0]\n            )\n        res.append(text)\n \
+    \   return \"\".join(res)\n"
   import_statements:
   - import typing
   imports:

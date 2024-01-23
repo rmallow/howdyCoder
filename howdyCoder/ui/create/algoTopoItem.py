@@ -8,12 +8,14 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 import typing
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, IntEnum, auto
+import heapq
 
 
 DISTANCE_FROM_BOUNDARY = 15
 ITEM_MARGIN = 10
 ITEM_TEXT_GAP = 16
+MAX_TEXT_WIDTH = 150
 
 
 class ConnectedMixin:
@@ -67,7 +69,55 @@ class TopoSignalController(QtCore.QObject):
     contextResult = QtCore.Signal(object)
 
 
-class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
+class ColorRank(IntEnum):
+    OVERRIDE = 0
+    CURRENT_EDIT = auto()
+    SELECTED = auto()
+    HOVER = auto()
+    BASE = auto()
+
+
+class ColorRankMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._color_ranking = [None] * len(ColorRank)
+
+    def _changeColor(self, color: QtCore.Qt.GlobalColor | None):
+        """Internal use for changing the color, external should add to the color ranking heap"""
+        pen = self.pen()
+        pen.setColor(color)
+        self.setPen(pen)
+
+    def changeColor(
+        self,
+        color: QtCore.Qt.GlobalColor | None,
+        color_rank: ColorRank = ColorRank.BASE,
+    ):
+        """
+        Add to the color ranking then change the color
+        For now this is only iterating over 5 ranks so it shouldn't matter
+        If this is increased, then consideration should be taken of how this is done so it's not an O(n) operation each time
+        where n is the rank but each rank has to be able to be added and removed as seen fit
+        """
+        self._color_ranking[color_rank.value] = color
+        current_color = QtCore.Qt.GlobalColor.black
+        try:
+            current_color = next(
+                color for color in self._color_ranking if color is not None
+            )
+        except StopIteration as _:
+            pass
+        self._changeColor(current_color)
+
+    def resetColor(self):
+        self._color_ranking = [None] * len(ColorRank)
+
+
+class AlgoLine(ColorRankMixin, QtWidgets.QGraphicsLineItem):
+    pass
+
+
+class ConnectedRectItem(ConnectedMixin, ColorRankMixin, QtWidgets.QGraphicsRectItem):
     def __init__(
         self,
         item_settings: ItemSettings,
@@ -108,21 +158,23 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
         self.mode = mode
 
     def mouseMoveEvent(self, event: QtWidgets.QGraphicsSceneMouseEvent):
-        if self.mode == SceneMode.ACTION:
+        if self.mode == SceneMode.ACTION and self.selectable:
             drag = QtGui.QDrag(event.widget())
             drag_data = VariableDragData(self._name)
             drag.setMimeData(drag_data)
             drag.exec(QtCore.Qt.DropAction.MoveAction)
-        else:
+        elif self.mode != SceneMode.ACTION:
             return super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
-        self._signal_controller.mouseRelease.emit(self._name)
-        if event.scenePos().x() < self._boundary_left:
-            self.setX(self._boundary_left + DISTANCE_FROM_BOUNDARY)
-        elif event.scenePos().x() > self._boundary_right:
-            self.setX(self._boundary_right - DISTANCE_FROM_BOUNDARY)
+        if self.selectable:
+            self._signal_controller.mouseRelease.emit(self._name)
+            if self.mode != SceneMode.ACTION:
+                if event.scenePos().x() < self._boundary_left:
+                    self.setX(self._boundary_left + DISTANCE_FROM_BOUNDARY)
+                elif event.scenePos().x() > self._boundary_right:
+                    self.setX(self._boundary_right - DISTANCE_FROM_BOUNDARY)
 
     def hoverEnterEvent(self, event: QtWidgets.QGraphicsSceneHoverEvent):
         self._signal_controller.mouseEnter.emit(self._name)
@@ -133,9 +185,11 @@ class ConnectedRectItem(ConnectedMixin, QtWidgets.QGraphicsRectItem):
         return super().hoverLeaveEvent(event)
 
     def createTextItem(self, text: str, x: int, y: int):
-        item = QtWidgets.QGraphicsSimpleTextItem()
-        item.setText(text)
+        """Adding the parent item to the constructor caused text to not appear, but using setParentItem instead works"""
+        item = QtWidgets.QGraphicsTextItem(text)
+        item.setDefaultTextColor(QtCore.Qt.GlobalColor.black)
         item.setParentItem(self)
+        item.setTextWidth(MAX_TEXT_WIDTH)
         item.setPos(x, y)
         return item
 

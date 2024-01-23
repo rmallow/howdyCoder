@@ -236,10 +236,10 @@ class CreateFunctionAction(
             .settings.getGroupDict(ACTION_LIST)
             .items()
         ):
-            if v.type_ == ActionTypeEnum.EVENT.value:
+            if v.type_ != ActionTypeEnum.TRIGGER.value:
                 self._available_input_table_model.appendRow(
                     [
-                        QtGui.QStandardItem(ActionTypeEnum.EVENT.value.capitalize()),
+                        QtGui.QStandardItem(v.type_.capitalize()),
                         QtGui.QStandardItem(k),
                         QtGui.QStandardItem(", ".join(v.input_.keys())),
                     ]
@@ -278,9 +278,12 @@ class CreateFunctionAction(
             if display_name not in self._curr_selected:
                 self._curr_selected.add(display_name)
                 true_name = (
-                    f"{group}-{name}"
-                    if group != ActionTypeEnum.EVENT.value.capitalize()
-                    else name
+                    name
+                    if (
+                        group == ActionTypeEnum.EVENT.value.capitalize()
+                        or group == ActionTypeEnum.TEXT_MERGER.value.capitalize()
+                    )
+                    else f"{group}-{name}"
                 )
                 source_item = QtGui.QStandardItem(display_name)
                 source_item.setData(true_name, SELECTED_TRUE_NAME_ROLE)

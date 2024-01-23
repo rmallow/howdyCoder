@@ -63,6 +63,7 @@ class CreateBasePage(
         self.creator_type: CreateWizardItemType = None  # assigned after the fact
         self.program_settings: ProgramSettings = None  # assigned after the fact
         self.scene: AlgoTopoScene = None  # assigned after the fact
+        self.editing_name: str = ""  # assigned after the fact
         self.back_enabled = True
         self.next_enabled = True
         self.suggested_validity = ItemValidity.VALID

@@ -4,7 +4,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from enum import IntEnum, auto
 
-from ..libraries.textMerger import STARTING_BRACE, ENDING_BRACE
+from ..libraries.textMerger import STARTING_BRACE, ENDING_BRACE, isVarText
 
 OBJECT_REPLACEMENT_CHARACTER = "\uFFFC"
 
@@ -126,3 +126,25 @@ class VariableTextEdit(QtWidgets.QTextEdit):
         if current_string:
             res.append("".join(current_string))
         return res
+
+    def setTextFromList(
+        self, variable_text_list: typing.List[str], current_items: typing.Dict
+    ) -> None:
+        for text in variable_text_list:
+            if (
+                isVarText(text)
+                and text[len(STARTING_BRACE) : -len(ENDING_BRACE)] in current_items
+                and current_items[
+                    text[len(STARTING_BRACE) : -len(ENDING_BRACE)]
+                ].isVisible()
+            ):
+                self._ui.drag_edit.insertTextBlock(
+                    text[len(STARTING_BRACE) : -len(ENDING_BRACE)]
+                )
+            else:
+                cursor = self._ui.drag_edit.textCursor()
+                cursor.movePosition(
+                    QtGui.QTextCursor.MoveOperation.End,
+                    QtGui.QTextCursor.MoveMode.MoveAnchor,
+                )
+                cursor.insertText(text)

@@ -132,7 +132,7 @@
             </font>
            </property>
            <property name="text">
-            <string>For triggers, assign a output function to be performed if the above function returns true. The splitting of these functions is done to enable reusability of functions. Although, you can just do your intended outputting in the above function. This makes the below output function not required.</string>
+            <string>For triggers, assign a output function to be performed if the above function returns true.</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -153,7 +153,7 @@
       <item>
        <widget class="QWidget" name="suggested_data_box_widget" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
           <horstretch>0</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
@@ -188,7 +188,7 @@
             </font>
            </property>
            <property name="text">
-            <string>The below are names that we parsed from the functions that accessed data_set. It is suggested to assign inputs to these names, unless you know otherwise.</string>
+            <string>The below are names that we parsed from the functions that accessed data_set. It is suggested to assign inputs to these names.</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -201,10 +201,22 @@
          <item>
           <widget class="QListWidget" name="suggested_data_set">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>

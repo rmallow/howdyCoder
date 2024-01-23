@@ -124,6 +124,7 @@ class CreateWizard(
 
         self._current_index: int = 0
         self.current_config: ItemSettings = ItemSettings()
+        self._editing_name: str = ""
 
         self._animation_group = QtCore.QParallelAnimationGroup(self)
         self._graphics_effects = []
@@ -162,11 +163,12 @@ class CreateWizard(
             page.current_config = self.current_config
             page.helper_data = self.helper_data
             page.creator_type = self._creator_type
+            page.editing_name = self._editing_name
             page.program_settings = program_settings
             page.scene = scene
             if page.graphicsEffect():
-                    page.graphicsEffect().setEnabled(False)
-                    page.graphicsEffect().deleteLater()
+                page.graphicsEffect().setEnabled(False)
+                page.graphicsEffect().deleteLater()
             page.reset()
             page.hide()
         self._current_create_widgets_list = self.getCurrentPageList()
@@ -392,6 +394,10 @@ class CreateWizard(
     ):
         self._current_index = 0
         self._creator_type = type_
+        if item_settings is not None and item_settings.name:
+            self._editing_name = item_settings.name
+        else:
+            self._editing_name = ""
         # must reset before we assign values
         self.reset()
         if item_settings is None:

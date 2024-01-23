@@ -1,3 +1,7 @@
+from typing import Optional
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QResizeEvent
+from PySide6.QtWidgets import QWidget
 from .createBasePage import ItemValidity, CreateBasePage
 
 from ..tutorialOverlay import AbstractTutorialClass
@@ -8,7 +12,7 @@ from ..qtUiFiles import ui_createBuiltInAction
 from ...core.dataStructs import ActionSettings, InputSettings
 from ...core import librarySingleton
 
-from ...libraries.textMerger import VARIABLE_TEXT_LIST_ARG_NAME, isVarText
+from ...libraries.textMerger import VARIABLE_TEXT_LIST_ARG_NAME
 
 import typing
 from collections import Counter
@@ -17,6 +21,28 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 SELECTED_NAME_COLUMN = 0
 SELECTED_REQUIRES_NEW_COLUMN = 1
+
+
+class WordWrapHeader(QtWidgets.QHeaderView):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.setDefaultAlignment(
+            QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.TextFlag.TextWordWrap
+        )
+
+    def sectionSizeFromContents(self, logicalIndex: int) -> QSize:
+        text = self.model().headerData(
+            logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DisplayRole
+        )
+        fM = self.fontMetrics()
+        rect = fM.boundingRect(
+            QtCore.QRect(0, 0, self.sectionSize(logicalIndex), 5000),
+            self.defaultAlignment(),
+            text,
+        )
+        buffer = QtCore.QSize(2, 25)
+        together = rect.size() + buffer
+        return together
 
 
 class CreateBuiltInAction(
@@ -32,6 +58,12 @@ class CreateBuiltInAction(
 
         self._selected_counter = Counter()
         self._selected_input_table_model = QtGui.QStandardItemModel()
+        self._ui.selected_table_view.setHorizontalHeader(
+            WordWrapHeader(
+                QtCore.Qt.Orientation.Horizontal, self._ui.selected_table_view
+            )
+        )
+
         self._selected_input_table_model.setHorizontalHeaderLabels(
             ["Source", "Requires New"]
         )
@@ -40,31 +72,46 @@ class CreateBuiltInAction(
         self._ui.drag_edit.insertedBlock.connect(self.insertedBlock)
         self._ui.drag_edit.removedBlocks.connect(self.removedBlock)
 
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        size = (
+            self._ui.selected_table_view.horizontalHeader()
+            .fontMetrics()
+            .boundingRect(
+                QtCore.QRect(0, 0, 2000, 5000),
+                self._ui.selected_table_view.horizontalHeader().defaultAlignment(),
+                "Requires New",
+            )
+        ).size() + QtCore.QSize(40, 25)
+        self._ui.selected_table_view.horizontalHeader().setMinimumSectionSize(
+            size.width()
+        )
+        self._ui.selected_table_view.setColumnWidth(
+            0,
+            self._ui.selected_table_view.width()
+            - self._ui.selected_table_view.horizontalHeader().minimumSectionSize(),
+        )
+        self._ui.selected_table_view.setColumnWidth(
+            1,
+            self._ui.selected_table_view.horizontalHeader().minimumSectionSize(),
+        )
+
+        return super().resizeEvent(event)
+
     def loadPage(self) -> None:
         curr_settings: ActionSettings = self.parent_page.getConfig()
         self._ui.graphics_view.setScene(self.parent_page.scene)
-        self.parent_page.scene.setMode(SceneMode.ACTION, curr_settings.name)
+        self.parent_page.scene.setMode(SceneMode.ACTION, self.parent_page.editing_name)
         if (
             curr_settings.calc_function
             and VARIABLE_TEXT_LIST_ARG_NAME
             in curr_settings.calc_function.internal_parameters
         ):
-            for text in curr_settings.calc_function.internal_parameters[
-                VARIABLE_TEXT_LIST_ARG_NAME
-            ]:
-                if (
-                    isVarText(text)
-                    and text[1:-1] in self.parent_page.scene.current_items
-                    and self.parent_page.scene.current_items[text[1:-1]].isVisible()
-                ):
-                    self._ui.drag_edit.insertTextBlock(text[1:-1])
-                else:
-                    cursor = self._ui.drag_edit.textCursor()
-                    cursor.movePosition(
-                        QtGui.QTextCursor.MoveOperation.End,
-                        QtGui.QTextCursor.MoveMode.MoveAnchor,
-                    )
-                    cursor.insertText(text)
+            self._ui.drag_edit.setTextFromList(
+                curr_settings.calc_function.internal_parameters[
+                    VARIABLE_TEXT_LIST_ARG_NAME
+                ],
+                self.parent_page.scene.current_items,
+            )
 
     def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         return {
@@ -75,7 +122,9 @@ class CreateBuiltInAction(
         }
 
     def reset(self) -> None:
-        self._selected_input_table_model.clear()
+        self._selected_input_table_model.removeRows(
+            0, self._selected_input_table_model.rowCount()
+        )
         self._selected_counter = Counter()
         self._ui.drag_edit.clear()
 
