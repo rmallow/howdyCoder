@@ -34,8 +34,6 @@ class outputSelect(
         self._selectItemUI = ui_outputSelectItem.Ui_OutputSelectItem()
         self._select_item_widget = QtWidgets.QWidget()
         self._selectItemUI.setupUi(self._select_item_widget)
-        # handlers aren't currently supported but don't want to remove code pertaining to them
-        self._selectItemUI.handlerBox.setHidden(True)
 
         # Load select type UI
         self._selectTypeUI = ui_outputSelectType.Ui_OutputSelectType()
@@ -74,9 +72,6 @@ class outputSelect(
             self.graphSettingsWidget.mainWidget
         )
 
-    def resetHandlerModel(self):
-        self._selectItemUI.handlerComboBox.setCurrentIndex(-1)
-
     def resetBlockModel(self):
         self._selectItemUI.blockComboBox.setCurrentIndex(-1)
 
@@ -86,12 +81,6 @@ class outputSelect(
         self._selectItemUI.blockComboBox.textActivated.connect(self.itemSelected)
         self.model.program_combo_model.rowsInserted.connect(self.resetBlockModel)
         self.model.program_combo_model.rowsRemoved.connect(self.resetBlockModel)
-
-        self._selectItemUI.handlerComboBox.setModel(self.model.handlerComboModel)
-        self.resetHandlerModel()
-        self._selectItemUI.handlerComboBox.textActivated.connect(self.itemSelected)
-        self.model.handlerComboModel.rowsInserted.connect(self.resetHandlerModel)
-        self.model.handlerComboModel.rowsRemoved.connect(self.resetHandlerModel)
 
     def initSelectType(self):
         self._selectTypeUI.typeComboBox.setModel(self.model.typeModel)
@@ -144,13 +133,9 @@ class outputSelect(
         self.isBlockItem = "block" in self.sender().objectName()
 
         if self.isBlockItem:
-            self._selectTypeUI.itemLabel.setText("Block: " + str(self.item))
-            self._selectItemUI.handlerComboBox.setCurrentIndex(-1)
+            self._selectTypeUI.itemLabel.setText("Program: " + str(self.item))
             index = self._selectItemUI.blockComboBox.currentIndex()
             self.columnNames = self.model.program_combo_model.item(index).data()
-        else:
-            self._selectTypeUI.itemLabel.setText("Handler: " + str(self.item))
-            self._selectItemUI.blockComboBox.setCurrentIndex(-1)
 
         self.selectionSettings[ITEM] = text
         animations.fadeStart(
@@ -202,7 +187,7 @@ class outputSelect(
                     "Error: Select at least one column"
                 )
                 isValid = False
-        elif self.selectionSettings[TYPE] == outputTypesEnum.FEED.value:
+        elif self.selectionSettings[TYPE] == outputTypesEnum.TABLE.value:
             pass
 
         if isValid:

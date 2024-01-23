@@ -17,7 +17,7 @@ import typing
 from PySide6 import QtWidgets, QtCore
 
 OUTPUT_VIEW_TYPE_TO_VIEW_CLASS = {
-    outputTypesEnum.FEED.value: OutputViewFeed,
+    outputTypesEnum.TABLE.value: OutputViewFeed,
     outputTypesEnum.GRAPH.value: outputViewGraph,
     outputTypesEnum.PRINTED.value: OutputViewPrinted,
 }

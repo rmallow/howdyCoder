@@ -13,7 +13,7 @@ class CreateWizardItemType(str, Enum):
 
 
 class outputTypesEnum(Enum):
-    FEED = "Feed"
+    TABLE = "Table"
     GRAPH = "Graph"
     PRINTED = "Printed"
 

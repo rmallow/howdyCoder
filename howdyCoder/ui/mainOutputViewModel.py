@@ -89,7 +89,7 @@ class mainOutputViewModel(QtCore.QObject):
         """
         model = None
         if (
-            selection_settings[TYPE] == outputTypesEnum.FEED.value
+            selection_settings[TYPE] == outputTypesEnum.TABLE.value
             or selection_settings[TYPE] == outputTypesEnum.GRAPH.value
         ):
             m = msg.message(

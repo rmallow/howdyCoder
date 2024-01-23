@@ -36,9 +36,11 @@ class Ui_OutputSelectItem(object):
 
         self.verticalLayout.addWidget(self.label)
 
-        self.mainHLayout = QHBoxLayout()
+        self.widget = QWidget(OutputSelectItem)
+        self.widget.setObjectName(u"widget")
+        self.mainHLayout = QHBoxLayout(self.widget)
         self.mainHLayout.setObjectName(u"mainHLayout")
-        self.blockWidget = QWidget(OutputSelectItem)
+        self.blockWidget = QWidget(self.widget)
         self.blockWidget.setObjectName(u"blockWidget")
         self.blockVLayout = QVBoxLayout(self.blockWidget)
         self.blockVLayout.setSpacing(0)
@@ -51,40 +53,21 @@ class Ui_OutputSelectItem(object):
 
         self.blockComboBox = QComboBox(self.blockWidget)
         self.blockComboBox.setObjectName(u"blockComboBox")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy1 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.blockComboBox.sizePolicy().hasHeightForWidth())
         self.blockComboBox.setSizePolicy(sizePolicy1)
+        self.blockComboBox.setMinimumSize(QSize(200, 0))
+        self.blockComboBox.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
 
         self.blockVLayout.addWidget(self.blockComboBox)
 
 
         self.mainHLayout.addWidget(self.blockWidget)
 
-        self.handlerBox = QWidget(OutputSelectItem)
-        self.handlerBox.setObjectName(u"handlerBox")
-        self.handlerVLayout = QVBoxLayout(self.handlerBox)
-        self.handlerVLayout.setSpacing(0)
-        self.handlerVLayout.setObjectName(u"handlerVLayout")
-        self.handlerLabel = QLabel(self.handlerBox)
-        self.handlerLabel.setObjectName(u"handlerLabel")
-        self.handlerLabel.setAlignment(Qt.AlignCenter)
 
-        self.handlerVLayout.addWidget(self.handlerLabel)
-
-        self.handlerComboBox = QComboBox(self.handlerBox)
-        self.handlerComboBox.setObjectName(u"handlerComboBox")
-        sizePolicy1.setHeightForWidth(self.handlerComboBox.sizePolicy().hasHeightForWidth())
-        self.handlerComboBox.setSizePolicy(sizePolicy1)
-
-        self.handlerVLayout.addWidget(self.handlerComboBox)
-
-
-        self.mainHLayout.addWidget(self.handlerBox)
-
-
-        self.verticalLayout.addLayout(self.mainHLayout)
+        self.verticalLayout.addWidget(self.widget)
 
 
         self.retranslateUi(OutputSelectItem)
@@ -96,6 +79,5 @@ class Ui_OutputSelectItem(object):
         OutputSelectItem.setWindowTitle(QCoreApplication.translate("OutputSelectItem", u"outputSelectItem", None))
         self.label.setText(QCoreApplication.translate("OutputSelectItem", u"Select an Item", None))
         self.blockLabel.setText(QCoreApplication.translate("OutputSelectItem", u"Algos", None))
-        self.handlerLabel.setText(QCoreApplication.translate("OutputSelectItem", u"Handlers", None))
     # retranslateUi
 
