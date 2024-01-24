@@ -15,15 +15,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QHBoxLayout, QHeaderView,
-    QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QSpacerItem, QTableView, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QHBoxLayout,
+    QHeaderView, QLabel, QLineEdit, QPushButton,
+    QSizePolicy, QSpacerItem, QTableView, QVBoxLayout,
+    QWidget)
 
 class Ui_OutputViewFeed(object):
     def setupUi(self, OutputViewFeed):
         if not OutputViewFeed.objectName():
             OutputViewFeed.setObjectName(u"OutputViewFeed")
-        OutputViewFeed.resize(1115, 523)
+        OutputViewFeed.resize(690, 444)
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -51,7 +52,7 @@ class Ui_OutputViewFeed(object):
 
         self.horizontalLayout.addWidget(self.filterButton)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
@@ -59,6 +60,16 @@ class Ui_OutputViewFeed(object):
         self.showIndexBox.setObjectName(u"showIndexBox")
 
         self.horizontalLayout.addWidget(self.showIndexBox)
+
+        self.horizontalSpacer_3 = QSpacerItem(20, 20, QSizePolicy.Maximum, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_3)
+
+        self.word_wrap_box = QCheckBox(self.filterWidget)
+        self.word_wrap_box.setObjectName(u"word_wrap_box")
+        self.word_wrap_box.setChecked(True)
+
+        self.horizontalLayout.addWidget(self.word_wrap_box)
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -75,6 +86,9 @@ class Ui_OutputViewFeed(object):
         sizePolicy1.setHeightForWidth(self.tableView.sizePolicy().hasHeightForWidth())
         self.tableView.setSizePolicy(sizePolicy1)
         self.tableView.setMaximumSize(QSize(16777215, 16777215))
+        self.tableView.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.tableView.horizontalHeader().setMinimumSectionSize(100)
+        self.tableView.verticalHeader().setDefaultSectionSize(50)
 
         self.verticalLayout.addWidget(self.tableView)
 
@@ -89,5 +103,6 @@ class Ui_OutputViewFeed(object):
         self.label.setText(QCoreApplication.translate("OutputViewFeed", u"Filter:", None))
         self.filterButton.setText(QCoreApplication.translate("OutputViewFeed", u"Apply Filter", None))
         self.showIndexBox.setText(QCoreApplication.translate("OutputViewFeed", u"Show Index", None))
+        self.word_wrap_box.setText(QCoreApplication.translate("OutputViewFeed", u"Show All Text", None))
     # retranslateUi
 
