@@ -10,8 +10,10 @@ from .feed import feed
 from .dataBase import dataBase
 from . import dataSourceFactory as dF
 from .actionPool import ActionPool
+from .action import Action
 
 from ..core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY
+from ..core import topoSort
 
 import copy
 import typing
@@ -34,8 +36,9 @@ class AlgoManager(ProgramManager):
         ).settings
         dataSources = self._loadDataSources(algo_settings_with_user_funcs.data_sources)
         feed = self._loadFeed(dataSources)
+        topo_levels, _, _ = topoSort.getTopoSort(program_settings.settings)
         action_pool = self._loadActionPool(
-            algo_settings_with_user_funcs.action_list, feed
+            algo_settings_with_user_funcs.action_list, feed, topo_levels
         )
         algo = Algo(
             action_pool,
@@ -63,9 +66,12 @@ class AlgoManager(ProgramManager):
         return factory.create(data_source_settings, data_source_settings.type_)
 
     def _loadActionPool(
-        self, action_list_settings: typing.Dict[str, ActionSettings], feed
+        self,
+        action_list_settings: typing.Dict[str, ActionSettings],
+        feed,
+        topo_levels: typing.List[typing.List[str]],
     ) -> list:
-        actionList = []
+        action_dict: typing.Dict[str, Action] = {}
         factory = aF.actionFactory()
         for name, action_settings in action_list_settings.items():
             creator_type = action_settings.type_
@@ -80,8 +86,8 @@ class AlgoManager(ProgramManager):
             ):
                 self.columnNames.append(name)
             action.feed = feed
-            actionList.append(action)
-        return ActionPool(actionList)
+            action_dict[name] = action
+        return ActionPool(action_dict, topo_levels=topo_levels)
 
     def _loadFeed(self, dataSources: list[dataBase]) -> feed:
         return feed(dataSources)

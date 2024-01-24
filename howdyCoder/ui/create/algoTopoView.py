@@ -22,6 +22,7 @@ from ...core.dataStructs import (
 )
 
 from ...core.commonGlobals import ActionTypeEnum
+from ...core import topoSort
 
 from ...commonUtil.helpers import getDupeName
 
@@ -57,6 +58,10 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
         self.signal_controller.mouseLeft.connect(self.itemHoverLeft)
         self.signal_controller.mouseRelease.connect(self.itemSelected)
 
+        self.levels: typing.List[typing.List[str]] = [[]]
+        self.outgoing_mapping: topoSort.NodeMapping = defaultdict(list)
+        self.incoming_mapping: topoSort.NodeMapping = defaultdict(list)
+
     def reset(self):
         self.current_items = {}
         self.line_mapping = {}
@@ -70,30 +75,6 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
         for other in direction_container[name]:
             line_action(self.line_mapping[(name, other)])
             self.dfs(other, direction_container, item_action, line_action)
-
-    def getTopoSort(self, algo_config: AlgoSettings):
-        self.levels = [[]]
-        for key, data_source in algo_config.data_sources.items():
-            for output in data_source.output:
-                self.levels[0].append(f"{key}-{output}")
-        self.outgoing_mapping = defaultdict(list)
-        self.incoming_mapping = defaultdict(list)
-        incoming_count = defaultdict(int)
-        for key, action in algo_config.action_list.items():
-            incoming_count[key] = len(action.input_)
-            for name in action.input_.keys():
-                self.outgoing_mapping[name].append(key)
-                self.incoming_mapping[key].append(name)
-
-        while self.levels[-1]:
-            self.levels.append([])
-            for n in self.levels[-2]:
-                for other in self.outgoing_mapping[n]:
-                    incoming_count[other] -= 1
-                    if incoming_count[other] == 0:
-                        self.levels[-1].append(other)
-                        del incoming_count[other]
-        del self.levels[-1]
 
     def highlightNodes(
         self, name: str, color: QtCore.Qt.GlobalColor | None, color_rank=ColorRank.BASE
@@ -148,7 +129,7 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
         self.current_hover_item = ""
 
     def setConfig(self, creator_config: ProgramSettings):
-        self.getTopoSort(creator_config.settings)
+        self.levels, self.outgoing_mapping, self.incoming_mapping = topoSort.getTopoSort(creator_config.settings)
         max_height = 0
         for x in range(len(self.levels)):
             last_y = DISTANCE_BETWEEN

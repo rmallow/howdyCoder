@@ -33,10 +33,10 @@ class ScriptManager(ProgramManager):
     def loadActionPool(self, script_settings_with_user_funcs: ScriptSettings):
         factory = actionFactory()
         return ActionPool(
-            [
-                factory.create(
+            {
+                script_settings_with_user_funcs.name: factory.create(
                     script_settings_with_user_funcs.action,
                     script_settings_with_user_funcs.action.type_,
                 )
-            ]
+            }
         )
