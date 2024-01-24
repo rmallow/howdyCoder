@@ -138,11 +138,9 @@ class VariableTextEdit(QtWidgets.QTextEdit):
                     text[len(STARTING_BRACE) : -len(ENDING_BRACE)]
                 ].isVisible()
             ):
-                self._ui.drag_edit.insertTextBlock(
-                    text[len(STARTING_BRACE) : -len(ENDING_BRACE)]
-                )
+                self.insertTextBlock(text[len(STARTING_BRACE) : -len(ENDING_BRACE)])
             else:
-                cursor = self._ui.drag_edit.textCursor()
+                cursor = self.textCursor()
                 cursor.movePosition(
                     QtGui.QTextCursor.MoveOperation.End,
                     QtGui.QTextCursor.MoveMode.MoveAnchor,
