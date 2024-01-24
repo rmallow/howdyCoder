@@ -207,5 +207,7 @@ class CreateActionTypePage(CreateTypePage):
         current_type = self._ui.type_view.item(row).text()
         if current_type == ActionTypeEnum.TRIGGER.value:
             self.setSkipPages.emit([PageKeys.SETTINGS])
+        elif current_type == ActionTypeEnum.TEXT_MERGER.value:
+            self.setSkipPages.emit([PageKeys.PARAMETERS, PageKeys.SETTINGS])
         else:
             self.setSkipPages.emit([])
