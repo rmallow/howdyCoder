@@ -1,9 +1,6 @@
 import typing
-from typing import Optional, Union
 
-from PySide6 import QtWidgets, QtCore
-import PySide6.QtCore
-import PySide6.QtWidgets
+from PySide6 import QtWidgets, QtCore, QtGui
 
 
 def setWordWrapOnButton(button: QtWidgets.QPushButton):
@@ -43,3 +40,18 @@ def setCompleter(editor: QtWidgets.QWidget, completer_strings: typing.List[str])
     completer = QtWidgets.QCompleter(completer_strings, editor)
     editor.setCompleter(completer)
     return completer
+
+
+class StayOnTopInFocus:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        QtGui.QGuiApplication.instance().applicationStateChanged.connect(
+            self.changeAlwaysOnTop
+        )
+
+    def changeAlwaysOnTop(self, state: QtCore.Qt.ApplicationState):
+        self.setWindowFlag(
+            QtCore.Qt.WindowType.WindowStaysOnTopHint,
+            state == QtCore.Qt.ApplicationState.ApplicationActive,
+        )
+        self.show()

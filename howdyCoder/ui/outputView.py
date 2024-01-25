@@ -1,12 +1,14 @@
 from .tutorialOverlay import AbstractTutorialClass
 
 from .util import abstractQt
+from .util.qtUtil import StayOnTopInFocus
 
 from PySide6 import QtWidgets
 
 
 class outputView(
     AbstractTutorialClass,
+    StayOnTopInFocus,
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):

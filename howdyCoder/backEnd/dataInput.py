@@ -13,8 +13,8 @@ class dataInput(dataBase):
         self._data_queue.append(data)
 
     def getData(self):
-        self.getDataLogging()
         if self._data_queue:
+            self.getDataLogging()
             return self._data_queue.popleft()
 
     def loadData(self):
