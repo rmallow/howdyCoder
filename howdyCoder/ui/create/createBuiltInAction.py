@@ -7,6 +7,7 @@ from .createBasePage import ItemValidity, CreateBasePage
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
 from ..uiConstants import SceneMode
+from ..contextMenu import ContextResultType, handleContextResult
 from ..qtUiFiles import ui_createBuiltInAction
 
 from ...core.dataStructs import ActionSettings, InputSettings
@@ -69,8 +70,10 @@ class CreateBuiltInAction(
         )
         self._ui.selected_table_view.setModel(self._selected_input_table_model)
 
-        self._ui.drag_edit.insertedBlock.connect(self.insertedBlock)
-        self._ui.drag_edit.removedBlocks.connect(self.removedBlock)
+        self._ui.variable_edit.insertedBlock.connect(self.insertedBlock)
+        self._ui.variable_edit.removedBlocks.connect(self.removedBlock)
+
+        self._ui.select_button.released.connect(self.selectButton)
 
     def resizeEvent(self, event: QResizeEvent) -> None:
         size = (
@@ -105,17 +108,24 @@ class CreateBuiltInAction(
             curr_settings.calc_function
             and VARIABLE_TEXT_LIST_ARG_NAME
             in curr_settings.calc_function.internal_parameters
+            and not self._ui.variable_edit.getVariableText()
         ):
-            self._ui.drag_edit.setTextFromList(
+            self._ui.variable_edit.setTextFromList(
                 curr_settings.calc_function.internal_parameters[
                     VARIABLE_TEXT_LIST_ARG_NAME
                 ],
                 self.parent_page.scene.current_items,
             )
+        self.parent_page.scene.signal_controller.contextResult.connect(
+            lambda res: handleContextResult(self, res, self.CONTEXT_RESULT_FUNCTIONS),
+            QtCore.Qt.ConnectionType.UniqueConnection,
+        )
 
     def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
         return {
-            self._ui.drag_edit: ItemValidity.getEnum(self._ui.drag_edit.toPlainText()),
+            self._ui.variable_edit: ItemValidity.getEnum(
+                self._ui.variable_edit.toPlainText()
+            ),
             self._ui.data_set_box: ItemValidity.getEnum(
                 self._selected_input_table_model.rowCount() > 0
             ),
@@ -126,14 +136,14 @@ class CreateBuiltInAction(
             0, self._selected_input_table_model.rowCount()
         )
         self._selected_counter = Counter()
-        self._ui.drag_edit.clear()
+        self._ui.variable_edit.clear()
 
     def save(self) -> None:
         curr_settings: ActionSettings = self.parent_page.getConfig()
         curr_settings.calc_function = librarySingleton.getInternalLibrary().functions[0]
         curr_settings.calc_function.internal_parameters[
             VARIABLE_TEXT_LIST_ARG_NAME
-        ] = self._ui.drag_edit.getVariableText()
+        ] = self._ui.variable_edit.getVariableText()
         for row in range(self._selected_input_table_model.rowCount()):
             input_settings = InputSettings()
             input_settings.name = self._selected_input_table_model.item(
@@ -178,3 +188,13 @@ class CreateBuiltInAction(
         if self._selected_counter[text] == 1:
             self.removeFromSelectedTable(text)
         self._selected_counter[text] -= 1
+
+    def addVariable(self, name: str):
+        if name:
+            self._ui.variable_edit.insertTextBlock(name)
+
+    @QtCore.Slot()
+    def selectButton(self):
+        self.addVariable(self.parent_page.scene.current_selected_item)
+
+    CONTEXT_RESULT_FUNCTIONS = {ContextResultType.SELECT: addVariable}

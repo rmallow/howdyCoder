@@ -9,7 +9,6 @@ from .contextMenu import (
     ContextResult,
     ContextResultType,
     createAndDisplayMenu,
-    handleContextResult,
 )
 
 

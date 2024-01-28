@@ -4,7 +4,6 @@ from .algoTopoItem import ConnectedRectItem, TopoSignalController, ColorRank, Al
 from ..contextMenu import (
     ContextResultType,
     createAndDisplayMenu,
-    ContextResult,
     handleContextResult,
 )
 
@@ -70,8 +69,7 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
         self.clear()
 
     def dfs(self, name, direction_container, item_action, line_action):
-        if name != self.current_selected_item:
-            item_action(self.current_items[name])
+        item_action(self.current_items[name])
         for other in direction_container[name]:
             line_action(self.line_mapping[(name, other)])
             self.dfs(other, direction_container, item_action, line_action)
@@ -115,9 +113,12 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
     def itemSelected(self, name):
         self.changeColorHelper(self.current_selected_item, None, ColorRank.SELECTED)
         self.current_selected_item = name
-        self.changeColorHelper(
-            self.current_selected_item, QtCore.Qt.GlobalColor.yellow, ColorRank.SELECTED
-        )
+        if self.current_selected_item:
+            self.changeColorHelper(
+                self.current_selected_item,
+                QtCore.Qt.GlobalColor.yellow,
+                ColorRank.SELECTED,
+            )
 
     def itemHoverEnter(self, name):
         self.current_hover_item = name
@@ -129,7 +130,11 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
         self.current_hover_item = ""
 
     def setConfig(self, creator_config: ProgramSettings):
-        self.levels, self.outgoing_mapping, self.incoming_mapping = topoSort.getTopoSort(creator_config.settings)
+        (
+            self.levels,
+            self.outgoing_mapping,
+            self.incoming_mapping,
+        ) = topoSort.getTopoSort(creator_config.settings)
         max_height = 0
         for x in range(len(self.levels)):
             last_y = DISTANCE_BETWEEN
@@ -167,6 +172,7 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
 
     def setMode(self, mode: SceneMode, action_being_edited: str = ""):
         self.itemHoverLeft()
+        self.itemSelected("")
         for _, item in self.current_items.items():
             item.setMode(mode)
             item.resetColor()
