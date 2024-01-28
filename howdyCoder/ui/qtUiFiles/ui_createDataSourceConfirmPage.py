@@ -15,7 +15,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QLabel, QPlainTextEdit, QSizePolicy,
+from PySide6.QtWidgets import (QApplication, QLabel, QScrollArea, QSizePolicy,
     QVBoxLayout, QWidget)
 
 class Ui_CreateDataSourceConfirmPage(object):
@@ -25,29 +25,45 @@ class Ui_CreateDataSourceConfirmPage(object):
         CreateDataSourceConfirmPage.resize(540, 329)
         self.verticalLayout = QVBoxLayout(CreateDataSourceConfirmPage)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.label = QLabel(CreateDataSourceConfirmPage)
-        self.label.setObjectName(u"label")
+        self.title_label = QLabel(CreateDataSourceConfirmPage)
+        self.title_label.setObjectName(u"title_label")
         font = QFont()
-        font.setPointSize(15)
-        self.label.setFont(font)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.label.setWordWrap(True)
+        font.setPointSize(20)
+        self.title_label.setFont(font)
+        self.title_label.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout.addWidget(self.label)
+        self.verticalLayout.addWidget(self.title_label)
 
-        self.configTextView = QPlainTextEdit(CreateDataSourceConfirmPage)
-        self.configTextView.setObjectName(u"configTextView")
-        self.configTextView.setFont(font)
-        self.configTextView.setUndoRedoEnabled(False)
-        self.configTextView.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.scrollArea = QScrollArea(CreateDataSourceConfirmPage)
+        self.scrollArea.setObjectName(u"scrollArea")
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(20)
+        sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
+        self.scrollArea.setSizePolicy(sizePolicy)
+        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollArea.setWidgetResizable(False)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 514, 243))
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
-        self.verticalLayout.addWidget(self.configTextView)
+        self.verticalLayout.addWidget(self.scrollArea)
 
-        self.label_2 = QLabel(CreateDataSourceConfirmPage)
-        self.label_2.setObjectName(u"label_2")
-        self.label_2.setAlignment(Qt.AlignCenter)
+        self.confirm_label = QLabel(CreateDataSourceConfirmPage)
+        self.confirm_label.setObjectName(u"confirm_label")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(1)
+        sizePolicy1.setHeightForWidth(self.confirm_label.sizePolicy().hasHeightForWidth())
+        self.confirm_label.setSizePolicy(sizePolicy1)
+        font1 = QFont()
+        font1.setPointSize(15)
+        self.confirm_label.setFont(font1)
+        self.confirm_label.setAlignment(Qt.AlignCenter)
+        self.confirm_label.setWordWrap(True)
 
-        self.verticalLayout.addWidget(self.label_2)
+        self.verticalLayout.addWidget(self.confirm_label)
 
 
         self.retranslateUi(CreateDataSourceConfirmPage)
@@ -57,7 +73,7 @@ class Ui_CreateDataSourceConfirmPage(object):
 
     def retranslateUi(self, CreateDataSourceConfirmPage):
         CreateDataSourceConfirmPage.setWindowTitle(QCoreApplication.translate("CreateDataSourceConfirmPage", u"CreateDataSourceConfirmPage", None))
-        self.label.setText(QCoreApplication.translate("CreateDataSourceConfirmPage", u"The final config for your data source. Confirm to add or use the back buttons to go back and modify.", None))
-        self.label_2.setText("")
+        self.title_label.setText(QCoreApplication.translate("CreateDataSourceConfirmPage", u"TextLabel", None))
+        self.confirm_label.setText(QCoreApplication.translate("CreateDataSourceConfirmPage", u"Confirm your item before finishing. You can go back and modify.", None))
     # retranslateUi
 
