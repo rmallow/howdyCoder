@@ -176,6 +176,8 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
         for _, item in self.current_items.items():
             item.setMode(mode)
             item.resetColor()
+            item.show()
+            item.setSelectable(True)
         for line in self.line_mapping.values():
             line.show()
 
@@ -196,7 +198,10 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
                 self.current_items[action_being_edited].setSelectable(False)
 
             for item in self.current_items.values():
-                if item.item_settings.type_ == ActionTypeEnum.TRIGGER.value:
+                if (
+                    item._name != action_being_edited
+                    and item.item_settings.type_ == ActionTypeEnum.TRIGGER.value
+                ):
                     hideBoth(item)
 
     def contextMenuEvent(self, event: QtWidgets.QGraphicsSceneContextMenuEvent) -> None:

@@ -1,11 +1,8 @@
-from typing import Optional
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QResizeEvent
-from PySide6.QtWidgets import QWidget
 from .createBasePage import ItemValidity, CreateBasePage
 
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
+from ..util.qtUtil import WordWrapHeader
 from ..uiConstants import SceneMode
 from ..contextMenu import ContextResultType, handleContextResult
 from ..qtUiFiles import ui_createBuiltInAction
@@ -22,28 +19,6 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 SELECTED_NAME_COLUMN = 0
 SELECTED_REQUIRES_NEW_COLUMN = 1
-
-
-class WordWrapHeader(QtWidgets.QHeaderView):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.setDefaultAlignment(
-            QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.TextFlag.TextWordWrap
-        )
-
-    def sectionSizeFromContents(self, logicalIndex: int) -> QSize:
-        text = self.model().headerData(
-            logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DisplayRole
-        )
-        fM = self.fontMetrics()
-        rect = fM.boundingRect(
-            QtCore.QRect(0, 0, self.sectionSize(logicalIndex), 5000),
-            self.defaultAlignment(),
-            text,
-        )
-        buffer = QtCore.QSize(2, 25)
-        together = rect.size() + buffer
-        return together
 
 
 class CreateBuiltInAction(
@@ -75,7 +50,7 @@ class CreateBuiltInAction(
 
         self._ui.select_button.released.connect(self.selectButton)
 
-    def resizeEvent(self, event: QResizeEvent) -> None:
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         size = (
             self._ui.selected_table_view.horizontalHeader()
             .fontMetrics()
@@ -144,6 +119,7 @@ class CreateBuiltInAction(
         curr_settings.calc_function.internal_parameters[
             VARIABLE_TEXT_LIST_ARG_NAME
         ] = self._ui.variable_edit.getVariableText()
+        curr_settings.input_.clear()
         for row in range(self._selected_input_table_model.rowCount()):
             input_settings = InputSettings()
             input_settings.name = self._selected_input_table_model.item(

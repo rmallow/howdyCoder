@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QHBoxLayout,
-    QHeaderView, QLabel, QListView, QListWidget,
-    QListWidgetItem, QPushButton, QSizePolicy, QTableView,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QGraphicsView,
+    QHBoxLayout, QHeaderView, QLabel, QListView,
+    QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
+    QSpacerItem, QTableView, QVBoxLayout, QWidget)
 
 class Ui_CreateFunctionAction(object):
     def setupUi(self, CreateFunctionAction):
@@ -172,22 +172,38 @@ class Ui_CreateFunctionAction(object):
         self.widget_2.setObjectName(u"widget_2")
         self.verticalLayout_3 = QVBoxLayout(self.widget_2)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.label_2 = QLabel(self.widget_2)
+        self.widget_5 = QWidget(self.widget_2)
+        self.widget_5.setObjectName(u"widget_5")
+        self.horizontalLayout_6 = QHBoxLayout(self.widget_5)
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.horizontalLayout_6.setContentsMargins(-1, 8, -1, 8)
+        self.select_button = QPushButton(self.widget_5)
+        self.select_button.setObjectName(u"select_button")
+        self.select_button.setMinimumSize(QSize(100, 0))
+        self.select_button.setMaximumSize(QSize(100, 16777215))
+
+        self.horizontalLayout_6.addWidget(self.select_button)
+
+        self.label_2 = QLabel(self.widget_5)
         self.label_2.setObjectName(u"label_2")
+        font2 = QFont()
+        font2.setPointSize(20)
+        self.label_2.setFont(font2)
         self.label_2.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_3.addWidget(self.label_2)
+        self.horizontalLayout_6.addWidget(self.label_2)
 
-        self.availableInputTable = QTableView(self.widget_2)
-        self.availableInputTable.setObjectName(u"availableInputTable")
-        font2 = QFont()
-        font2.setPointSize(18)
-        self.availableInputTable.setFont(font2)
-        self.availableInputTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.availableInputTable.setSelectionMode(QAbstractItemView.NoSelection)
-        self.availableInputTable.horizontalHeader().setStretchLastSection(True)
+        self.horizontalSpacer = QSpacerItem(100, 20, QSizePolicy.Maximum, QSizePolicy.Minimum)
 
-        self.verticalLayout_3.addWidget(self.availableInputTable)
+        self.horizontalLayout_6.addItem(self.horizontalSpacer)
+
+
+        self.verticalLayout_3.addWidget(self.widget_5)
+
+        self.graphics_view = QGraphicsView(self.widget_2)
+        self.graphics_view.setObjectName(u"graphics_view")
+
+        self.verticalLayout_3.addWidget(self.graphics_view)
 
 
         self.horizontalLayout.addWidget(self.widget_2)
@@ -196,19 +212,23 @@ class Ui_CreateFunctionAction(object):
         self.widget_3.setObjectName(u"widget_3")
         self.verticalLayout_2 = QVBoxLayout(self.widget_3)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.label_3 = QLabel(self.widget_3)
+        self.widget_6 = QWidget(self.widget_3)
+        self.widget_6.setObjectName(u"widget_6")
+        self.horizontalLayout_7 = QHBoxLayout(self.widget_6)
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.horizontalLayout_7.setContentsMargins(-1, 8, -1, 8)
+        self.label_3 = QLabel(self.widget_6)
         self.label_3.setObjectName(u"label_3")
+        font3 = QFont()
+        font3.setPointSize(20)
+        font3.setBold(False)
+        self.label_3.setFont(font3)
         self.label_3.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_2.addWidget(self.label_3)
+        self.horizontalLayout_7.addWidget(self.label_3)
 
-        self.selectedInputTable = QTableView(self.widget_3)
-        self.selectedInputTable.setObjectName(u"selectedInputTable")
-        self.selectedInputTable.setFont(font2)
-        self.selectedInputTable.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.selectedInputTable.horizontalHeader().setStretchLastSection(True)
 
-        self.verticalLayout_2.addWidget(self.selectedInputTable)
+        self.verticalLayout_2.addWidget(self.widget_6)
 
         self.widget_4 = QWidget(self.widget_3)
         self.widget_4.setObjectName(u"widget_4")
@@ -216,13 +236,19 @@ class Ui_CreateFunctionAction(object):
         self.horizontalLayout_4.setSpacing(0)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.removeButton = QPushButton(self.widget_4)
-        self.removeButton.setObjectName(u"removeButton")
-
-        self.horizontalLayout_4.addWidget(self.removeButton)
-
 
         self.verticalLayout_2.addWidget(self.widget_4)
+
+        self.selected_table_view = QTableView(self.widget_3)
+        self.selected_table_view.setObjectName(u"selected_table_view")
+        self.selected_table_view.verticalHeader().setVisible(False)
+
+        self.verticalLayout_2.addWidget(self.selected_table_view)
+
+        self.removeButton = QPushButton(self.widget_3)
+        self.removeButton.setObjectName(u"removeButton")
+
+        self.verticalLayout_2.addWidget(self.removeButton)
 
 
         self.horizontalLayout.addWidget(self.widget_3)
@@ -262,9 +288,10 @@ class Ui_CreateFunctionAction(object):
         self.calc_func_label.setText(QCoreApplication.translate("CreateFunctionAction", u"Select the function that will operate on the data. Select by hitting the button below which will open a window for selection. The function selected determines what input is needed, so when selecting a function make sure the input you've seleced above works with that function. For more information on required input, see the documentation or guides. Extra parameters will be set on the next page.", None))
         self.label_6.setText(QCoreApplication.translate("CreateFunctionAction", u"For triggers, assign a output function to be performed if the above function returns true.", None))
         self.label.setText(QCoreApplication.translate("CreateFunctionAction", u"The below are names that we parsed from the functions that accessed data_set. It is suggested to assign inputs to these names.", None))
-        self.data_set_label.setText(QCoreApplication.translate("CreateFunctionAction", u"From the left table,  select which columns you'd need as input. These will be added to the table on the right.  For use in the function, you can rename them in the table on the right as needed. To remove, select a row in the input table and then hit the remove button.", None))
-        self.label_2.setText(QCoreApplication.translate("CreateFunctionAction", u"Available Inputs", None))
-        self.label_3.setText(QCoreApplication.translate("CreateFunctionAction", u"Selected Input", None))
+        self.data_set_label.setText(QCoreApplication.translate("CreateFunctionAction", u"Select the data using the select button or right click. Modify the settings of the data in the table to right.", None))
+        self.select_button.setText(QCoreApplication.translate("CreateFunctionAction", u"Select", None))
+        self.label_2.setText(QCoreApplication.translate("CreateFunctionAction", u"Selectable Data Set", None))
+        self.label_3.setText(QCoreApplication.translate("CreateFunctionAction", u"Selected Data", None))
         self.removeButton.setText(QCoreApplication.translate("CreateFunctionAction", u"Remove", None))
         self.label_5.setText(QCoreApplication.translate("CreateFunctionAction", u"Select the data type that you'd like to be the input for your function", None))
     # retranslateUi

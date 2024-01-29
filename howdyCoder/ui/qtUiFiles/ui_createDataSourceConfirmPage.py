@@ -28,7 +28,7 @@ class Ui_CreateDataSourceConfirmPage(object):
         self.title_label = QLabel(CreateDataSourceConfirmPage)
         self.title_label.setObjectName(u"title_label")
         font = QFont()
-        font.setPointSize(20)
+        font.setPointSize(30)
         self.title_label.setFont(font)
         self.title_label.setAlignment(Qt.AlignCenter)
 

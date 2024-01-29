@@ -82,6 +82,7 @@ class Ui_CreateBuiltInAction(object):
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.widget_2 = QWidget(self.widget_3)
         self.widget_2.setObjectName(u"widget_2")
+        self.widget_2.setLayoutDirection(Qt.LeftToRight)
         self.horizontalLayout_3 = QHBoxLayout(self.widget_2)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.select_button = QPushButton(self.widget_2)

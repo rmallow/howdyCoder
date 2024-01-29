@@ -106,6 +106,9 @@
          </property>
          <item>
           <widget class="QWidget" name="widget_2" native="true">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <widget class="QPushButton" name="select_button">

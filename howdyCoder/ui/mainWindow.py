@@ -258,4 +258,4 @@ class MainWindow(
 
     def testFunc(self):
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/crypto_trader.yml")
-        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/app_example.yml")
+        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/app2.yml")

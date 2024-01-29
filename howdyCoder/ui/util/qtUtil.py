@@ -60,79 +60,135 @@ class StayOnTopInFocus:
 class ExpandingLabelWidget(QtWidgets.QWidget):
     def __init__(self, text, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        layout = QtWidgets.QVBoxLayout(self)
+        layout = QtWidgets.QHBoxLayout(self)
         self.label = ElidedLabel(text)
-        self.label.setMaximumWidth(200)
-        self.setSizePolicy(
-            self.sizePolicy().horizontalPolicy(), QtWidgets.QSizePolicy.Policy.Maximum
-        )
-
         self.button = QtWidgets.QPushButton("+")
-        self.button.released.connect(self.label.toggleExpansion)
+        self.button.setToolTipDuration(0)
+        self.button.released.connect(self.buttonReleased)
+        self.label.updateFinished.connect(self.enableButton)
         layout.addWidget(self.button)
         layout.addWidget(self.label)
+        layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
+        self._button_enabled = True
+
+    @QtCore.Slot()
+    def enableButton(self):
+        self._button_enabled = True
+
+    @QtCore.Slot()
+    def buttonReleased(self):
+        if self._button_enabled:
+            self._button_enabled = False
+            self.label.toggleExpansion()
+            self.button.setText("+" if self.button.text() == "-" else "-")
 
 
 class ElidedLabel(QtWidgets.QLabel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._elide_mode = QtCore.Qt.TextElideMode.ElideRight
-        self._button_disabled = False
-        self._collapsed = True
+    updateFinished = QtCore.Signal()
 
-    def setElideMode(self, mode: QtCore.Qt.TextElideMode):
-        self._elide_mode = mode
-        self.update()
+    def __init__(self, text, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._text = text
+        self._collapsed = self._elide_text = True
+        self.min_height_collapsed = None
+        self.setWordWrap(True)
+        self.setMinimumWidth(500)
+        self.setMaximumWidth(500)
+        self.setMaximumHeight(1)
 
     def paintEvent(self, e: QtGui.QPaintEvent) -> None:
-        if self._elide_mode == QtCore.Qt.TextElideMode.ElideNone:
+        if not self._elide_text:
+            self.setText(self._text)
             return super().paintEvent(e)
+        self.setText("")
         painter = QtGui.QPainter(self)
-        fm = self.fontMetrics()
-        rect = self.contentsRect()
-        painter.drawText(
-            rect,
-            self.alignment(),
-            fm.elidedText(self.text(), self._elide_mode, rect.width()),
-        )
+        text_document = QtGui.QTextDocument(self._text, self)
+        block = text_document.begin()
+        lines_drawn = y = max_width = height = 0
+        while block.isValid() and lines_drawn < 3:
+            if not block.isVisible():
+                block = block.next()
+                continue
+            layout = block.layout()
+            rect = text_document.documentLayout().blockBoundingRect(block)
+            height = rect.height()
+            max_width = max(max_width, rect.width())
+            if block.text().strip():
+                layout.draw(painter, QtCore.QPoint(0, 0))
+                lines_drawn += 1
+                y += height + painter.fontMetrics().lineSpacing()
+                end_point = layout.position()
+            block = block.next()
+
+        if block.isValid():
+            painter.drawText(
+                QtCore.QPoint(
+                    max_width // 2,
+                    end_point.y() + height + painter.fontMetrics().lineSpacing(),
+                ),
+                "...",
+            )
+        if self.min_height_collapsed is None:
+            self.min_height_collapsed = y
+            self.setMinimumHeight(self.min_height_collapsed)
+            self.setMaximumHeight(self.min_height_collapsed)
+        painter.end()
 
     def animationFinished(self):
         if self._collapsed:
-            self.setWordWrap(False)
-            self.setElideMode(QtCore.Qt.TextElideMode.ElideRight)
-        self._button_disabled = False
+            self._elide_text = True
+            self.update()
+        self.updateFinished.emit()
 
     @QtCore.Slot()
     def toggleExpansion(self):
-        if not self._button_disabled:
-            self._button_disabled = True
-            min_height = max_height = text_flag = 0
-            if self._elide_mode == QtCore.Qt.TextElideMode.ElideNone:
-                self._collapsed = True
-                text_flag = QtCore.Qt.TextFlag.TextSingleLine
-            else:
-                self._collapsed = False
-                self.setWordWrap(True)
-                self.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
-                text_flag = QtCore.Qt.TextFlag.TextWordWrap
-
+        min_height = max_height = 0
+        if self._collapsed:
+            self._elide_text = False
+            self._collapsed = False
             fm = self.fontMetrics()
             rect = self.rect()
             rect.setHeight(10000)
             min_height = max_height = fm.boundingRect(
-                rect, text_flag, self.text()
+                rect, QtCore.Qt.TextFlag.TextWordWrap, self._text
             ).height()
-            self.min_anim = QtCore.QPropertyAnimation(self, b"minimumHeight")
-            self.min_anim.setDuration(1000)
-            self.min_anim.setStartValue(self.minimumHeight())
-            self.min_anim.setEndValue(min_height)
+        else:
+            self._collapsed = True
+            min_height = max_height = self.min_height_collapsed
 
-            self.max_anim = QtCore.QPropertyAnimation(self, b"maximumHeight")
-            self.max_anim.setDuration(1000)
-            self.max_anim.setStartValue(self.maximumHeight())
-            self.max_anim.setEndValue(max_height)
-            self.group = QtCore.QParallelAnimationGroup()
-            self.group.addAnimation(self.min_anim)
-            self.group.addAnimation(self.max_anim)
-            self.group.start()
-            self.group.finished.connect(self.animationFinished)
+        self.min_anim = QtCore.QPropertyAnimation(self, b"minimumHeight")
+        self.min_anim.setDuration(1000)
+        self.min_anim.setStartValue(self.minimumHeight())
+        self.min_anim.setEndValue(min_height)
+
+        self.max_anim = QtCore.QPropertyAnimation(self, b"maximumHeight")
+        self.max_anim.setDuration(1000)
+        self.max_anim.setStartValue(self.maximumHeight())
+        self.max_anim.setEndValue(max_height)
+        self.group = QtCore.QParallelAnimationGroup()
+        self.group.addAnimation(self.min_anim)
+        self.group.addAnimation(self.max_anim)
+        self.group.start()
+        self.group.finished.connect(self.animationFinished)
+
+
+class WordWrapHeader(QtWidgets.QHeaderView):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.setDefaultAlignment(
+            QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.TextFlag.TextWordWrap
+        )
+
+    def sectionSizeFromContents(self, logicalIndex: int) -> QtCore.QSize:
+        text = self.model().headerData(
+            logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DisplayRole
+        )
+        fM = self.fontMetrics()
+        rect = fM.boundingRect(
+            QtCore.QRect(0, 0, self.sectionSize(logicalIndex), 5000),
+            self.defaultAlignment(),
+            text,
+        )
+        buffer = QtCore.QSize(2, 25)
+        together = rect.size() + buffer
+        return together
