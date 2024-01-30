@@ -18,6 +18,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPushButton,
     QSizePolicy, QWidget)
 
+from ..util.qtUtil import ExpandingLabelWidget
+
 class Ui_SelectorWidget(object):
     def setupUi(self, SelectorWidget):
         if not SelectorWidget.objectName():
@@ -40,7 +42,7 @@ class Ui_SelectorWidget(object):
 
         self.horizontalLayout.addWidget(self.selectionLabel)
 
-        self.extraDescriptionLabel = QLabel(SelectorWidget)
+        self.extraDescriptionLabel = ExpandingLabelWidget(SelectorWidget)
         self.extraDescriptionLabel.setObjectName(u"extraDescriptionLabel")
 
         self.horizontalLayout.addWidget(self.extraDescriptionLabel)
@@ -55,6 +57,5 @@ class Ui_SelectorWidget(object):
         SelectorWidget.setWindowTitle(QCoreApplication.translate("SelectorWidget", u"selectorWidget", None))
         self.selectorButton.setText(QCoreApplication.translate("SelectorWidget", u"Select", None))
         self.selectionLabel.setText(QCoreApplication.translate("SelectorWidget", u"No Item Selected", None))
-        self.extraDescriptionLabel.setText("")
     # retranslateUi
 

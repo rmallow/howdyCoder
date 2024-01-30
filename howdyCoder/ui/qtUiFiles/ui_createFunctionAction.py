@@ -241,6 +241,11 @@ class Ui_CreateFunctionAction(object):
 
         self.selected_table_view = QTableView(self.widget_3)
         self.selected_table_view.setObjectName(u"selected_table_view")
+        self.selected_table_view.setAcceptDrops(True)
+        self.selected_table_view.setProperty("showDropIndicator", True)
+        self.selected_table_view.setDragEnabled(True)
+        self.selected_table_view.setDragDropMode(QAbstractItemView.DropOnly)
+        self.selected_table_view.setDefaultDropAction(Qt.MoveAction)
         self.selected_table_view.verticalHeader().setVisible(False)
 
         self.verticalLayout_2.addWidget(self.selected_table_view)

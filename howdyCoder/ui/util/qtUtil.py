@@ -66,6 +66,7 @@ class ExpandingLabelWidget(QtWidgets.QWidget):
         self.button.setToolTipDuration(0)
         self.button.released.connect(self.buttonReleased)
         self.label.updateFinished.connect(self.enableButton)
+        self.label.elidedText.connect(self.button.setVisible)
         layout.addWidget(self.button)
         layout.addWidget(self.label)
         layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
@@ -82,13 +83,18 @@ class ExpandingLabelWidget(QtWidgets.QWidget):
             self.label.toggleExpansion()
             self.button.setText("+" if self.button.text() == "-" else "-")
 
+    def setText(self, text: str):
+        self.label.text = text
+        self.label.update()
+
 
 class ElidedLabel(QtWidgets.QLabel):
     updateFinished = QtCore.Signal()
+    elidedText = QtCore.Signal(bool)
 
     def __init__(self, text, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._text = text
+        self.text = text
         self._collapsed = self._elide_text = True
         self.min_height_collapsed = None
         self.setWordWrap(True)
@@ -98,11 +104,11 @@ class ElidedLabel(QtWidgets.QLabel):
 
     def paintEvent(self, e: QtGui.QPaintEvent) -> None:
         if not self._elide_text:
-            self.setText(self._text)
+            self.setText(self.text)
             return super().paintEvent(e)
         self.setText("")
         painter = QtGui.QPainter(self)
-        text_document = QtGui.QTextDocument(self._text, self)
+        text_document = QtGui.QTextDocument(self.text, self)
         block = text_document.begin()
         lines_drawn = y = max_width = height = 0
         while block.isValid() and lines_drawn < 3:
@@ -128,6 +134,7 @@ class ElidedLabel(QtWidgets.QLabel):
                 ),
                 "...",
             )
+        self.elidedText.emit(block.isValid())
         if self.min_height_collapsed is None:
             self.min_height_collapsed = y
             self.setMinimumHeight(self.min_height_collapsed)
@@ -150,7 +157,7 @@ class ElidedLabel(QtWidgets.QLabel):
             rect = self.rect()
             rect.setHeight(10000)
             min_height = max_height = fm.boundingRect(
-                rect, QtCore.Qt.TextFlag.TextWordWrap, self._text
+                rect, QtCore.Qt.TextFlag.TextWordWrap, self.text
             ).height()
         else:
             self._collapsed = True

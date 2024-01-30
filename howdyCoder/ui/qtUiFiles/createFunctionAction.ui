@@ -399,6 +399,21 @@
          </item>
          <item>
           <widget class="QTableView" name="selected_table_view">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="dragEnabled">
+            <bool>true</bool>
+           </property>
+           <property name="dragDropMode">
+            <enum>QAbstractItemView::DropOnly</enum>
+           </property>
+           <property name="defaultDropAction">
+            <enum>Qt::MoveAction</enum>
+           </property>
            <attribute name="verticalHeaderVisible">
             <bool>false</bool>
            </attribute>

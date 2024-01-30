@@ -1,5 +1,3 @@
-from ..variableTextEdit import VariableDragData
-
 from ..uiConstants import SceneMode
 from ..contextMenu import ContextResultType, createAndDisplayMenu
 from ...core.dataStructs import ItemSettings
@@ -16,6 +14,12 @@ DISTANCE_FROM_BOUNDARY = 15
 ITEM_MARGIN = 10
 ITEM_TEXT_GAP = 16
 MAX_TEXT_WIDTH = 150
+
+
+class VariableDragData(QtCore.QMimeData):
+    def __init__(self, text: str) -> None:
+        super().__init__()
+        self.setText(text)
 
 
 class ConnectedMixin:

@@ -4,6 +4,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from enum import IntEnum, auto
 
+from .create.algoTopoItem import VariableDragData
+
 from ..libraries.textMerger import STARTING_BRACE, ENDING_BRACE, isVarText
 
 OBJECT_REPLACEMENT_CHARACTER = "\uFFFC"
@@ -15,12 +17,6 @@ class Property(IntEnum):
 
 class ObjectTypes(IntEnum):
     VARIABLE_TEXT_OBJECT = QtGui.QTextFormat.ObjectTypes.UserObject + 1
-
-
-class VariableDragData(QtCore.QMimeData):
-    def __init__(self, text: str) -> None:
-        super().__init__()
-        self.setText(text)
 
 
 class VariableTextObject(QtGui.QPyTextObject):

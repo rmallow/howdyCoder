@@ -4,6 +4,7 @@ from ..qtUiFiles import ui_createFunctionAction
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt
 from .algoTopoView import SceneMode
+from .algoTopoItem import VariableDragData
 
 
 from ..selectorWidget import SelectorWidget
@@ -55,6 +56,7 @@ class CreateFunctionAction(
             ["Source", "Name", "Requires New", "Amount of Data"]
         )
         self._ui.selected_table_view.setModel(self._selected_input_table_model)
+        self._ui.selected_table_view.installEventFilter(self)
         self._ui.selected_table_view.setHorizontalHeader(
             WordWrapHeader(
                 QtCore.Qt.Orientation.Horizontal, self._ui.selected_table_view
@@ -108,6 +110,18 @@ class CreateFunctionAction(
         self.parent_page = None
 
         self._ui.graphics_view.scale(0.75, 0.75)
+
+    def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent):
+        if watched == self._ui.selected_table_view:
+            print(event.type())
+            if event.type() == QtCore.QEvent.Type.DragEnter:
+                event.acceptProposedAction()
+                return True
+            if event.type() == QtCore.QEvent.Type.Drop:
+                if isinstance(event.mimeData(), VariableDragData):
+                    self.availableSelected(event.mimeData().text())
+                    return True
+        return super().eventFilter(watched, event)
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         size = (
@@ -218,6 +232,7 @@ class CreateFunctionAction(
         """User has clicked available table so we add it to the selected model for display"""
 
         if name not in self._curr_selected:
+            self._curr_selected.add(name)
             source_item = QtGui.QStandardItem(name)
             name_item = QtGui.QStandardItem(name if rename is None else rename)
             requires_new_item = QtGui.QStandardItem()

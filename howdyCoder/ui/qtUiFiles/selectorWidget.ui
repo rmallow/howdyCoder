@@ -35,14 +35,18 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="extraDescriptionLabel">
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
+    <widget class="ExpandingLabelWidget" name="extraDescriptionLabel" native="true"/>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ExpandingLabelWidget</class>
+   <extends>QWidget</extends>
+   <header>..util.qtUtil</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
