@@ -113,7 +113,6 @@ class CreateFunctionAction(
 
     def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent):
         if watched == self._ui.selected_table_view:
-            print(event.type())
             if event.type() == QtCore.QEvent.Type.DragEnter:
                 event.acceptProposedAction()
                 return True
