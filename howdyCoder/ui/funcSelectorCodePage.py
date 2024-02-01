@@ -392,6 +392,10 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             self.enableControls(False)
 
     def setData(self, data: typing.Any):
+        try:
+            data = data.function_settings
+        except AttributeError as _:
+            pass
         if data is not None and isinstance(data, FunctionSettings):
             full_code = "\n".join(data.import_statements) + "\n\n" + data.code
             setup_text = createSetupString(data)

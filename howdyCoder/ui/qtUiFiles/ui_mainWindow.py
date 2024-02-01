@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (QApplication, QHBoxLayout, QMainWindow, QPushButt
 
 from ..controlWidget import ControlWidget
 from ..create.createWidget import CreateWidget
+from ..globalParameterPage import GlobalParameterPage
 from ..mainOutputView import mainOutputView
 from . import res_rc
 
@@ -64,18 +65,21 @@ class Ui_HowdyCoder(object):
         self.action_documentation = QAction(HowdyCoder)
         self.action_documentation.setObjectName(u"action_documentation")
         self.action_documentation.setMenuRole(QAction.NoRole)
-        self.actionAPI_Key = QAction(HowdyCoder)
-        self.actionAPI_Key.setObjectName(u"actionAPI_Key")
-        self.actionAPI_Key.setMenuRole(QAction.NoRole)
+        self.action_parameter_and_key = QAction(HowdyCoder)
+        self.action_parameter_and_key.setObjectName(u"action_parameter_and_key")
+        self.action_parameter_and_key.setMenuRole(QAction.NoRole)
+        self.action_output = QAction(HowdyCoder)
+        self.action_output.setObjectName(u"action_output")
+        self.action_output.setMenuRole(QAction.NoRole)
         self.centralwidget = QWidget(HowdyCoder)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.changePageButton = QPushButton(self.centralwidget)
-        self.changePageButton.setObjectName(u"changePageButton")
+        self.return_to_dashboard_button = QPushButton(self.centralwidget)
+        self.return_to_dashboard_button.setObjectName(u"return_to_dashboard_button")
 
-        self.verticalLayout.addWidget(self.changePageButton)
+        self.verticalLayout.addWidget(self.return_to_dashboard_button)
 
         self.widget = QWidget(self.centralwidget)
         self.widget.setObjectName(u"widget")
@@ -92,6 +96,9 @@ class Ui_HowdyCoder(object):
         self.controlPage = ControlWidget()
         self.controlPage.setObjectName(u"controlPage")
         self.stackedWidget.addWidget(self.controlPage)
+        self.global_parameter_page = GlobalParameterPage()
+        self.global_parameter_page.setObjectName(u"global_parameter_page")
+        self.stackedWidget.addWidget(self.global_parameter_page)
         self.createPage = CreateWidget()
         self.createPage.setObjectName(u"createPage")
         self.stackedWidget.addWidget(self.createPage)
@@ -115,16 +122,17 @@ class Ui_HowdyCoder(object):
         self.toolBar.setFloatable(False)
         HowdyCoder.addToolBar(Qt.TopToolBarArea, self.toolBar)
 
+        self.toolBar.addAction(self.action_output)
         self.toolBar.addAction(self.actionStatus)
         self.toolBar.addAction(self.actionLoad_Config)
         self.toolBar.addAction(self.actionLogging)
-        self.toolBar.addAction(self.actionAPI_Key)
+        self.toolBar.addAction(self.action_parameter_and_key)
         self.toolBar.addAction(self.invisible_action)
         self.toolBar.addAction(self.action_help_menu)
 
         self.retranslateUi(HowdyCoder)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(HowdyCoder)
@@ -142,8 +150,13 @@ class Ui_HowdyCoder(object):
         self.invisible_action.setText("")
         self.action_tutorial.setText(QCoreApplication.translate("HowdyCoder", u"Tutorial", None))
         self.action_documentation.setText(QCoreApplication.translate("HowdyCoder", u"Documentation", None))
-        self.actionAPI_Key.setText(QCoreApplication.translate("HowdyCoder", u"Key Window", None))
-        self.changePageButton.setText(QCoreApplication.translate("HowdyCoder", u"Go To Output Page", None))
+        self.action_parameter_and_key.setText(QCoreApplication.translate("HowdyCoder", u"Parameters and Keys", None))
+        self.action_parameter_and_key.setIconText(QCoreApplication.translate("HowdyCoder", u"Parameters and Keys", None))
+#if QT_CONFIG(tooltip)
+        self.action_parameter_and_key.setToolTip(QCoreApplication.translate("HowdyCoder", u"Parameters and Keys", None))
+#endif // QT_CONFIG(tooltip)
+        self.action_output.setText(QCoreApplication.translate("HowdyCoder", u"View Output", None))
+        self.return_to_dashboard_button.setText(QCoreApplication.translate("HowdyCoder", u"Return to Dashboard", None))
         self.toolBar.setWindowTitle(QCoreApplication.translate("HowdyCoder", u"toolBar", None))
     # retranslateUi
 

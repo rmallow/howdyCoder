@@ -33,28 +33,46 @@ class InputBox(QtWidgets.QWidget):
 
     def __init__(
         self,
-        data_source_name: str,
+        name: str,
         input_type: InputType,
+        hide_enter: bool = False,
+        hide_reset: bool = False,
+        hide_label: bool = False,
+        widget_constructor: typing.Callable | None = None,
+        getter: typing.Callable | None = None,
+        resetter: typing.Callable | None = None,
         parent: QtWidgets.QWidget | None = None,
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ) -> None:
         super().__init__(parent, f)
-        self._data_source_name = data_source_name
+        self._name = name
         self._input_type = input_type
-        assert self._input_type in self.INPUT_TYPE_TO_WIDGET
-        self._input_widget: InputGetterBase | QtWidgets.QWidget = (
-            self.INPUT_TYPE_TO_WIDGET[self._input_type](self)
+        self._widget_constructor = (
+            widget_constructor
+            if widget_constructor is not None
+            else self.INPUT_TYPE_TO_WIDGET[self._input_type]
         )
-        hide_enter = hide_reset = False
+        self._getter = (
+            getter
+            if getter is not None
+            else self.INPUT_TYPE_TO_GETTER.get(self._input_type, InputGetterBase.value)
+        )
+        self._resetter = (
+            resetter
+            if resetter is not None
+            else self.INPUT_TYPE_TO_RESET.get(self._input_type, InputGetterBase.clear)
+        )
+        self._input_widget: InputGetterBase | QtWidgets.QWidget = (
+            self._widget_constructor(self)
+        )
         if isinstance(self._input_widget, InputGetterBase):
             hide_enter = self._input_widget.HIDE_ENTER
             hide_reset = self._input_widget.HIDE_RESET
             self._input_widget.inputEntered.connect(self.inputEnteredWrapper)
         """Manual UI setup"""
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(
-            QtWidgets.QLabel(f"Data Source - {self._data_source_name}", self)
-        )
+        if not hide_label:
+            layout.addWidget(QtWidgets.QLabel(f"Data Source - {self._name}", self))
         layout.addWidget(self._input_widget)
         if not (hide_enter and hide_reset):
             button_box_widget = QtWidgets.QWidget(self)
@@ -72,26 +90,22 @@ class InputBox(QtWidgets.QWidget):
             layout.addWidget(button_box_widget)
         self.setLayout(layout)
 
+    def getInput(self) -> typing.Any | None:
+        return self._getter(self._input_widget)
+
     @QtCore.Slot()
     def enterPressed(self):
-        val = None
-        if self._input_type in self.INPUT_TYPE_TO_GETTER:
-            val = self.INPUT_TYPE_TO_GETTER[self._input_type](self._input_widget)
-        else:
-            val = self._input_widget.value()
+        val = self.getInput()
         if val is not None:
             self.inputEntered.emit(
-                InputData(code="", data_source_name=self._data_source_name, val=val)
+                InputData(code="", data_source_name=self._name, val=val)
             )
 
     @QtCore.Slot()
     def resetPressed(self):
-        if self._input_type in self.INPUT_TYPE_TO_RESET:
-            self.INPUT_TYPE_TO_RESET[self._input_type](self._input_widget)
-        else:
-            self._input_widget.clear()
+        self._resetter(self._input_widget)
 
     @QtCore.Slot()
     def inputEnteredWrapper(self, input_data: InputData):
-        input_data.data_source_name = self._data_source_name
+        input_data.data_source_name = self._name
         self.inputEntered.emit(input_data)

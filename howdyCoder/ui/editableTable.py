@@ -1,10 +1,14 @@
-from .funcSelector import FuncSelector, FunctionSettingsWithHelperData
-from .pathSelector import PathSelector, PathWithHelperData, PathType
-from .selectorBase import HelperData
+from .funcSelector import FuncSelector
+from .pathSelector import PathSelector, PathType
 from .selectorWidget import SelectorWidget
 
 from .util.abstractQt import getAbstactQtResolver, handleAbstractMethods
 from .util import qtUtil
+from .util.helperData import (
+    HelperData,
+    PathWithHelperData,
+    FunctionSettingsWithHelperData,
+)
 
 from ..commonUtil import helpers
 
@@ -26,14 +30,15 @@ from PySide6 import QtCore, QtWidgets
 class EditorType(Enum):
     _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
 
-    STRING = 0, "string"
-    COMBO = 1, "combo"
-    INTEGER = 2, "integer"
-    DECIMAL = 3, "decimal"
-    FUNC = 4, "function"
+    STRING = 0, "String"
+    COMBO = 1, "Combo"
+    INTEGER = 2, "Integer"
+    DECIMAL = 3, "Decimal"
+    FUNC = 4, "Function"
     FILE = 5, PathType.FILE.value
     FOLDER = 6, PathType.FOLDER.value
-    ANY = 7, "any"
+    GLOBAL_PARAMETER = 7, "Global Parameter"
+    ANY = 8, "any"
 
 
 SELECTOR_TYPES = set(
@@ -66,8 +71,15 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
                 comboValues = enumKey.editorValues
                 combo = QtWidgets.QComboBox(parent)
                 combo.setAutoFillBackground(True)
+                combo_hide_values = set()
+                # this is only set in some parameter tables
+                try:
+                    combo_hide_values = index.model().combo_hide_values
+                except AttributeError as _:
+                    pass
                 for comboValue in comboValues:
-                    combo.addItem(comboValue)
+                    if comboValue not in combo_hide_values:
+                        combo.addItem(comboValue)
                 return combo
         elif editorType == EditorType.INTEGER:
             spin = QtWidgets.QSpinBox(parent)
@@ -142,19 +154,17 @@ class EditableTableModel(
         self,
         enum: Enum,
         parent: typing.Optional[QtCore.QObject] = None,
+        combo_hide_values=None,
     ) -> None:
         self.enum = enum
         # these are special fields that interact with each other
         # so check ahead of time if they are there
         self.typeEnum = None
         self.valueEnum = None
-        self.descriptionEnum = None
         if hasattr(self.enum, "TYPE"):
             self.typeEnum = self.enum.TYPE
         if hasattr(self.enum, "VALUE"):
             self.valueEnum = self.enum.VALUE
-        if hasattr(self.enum, "DESCRIPTION"):
-            self.descriptionEnum = self.enum.DESCRIPTION
         self.values = []
 
         # used for selecting functions
@@ -166,6 +176,8 @@ class EditableTableModel(
         self.func_selector.itemSelected.connect(self.itemSelected)
         self.folder_selector.itemSelected.connect(self.itemSelected)
         self.file_selector.itemSelected.connect(self.itemSelected)
+
+        self.combo_hide_values = set(combo_hide_values) if combo_hide_values else set()
 
         super().__init__(parent=parent)
 
@@ -201,19 +213,14 @@ class EditableTableModel(
             valueKey = self.getValueKey(settings.index)
             if valueKey is not None:
                 label = ""
-                description = ""
                 if isinstance(settings, FunctionSettingsWithHelperData):
                     self.values[valueKey][self.valueEnum] = settings
-
-                    description = settings.function_settings.code
                     label = settings.function_settings.name
                     selectorWidget.data = settings.function_settings
                 elif isinstance(settings, PathWithHelperData):
                     self.values[valueKey][self.valueEnum] = settings.path
-                    description = settings.path
+                    label = settings.path
 
-                if self.descriptionEnum is not None:
-                    self.values[valueKey][self.descriptionEnum] = description
                 selectorWidget._ui.selectionLabel.setText(label)
                 self.dataChanged.emit(
                     settings.index, settings.index, [QtCore.Qt.DisplayRole]
@@ -281,8 +288,6 @@ class EditableTableModel(
                 and self.valueEnum is not None
             ):
                 if enumKey == self.typeEnum:
-                    if self.descriptionEnum is not None:
-                        self.safeSetValue(valueKey, self.descriptionEnum, None)
                     funcIndex = self.getIndex(self.valueEnum, valueKey)
                     # if the value was func, then we need to open the func editor
                     if value in SELECTOR_TYPES:

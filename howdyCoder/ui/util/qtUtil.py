@@ -50,11 +50,12 @@ class StayOnTopInFocus:
         )
 
     def changeAlwaysOnTop(self, state: QtCore.Qt.ApplicationState):
-        self.setWindowFlag(
-            QtCore.Qt.WindowType.WindowStaysOnTopHint,
-            state == QtCore.Qt.ApplicationState.ApplicationActive,
-        )
-        self.show()
+        if not self.isHidden():
+            self.setWindowFlag(
+                QtCore.Qt.WindowType.WindowStaysOnTopHint,
+                state == QtCore.Qt.ApplicationState.ApplicationActive,
+            )
+            self.show()
 
 
 class ExpandingLabelWidget(QtWidgets.QWidget):

@@ -2,8 +2,8 @@ from ...core.dataStructs import ScriptSettings, ActionSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..uiConstants import PageKeys
 from ..qtUiFiles.ui_createScriptPage import Ui_CreateScriptPage
-from ..funcSelector import FunctionSettingsWithHelperData
 
+from ..util.helperData import FunctionSettingsWithHelperData
 
 import typing
 import copy

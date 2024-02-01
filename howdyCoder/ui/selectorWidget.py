@@ -1,6 +1,10 @@
 from .selectorBase import SelectorBase
 from .qtUiFiles import ui_selectorWidget
 
+from .util.helperData import FunctionSettingsWithHelperData, PathWithHelperData
+
+import typing
+
 from PySide6 import QtCore, QtWidgets
 
 
@@ -22,6 +26,7 @@ class SelectorWidget(QtWidgets.QWidget):
         self.index = index
         self.default_prompt = default_prompt
         self.data = None
+        self._selector.itemSelected.connect(self.itemSelected)
 
     @QtCore.Slot()
     def showFuncSelector(self):
@@ -42,3 +47,21 @@ class SelectorWidget(QtWidgets.QWidget):
     def resetText(self):
         self._ui.selectionLabel.setText("No Item Selected")
         self._ui.extraDescriptionLabel.setText("")
+
+    def reset(self):
+        self.resetText()
+        self._selector.reset()
+        self._selector_data = None
+
+    def itemSelected(self, settings: typing.Any):
+        if isinstance(settings, FunctionSettingsWithHelperData):
+            label = settings.function_settings.name
+            self.data = settings.function_settings
+        elif isinstance(settings, PathWithHelperData):
+            label = settings.path
+            self.data = settings.path
+
+        self._ui.selectionLabel.setText(label)
+
+    def getSelectedData(self) -> typing.Any:
+        return self.data

@@ -1,9 +1,10 @@
-from ...core.dataStructs import ItemSettings, Parameter
-from .. import pathSelector
-from .. import funcSelector
-from .. import editableTable
+from ..core.dataStructs import ItemSettings, Parameter, FunctionSettings
+from . import pathSelector
+from . import editableTable
 
-from ...core.commonGlobals import (
+from .util import helperData
+
+from ..core.commonGlobals import (
     ENUM_VALUE,
     ENUM_DISPLAY,
     ENUM_TYPE,
@@ -36,16 +37,16 @@ class ParameterEnum(Enum):
             editableTable.EditorType.FUNC.display,
             editableTable.EditorType.FILE.display,
             editableTable.EditorType.FOLDER.display,
+            editableTable.EditorType.GLOBAL_PARAMETER.display,
         ],
         True,
     )
-    DESCRIPTION = 2, "Description", editableTable.EditorType.STRING, [], False
-    VALUE = 3, "Value", editableTable.EditorType.ANY, [], True
+    VALUE = 2, "Value", editableTable.EditorType.ANY, [], True
 
 
 class ParameterTableModel(editableTable.EditableTableModelAddRows):
-    def __init__(self, *args, **kwargs):
-        super().__init__(ParameterEnum)
+    def __init__(self, *args, combo_hide_values=None, **kwargs):
+        super().__init__(ParameterEnum, combo_hide_values=combo_hide_values)
         self.values: typing.List[typing.Dict[ParameterEnum, str]] = []
         self.current_names: typing.Set[str] = set()
 
@@ -74,13 +75,6 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
         self, index: QtCore.QModelIndex, role: int = QtCore.Qt.DisplayRole
     ) -> typing.Any:
         if (
-            role == QtCore.Qt.ToolTipRole
-            and index.column() == ParameterEnum.DESCRIPTION.value
-        ):
-            valueKey = self.getValueKey(index)
-            if ParameterEnum.DESCRIPTION in self.values[valueKey]:
-                return self.values[valueKey][ParameterEnum.DESCRIPTION]
-        elif (
             role == QtCore.Qt.ItemDataRole.DisplayRole
             or role == QtCore.Qt.ItemDataRole.EditRole
         ):
@@ -131,41 +125,32 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
 
         return returnConfig
 
-    def setDataFromSettings(self, settings: ItemSettings) -> None:
-        for name, param_settings in settings.parameters.items():
-            self.appendValue()
-            index = self.index(
-                self.rowCount() - 1, getattr(ParameterEnum.NAME, ENUM_VALUE)
-            )
-            self.setData(index, name)
-            self.setData(
-                index.siblingAtColumn(getattr(ParameterEnum.TYPE, ENUM_VALUE)),
-                param_settings.type_,
-            )
-            if param_settings.type_ in editableTable.SELECTOR_TYPES:
-                self.itemSelected(
-                    pathSelector.PathWithHelperData(
-                        index.siblingAtColumn(getattr(ParameterEnum.VALUE, ENUM_VALUE)),
-                        param_settings.value,
-                    )
-                )
-            else:
-                self.setData(
-                    index.siblingAtColumn(getattr(ParameterEnum.VALUE, ENUM_VALUE)),
-                    param_settings.value,
-                )
-        for name, setup_func_settings in settings.setup_functions.items():
-            self.appendValue()
-            index = self.index(
-                self.rowCount() - 1, getattr(ParameterEnum.NAME, ENUM_VALUE)
-            )
-            self.setData(index, name)
-            self.setData(
-                index.siblingAtColumn(getattr(ParameterEnum.TYPE, ENUM_VALUE)),
-                editableTable.EditorType.FUNC,
-            )
-            with_helper = funcSelector.addHelperData(setup_func_settings)
-            with_helper.index = index.siblingAtColumn(
+    def addItemToTable(
+        self, name, type_: str, val: typing.Any | str | FunctionSettings
+    ):
+        self.appendValue()
+        index = self.index(self.rowCount() - 1, getattr(ParameterEnum.NAME, ENUM_VALUE))
+        self.setData(index, name)
+        self.setData(
+            index.siblingAtColumn(getattr(ParameterEnum.TYPE, ENUM_VALUE)),
+            type_,
+        )
+        if type_ in editableTable.SELECTOR_TYPES:
+            with_helper_data = helperData.addHelperData(val)
+            with_helper_data.index = index.siblingAtColumn(
                 getattr(ParameterEnum.VALUE, ENUM_VALUE)
             )
-            self.itemSelected(with_helper)
+            self.itemSelected(with_helper_data)
+        else:
+            self.setData(
+                index.siblingAtColumn(getattr(ParameterEnum.VALUE, ENUM_VALUE)),
+                val,
+            )
+
+    def setDataFromSettings(self, settings: ItemSettings) -> None:
+        for name, param_settings in settings.parameters.items():
+            self.addItemToTable(name, param_settings.type_, param_settings.value)
+        for name, setup_func_settings in settings.setup_functions.items():
+            self.addItemToTable(
+                name, editableTable.EditorType.FUNC.display, setup_func_settings
+            )

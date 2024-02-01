@@ -6,7 +6,7 @@ from .mainModel import mainModel
 from .modInstallDialog import ModInstallDialog
 from .tutorialOverlay import AbstractTutorialClass
 from .create.creatorTypeWindow import CreatorTypeWindow
-from .keySetWindow import KeySetWindow
+from .keySetWidget import KeySetWindow
 
 from .util import abstractQt
 
@@ -105,6 +105,10 @@ class MainWindow(
             )
         )
 
+        self._ui.action_output.triggered.connect(
+            lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.outputPage)
+        )
+
         self._ui.createPage.addProgram.connect(self._main_model.addProgram)
         self._ui.createPage.addProgram.connect(
             lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
@@ -126,12 +130,8 @@ class MainWindow(
             self._main_model.program_dict
         )
         self._ui.stackedWidget.currentChanged.connect(self.pageChanged)
-        self._ui.changePageButton.released.connect(
-            lambda: self._ui.stackedWidget.setCurrentWidget(
-                self._ui.controlPage
-                if self._ui.stackedWidget.currentWidget() == self._ui.outputPage
-                else self._ui.outputPage
-            )
+        self._ui.return_to_dashboard_button.released.connect(
+            lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
         )
 
         self._module_install_window = ModInstallDialog(self)
@@ -144,11 +144,14 @@ class MainWindow(
 
         self.creator_type_window = None
 
-        self._key_window = KeySetWindow(self)
-        self._ui.actionAPI_Key.triggered.connect(self._key_window.show)
+        self._ui.action_parameter_and_key.triggered.connect(
+            lambda: self._ui.stackedWidget.setCurrentWidget(
+                self._ui.global_parameter_page
+            )
+        )
 
         self.resize(QtGui.QGuiApplication.primaryScreen().availableSize())
-
+        self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
         self.show()
         self.testFunc()
 
@@ -157,14 +160,10 @@ class MainWindow(
         self._main_model.addProgramFile(self.config_window.getFile())
 
     @QtCore.Slot()
-    def pageChanged(self, new_page_index: int):
-        cur_page = self._ui.stackedWidget.currentWidget()
-        self._ui.changePageButton.setText(
-            "Go to Control Page"
-            if cur_page != self._ui.controlPage
-            else "Go to Output Page"
+    def pageChanged(self, _: int):
+        self._ui.return_to_dashboard_button.setHidden(
+            self._ui.stackedWidget.currentWidget() == self._ui.controlPage
         )
-        self._ui.changePageButton.setHidden(cur_page == self._ui.createPage)
 
     @QtCore.Slot()
     def algoStartControlBox(self, code):

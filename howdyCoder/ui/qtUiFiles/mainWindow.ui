@@ -41,9 +41,9 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QPushButton" name="changePageButton">
+     <widget class="QPushButton" name="return_to_dashboard_button">
       <property name="text">
-       <string>Go To Output Page</string>
+       <string>Return to Dashboard</string>
       </property>
      </widget>
     </item>
@@ -71,9 +71,10 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="ControlWidget" name="controlPage"/>
+         <widget class="GlobalParameterPage" name="global_parameter_page"/>
          <widget class="CreateWidget" name="createPage"/>
          <widget class="mainOutputView" name="outputPage"/>
         </widget>
@@ -103,10 +104,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_output"/>
    <addaction name="actionStatus"/>
    <addaction name="actionLoad_Config"/>
    <addaction name="actionLogging"/>
-   <addaction name="actionAPI_Key"/>
+   <addaction name="action_parameter_and_key"/>
    <addaction name="invisible_action"/>
    <addaction name="action_help_menu"/>
   </widget>
@@ -174,9 +176,23 @@
     <enum>QAction::NoRole</enum>
    </property>
   </action>
-  <action name="actionAPI_Key">
+  <action name="action_parameter_and_key">
    <property name="text">
-    <string>Key Window</string>
+    <string>Parameters and Keys</string>
+   </property>
+   <property name="iconText">
+    <string>Parameters and Keys</string>
+   </property>
+   <property name="toolTip">
+    <string>Parameters and Keys</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="action_output">
+   <property name="text">
+    <string>View Output</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -200,6 +216,12 @@
    <class>ControlWidget</class>
    <extends>QWidget</extends>
    <header>..controlWidget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GlobalParameterPage</class>
+   <extends>QWidget</extends>
+   <header>..globalParameterPage</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

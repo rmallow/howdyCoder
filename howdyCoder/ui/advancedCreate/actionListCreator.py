@@ -5,7 +5,7 @@ from ..actionUIConstant import (
     DataSetEnum,
 )
 
-from ..create import parameterTable
+from .. import parameterTable
 from . import feedView
 
 from .qtUiFiles import ui_actionListCreator

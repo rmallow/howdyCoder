@@ -6,9 +6,10 @@ from ..qtUiFiles import ui_createDataSourcePage
 from ..util.qtUtil import CompleterDelegate
 from .. import editableTable
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector, addHelperData
+from ..funcSelector import FuncSelector
 from ..treeSelect import UrlTreeSelect
 
+from ..util.helperData import addHelperData
 
 from ...commonUtil import helpers, astUtil
 from ...core.commonGlobals import (

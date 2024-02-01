@@ -268,10 +268,6 @@ class CreateConfirmPage(CreateBasePage):
 
         self._ui = ui_createDataSourceConfirmPage.Ui_CreateDataSourceConfirmPage()
         self._ui.setupUi(self)
-        self._ui.scrollArea.setSizeAdjustPolicy(
-            QtWidgets.QScrollArea.SizeAdjustPolicy.AdjustToContents
-        )
-        self._ui.scrollArea.setWidgetResizable(True)
 
     def getConfigForView(self):
         pass

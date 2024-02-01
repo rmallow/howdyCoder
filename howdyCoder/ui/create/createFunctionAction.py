@@ -8,11 +8,13 @@ from .algoTopoItem import VariableDragData
 
 
 from ..selectorWidget import SelectorWidget
-from ..funcSelector import FuncSelector, FunctionSettingsWithHelperData, addHelperData
+from ..funcSelector import FuncSelector
 from ..contextMenu import handleContextResult, ContextResultType
 from ..util.spinBoxDelegate import SpinBoxDelegate
 from ..util import qtUtil
 from ..util.qtUtil import WordWrapHeader
+
+from ..util.helperData import FunctionSettingsWithHelperData, addHelperData
 
 from ...core.commonGlobals import (
     ENUM_DISPLAY,

@@ -1,19 +1,15 @@
-from .selectorBase import SelectorBase, HelperData
-import typing
-from PySide6 import QtWidgets
+from .selectorBase import SelectorBase
+from .util import helperData
 
+import typing
 from enum import Enum
-from dataclasses import dataclass
+
+from PySide6 import QtWidgets
 
 
 class PathType(Enum):
-    FOLDER = "folder"
-    FILE = "file"
-
-
-@dataclass
-class PathWithHelperData(HelperData):
-    path: str = ""
+    FOLDER = "Folder"
+    FILE = "File"
 
 
 class PathSelector(SelectorBase):
@@ -39,7 +35,9 @@ class PathSelector(SelectorBase):
                 options=QtWidgets.QFileDialog.Option.DontConfirmOverwrite
             )[0]
         if path:
-            self.itemSelected.emit(PathWithHelperData(self.parentIndex, path))
+            self.itemSelected.emit(
+                helperData.PathWithHelperData(self.parentIndex, path)
+            )
 
     def showNormal(self):
         pass

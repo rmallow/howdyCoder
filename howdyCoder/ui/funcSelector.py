@@ -1,34 +1,15 @@
 from .qtUiFiles import ui_funcSelector
-from .selectorBase import SelectorBase, HelperData
+from .selectorBase import SelectorBase
 from .funcSelectorPageBase import FuncSelectorPageBase
-from ..commonUtil import astUtil
+
+from .util import helperData
 
 from ..core.dataStructs import FunctionSettings
 
 import typing
-import ast
-from dataclasses import dataclass, field
+
 
 from PySide6 import QtCore
-
-
-@dataclass
-class FunctionSettingsWithHelperData(HelperData):
-    function_settings: FunctionSettings = FunctionSettings()
-    suggested_parameters: typing.List[str] = field(default_factory=list)
-    suggested_data: typing.List[str] = field(default_factory=list)
-
-
-def addHelperData(
-    function_settings: FunctionSettings,
-) -> FunctionSettingsWithHelperData:
-    root = ast.parse(function_settings.code, "<string>")
-    return FunctionSettingsWithHelperData(
-        None,
-        function_settings,
-        astUtil.getSuggestedParameterNames(root, function_settings),
-        astUtil.getSuggestedDataSetNames(root),
-    )
 
 
 class FuncSelector(SelectorBase):
@@ -65,7 +46,7 @@ class FuncSelector(SelectorBase):
 
     @QtCore.Slot()
     def addHelperDataWithIndex(self, function_settings: FunctionSettings):
-        settings_with_index = addHelperData(function_settings)
+        settings_with_index = helperData.addHelperData(function_settings)
         settings_with_index.index = self.parentIndex
         self.itemSelected.emit(settings_with_index)
         # if we're emitting this, we're done selecting so we can hide now

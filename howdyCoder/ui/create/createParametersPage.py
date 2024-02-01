@@ -2,7 +2,7 @@ from ...core.dataStructs import ItemSettings
 from .createBasePage import CreateBasePage, ItemValidity
 from ..qtUiFiles import ui_createDataSourceParametersPage
 from ..uiConstants import PageKeys
-from . import parameterTable
+from .. import parameterTable
 
 from ...core.commonGlobals import (
     DATA_SOURCES,

@@ -10,7 +10,7 @@ from ..actionUIConstant import (
 )
 from ..funcSelector import FuncSelector
 from .. import editableTable
-from ..create import parameterTable
+from .. import parameterTable
 
 from .qtUiFiles import ui_actionCreator
 from ...commonUtil.helpers import createErrorLabel
