@@ -19,8 +19,8 @@ class FuncSelector(SelectorBase):
 
     TUTORIAL_RESOURCE_PREFIX = "FuncSelector"
 
-    def __init__(self, parent=None):
-        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent)
+    def __init__(self, parent=None, f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags()):
+        super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
         # Load UI file and setup UI with layout
         self.ui = ui_funcSelector.Ui_FuncSelector()
         self.ui.setupUi(self)

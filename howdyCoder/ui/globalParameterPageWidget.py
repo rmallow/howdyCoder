@@ -28,11 +28,12 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
         # and not actually own data
         self._ui.all_parameter_table_view.setModel(self._parameter_model)
 
-        self._func_selector = FuncSelector()
-        self._file_selector = PathSelector(PathType.FILE)
-        self._folder_selector = PathSelector(PathType.FOLDER)
+        self._func_selector = FuncSelector(None, QtCore.Qt.WindowFlags.Dialog)
+        self._file_selector = PathSelector(PathType.FILE, self)
+        self._folder_selector = PathSelector(PathType.FOLDER, self)
 
         self._stacked_widgets: typing.Dict[editableTable.EditorType, InputBox] = {}
+
         self.createStackedWidgets()
 
         for enum in editableTable.EditorType:
@@ -72,7 +73,7 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
             widget_constructor=constructor,
             getter=getter,
             resetter=resetter,
-            parent=self,
+            parent=self._ui.new_parameter_stacked_widget,
         )
         self._stacked_widgets[enum] = w
         self._ui.new_parameter_stacked_widget.addWidget(w)
@@ -104,6 +105,7 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
             QtWidgets.QSpinBox.value,
             lambda obj: obj.setValue(0),
         )
+
         self.addStackedWidget(
             editableTable.EditorType.DECIMAL,
             QtWidgets.QDoubleSpinBox,
@@ -112,7 +114,9 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
         )
 
         def initFuncSelector(parent):
-            return SelectorWidget(None, self._func_selector, parent)
+            w = SelectorWidget(None, self._func_selector, parent)
+            w.changeExpandingLabelMinWidth(1)
+            return w
 
         self.addStackedWidget(
             editableTable.EditorType.FUNC,
@@ -122,7 +126,9 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
         )
 
         def initFileSelector(parent):
-            return SelectorWidget(None, self._file_selector, parent)
+            w = SelectorWidget(None, self._file_selector, parent)
+            w.changeExpandingLabelMinWidth(1)
+            return w
 
         self.addStackedWidget(
             editableTable.EditorType.FILE,
@@ -132,7 +138,9 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
         )
 
         def initFolderSelector(parent):
-            return SelectorWidget(None, self._folder_selector, parent)
+            w = SelectorWidget(None, self._folder_selector, parent)
+            w.changeExpandingLabelMinWidth(1)
+            return w
 
         self.addStackedWidget(
             editableTable.EditorType.FOLDER,

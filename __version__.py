@@ -1,3 +1,3 @@
 # pylint: skip-file
-VERSION = (0, 10, 95)
+VERSION = (0, 10, 96)
 __version__ = ".".join(map(str, VERSION))

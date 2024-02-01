@@ -65,3 +65,6 @@ class SelectorWidget(QtWidgets.QWidget):
 
     def getSelectedData(self) -> typing.Any:
         return self.data
+
+    def changeExpandingLabelMinWidth(self, min_width: int):
+        self._ui.extraDescriptionLabel.changeMinWidthOfLabel(min_width)

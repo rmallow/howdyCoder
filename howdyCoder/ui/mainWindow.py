@@ -6,7 +6,6 @@ from .mainModel import mainModel
 from .modInstallDialog import ModInstallDialog
 from .tutorialOverlay import AbstractTutorialClass
 from .create.creatorTypeWindow import CreatorTypeWindow
-from .keySetWidget import KeySetWindow
 
 from .util import abstractQt
 

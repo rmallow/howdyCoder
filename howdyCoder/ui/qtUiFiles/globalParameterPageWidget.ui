@@ -112,7 +112,7 @@
             <item>
              <widget class="QLineEdit" name="new_parameter_name_edit">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -185,7 +185,7 @@
             <item>
              <widget class="QComboBox" name="new_parameter_type_combo">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -219,10 +219,16 @@
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
-             <verstretch>1</verstretch>
+             <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <widget class="QWidget" name="value_boxPage1"/>
+           <widget class="QWidget" name="value_boxPage1">
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <widget class="QWidget" name="widget_10" native="true"/>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </item>
          <item>
@@ -283,7 +289,7 @@
       <item>
        <widget class="QWidget" name="widget_5" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -303,7 +309,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Set Howdy Coder API Key</string>
+            <string>Set Howdy Coder API Keys</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

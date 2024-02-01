@@ -63,14 +63,14 @@ class InputBox(QtWidgets.QWidget):
             else self.INPUT_TYPE_TO_RESET.get(self._input_type, InputGetterBase.clear)
         )
         self._input_widget: InputGetterBase | QtWidgets.QWidget = (
-            self._widget_constructor(self)
+            self._widget_constructor(parent=self)
         )
         if isinstance(self._input_widget, InputGetterBase):
             hide_enter = self._input_widget.HIDE_ENTER
             hide_reset = self._input_widget.HIDE_RESET
             self._input_widget.inputEntered.connect(self.inputEnteredWrapper)
         """Manual UI setup"""
-        layout = QtWidgets.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout(self)
         if not hide_label:
             layout.addWidget(QtWidgets.QLabel(f"Data Source - {self._name}", self))
         layout.addWidget(self._input_widget)

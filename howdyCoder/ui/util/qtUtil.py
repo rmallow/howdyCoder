@@ -88,6 +88,9 @@ class ExpandingLabelWidget(QtWidgets.QWidget):
         self.label.text = text
         self.label.update()
 
+    def changeMinWidthOfLabel(self, min_width: int):
+        self.label.setMinimumWidth(min_width)
+
 
 class ElidedLabel(QtWidgets.QLabel):
     updateFinished = QtCore.Signal()

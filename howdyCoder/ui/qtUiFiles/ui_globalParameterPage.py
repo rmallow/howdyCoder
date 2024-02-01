@@ -15,8 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QScrollArea, QSizePolicy,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QFrame, QScrollArea,
+    QSizePolicy, QVBoxLayout, QWidget)
 
 from ..globalParameterPageWidget import GlobalParameterPageWidget
 
@@ -29,8 +29,11 @@ class Ui_GlobalParameterPage(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.scrollArea = QScrollArea(GlobalParameterPage)
         self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setFrameShadow(QFrame.Sunken)
+        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.scrollArea.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setAlignment(Qt.AlignCenter)
         self.scrollAreaWidgetContents = GlobalParameterPageWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
         self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 859, 622))
