@@ -132,7 +132,7 @@ class Ui_HowdyCoder(object):
 
         self.retranslateUi(HowdyCoder)
 
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(HowdyCoder)

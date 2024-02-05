@@ -105,12 +105,12 @@ class MainWindow(
         )
 
         self._ui.action_output.triggered.connect(
-            lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.outputPage)
+            lambda: self.changeStackedWidget(self._ui.outputPage)
         )
 
         self._ui.createPage.addProgram.connect(self._main_model.addProgram)
         self._ui.createPage.addProgram.connect(
-            lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
+            lambda: self.changeStackedWidget(self._ui.controlPage)
         )
         self._ui.controlPage.startProgram.connect(self.algoStartControlBox)
         self._ui.controlPage.shutdownProgram.connect(self.algoShutdownControlBox)
@@ -130,7 +130,7 @@ class MainWindow(
         )
         self._ui.stackedWidget.currentChanged.connect(self.pageChanged)
         self._ui.return_to_dashboard_button.released.connect(
-            lambda: self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
+            lambda: self.changeStackedWidget(self._ui.controlPage)
         )
 
         self._module_install_window = ModInstallDialog(self)
@@ -144,9 +144,7 @@ class MainWindow(
         self.creator_type_window = None
 
         self._ui.action_parameter_and_key.triggered.connect(
-            lambda: self._ui.stackedWidget.setCurrentWidget(
-                self._ui.global_parameter_page
-            )
+            lambda: self.changeStackedWidget(self._ui.global_parameter_page)
         )
 
         self.resize(QtGui.QGuiApplication.primaryScreen().availableSize())
@@ -253,6 +251,11 @@ class MainWindow(
     def creatorTypeWindowFinished(self, result: int):
         if result == QtWidgets.QDialog.DialogCode.Accepted:
             self.loadCreatePage(self.creator_type_window.getTypeSelected())
+
+    def changeStackedWidget(self, new_widget: QtWidgets.QWidget):
+        self._ui.stackedWidget.currentWidget().leaveMainPage()
+        self._ui.stackedWidget.setCurrentWidget(new_widget)
+        self._ui.stackedWidget.currentWidget().loadMainPage()
 
     def testFunc(self):
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/crypto_trader.yml")

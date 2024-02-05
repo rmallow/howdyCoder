@@ -2,7 +2,18 @@ import os
 import configparser
 import typing
 import pathlib
+import yaml
 from dataclasses import dataclass, field
+
+
+def getDictFromYmlFile(path):
+    contents = {}
+    try:
+        with open(path) as file:
+            contents = yaml.safe_load(file)
+    except OSError:
+        assert False, "Error reading yaml file"
+    return contents
 
 
 @dataclass
@@ -21,8 +32,9 @@ LIBRARIES = "libraries"
 SERVER = "server"
 SETTINGS = "settings"
 PROMPTS = "prompts"
+PARAMETERS = "parameters"
 
-REQUIRED = set([LIBRARIES, SERVER, SETTINGS, PROMPTS])
+REQUIRED = set([LIBRARIES, SERVER, SETTINGS, PROMPTS, PARAMETERS])
 
 
 def getValue(group: str, section: str, key: str) -> str | None:
@@ -79,19 +91,22 @@ def setDataPath(path: str):
     ), "Missing a required datalocator section"
 
     for group in config[FILES]:
-        inner_config = configparser.ConfigParser(
-            interpolation=configparser.ExtendedInterpolation(),
-            defaults={"root": str(_root_path)},
-        )
-        inner_config.optionxform = str
         inner_data_file_path = os.path.join(_data_path, config.get(FILES, group))
-        inner_config.read(inner_data_file_path)
         _config_values[group] = DataFile(
             os.path.dirname(inner_data_file_path), inner_data_file_path
         )
-        for section in inner_config.sections():
-            _config_values[group].config[section] = {}
-            for option in inner_config.options(section):
-                _config_values[group].config[section][option] = inner_config.get(
-                    section, option
-                )
+        if inner_data_file_path.endswith(".ini"):
+            inner_config = configparser.ConfigParser(
+                interpolation=configparser.ExtendedInterpolation(),
+                defaults={"root": str(_root_path)},
+            )
+            inner_config.optionxform = str
+            inner_config.read(inner_data_file_path)
+            for section in inner_config.sections():
+                _config_values[group].config[section] = {}
+                for option in inner_config.options(section):
+                    _config_values[group].config[section][option] = inner_config.get(
+                        section, option
+                    )
+        elif inner_data_file_path.endswith(".yml"):
+            _config_values[group].config = getDictFromYmlFile(inner_data_file_path)

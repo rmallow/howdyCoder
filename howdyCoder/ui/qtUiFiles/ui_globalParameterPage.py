@@ -34,10 +34,10 @@ class Ui_GlobalParameterPage(object):
         self.scrollArea.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setAlignment(Qt.AlignCenter)
-        self.scrollAreaWidgetContents = GlobalParameterPageWidget()
-        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 859, 622))
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.globalParameterPageWidget = GlobalParameterPageWidget()
+        self.globalParameterPageWidget.setObjectName(u"globalParameterPageWidget")
+        self.globalParameterPageWidget.setGeometry(QRect(0, 0, 859, 622))
+        self.scrollArea.setWidget(self.globalParameterPageWidget)
 
         self.verticalLayout.addWidget(self.scrollArea)
 

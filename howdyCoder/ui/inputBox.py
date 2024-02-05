@@ -38,7 +38,7 @@ class InputBox(QtWidgets.QWidget):
         hide_enter: bool = False,
         hide_reset: bool = False,
         hide_label: bool = False,
-        widget_constructor: typing.Callable | None = None,
+        input_widget: QtWidgets.QWidget | None = None,
         getter: typing.Callable | None = None,
         resetter: typing.Callable | None = None,
         parent: QtWidgets.QWidget | None = None,
@@ -47,11 +47,12 @@ class InputBox(QtWidgets.QWidget):
         super().__init__(parent, f)
         self._name = name
         self._input_type = input_type
-        self._widget_constructor = (
-            widget_constructor
-            if widget_constructor is not None
-            else self.INPUT_TYPE_TO_WIDGET[self._input_type]
+        self._input_widget: InputGetterBase | QtWidgets.QWidget = (
+            input_widget
+            if input_widget is not None
+            else self.INPUT_TYPE_TO_WIDGET[self._input_type](parent=self)
         )
+        self._input_widget.setParent(self)
         self._getter = (
             getter
             if getter is not None
@@ -62,9 +63,7 @@ class InputBox(QtWidgets.QWidget):
             if resetter is not None
             else self.INPUT_TYPE_TO_RESET.get(self._input_type, InputGetterBase.clear)
         )
-        self._input_widget: InputGetterBase | QtWidgets.QWidget = (
-            self._widget_constructor(parent=self)
-        )
+
         if isinstance(self._input_widget, InputGetterBase):
             hide_enter = self._input_widget.HIDE_ENTER
             hide_reset = self._input_widget.HIDE_RESET

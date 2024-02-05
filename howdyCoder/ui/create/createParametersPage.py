@@ -52,7 +52,7 @@ class CreateParametersPage(CreateBasePage):
         """
         if self.getConfig():
             curr = self.getConfig()
-            self._parameterModel.getData(curr)
+            curr.all_parameters = self._parameterModel.getData()
 
     def reset(self) -> None:
         self._parameterModel.clear()
@@ -60,7 +60,7 @@ class CreateParametersPage(CreateBasePage):
     def loadPage(self) -> None:
         curr = self.getConfig()
         self._parameterModel.clear()
-        self._parameterModel.setDataFromSettings(curr)
+        self._parameterModel.setDataFromSettings(curr.all_parameters)
         self.setParametersLabel()
         return super().loadPage()
 

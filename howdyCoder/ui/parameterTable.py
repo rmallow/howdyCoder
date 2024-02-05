@@ -1,4 +1,4 @@
-from ..core.dataStructs import ItemSettings, Parameter, FunctionSettings
+from ..core.dataStructs import ItemSettings, Parameter, FunctionSettings, AllParameters
 from . import pathSelector
 from . import editableTable
 
@@ -10,6 +10,7 @@ from ..core.commonGlobals import (
     ENUM_TYPE,
     ENUM_EDITOR_VALUES,
     ENUM_ENABLED,
+    EditorType,
 )
 
 import typing
@@ -25,23 +26,23 @@ class ParameterEnum(Enum):
         f"{ENUM_VALUE} {ENUM_DISPLAY} {ENUM_TYPE} {ENUM_EDITOR_VALUES} {ENUM_ENABLED}"
     )
 
-    NAME = 0, "Name", editableTable.EditorType.STRING, [], True
+    NAME = 0, "Name", EditorType.STRING, [], True
     TYPE = (
         1,
         "Type",
-        editableTable.EditorType.COMBO,
+        EditorType.COMBO,
         [
-            editableTable.EditorType.STRING.display,
-            editableTable.EditorType.INTEGER.display,
-            editableTable.EditorType.DECIMAL.display,
-            editableTable.EditorType.FUNC.display,
-            editableTable.EditorType.FILE.display,
-            editableTable.EditorType.FOLDER.display,
-            editableTable.EditorType.GLOBAL_PARAMETER.display,
+            EditorType.STRING.display,
+            EditorType.INTEGER.display,
+            EditorType.DECIMAL.display,
+            EditorType.FUNC.display,
+            EditorType.FILE.display,
+            EditorType.FOLDER.display,
+            EditorType.GLOBAL_PARAMETER.display,
         ],
         True,
     )
-    VALUE = 2, "Value", editableTable.EditorType.ANY, [], True
+    VALUE = 2, "Value", EditorType.ANY, [], True
 
 
 class ParameterTableModel(editableTable.EditableTableModelAddRows):
@@ -92,15 +93,13 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 and value[ParameterEnum.NAME]
                 and value[ParameterEnum.VALUE]
             ):
-                if value[ParameterEnum.TYPE] == getattr(
-                    editableTable.EditorType.FUNC, ENUM_DISPLAY
-                ):
+                if value[ParameterEnum.TYPE] == getattr(EditorType.FUNC, ENUM_DISPLAY):
                     suggested.extend(value[ParameterEnum.VALUE].suggested_parameters)
         return suggested
 
-    def getData(self, config: ItemSettings) -> typing.Dict[str, typing.Any]:
+    def getData(self) -> AllParameters:
         """Return a dict that is the config of the parameter table"""
-        returnConfig = {}
+        return_settings = AllParameters()
         for value in self.values:
             # Check for type value and name in value, and that Name is a valid string
             if (
@@ -110,20 +109,20 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 and value[ParameterEnum.NAME]
                 and value[ParameterEnum.VALUE] is not None
             ):
-                if value[ParameterEnum.TYPE] == editableTable.EditorType.FUNC.display:
+                if value[ParameterEnum.TYPE] == EditorType.FUNC.display:
                     """If it is a setup func add to that section instead of parameters"""
-                    config.setup_functions[value[ParameterEnum.NAME]] = value[
+                    return_settings.setup_functions[value[ParameterEnum.NAME]] = value[
                         ParameterEnum.VALUE
                     ].function_settings
                 else:
                     """else add to parameter section as normal"""
-                    config.parameters[value[ParameterEnum.NAME]] = Parameter(
+                    return_settings.parameters[value[ParameterEnum.NAME]] = Parameter(
                         value[ParameterEnum.NAME],
                         value[ParameterEnum.VALUE],
                         value[ParameterEnum.TYPE],
                     )
 
-        return returnConfig
+        return return_settings
 
     def addItemToTable(
         self, name, type_: str, val: typing.Any | str | FunctionSettings
@@ -147,10 +146,12 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 val,
             )
 
-    def setDataFromSettings(self, settings: ItemSettings) -> None:
+    def setDataFromSettings(self, settings: AllParameters) -> None:
+        self.clear()
         for name, param_settings in settings.parameters.items():
             self.addItemToTable(name, param_settings.type_, param_settings.value)
-        for name, setup_func_settings in settings.setup_functions.items():
-            self.addItemToTable(
-                name, editableTable.EditorType.FUNC.display, setup_func_settings
-            )
+        for (
+            name,
+            setup_func_settings,
+        ) in settings.setup_functions.items():
+            self.addItemToTable(name, EditorType.FUNC.display, setup_func_settings)

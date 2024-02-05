@@ -101,6 +101,15 @@ class Parameter(JSONWizard, metaclass=property_wizard):
 
 
 @dataclass
+class AllParameters(JSONWizard, metaclass=property_wizard):
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
+    parameters: typing.Dict[str, Parameter] = field(default_factory=dict)
+    setup_functions: typing.Dict[str, FunctionSettings] = field(default_factory=dict)
+
+
+@dataclass
 class ItemSettings(JSONWizard, metaclass=property_wizard):
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
@@ -111,8 +120,7 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
     flatten: bool = True
     period: int = 1
     single_shot: bool = False
-    parameters: typing.Dict[str, Parameter] = field(default_factory=dict)
-    setup_functions: typing.Dict[str, FunctionSettings] = field(default_factory=dict)
+    all_parameters: AllParameters = AllParameters()
 
     def clear(self):
         self.__init__()
@@ -165,7 +173,7 @@ if test_once:
     test_once = False
 
     assert any(
-        field.name == SETUP_FUNCS for field in fields(ItemSettings)
+        field.name == SETUP_FUNCS for field in fields(AllParameters)
     ), "Changed setup funcs field name without changing string"
     assert any(
         field.name == USER_FUNC for field in fields(FunctionSettings)

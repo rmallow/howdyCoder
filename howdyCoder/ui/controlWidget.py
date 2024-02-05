@@ -6,6 +6,7 @@ from .tutorialOverlay import AbstractTutorialClass
 from .inputBox import InputBox
 from .inputWindow import InputWindow
 from .contextMenu import handleContextResult, ContextResultType
+from .mainWindowPageBase import MainWindowPageBase
 
 from .util import abstractQt
 
@@ -46,6 +47,7 @@ class EmtpyBox(QtWidgets.QWidget):
 
 class ControlWidget(
     AbstractTutorialClass,
+    MainWindowPageBase,
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
@@ -202,6 +204,12 @@ class ControlWidget(
 
     def saveMenu(self, name: str):
         self._algo_widgets[self.program_dict.getData(name).uid].saveConfig()
+
+    def loadMainPage(self):
+        pass
+
+    def leaveMainPage(self):
+        pass
 
     CONTEXT_RESULT_FUNCTIONS = {
         ContextResultType.SAVE: saveMenu,

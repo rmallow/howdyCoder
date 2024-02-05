@@ -52,11 +52,11 @@ class Action:
         self.calcFunc: UserFuncCaller = action_settings.calc_function.user_function
         self.name: str = action_settings.name.lower()
         self.parameters: typing.Dict[str, typing.Any] = {
-            v.name: v.value for v in action_settings.parameters.values()
+            v.name: v.value for v in action_settings.all_parameters.parameters.values()
         }
         self.setupFuncs: typing.Dict[
             str, UserFuncCaller
-        ] = action_settings.setup_functions
+        ] = action_settings.all_parameters.setup_functions
 
         self._calc_internal_setup_functions = (
             action_settings.calc_function.internal_setup_functions

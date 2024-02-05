@@ -33,7 +33,8 @@ class dataBase(abc.ABC):
         self.lowerConstraint = None
         self.dayFirst: bool = False
         self.parameters: typing.Dict[typing.Any] = {
-            k: v.value for k, v in data_source_settings.parameters.items()
+            k: v.value
+            for k, v in data_source_settings.all_parameters.parameters.items()
         }
         self.output: typing.Union[
             typing.List[str], typing.Dict[str, str]

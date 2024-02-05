@@ -1,5 +1,5 @@
 from .funcSelector import FuncSelector
-from .pathSelector import PathSelector, PathType
+from .pathSelector import PathSelector
 from .selectorWidget import SelectorWidget
 
 from .util.abstractQt import getAbstactQtResolver, handleAbstractMethods
@@ -12,12 +12,14 @@ from .util.helperData import (
 
 from ..commonUtil import helpers
 
+from ..core import parameterSingleton
 from ..core.commonGlobals import (
-    ENUM_VALUE,
     ENUM_DISPLAY,
     ENUM_TYPE,
     ENUM_EDITOR_VALUES,
     ENUM_ENABLED,
+    EditorType,
+    PathType,
 )
 import typing
 from abc import abstractmethod
@@ -26,24 +28,60 @@ from aenum import Enum
 
 from PySide6 import QtCore, QtWidgets
 
-
-class EditorType(Enum):
-    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
-
-    STRING = 0, "String"
-    COMBO = 1, "Combo"
-    INTEGER = 2, "Integer"
-    DECIMAL = 3, "Decimal"
-    FUNC = 4, "Function"
-    FILE = 5, PathType.FILE.value
-    FOLDER = 6, PathType.FOLDER.value
-    GLOBAL_PARAMETER = 7, "Global Parameter"
-    ANY = 8, "any"
-
-
 SELECTOR_TYPES = set(
     [EditorType.FUNC.display, EditorType.FOLDER.display, EditorType.FILE.display]
 )
+
+
+def getEditor(
+    editor_type: EditorType,
+    parent: QtWidgets.QWidget,
+    combo_editor_values: typing.List[str] = None,
+    combo_hide_values: typing.Set[str] = None,
+    func_selector: FuncSelector = None,
+    folder_selector: PathSelector = None,
+    file_selector: PathSelector = None,
+    index: QtCore.QModelIndex = None,
+):
+    editor = None
+    if editor_type == EditorType.STRING or editor_type == EditorType.ANY:
+        editor = QtWidgets.QLineEdit(parent)
+    elif (
+        editor_type == EditorType.COMBO
+        or editor_type == EditorType.KEY
+        or editor_type == EditorType.GLOBAL_PARAMETER
+    ):
+        combo_values = combo_editor_values
+        if editor_type == EditorType.KEY:
+            combo_values = parameterSingleton.getKeys()
+        elif editor_type == editor_type.GLOBAL_PARAMETER:
+            combo_values = parameterSingleton.getNonKeys()
+        editor = QtWidgets.QComboBox(parent)
+        editor.setAutoFillBackground(True)
+        combo_hide_values = set()
+        for comboValue in combo_values:
+            if comboValue not in combo_hide_values:
+                editor.addItem(comboValue)
+    elif editor_type == EditorType.INTEGER:
+        editor = QtWidgets.QSpinBox(parent)
+        editor.setRange(-999999, 999999)
+    elif editor_type == EditorType.DECIMAL:
+        editor = QtWidgets.QDoubleSpinBox(parent)
+        editor.setDecimals(8)
+        editor.setRange(-999999, 999999)
+    elif editor_type.display in SELECTOR_TYPES and (
+        index is None or index in index.model().selector_indexes
+    ):
+        if editor_type == EditorType.FUNC:
+            editor = SelectorWidget(
+                index, func_selector, parent, "Parameter Setup Func"
+            )
+        elif editor_type == EditorType.FOLDER:
+            editor = SelectorWidget(index, folder_selector, parent)
+        else:
+            editor = SelectorWidget(index, file_selector, parent)
+        editor.changeExpandingLabelMinWidth(1)
+    return editor
 
 
 class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
@@ -64,49 +102,31 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
         Create an editor by getting the editor type from the model
         """
         enumKey = index.model().getEnumKey(index)
-        editorType = index.model().getEditorType(index)
-
-        if editorType == EditorType.COMBO:
-            if enumKey is not None and hasattr(enumKey, ENUM_EDITOR_VALUES):
-                comboValues = enumKey.editorValues
-                combo = QtWidgets.QComboBox(parent)
-                combo.setAutoFillBackground(True)
-                combo_hide_values = set()
-                # this is only set in some parameter tables
-                try:
-                    combo_hide_values = index.model().combo_hide_values
-                except AttributeError as _:
-                    pass
-                for comboValue in comboValues:
-                    if comboValue not in combo_hide_values:
-                        combo.addItem(comboValue)
-                return combo
-        elif editorType == EditorType.INTEGER:
-            spin = QtWidgets.QSpinBox(parent)
-            spin.setRange(-999999, 999999)
-            return spin
-        elif editorType == EditorType.DECIMAL:
-            spin = QtWidgets.QDoubleSpinBox(parent)
-            return spin
-        if index in index.model().selector_indexes:
-            selector_widget = None
-            if editorType == EditorType.FUNC:
-                selector_widget = SelectorWidget(
-                    index, index.model().func_selector, parent, "Parameter Setup Func"
-                )
-            elif editorType == EditorType.FOLDER:
-                selector_widget = SelectorWidget(
-                    index, index.model().folder_selector, parent
-                )
-            else:
-                selector_widget = SelectorWidget(
-                    index, index.model().file_selector, parent
-                )
-
-            index.model().selector_widgets[index] = selector_widget
-            return selector_widget
-        editor = super().createEditor(parent, option, index)
-        qtUtil.setCompleter(editor, self._completer_strings)
+        editor_type = index.model().getEditorType(index)
+        combo_hide_values = set()
+        # this is only set in some parameter tables
+        if editor_type == EditorType.STRING or editor_type == EditorType.ANY:
+            editor = super().createEditor(parent, option, index)
+            qtUtil.setCompleter(editor, self._completer_strings)
+        else:
+            try:
+                combo_hide_values = index.model().combo_hide_values
+            except AttributeError as _:
+                pass
+            editor = getEditor(
+                editor_type,
+                parent,
+                combo_editor_values=getattr(enumKey, ENUM_EDITOR_VALUES, [])
+                if enumKey is not None
+                else [],
+                combo_hide_values=combo_hide_values,
+                func_selector=index.model().func_selector,
+                folder_selector=index.model().folder_selector,
+                file_selector=index.model().file_selector,
+                index=index,
+            )
+            if editor_type.display in SELECTOR_TYPES:
+                index.model().selector_widgets[index] = editor
         return editor
 
     def setModelData(

@@ -96,3 +96,23 @@ class InputType(Enum):
     NUMBER = "number"
     MOUSE_POS = "mouse position"
     SPEECH_TO_TEXT = "speech to text"
+
+
+class PathType(Enum):
+    FOLDER = "Folder"
+    FILE = "File"
+
+
+class EditorType(AdvancedEnum):
+    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
+
+    STRING = 0, "String"
+    COMBO = 1, "Combo"
+    INTEGER = 2, "Integer"
+    DECIMAL = 3, "Decimal"
+    FUNC = 4, "Function"
+    FILE = 5, PathType.FILE.value
+    FOLDER = 6, PathType.FOLDER.value
+    GLOBAL_PARAMETER = 7, "Global Parameter"
+    KEY = 8, "Key"
+    ANY = 9, "any"

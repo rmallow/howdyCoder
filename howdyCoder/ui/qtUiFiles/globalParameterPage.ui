@@ -31,7 +31,7 @@
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <widget class="GlobalParameterPageWidget" name="scrollAreaWidgetContents">
+     <widget class="GlobalParameterPageWidget" name="globalParameterPageWidget">
       <property name="geometry">
        <rect>
         <x>0</x>

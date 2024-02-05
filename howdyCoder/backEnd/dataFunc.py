@@ -13,7 +13,8 @@ class dataFunc(dataBase):
 
         self.getFunc: UserFuncCaller = data_source_settings.get_function.user_function
         self.setupFuncs: typing.Dict[str, UserFuncCaller] = {
-            k: v.user_function for k, v in data_source_settings.setup_functions.items()
+            k: v.user_function
+            for k, v in data_source_settings.all_parameters.setup_functions.items()
         }
         self._internal_setup_functions = (
             data_source_settings.get_function.internal_setup_functions

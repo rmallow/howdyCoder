@@ -1,0 +1,19 @@
+parameters:
+  sdfdffd:
+    name: sdfdffd
+    type_: Decimal
+    value: 30.001
+  test:
+    name: test
+    type_: String
+    value: '232'
+setup_functions:
+  name:
+    code: "def g():\n    pass"
+    import_statements: []
+    imports: []
+    internal_parameters: {}
+    internal_setup_functions: {}
+    name: g
+    suggested_output: []
+    user_function: null

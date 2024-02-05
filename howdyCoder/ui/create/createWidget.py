@@ -15,6 +15,7 @@ from ...core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY
 
 from ..qtUiFiles import ui_createWidget
 from ..tutorialOverlay import AbstractTutorialClass
+from ..mainWindowPageBase import MainWindowPageBase
 
 from ..util import abstractQt
 
@@ -26,6 +27,7 @@ import copy
 
 class CreateWidget(
     AbstractTutorialClass,
+    MainWindowPageBase,
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
@@ -158,3 +160,9 @@ class CreateWidget(
             self._ui.algoTopoView.scene,
         )
         self._ui.stackedWidget.setCurrentWidget(self._ui.createWizard)
+
+    def loadMainPage(self):
+        pass
+
+    def leaveMainPage(self):
+        pass

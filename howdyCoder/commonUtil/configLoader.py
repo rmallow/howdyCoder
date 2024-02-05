@@ -86,11 +86,6 @@ def saveObj(obj, name):
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
-def getDictFromYmlFile(path):
-    with open(path) as file:
-        return yaml.safe_load(file)
-
-
 def pickleConfigFile(path):
     with open(path) as file:
         saveObj(

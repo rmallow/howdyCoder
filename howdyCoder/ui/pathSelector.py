@@ -1,15 +1,11 @@
 from .selectorBase import SelectorBase
 from .util import helperData
 
+from ..core.commonGlobals import PathType
+
 import typing
-from enum import Enum
 
 from PySide6 import QtWidgets
-
-
-class PathType(Enum):
-    FOLDER = "Folder"
-    FILE = "File"
 
 
 class PathSelector(SelectorBase):

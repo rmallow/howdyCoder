@@ -1,11 +1,14 @@
 from .qtUiFiles import ui_globalParameterPageWidget
-from . import parameterTable, editableTable
 from .inputBox import InputBox
 from .funcSelector import FuncSelector
-from .pathSelector import PathSelector, PathType
+from .pathSelector import PathSelector
 from .selectorWidget import SelectorWidget
-
+from . import parameterTable, editableTable
 from .util import helperData
+
+from ..core import parameterSingleton
+from ..core.commonGlobals import PathType
+from ..core import commonGlobals
 
 import typing
 
@@ -22,7 +25,7 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
         self._ui = ui_globalParameterPageWidget.Ui_GlobalParameterPageWidget()
         self._ui.setupUi(self)
         self._parameter_model = parameterTable.ParameterTableModel(
-            combo_hide_values=[editableTable.EditorType.GLOBAL_PARAMETER.display]
+            combo_hide_values=[commonGlobals.EditorType.GLOBAL_PARAMETER.display]
         )
         # parameter model should be a reflection of what is in the parameter singleton
         # and not actually own data
@@ -32,15 +35,15 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
         self._file_selector = PathSelector(PathType.FILE, self)
         self._folder_selector = PathSelector(PathType.FOLDER, self)
 
-        self._stacked_widgets: typing.Dict[editableTable.EditorType, InputBox] = {}
+        self._stacked_widgets: typing.Dict[commonGlobals.EditorType, InputBox] = {}
 
         self.createStackedWidgets()
 
-        for enum in editableTable.EditorType:
+        for enum in commonGlobals.EditorType:
             if (
-                enum != editableTable.EditorType.GLOBAL_PARAMETER
-                and enum != editableTable.EditorType.ANY
-                and enum != editableTable.EditorType.COMBO
+                enum != commonGlobals.EditorType.GLOBAL_PARAMETER
+                and enum != commonGlobals.EditorType.ANY
+                and enum != commonGlobals.EditorType.COMBO
             ):
                 self._ui.new_parameter_type_combo.addItem(enum.display, userData=enum)
 
@@ -59,18 +62,27 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
 
     def addStackedWidget(
         self,
-        enum: editableTable.EditorType,
-        constructor: typing.Callable,
+        enum: commonGlobals.EditorType,
         getter: typing.Callable,
         resetter: typing.Callable,
     ) -> None:
+        input_widget = editableTable.getEditor(
+            enum,
+            self,
+            [],
+            set([commonGlobals.EditorType.GLOBAL_PARAMETER.display]),
+            self._func_selector,
+            self._folder_selector,
+            self._file_selector,
+            None,
+        )
         w = InputBox(
             "",
             enum,
             hide_enter=True,
             hide_reset=True,
             hide_label=True,
-            widget_constructor=constructor,
+            input_widget=input_widget,
             getter=getter,
             resetter=resetter,
             parent=self._ui.new_parameter_stacked_widget,
@@ -88,63 +100,36 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
         FOLDER = 6, PathType.FOLDER.value
         """
         self.addStackedWidget(
-            editableTable.EditorType.STRING,
-            QtWidgets.QLineEdit,
+            commonGlobals.EditorType.STRING,
             QtWidgets.QLineEdit.text,
             QtWidgets.QLineEdit.clear,
         )
 
-        def initSpinBox(parent):
-            spin = QtWidgets.QSpinBox(parent)
-            spin.setRange(-999999, 999999)
-            return spin
-
         self.addStackedWidget(
-            editableTable.EditorType.INTEGER,
-            initSpinBox,
+            commonGlobals.EditorType.INTEGER,
             QtWidgets.QSpinBox.value,
             lambda obj: obj.setValue(0),
         )
 
         self.addStackedWidget(
-            editableTable.EditorType.DECIMAL,
-            QtWidgets.QDoubleSpinBox,
+            commonGlobals.EditorType.DECIMAL,
             QtWidgets.QDoubleSpinBox.value,
             lambda obj: obj.setValue(0.0),
         )
-
-        def initFuncSelector(parent):
-            w = SelectorWidget(None, self._func_selector, parent)
-            w.changeExpandingLabelMinWidth(1)
-            return w
-
         self.addStackedWidget(
-            editableTable.EditorType.FUNC,
-            initFuncSelector,
+            commonGlobals.EditorType.FUNC,
             SelectorWidget.getSelectedData,
             SelectorWidget.reset,
         )
 
-        def initFileSelector(parent):
-            w = SelectorWidget(None, self._file_selector, parent)
-            w.changeExpandingLabelMinWidth(1)
-            return w
-
         self.addStackedWidget(
-            editableTable.EditorType.FILE,
-            initFileSelector,
+            commonGlobals.EditorType.FILE,
             SelectorWidget.getSelectedData,
             SelectorWidget.reset,
         )
 
-        def initFolderSelector(parent):
-            w = SelectorWidget(None, self._folder_selector, parent)
-            w.changeExpandingLabelMinWidth(1)
-            return w
-
         self.addStackedWidget(
-            editableTable.EditorType.FOLDER,
-            initFolderSelector,
+            commonGlobals.EditorType.FOLDER,
             SelectorWidget.getSelectedData,
             SelectorWidget.reset,
         )
@@ -170,3 +155,11 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
             )
             self._ui.new_parameter_stacked_widget.currentWidget().resetPressed()
             self._ui.new_parameter_name_edit.clear()
+
+    def saveParameters(self) -> None:
+        parameterSingleton.clearParameters()
+        parameterSingleton.setParameters(self._parameter_model.getData())
+        parameterSingleton.saveParameters()
+
+    def loadParameters(self) -> None:
+        self._parameter_model.setDataFromSettings(parameterSingleton.getParameters())
