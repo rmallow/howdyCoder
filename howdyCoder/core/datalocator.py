@@ -1,3 +1,5 @@
+from .datalocatorConstants import LIBRARIES, SERVER, SETTINGS, PROMPTS, PARAMETERS
+
 import os
 import configparser
 import typing
@@ -28,11 +30,6 @@ _root_path = pathlib.Path(os.path.abspath(__file__)).parent.parent.parent
 _data_path = ""
 _config_values: typing.Dict[str, DataFile] = {}
 
-LIBRARIES = "libraries"
-SERVER = "server"
-SETTINGS = "settings"
-PROMPTS = "prompts"
-PARAMETERS = "parameters"
 
 REQUIRED = set([LIBRARIES, SERVER, SETTINGS, PROMPTS, PARAMETERS])
 
@@ -59,7 +56,8 @@ def getConfig(group: str) -> typing.Dict[str, str]:
 
 def modifyValue(group: str, section: str, key: str, value: str):
     if group in _config_values:
-        _config_values[group].config[key] = value
+        if group in _config_values and section in _config_values[group].config and key in _config_values[group].config[section]:
+            _config_values[group].config[section][key] = value
         parser = configparser.ConfigParser()
         parser.optionxform = str
         file_path = getDataFilePath(group)
