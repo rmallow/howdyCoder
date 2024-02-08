@@ -98,7 +98,7 @@ def setDataPath(path: str):
         if inner_data_file_path.endswith(".ini"):
             inner_config = configparser.ConfigParser(
                 interpolation=configparser.ExtendedInterpolation(),
-                defaults={"root": str(_root_path)},
+                defaults={"app_files_root": str(_root_path)},
             )
             inner_config.optionxform = str
             inner_config.read(inner_data_file_path)
