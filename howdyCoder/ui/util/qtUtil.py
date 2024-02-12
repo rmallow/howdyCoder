@@ -1,3 +1,8 @@
+from . import nonNativeQMessageBox
+
+from ...core import datalocator
+from ...core.datalocatorConstants import SHOW_KEY_INFO, SETTINGS, APP_SETTINGS_SECTION
+
 import typing
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -203,3 +208,34 @@ class WordWrapHeader(QtWidgets.QHeaderView):
         buffer = QtCore.QSize(2, 25)
         together = rect.size() + buffer
         return together
+
+
+def showKeyWarning() -> bool:
+    """Show key warning if datalocator says to, only return false if no is hit"""
+    if datalocator.getValue(SETTINGS, APP_SETTINGS_SECTION, SHOW_KEY_INFO) == str(True):
+        message_box = nonNativeQMessageBox.NonNativeQMessageBox()
+        message_box.setText("Keys are stored using your computers secure key storage.")
+        message_box.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        message_box.setInformativeText(
+            "Depending on your OS, this may require explicit permission from you. Howdy Coder only stores and accesses the keys you've created here."
+        )
+        dont_show = message_box.addButton(
+            "Don't Show Again",
+            QtWidgets.QMessageBox.ButtonRole.ApplyRole,
+        )
+        reject = message_box.addButton(
+            "Cancel", QtWidgets.QMessageBox.ButtonRole.RejectRole
+        )
+        message_box.addButton("Ok", QtWidgets.QMessageBox.ButtonRole.AcceptRole)
+        message_box.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
+        message_box.exec()
+        if message_box.clickedButton() == dont_show:
+            datalocator.modifyValue(
+                SETTINGS,
+                APP_SETTINGS_SECTION,
+                SHOW_KEY_INFO,
+                str(False),
+            )
+        elif message_box.clickedButton() == reject:
+            return False
+    return True

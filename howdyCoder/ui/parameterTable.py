@@ -39,6 +39,7 @@ class ParameterEnum(Enum):
             EditorType.FILE.display,
             EditorType.FOLDER.display,
             EditorType.GLOBAL_PARAMETER.display,
+            EditorType.KEY.display,
         ],
         True,
     )

@@ -1,6 +1,8 @@
-from .dataStructs import AllParameters
+from .dataStructs import AllParameters, Parameter, FunctionSettings
 from . import datalocator
 from .commonGlobals import EditorType
+
+import typing
 
 import yaml
 from dataclass_wizard import fromdict, asdict
@@ -15,20 +17,37 @@ if settings_config is not None:
     _parameters = fromdict(AllParameters, settings_config)
 
 
-def getKeys() -> None:
-    return [
-        param
-        for param in _parameters.parameters.values()
-        if param.type_ == EditorType.KEY
-    ]
+def getType(type_: EditorType) -> typing.List[Parameter | FunctionSettings]:
+    return (
+        [
+            param
+            for param in _parameters.parameters.values()
+            if param.type_ == type_.display
+        ]
+        if type_ != EditorType.FUNC
+        else list(_parameters.setup_functions.values())
+    )
 
 
-def getNonKeys() -> None:
-    return [
-        name
-        for name, param in _parameters.parameters.items()
-        if param.type_ != EditorType.KEY
-    ] + list(_parameters.setup_functions.keys())
+def getNonType(type_: EditorType) -> typing.List[Parameter | FunctionSettings]:
+    return (
+        [
+            param
+            for param in _parameters.parameters.values()
+            if param.type_ != type_.display
+        ]
+        + list(_parameters.setup_functions.values())
+        if type_ != EditorType.FUNC
+        else []
+    )
+
+
+def getKeys() -> typing.List[Parameter]:
+    return getType(EditorType.KEY)
+
+
+def getNonKeys() -> typing.List[Parameter | FunctionSettings]:
+    return getNonType(EditorType.KEY)
 
 
 def clearParameters() -> None:

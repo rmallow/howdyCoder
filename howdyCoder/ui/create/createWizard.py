@@ -255,6 +255,7 @@ class CreateWizard(
             self._current_index = new_index
             self.setButtonText()
 
+    @QtCore.Slot()
     def nextPressed(self):
         """Go forward a page, if it's the last page then check for any error and save config"""
         if self._current_index == len(self._current_create_widgets_list) - 1:
@@ -372,6 +373,7 @@ class CreateWizard(
         for page in self._current_create_widgets_list:
             page.hide()
 
+    @QtCore.Slot()
     def exitPressed(self, exit_page=None):
         self.addItem.emit(None)
         self.reset()

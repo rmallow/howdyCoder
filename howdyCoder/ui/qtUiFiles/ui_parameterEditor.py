@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'globalParameterPageWidget.ui'
+## Form generated from reading UI file 'parameterEditor.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -15,26 +15,27 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QFrame,
-    QHBoxLayout, QHeaderView, QLabel, QLineEdit,
+from PySide6.QtWidgets import (QAbstractItemView, QAbstractScrollArea, QApplication, QComboBox,
+    QFrame, QHBoxLayout, QHeaderView, QLabel,
+    QLineEdit, QListView, QListWidget, QListWidgetItem,
     QPushButton, QSizePolicy, QSpacerItem, QStackedWidget,
     QVBoxLayout, QWidget)
 
 from ..editableTable import EditableTableView
 from ..keySetWidget import KeySetWidget
 
-class Ui_GlobalParameterPageWidget(object):
-    def setupUi(self, GlobalParameterPageWidget):
-        if not GlobalParameterPageWidget.objectName():
-            GlobalParameterPageWidget.setObjectName(u"GlobalParameterPageWidget")
-        GlobalParameterPageWidget.resize(945, 724)
-        self.verticalLayout = QVBoxLayout(GlobalParameterPageWidget)
+class Ui_ParameterEditor(object):
+    def setupUi(self, ParameterEditor):
+        if not ParameterEditor.objectName():
+            ParameterEditor.setObjectName(u"ParameterEditor")
+        ParameterEditor.resize(945, 731)
+        self.verticalLayout = QVBoxLayout(ParameterEditor)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.widget_4 = QWidget(GlobalParameterPageWidget)
+        self.widget_4 = QWidget(ParameterEditor)
         self.widget_4.setObjectName(u"widget_4")
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widget_4.sizePolicy().hasHeightForWidth())
         self.widget_4.setSizePolicy(sizePolicy)
         self.widget_4.setMinimumSize(QSize(0, 300))
@@ -133,11 +134,8 @@ class Ui_GlobalParameterPageWidget(object):
 
         self.new_parameter_stacked_widget = QStackedWidget(self.widget)
         self.new_parameter_stacked_widget.setObjectName(u"new_parameter_stacked_widget")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy5.setHorizontalStretch(0)
-        sizePolicy5.setVerticalStretch(0)
-        sizePolicy5.setHeightForWidth(self.new_parameter_stacked_widget.sizePolicy().hasHeightForWidth())
-        self.new_parameter_stacked_widget.setSizePolicy(sizePolicy5)
+        sizePolicy.setHeightForWidth(self.new_parameter_stacked_widget.sizePolicy().hasHeightForWidth())
+        self.new_parameter_stacked_widget.setSizePolicy(sizePolicy)
         self.value_boxPage1 = QWidget()
         self.value_boxPage1.setObjectName(u"value_boxPage1")
         self.horizontalLayout_8 = QHBoxLayout(self.value_boxPage1)
@@ -181,16 +179,18 @@ class Ui_GlobalParameterPageWidget(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
-        self.widget_5 = QWidget(self.widget_4)
-        self.widget_5.setObjectName(u"widget_5")
-        sizePolicy6 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Preferred)
-        sizePolicy6.setHorizontalStretch(1)
-        sizePolicy6.setVerticalStretch(0)
-        sizePolicy6.setHeightForWidth(self.widget_5.sizePolicy().hasHeightForWidth())
-        self.widget_5.setSizePolicy(sizePolicy6)
-        self.verticalLayout_4 = QVBoxLayout(self.widget_5)
+        self.stacked_extra_widgets = QStackedWidget(self.widget_4)
+        self.stacked_extra_widgets.setObjectName(u"stacked_extra_widgets")
+        sizePolicy5 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Preferred)
+        sizePolicy5.setHorizontalStretch(1)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.stacked_extra_widgets.sizePolicy().hasHeightForWidth())
+        self.stacked_extra_widgets.setSizePolicy(sizePolicy5)
+        self.key_set_widget_page = QWidget()
+        self.key_set_widget_page.setObjectName(u"key_set_widget_page")
+        self.verticalLayout_4 = QVBoxLayout(self.key_set_widget_page)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.label_4 = QLabel(self.widget_5)
+        self.label_4 = QLabel(self.key_set_widget_page)
         self.label_4.setObjectName(u"label_4")
         sizePolicy2.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
         self.label_4.setSizePolicy(sizePolicy2)
@@ -199,27 +199,55 @@ class Ui_GlobalParameterPageWidget(object):
 
         self.verticalLayout_4.addWidget(self.label_4)
 
-        self.key_set_widget = KeySetWidget(self.widget_5)
+        self.key_set_widget = KeySetWidget(self.key_set_widget_page)
         self.key_set_widget.setObjectName(u"key_set_widget")
         sizePolicy1.setHeightForWidth(self.key_set_widget.sizePolicy().hasHeightForWidth())
         self.key_set_widget.setSizePolicy(sizePolicy1)
 
         self.verticalLayout_4.addWidget(self.key_set_widget)
 
+        self.stacked_extra_widgets.addWidget(self.key_set_widget_page)
+        self.detected_parameter_page = QWidget()
+        self.detected_parameter_page.setObjectName(u"detected_parameter_page")
+        self.verticalLayout_5 = QVBoxLayout(self.detected_parameter_page)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.label_6 = QLabel(self.detected_parameter_page)
+        self.label_6.setObjectName(u"label_6")
+        sizePolicy2.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
+        self.label_6.setSizePolicy(sizePolicy2)
+        self.label_6.setFont(font)
+        self.label_6.setAlignment(Qt.AlignCenter)
 
-        self.horizontalLayout.addWidget(self.widget_5)
+        self.verticalLayout_5.addWidget(self.label_6)
+
+        self.parameter_list_widget = QListWidget(self.detected_parameter_page)
+        self.parameter_list_widget.setObjectName(u"parameter_list_widget")
+        sizePolicy6 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(1)
+        sizePolicy6.setHeightForWidth(self.parameter_list_widget.sizePolicy().hasHeightForWidth())
+        self.parameter_list_widget.setSizePolicy(sizePolicy6)
+        self.parameter_list_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.parameter_list_widget.setFlow(QListView.LeftToRight)
+        self.parameter_list_widget.setProperty("isWrapping", True)
+
+        self.verticalLayout_5.addWidget(self.parameter_list_widget)
+
+        self.stacked_extra_widgets.addWidget(self.detected_parameter_page)
+
+        self.horizontalLayout.addWidget(self.stacked_extra_widgets)
 
 
         self.verticalLayout.addWidget(self.widget_4)
 
-        self.line_2 = QFrame(GlobalParameterPageWidget)
+        self.line_2 = QFrame(ParameterEditor)
         self.line_2.setObjectName(u"line_2")
         self.line_2.setFrameShape(QFrame.HLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
 
         self.verticalLayout.addWidget(self.line_2)
 
-        self.widget_3 = QWidget(GlobalParameterPageWidget)
+        self.widget_3 = QWidget(ParameterEditor)
         self.widget_3.setObjectName(u"widget_3")
         sizePolicy.setHeightForWidth(self.widget_3.sizePolicy().hasHeightForWidth())
         self.widget_3.setSizePolicy(sizePolicy)
@@ -230,6 +258,8 @@ class Ui_GlobalParameterPageWidget(object):
         self.widget_6.setObjectName(u"widget_6")
         sizePolicy.setHeightForWidth(self.widget_6.sizePolicy().hasHeightForWidth())
         self.widget_6.setSizePolicy(sizePolicy)
+        self.widget_6.setMinimumSize(QSize(0, 60))
+        self.widget_6.setMaximumSize(QSize(16777215, 60))
         self.horizontalLayout_2 = QHBoxLayout(self.widget_6)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -275,12 +305,15 @@ class Ui_GlobalParameterPageWidget(object):
 
         self.all_parameter_table_view = EditableTableView(self.widget_3)
         self.all_parameter_table_view.setObjectName(u"all_parameter_table_view")
-        sizePolicy7 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy7 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         sizePolicy7.setHorizontalStretch(0)
-        sizePolicy7.setVerticalStretch(10)
+        sizePolicy7.setVerticalStretch(0)
         sizePolicy7.setHeightForWidth(self.all_parameter_table_view.sizePolicy().hasHeightForWidth())
         self.all_parameter_table_view.setSizePolicy(sizePolicy7)
         self.all_parameter_table_view.setMinimumSize(QSize(0, 300))
+        self.all_parameter_table_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.all_parameter_table_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.all_parameter_table_view.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.all_parameter_table_view.setSelectionMode(QAbstractItemView.SingleSelection)
         self.all_parameter_table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
 
@@ -290,19 +323,23 @@ class Ui_GlobalParameterPageWidget(object):
         self.verticalLayout.addWidget(self.widget_3)
 
 
-        self.retranslateUi(GlobalParameterPageWidget)
+        self.retranslateUi(ParameterEditor)
 
-        QMetaObject.connectSlotsByName(GlobalParameterPageWidget)
+        self.stacked_extra_widgets.setCurrentIndex(1)
+
+
+        QMetaObject.connectSlotsByName(ParameterEditor)
     # setupUi
 
-    def retranslateUi(self, GlobalParameterPageWidget):
-        GlobalParameterPageWidget.setWindowTitle(QCoreApplication.translate("GlobalParameterPageWidget", u"GlobalParameterPageWidget", None))
-        self.label_2.setText(QCoreApplication.translate("GlobalParameterPageWidget", u"Add Parameter", None))
-        self.label.setText(QCoreApplication.translate("GlobalParameterPageWidget", u"Name:", None))
-        self.label_3.setText(QCoreApplication.translate("GlobalParameterPageWidget", u"Type:", None))
-        self.new_parameter_add_button.setText(QCoreApplication.translate("GlobalParameterPageWidget", u"Add", None))
-        self.label_4.setText(QCoreApplication.translate("GlobalParameterPageWidget", u"Set Howdy Coder API Keys", None))
-        self.label_5.setText(QCoreApplication.translate("GlobalParameterPageWidget", u"All Parameters", None))
-        self.remove_parameter_button.setText(QCoreApplication.translate("GlobalParameterPageWidget", u"Remove", None))
+    def retranslateUi(self, ParameterEditor):
+        ParameterEditor.setWindowTitle(QCoreApplication.translate("ParameterEditor", u"ParameterEditor", None))
+        self.label_2.setText(QCoreApplication.translate("ParameterEditor", u"Add Parameter", None))
+        self.label.setText(QCoreApplication.translate("ParameterEditor", u"Name:", None))
+        self.label_3.setText(QCoreApplication.translate("ParameterEditor", u"Type:", None))
+        self.new_parameter_add_button.setText(QCoreApplication.translate("ParameterEditor", u"Add", None))
+        self.label_4.setText(QCoreApplication.translate("ParameterEditor", u"Set Howdy Coder API Keys", None))
+        self.label_6.setText(QCoreApplication.translate("ParameterEditor", u"Deteceted Parameters", None))
+        self.label_5.setText(QCoreApplication.translate("ParameterEditor", u"All Parameters", None))
+        self.remove_parameter_button.setText(QCoreApplication.translate("ParameterEditor", u"Remove", None))
     # retranslateUi
 

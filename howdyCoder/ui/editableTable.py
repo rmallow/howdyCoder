@@ -32,6 +32,10 @@ SELECTOR_TYPES = set(
     [EditorType.FUNC.display, EditorType.FOLDER.display, EditorType.FILE.display]
 )
 
+PERSISTENT_EDITORS = SELECTOR_TYPES | set(
+    [EditorType.GLOBAL_PARAMETER.display, EditorType.KEY.display]
+)
+
 
 def getEditor(
     editor_type: EditorType,
@@ -51,17 +55,21 @@ def getEditor(
         or editor_type == EditorType.KEY
         or editor_type == EditorType.GLOBAL_PARAMETER
     ):
-        combo_values = combo_editor_values
-        if editor_type == EditorType.KEY:
-            combo_values = parameterSingleton.getKeys()
-        elif editor_type == editor_type.GLOBAL_PARAMETER:
-            combo_values = parameterSingleton.getNonKeys()
         editor = QtWidgets.QComboBox(parent)
         editor.setAutoFillBackground(True)
-        combo_hide_values = set()
+        combo_values = combo_editor_values
         for comboValue in combo_values:
             if comboValue not in combo_hide_values:
                 editor.addItem(comboValue)
+        if editor_type == EditorType.KEY or editor_type == EditorType.GLOBAL_PARAMETER:
+            if editor_type == EditorType.KEY:
+                combo_values = parameterSingleton.getKeys()
+            else:
+                combo_values = parameterSingleton.getNonKeys()
+            for combo_value in combo_values:
+                if combo_value.name not in combo_hide_values:
+                    editor.addItem(combo_value.name, userData=combo_value)
+
     elif editor_type == EditorType.INTEGER:
         editor = QtWidgets.QSpinBox(parent)
         editor.setRange(-999999, 999999)
@@ -313,7 +321,8 @@ class EditableTableModel(
                     if value in SELECTOR_TYPES:
                         if value != old_val and (old_val in SELECTOR_TYPES):
                             self.closePersistentEditor.emit(funcIndex)
-                        self.selector_indexes.add(funcIndex)
+                        if value in SELECTOR_TYPES:
+                            self.selector_indexes.add(funcIndex)
                         self.openPersistentEditor.emit(funcIndex)
                     else:
                         if funcIndex in self.selector_indexes:

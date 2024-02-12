@@ -1,7 +1,8 @@
 from .util import qtResourceManager, qtUtil, toggleSwitch
 from ..commonUtil import keyringUtil
 from ..core.keySingleton import KeySetData
-from ..core import keySingleton, datalocator
+from ..core import keySingleton, datalocator, parameterSingleton
+from ..core.commonGlobals import EditorType
 
 import typing
 
@@ -37,10 +38,15 @@ class KeySetWidget(QtWidgets.QWidget):
         self._ui.setupUi(self)
 
         assert keySingleton.key_set_data_mapping
+
+        self._key_set_data: KeySetData = None
+
         for k, v in keySingleton.key_set_data_mapping.items():
             self._ui.key_choice_combo.addItem(k, v)
 
-        self._key_set_data: KeySetData = None
+        self._ui.arrow_label.setPixmap(
+            self.style().standardPixmap(QtWidgets.QStyle.StandardPixmap.SP_ArrowRight)
+        )
 
         self._ui.set_button.released.connect(self.setKey)
         self._ui.user_manual_button.released.connect(
@@ -54,6 +60,7 @@ class KeySetWidget(QtWidgets.QWidget):
         if self._ui.key_choice_combo.count() < 2:
             self._ui.key_choice_combo.setEnabled(False)
 
+        """
         layout = QtWidgets.QHBoxLayout(self._ui.toggle_switch_box)
         self._toggle_switch = toggleSwitch.Switch(
             self._ui.toggle_switch_box, thumb_radius=12, track_radius=12
@@ -63,6 +70,7 @@ class KeySetWidget(QtWidgets.QWidget):
         self._ui.toggle_switch_box.setLayout(layout)
         self._toggle_switch.released.connect(self.toggleSwitchReleased)
         self.toggleSwitchReleased()
+        
 
     @QtCore.Slot()
     def toggleSwitchReleased(self):
@@ -70,6 +78,8 @@ class KeySetWidget(QtWidgets.QWidget):
         self._ui.api_key_edit.clear()
         self._ui.api_key_edit.setEnabled(not self._toggle_switch.isChecked())
         self._ui.key_select_combo.setEnabled(self._toggle_switch.isChecked())
+
+        """
 
     @QtCore.Slot()
     def keyComboChanged(self, _: int):
@@ -81,7 +91,9 @@ class KeySetWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def setKey(self) -> bool:
         assert self._key_set_data is not None
-        if self._key_set_data.validation_function(self._ui.api_key_edit.text()):
+        if qtUtil.showKeyWarning() and self._key_set_data.validation_function(
+            self._ui.api_key_edit.text()
+        ):
             self.setStatus(True, SET_API_KEY)
             self._key_set_data.set_function(self._ui.api_key_edit.text())
             keySingleton.key_status[

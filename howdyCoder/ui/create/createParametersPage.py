@@ -1,17 +1,16 @@
 from ...core.dataStructs import ItemSettings
 from .createBasePage import CreateBasePage, ItemValidity
-from ..qtUiFiles import ui_createDataSourceParametersPage
 from ..uiConstants import PageKeys
-from .. import parameterTable
+from ..parameterEditor import ParameterEditor
+from .. import editableTable
 
 from ...core.commonGlobals import (
-    DATA_SOURCES,
-    ACTION_LIST,
     DATA_SET,
 )
+from ...core import commonGlobals
+from ..selectorWidget import SelectorWidget
 
 import typing
-from ...commonUtil import helpers
 
 from PySide6 import QtWidgets, QtCore
 
@@ -26,21 +25,100 @@ class CreateParametersPage(CreateBasePage):
     ):
         super().__init__(current_config, "None", parent=parent)
 
-        self._ui = ui_createDataSourceParametersPage.Ui_CreateDataSourceParametersPage()
-        self._ui.setupUi(self)
+        self._parameter_editor = ParameterEditor(self)
 
-        self._parameterModel = parameterTable.ParameterTableModel()
-        self._ui.parameterView.setModel(self._parameterModel)
-
-        # parameter connections
-        self._ui.addParameterButton.pressed.connect(self._parameterModel.appendValue)
-        self._ui.removeParameterButton.pressed.connect(
-            lambda: self._parameterModel.removeValue(
-                self._ui.parameterView.getSelected()
-            )
+        self._parameter_editor.parameter_model.dataChanged.connect(
+            self.setParametersLabel
         )
-        self._parameterModel.dataChanged.connect(self.setParametersLabel)
-        self._ui.clearParameterButton.pressed.connect(self._parameterModel.clear)
+
+        self._parameter_editor.ui.all_parameter_table_view.setModel(
+            self._parameter_editor.parameter_model
+        )
+
+        self.createStackedWidgets()
+
+        for enum in commonGlobals.EditorType:
+            if (
+                enum != commonGlobals.EditorType.ANY
+                and enum != commonGlobals.EditorType.COMBO
+            ):
+                self._parameter_editor.ui.new_parameter_type_combo.addItem(
+                    enum.display, userData=enum
+                )
+
+        self._parameter_editor.changeTypeStackedWidget(0)
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self._parameter_editor)
+        self.setLayout(layout)
+
+        self.createStackedWidgets()
+
+    def getEditorByType(self, enum: commonGlobals.EditorType):
+        return editableTable.getEditor(
+            enum,
+            self,
+            [],
+            set(),
+            self._parameter_editor._func_selector,
+            self._parameter_editor._folder_selector,
+            self._parameter_editor._file_selector,
+            None,
+        )
+
+    def createStackedWidgets(self):
+        self._parameter_editor.addStackedWidget(
+            commonGlobals.EditorType.STRING,
+            self.getEditorByType(commonGlobals.EditorType.STRING),
+            QtWidgets.QLineEdit.text,
+            QtWidgets.QLineEdit.clear,
+        )
+
+        self._parameter_editor.addStackedWidget(
+            commonGlobals.EditorType.INTEGER,
+            self.getEditorByType(commonGlobals.EditorType.INTEGER),
+            QtWidgets.QSpinBox.value,
+            lambda obj: obj.setValue(0),
+        )
+
+        self._parameter_editor.addStackedWidget(
+            commonGlobals.EditorType.DECIMAL,
+            self.getEditorByType(commonGlobals.EditorType.DECIMAL),
+            QtWidgets.QDoubleSpinBox.value,
+            lambda obj: obj.setValue(0.0),
+        )
+        self._parameter_editor.addStackedWidget(
+            commonGlobals.EditorType.FUNC,
+            self.getEditorByType(commonGlobals.EditorType.FUNC),
+            SelectorWidget.getSelectedData,
+            SelectorWidget.reset,
+        )
+
+        self._parameter_editor.addStackedWidget(
+            commonGlobals.EditorType.FILE,
+            self.getEditorByType(commonGlobals.EditorType.FILE),
+            SelectorWidget.getSelectedData,
+            SelectorWidget.reset,
+        )
+
+        self._parameter_editor.addStackedWidget(
+            commonGlobals.EditorType.FOLDER,
+            self.getEditorByType(commonGlobals.EditorType.FOLDER),
+            SelectorWidget.getSelectedData,
+            SelectorWidget.reset,
+        )
+        self._parameter_editor.addStackedWidget(
+            commonGlobals.EditorType.KEY,
+            self.getEditorByType(commonGlobals.EditorType.KEY),
+            QtWidgets.QComboBox.currentText,
+            lambda obj: obj.setCurrentIndex(-1),
+        )
+        self._parameter_editor.addStackedWidget(
+            commonGlobals.EditorType.GLOBAL_PARAMETER,
+            self.getEditorByType(commonGlobals.EditorType.GLOBAL_PARAMETER),
+            QtWidgets.QComboBox.currentText,
+            lambda obj: obj.setCurrentIndex(-1),
+        )
 
     def save(self) -> None:
         """
@@ -52,31 +130,34 @@ class CreateParametersPage(CreateBasePage):
         """
         if self.getConfig():
             curr = self.getConfig()
-            curr.all_parameters = self._parameterModel.getData()
+            curr.all_parameters = self._parameter_editor.parameter_model.getData()
 
     def reset(self) -> None:
-        self._parameterModel.clear()
+        self._parameter_editor.parameter_model.clear()
 
     def loadPage(self) -> None:
         curr = self.getConfig()
-        self._parameterModel.clear()
-        self._parameterModel.setDataFromSettings(curr.all_parameters)
+        self._parameter_editor.parameter_model.clear()
+        self._parameter_editor.parameter_model.setDataFromSettings(curr.all_parameters)
         self.setParametersLabel()
         return super().loadPage()
 
+    @QtCore.Slot()
     def setParametersLabel(self, *args, **kwrags):
         suggested_parmesean = [
             param
             for param in self.getHelperData().suggested_parameters
-            + self._parameterModel.getSuggestedParameters()
+            + self._parameter_editor.parameter_model.getSuggestedParameters()
             if param != DATA_SET
         ]
         self.addToSuggestedListWidget(
-            self._ui.parameter_list_widget,
-            self._parameterModel.current_names,
+            self._parameter_editor.ui.parameter_list_widget,
+            self._parameter_editor.parameter_model.current_names,
             suggested_parmesean,
         )
-        self._ui.parameterView.itemDelegate().setCompleterStrings(suggested_parmesean)
+        self._parameter_editor.ui.all_parameter_table_view.itemDelegate().setCompleterStrings(
+            suggested_parmesean
+        )
 
     def getTutorialClasses(self) -> typing.List:
         return [self]

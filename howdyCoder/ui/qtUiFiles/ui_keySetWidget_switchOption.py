@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'keySetWidget.ui'
+## Form generated from reading UI file 'keySetWidget_switchOption.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QHBoxLayout, QLabel,
-    QLineEdit, QPushButton, QSizePolicy, QVBoxLayout,
-    QWidget)
+    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 
 class Ui_KeySetWidget(object):
     def setupUi(self, KeySetWidget):
@@ -43,11 +43,6 @@ class Ui_KeySetWidget(object):
 
         self.horizontalLayout_4.addWidget(self.label_2)
 
-        self.arrow_label = QLabel(self.widget_2)
-        self.arrow_label.setObjectName(u"arrow_label")
-
-        self.horizontalLayout_4.addWidget(self.arrow_label)
-
         self.user_manual_button = QPushButton(self.widget_2)
         self.user_manual_button.setObjectName(u"user_manual_button")
         sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
@@ -61,22 +56,15 @@ class Ui_KeySetWidget(object):
 
         self.verticalLayout.addWidget(self.widget_2)
 
-        self.widget_3 = QWidget(KeySetWidget)
-        self.widget_3.setObjectName(u"widget_3")
-        self.horizontalLayout_5 = QHBoxLayout(self.widget_3)
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.key_choice_combo = QComboBox(self.widget_3)
+        self.key_choice_combo = QComboBox(KeySetWidget)
         self.key_choice_combo.setObjectName(u"key_choice_combo")
-        sizePolicy2 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(1)
         sizePolicy2.setHeightForWidth(self.key_choice_combo.sizePolicy().hasHeightForWidth())
         self.key_choice_combo.setSizePolicy(sizePolicy2)
 
-        self.horizontalLayout_5.addWidget(self.key_choice_combo)
-
-
-        self.verticalLayout.addWidget(self.widget_3)
+        self.verticalLayout.addWidget(self.key_choice_combo)
 
         self.label = QLabel(KeySetWidget)
         self.label.setObjectName(u"label")
@@ -85,15 +73,39 @@ class Ui_KeySetWidget(object):
 
         self.verticalLayout.addWidget(self.label)
 
+        self.widget_3 = QWidget(KeySetWidget)
+        self.widget_3.setObjectName(u"widget_3")
+        self.widget_3.setMinimumSize(QSize(0, 50))
+        self.horizontalLayout_5 = QHBoxLayout(self.widget_3)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.label_4 = QLabel(self.widget_3)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.horizontalLayout_5.addWidget(self.label_4)
+
+        self.toggle_switch_box = QWidget(self.widget_3)
+        self.toggle_switch_box.setObjectName(u"toggle_switch_box")
+        self.toggle_switch_box.setMinimumSize(QSize(0, 50))
+
+        self.horizontalLayout_5.addWidget(self.toggle_switch_box)
+
+        self.label_5 = QLabel(self.widget_3)
+        self.label_5.setObjectName(u"label_5")
+
+        self.horizontalLayout_5.addWidget(self.label_5)
+
+
+        self.verticalLayout.addWidget(self.widget_3)
+
         self.api_box = QWidget(KeySetWidget)
         self.api_box.setObjectName(u"api_box")
         self.horizontalLayout = QHBoxLayout(self.api_box)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.label_3 = QLabel(self.api_box)
-        self.label_3.setObjectName(u"label_3")
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout.addWidget(self.label_3)
+        self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
         self.api_key_edit = QLineEdit(self.api_box)
         self.api_key_edit.setObjectName(u"api_key_edit")
@@ -105,6 +117,25 @@ class Ui_KeySetWidget(object):
         self.api_key_edit.setMinimumSize(QSize(200, 0))
 
         self.horizontalLayout.addWidget(self.api_key_edit)
+
+        self.horizontalSpacer = QSpacerItem(80, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer)
+
+        self.key_select_combo = QComboBox(self.api_box)
+        self.key_select_combo.setObjectName(u"key_select_combo")
+        sizePolicy4 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy4.setHorizontalStretch(1)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.key_select_combo.sizePolicy().hasHeightForWidth())
+        self.key_select_combo.setSizePolicy(sizePolicy4)
+        self.key_select_combo.setMinimumSize(QSize(200, 0))
+
+        self.horizontalLayout.addWidget(self.key_select_combo)
+
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_3)
 
 
         self.verticalLayout.addWidget(self.api_box)
@@ -118,11 +149,11 @@ class Ui_KeySetWidget(object):
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.status_icon_label = QLabel(self.status_box)
         self.status_icon_label.setObjectName(u"status_icon_label")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.status_icon_label.sizePolicy().hasHeightForWidth())
-        self.status_icon_label.setSizePolicy(sizePolicy4)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.status_icon_label.sizePolicy().hasHeightForWidth())
+        self.status_icon_label.setSizePolicy(sizePolicy5)
         self.status_icon_label.setMinimumSize(QSize(16, 16))
         self.status_icon_label.setMaximumSize(QSize(16, 16))
 
@@ -160,11 +191,11 @@ class Ui_KeySetWidget(object):
 
     def retranslateUi(self, KeySetWidget):
         KeySetWidget.setWindowTitle(QCoreApplication.translate("KeySetWidget", u"API Key Set Widget", None))
-        self.label_2.setText(QCoreApplication.translate("KeySetWidget", u"For more information on keys, look at the User Manual", None))
-        self.arrow_label.setText("")
+        self.label_2.setText(QCoreApplication.translate("KeySetWidget", u"For more information on keys, look at the User Manual ->", None))
         self.user_manual_button.setText(QCoreApplication.translate("KeySetWidget", u"User Manual", None))
-        self.label.setText(QCoreApplication.translate("KeySetWidget", u"Enter a key in the space below. Once set, this key will be retreived each time the application is loaded.", None))
-        self.label_3.setText(QCoreApplication.translate("KeySetWidget", u"Key:", None))
+        self.label.setText(QCoreApplication.translate("KeySetWidget", u"Enter or select a key you've already set in the space below. Once set, this key will be retreived each time the application is loaded.", None))
+        self.label_4.setText(QCoreApplication.translate("KeySetWidget", u"Set", None))
+        self.label_5.setText(QCoreApplication.translate("KeySetWidget", u"Select", None))
         self.status_icon_label.setText("")
         self.status_text_label.setText("")
         self.set_button.setText(QCoreApplication.translate("KeySetWidget", u"Set", None))
