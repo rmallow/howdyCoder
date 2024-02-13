@@ -7,6 +7,7 @@ from .. import editableTable
 from ...core.commonGlobals import (
     DATA_SET,
 )
+from ..util import qtUtil
 from ...core import commonGlobals
 from ..selectorWidget import SelectorWidget
 
@@ -157,6 +158,9 @@ class CreateParametersPage(CreateBasePage):
         )
         self._parameter_editor.ui.all_parameter_table_view.itemDelegate().setCompleterStrings(
             suggested_parmesean
+        )
+        qtUtil.setCompleter(
+            self._parameter_editor.ui.new_parameter_name_edit, suggested_parmesean
         )
 
     def getTutorialClasses(self) -> typing.List:
