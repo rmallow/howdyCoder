@@ -132,8 +132,12 @@ class CreateBasePage(
             if name not in current:
                 all_found = False
             return qtResourceManager.getResourceByName(
-                "icons",
-                ("checkmark_green.png" if name in current else "x_red.png"),
+                qtResourceManager.ICONS_PREFIX,
+                (
+                    qtResourceManager.GREEN_CHECKMARK
+                    if name in current
+                    else qtResourceManager.RED_X
+                ),
             )
 
         list_widget.clear()

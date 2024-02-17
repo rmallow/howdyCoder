@@ -118,6 +118,7 @@ class Ui_HowdyCoder(object):
         self.toolBar = QToolBar(HowdyCoder)
         self.toolBar.setObjectName(u"toolBar")
         self.toolBar.setMovable(False)
+        self.toolBar.setIconSize(QSize(32, 40))
         self.toolBar.setToolButtonStyle(Qt.ToolButtonIconOnly)
         self.toolBar.setFloatable(False)
         HowdyCoder.addToolBar(Qt.TopToolBarArea, self.toolBar)

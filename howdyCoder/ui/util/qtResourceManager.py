@@ -26,6 +26,11 @@ def getResourceByIndex(prefix: str, index: int, folder=None) -> QtGui.QPixmap:
     return QtGui.QPixmap()
 
 
+GREEN_CHECKMARK = "checkmark_green.png"
+RED_X = "x_red.png"
+ICONS_PREFIX = "icons"
+
+
 @cache
 def getResourceByName(prefix: str, name: str, folder=None) -> QtGui.QPixmap:
     path = f"{getPrefStr(prefix)}/{'' if folder is None else folder}"

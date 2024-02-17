@@ -472,7 +472,7 @@ class mainframe(commandProcessor):
         modules = set()
         configLoader.dfsConfigDict(
             config_dict,
-            lambda k: k == IMPORTS,
+            lambda _1, k, _3: k == IMPORTS,
             lambda _1, _2, v: modules.update(set(v)),
         )
         self.sendToUi(

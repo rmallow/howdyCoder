@@ -43,12 +43,16 @@ class ProgressButton(QtWidgets.QWidget):
         elif self._completed:
             color = PROGRESS_BAR_COMPLETED_COLOR_STR
             self._ui.button.setIcon(
-                qtResourceManager.getResourceByName("icons", "checkmark.png")
+                qtResourceManager.getResourceByName(
+                    qtResourceManager.ICONS_PREFIX, "checkmark.png"
+                )
             )
         else:
             color = PROGRESS_BAR_FAILED_COLOR_STR
             self._ui.button.setIcon(
-                qtResourceManager.getResourceByName("icons", "x.png")
+                qtResourceManager.getResourceByName(
+                    qtResourceManager.ICONS_PREFIX, "x.png"
+                )
             )
         self._ui.button.setStyleSheet(
             self._ui.button.styleSheet() + f"background-color:{color};"

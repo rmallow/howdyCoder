@@ -65,6 +65,15 @@ def getParameters() -> AllParameters:
     return _parameters
 
 
+def getParameter(name: str) -> typing.Any | None:
+    if name in _parameters.parameters:
+        return _parameters.parameters[name]
+    elif name in _parameters.setup_functions:
+        return _parameters.setup_functions[name]
+    else:
+        return None
+
+
 def saveParameters() -> None:
     global _parameters
     with open(datalocator.getDataFilePath(datalocator.PARAMETERS), "w") as f:

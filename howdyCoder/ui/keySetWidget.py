@@ -96,12 +96,12 @@ class KeySetWidget(QtWidgets.QWidget):
         ):
             self.setStatus(True, SET_API_KEY)
             self._key_set_data.set_function(self._ui.api_key_edit.text())
-            keySingleton.key_status[
-                self._ui.key_choice_combo.currentText()
-            ].valid = True
-            keySingleton.key_status[
-                self._ui.key_choice_combo.currentText()
-            ].current = self._ui.api_key_edit.text()
+            keySingleton.key_status[self._ui.key_choice_combo.currentText()].valid = (
+                True
+            )
+            keySingleton.key_status[self._ui.key_choice_combo.currentText()].current = (
+                self._ui.api_key_edit.text()
+            )
             datalocator.modifyValue(
                 datalocator.SETTINGS,
                 keySingleton.KEYS,
@@ -123,7 +123,12 @@ class KeySetWidget(QtWidgets.QWidget):
     def setStatus(self, valid: bool, label: str) -> None:
         self._ui.status_icon_label.setPixmap(
             qtResourceManager.getResourceByName(
-                "icons", ("checkmark_green.png" if valid else "x_red.png")
+                qtResourceManager.ICONS_PREFIX,
+                (
+                    qtResourceManager.GREEN_CHECKMARK
+                    if valid
+                    else qtResourceManager.RED_X
+                ),
             ).scaled(
                 self._ui.status_icon_label.width(), self._ui.status_icon_label.height()
             )

@@ -3,20 +3,25 @@ from .loggingWindow import loggingWindow
 from .statusWindow import statusWindow
 from .qtUiFiles import ui_mainWindow
 from .mainModel import mainModel
-from .modInstallDialog import ModInstallDialog
+from .startWizard import StartWizard
 from .tutorialOverlay import AbstractTutorialClass
 from .create.creatorTypeWindow import CreatorTypeWindow
+from .uiConstants import GUI_REFRESH_INTERVAL
 
 from .util import abstractQt
 
 # import name page for find children to connect signal
 from .create.createNamePage import CreateNamePage
 
-from ..core.dataStructs import Modes, ProgramSettings
+from ..core.dataStructs import Modes, ProgramSettings, Parameter
+from ..core.commonGlobals import EditorType, ProgramTypes
+from ..commonUtil import configLoader
 
 import copy
 import typing
+from collections import defaultdict
 
+from dataclass_wizard import asdict, fromdict
 from PySide6 import QtWidgets, QtCore, QtGui
 
 
@@ -133,13 +138,12 @@ class MainWindow(
             lambda: self.changeStackedWidget(self._ui.controlPage)
         )
 
-        self._module_install_window = ModInstallDialog(self)
-        self._module_install_window.setVisible(False)
-        self._module_install_window.accepted.connect(self.moduleCheckAccepted)
+        self._start_wizard = StartWizard(self)
         self._main_model.moduleStatusChangedSignal.connect(self.moduleStatusChanged)
-        self._module_install_window.installPackagesSignal.connect(
+        self._start_wizard.ui.module_install_widget.installPackagesSignal.connect(
             self._main_model.sendInstallPackagesCommand
         )
+        self._start_wizard.finishedWizard.connect(self.startWizardFinished)
 
         self.creator_type_window = None
 
@@ -150,6 +154,11 @@ class MainWindow(
         self.resize(QtGui.QGuiApplication.primaryScreen().availableSize())
         self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
         self.show()
+
+        self._timer = QtCore.QTimer(self)
+        self._timer.timeout.connect(self.refresh)
+        self._timer.start(GUI_REFRESH_INTERVAL)
+
         self.testFunc()
 
     @QtCore.Slot()
@@ -169,7 +178,12 @@ class MainWindow(
             if data.mode == Modes.STARTED:
                 self._main_model.sendCmdEnd(code)
             else:
-                self.checkModules(code)
+                self.openStartWizard(code)
+
+    def openStartWizard(self, code: str):
+        self.checkModules(code)
+        self.checkGlobalParameters(code)
+        self._start_wizard.startWizard(code)
 
     @QtCore.Slot()
     def algoShutdownControlBox(self, code):
@@ -180,34 +194,47 @@ class MainWindow(
         if file_path := QtWidgets.QFileDialog.getSaveFileName(filter="CSV (*.csv)")[0]:
             self._main_model.exportData(code, file_path)
 
-    @QtCore.Slot()
     def checkModules(self, code=None):
-        """QAction triggered will make code False, instead of expected None for all"""
-        code = code if code else None
         modules = self._main_model.getModules(code)
-        if any(not status for _, status in modules):
-            self._module_install_window.updateTable(code, modules)
-            self._module_install_window.open()
+        self._start_wizard.ui.module_install_widget.updateTable(modules)
+
+    def checkGlobalParameters(self, code: str) -> None:
+        config = self._main_model.program_dict.getData(code).config
+        item_globals: typing.Dict[str, Parameter] = {}
+        all_items = []
+        if config.type_ == ProgramTypes.SCRIPT:
+            all_items = [config.settings.action]
         else:
-            if code:
-                self._main_model.sendCmdStart(code)
-            else:
-                self._main_model.sendCmdStartAll()
+            all_items = list(config.settings.action_list.values()) + list(
+                config.settings.data_sources.values()
+            )
+        for item in all_items:
+            global_params = []
+            configLoader.dfsConfigDict(
+                asdict(item),
+                lambda _1, k, v: k == "type_"
+                and (
+                    v == EditorType.GLOBAL_PARAMETER.display
+                    or v == EditorType.KEY.display
+                ),
+                lambda c, _2, v: (global_params.append(fromdict(Parameter, c))),
+            )
+            if global_params:
+                item_globals[item.name] = global_params
+        self._start_wizard.ui.parameter_check_widget.updateValues(item_globals)
 
     @QtCore.Slot()
-    def moduleCheckAccepted(self):
-        if self._module_install_window.current_code is not None:
-            self._main_model.sendCmdStart(self._module_install_window.current_code)
-        else:
-            self._main_model.sendCmdStartAll()
+    def startWizardFinished(self):
+        self._main_model.sendCmdStart(self._start_wizard.current_code)
 
     @QtCore.Slot()
     def moduleStatusChanged(self):
         """If the module status has changed and the window is visible, it's because we tried an install"""
-        if self._module_install_window.isVisible():
-            self._module_install_window.updateTable(
-                self._module_install_window.current_code,
-                self._main_model.getModules(self._module_install_window.current_code),
+        if not self._start_wizard.isHidden():
+            self._start_wizard.ui.module_install_widget.updateTable(
+                self._main_model.getModules(
+                    self._start_wizard.ui.module_install_widget.current_code
+                ),
             )
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
@@ -260,3 +287,15 @@ class MainWindow(
     def testFunc(self):
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/crypto_trader.yml")
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/app2.yml")
+
+    def refresh(self):
+        """Once we receive word back that the program that is trying to be started by the wizard, is in fact started, then we can hide it"""
+        if (
+            not self._start_wizard.isHidden()
+            and self._start_wizard.current_code
+            and self._main_model.program_dict.getData(
+                self._start_wizard.current_code
+            ).mode
+            == Modes.STARTED
+        ):
+            self._start_wizard.hide()

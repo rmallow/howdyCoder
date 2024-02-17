@@ -32,6 +32,6 @@ class ProgramManager(ABC):
                 c[k] = user_funcs[-1]
 
         configLoader.dfsConfigDict(
-            config, lambda k: k == USER_FUNC, assignUserFuncCaller
+            config, lambda _1, k, _3: k == USER_FUNC, assignUserFuncCaller
         )
         return user_funcs

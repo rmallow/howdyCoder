@@ -285,20 +285,27 @@ class AlgoTopoView(
         self.scene.setConfig(self.current_settings)
 
     def copyItemMenu(self, name: str) -> str:
-        copied_settings = copy.deepcopy(self.scene.current_items[name].item_settings)
-        copied_settings.name = getDupeName(
-            copied_settings.name,
-            self.current_settings.settings.data_sources
-            if self.scene.current_items[name].item_settings.isDataSource()
-            else self.current_settings.settings.action_list,
-        )
-        self.addItem.emit(copied_settings)
+        if name:
+            copied_settings = copy.deepcopy(
+                self.scene.current_items[name].item_settings
+            )
+            copied_settings.name = getDupeName(
+                copied_settings.name,
+                (
+                    self.current_settings.settings.data_sources
+                    if self.scene.current_items[name].item_settings.isDataSource()
+                    else self.current_settings.settings.action_list
+                ),
+            )
+            self.addItem.emit(copied_settings)
 
     def editItemMenu(self, name: str):
-        self.editItem.emit(self.scene.current_items[name].item_settings)
+        if name:
+            self.editItem.emit(self.scene.current_items[name].item_settings)
 
     def removeItemMenu(self, name: str):
-        self.removeItem.emit(self.scene.current_items[name].item_settings)
+        if name:
+            self.removeItem.emit(self.scene.current_items[name].item_settings)
 
     def addActionMenu(self, _):
         self.openWizard.emit(ActionSettings())

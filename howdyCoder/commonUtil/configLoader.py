@@ -35,9 +35,9 @@ class ConfigLoader:
                         parser.read_string("[top]\n" + stream.read())
                     for section in parser.sections():
                         for fileKey, fileValue in parser.items(section):
-                            self.valueDict[
-                                str(settingsKey) + "." + str(fileKey)
-                            ] = fileValue
+                            self.valueDict[str(settingsKey) + "." + str(fileKey)] = (
+                                fileValue
+                            )
                             if section != "top":
                                 self.valueDict[
                                     str(settingsKey)
@@ -46,9 +46,9 @@ class ConfigLoader:
                                     + "."
                                     + str(fileKey)
                                 ] = fileValue
-                                self.valueDict[
-                                    str(section) + "." + str(fileKey)
-                                ] = fileValue
+                                self.valueDict[str(section) + "." + str(fileKey)] = (
+                                    fileValue
+                                )
                             self.valueDict[str(fileKey)] = fileValue
                 else:
                     mpLogging.warning(
@@ -112,7 +112,7 @@ def dfsConfigDict(config, match, do):
             return
         try:
             for k, v in c.items():
-                if match(k):
+                if match(c, k, v):
                     do(c, k, v)
                 else:
                     dfs(v)

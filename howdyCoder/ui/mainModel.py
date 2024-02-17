@@ -114,20 +114,10 @@ class mainModel(commandProcessor, QtCore.QObject):
                 self.ui_queue = None
 
     @QtCore.Slot()
-    def sendCmdStartAll(self):
-        self.messageMainframe(
-            msg.message(msg.MessageType.COMMAND, msg.CommandType.START)
-        )
-
-    @QtCore.Slot()
     def sendCmdStart(self, code: str):
         self.messageMainframe(
             msg.message(msg.MessageType.COMMAND, msg.CommandType.START, details=code)
         )
-
-    @QtCore.Slot()
-    def sendCmdEndAll(self):
-        self.messageMainframe(msg.message(msg.MessageType.COMMAND, msg.CommandType.END))
 
     @QtCore.Slot()
     def sendCmdEnd(self, code: str):

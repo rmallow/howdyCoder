@@ -1,4 +1,5 @@
-from .qtUiFiles import ui_modInstallDialog
+from .startWizardBasePage import StartWizardBasePage
+from .qtUiFiles import ui_modInstallWidget
 
 from PySide6 import QtWidgets, QtCore, QtGui
 import typing
@@ -9,7 +10,7 @@ ALL_INSTALLED = "--- ALL MODULES FOUND ---"
 MISSING_MODULES = "--- SOME MODULES MISSING ---"
 
 
-class ModInstallDialog(QtWidgets.QDialog):
+class ModInstallWidget(StartWizardBasePage):
     installPackagesSignal = QtCore.Signal(list)
 
     def __init__(
@@ -18,25 +19,24 @@ class ModInstallDialog(QtWidgets.QDialog):
         f: QtCore.Qt.WindowFlags = QtCore.Qt.WindowFlags(),
     ):
         super().__init__(parent, f)
-        self._ui = ui_modInstallDialog.Ui_ModInstallDialog()
+        self._ui = ui_modInstallWidget.Ui_ModInstallWidget()
         self._ui.setupUi(self)
         self._table_model = QtGui.QStandardItemModel(self)
         self._table_model.setHorizontalHeaderLabels(
             ["Module", "Status", "Package Name"]
         )
         self._ui.tableView.setModel(self._table_model)
-        self.current_code = None
         self._all_installed = True
-        self._ui.ok_button.released.connect(self.okPressed)
-        self._ui.cancel_button.released.connect(self.reject)
         self._ui.install_button.released.connect(self.installPressed)
 
-    def updateTable(self, code, modules):
+    def reset(self):
         self._ui.install_label.setText("")
         self._table_model.removeRows(0, self._table_model.rowCount())
-        self.current_code = code
-        # do first loop so all of the uninstalled modules are grouped
         self._all_installed = True
+
+    def updateTable(self, modules):
+        self.reset()
+        # do first loop so all of the uninstalled modules are grouped
         for status_type in [False, True]:
             for name, status in modules:
                 if status == status_type:
@@ -54,24 +54,11 @@ class ModInstallDialog(QtWidgets.QDialog):
                     package_item = QtGui.QStandardItem(name if not status else "")
                     package_item.setEditable(not status)
                     self._table_model.appendRow([name_item, status_item, package_item])
-        self._ui.ok_button.setText("Ok" if self._all_installed else "Override")
+        self.setOk.emit(self._all_installed)
         self._ui.install_button.setEnabled(not self._all_installed)
         self._ui.install_label.setText(
             ALL_INSTALLED if self._all_installed else MISSING_MODULES
         )
-
-    def okPressed(self):
-        if (
-            self._all_installed
-            or QtWidgets.QMessageBox.warning(
-                self,
-                "Override Warning",
-                "Are you sure want to override and not install all modules? This could cause crashes or unintended consequences when running.",
-                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-            )
-            == QtWidgets.QMessageBox.Ok
-        ):
-            self.accept()
 
     def installPressed(self):
         self._ui.tableView.setCurrentIndex(self._table_model.index(0, 0))
@@ -87,3 +74,9 @@ class ModInstallDialog(QtWidgets.QDialog):
                     self._table_model.item(row, 2).data(QtCore.Qt.DisplayRole)
                 )
         self.installPackagesSignal.emit(packages)
+
+    def startPage(self):
+        if self._all_installed:
+            self.pageFinished.emit()
+        else:
+            self.setOk.emit(False)

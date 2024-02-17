@@ -120,7 +120,7 @@
         <x>0</x>
         <y>0</y>
         <width>761</width>
-        <height>667</height>
+        <height>655</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -157,10 +157,10 @@
     <widget class="QWidget" name="buttonBox" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="topMargin">
-       <number>0</number>
+       <number>12</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>12</number>
       </property>
       <item>
        <widget class="QPushButton" name="backButton">

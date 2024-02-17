@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ModInstallDialog</class>
- <widget class="QDialog" name="ModInstallDialog">
+ <class>ModInstallWidget</class>
+ <widget class="QWidget" name="ModInstallWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>472</width>
-    <height>518</height>
+    <width>419</width>
+    <height>393</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Module Install Dialog</string>
+   <string>Module Install Widget</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -47,7 +47,7 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Hit Cancel to stop attempting to run.  Hit Override to run without installing. (Not advised)</string>
+      <string>Hit Override to run without installing. (Not advised)</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -74,20 +74,6 @@
        <widget class="QPushButton" name="install_button">
         <property name="text">
          <string>Install</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cancel_button">
-        <property name="text">
-         <string>Cancel</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="ok_button">
-        <property name="text">
-         <string>Ok</string>
         </property>
        </widget>
       </item>
