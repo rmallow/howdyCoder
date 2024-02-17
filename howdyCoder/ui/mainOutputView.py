@@ -104,3 +104,9 @@ class mainOutputView(
             if find_res := self._sub_main_window.findChild(view_type):
                 res.extend(find_res.getTutorialClasses())
         return res
+
+    def loadMainPage(self):
+        pass
+
+    def leaveMainPage(self):
+        pass

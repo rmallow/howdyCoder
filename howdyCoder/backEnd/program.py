@@ -9,6 +9,9 @@ from ..commonUtil import mpLogging
 from ..commonUtil.repeatTimer import setInterval
 from ..commonUtil import queueManager as qm
 from ..core.commonGlobals import FUNC_GROUP, ProgramTypes
+from ..core.dataStructs import USER_FUNC
+from ..commonUtil import userFuncCaller
+from ..commonUtil import configLoader
 
 from .util.commandProcessor import commandProcessor
 
@@ -17,19 +20,24 @@ import time
 import typing
 from dataclasses import asdict
 import threading
+import multiprocessing as mp
 
 PROGRAM_QUEUE_CHECK_TIMER = 0.5
 
 
 class Program(commandProcessor, ABC):
-    def __init__(self, action_pool, config, user_funcs):
+    def __init__(
+        self, is_local: bool, settings: ProgramSettings, program_queue: mp.Queue
+    ):
         super().__init__()
-        self.action_pool: ActionPool = action_pool
+        self.settings: ProgramSettings = settings
+        self._is_local: bool = is_local
+
+        self.action_pool: ActionPool = None
         self._end = False
-        self.config: ProgramSettings = config
-        self.code = self.config.name
-        self.program_queue = None
-        self._user_funcs: typing.List[UserFuncCaller] = user_funcs
+        self.code = settings.name
+        self._program_queue = program_queue
+        self._user_funcs: typing.List[UserFuncCaller] = None
         self._mainframe_queue = None
         self.start_time: float = None
         self.period = 1
@@ -39,12 +47,6 @@ class Program(commandProcessor, ABC):
         self.feed_update_event: threading.Event = None
 
         self.addCmdFunc(msg.CommandType.CHECK_STATUS, Program.checkStatus)
-
-    def getQueue(self):
-        return self.program_queue
-
-    def setQueue(self, queue):
-        self.program_queue = queue
 
     def keepAlive(self):
         while not self._end:
@@ -57,12 +59,12 @@ class Program(commandProcessor, ABC):
     @setInterval(PROGRAM_QUEUE_CHECK_TIMER)
     def checkProgramQueue(self):
         # Check if there are messages for the program to process
-        if not self._end and self.program_queue is not None:
+        if not self._end and self._program_queue is not None:
             # This will block the program until the queue is cleared so need to avoid
             # spamming this with commands
-            while not self._end and not self.program_queue.empty():
+            while not self._end and not self._program_queue.empty():
                 # Use the command processor way of handling command messages
-                command_message = self.program_queue.get()
+                command_message = self._program_queue.get()
                 if (
                     command_message
                     and command_message.messageType == msg.MessageType.COMMAND
@@ -71,7 +73,7 @@ class Program(commandProcessor, ABC):
                         command_message.content, details=command_message.details
                     )
 
-    def start(self, is_local):
+    def start(self):
         # call user funcs setup now that we are in our own process
         for uF in self._user_funcs:
             # if any of the user funcs fail to setup we'll end now
@@ -84,7 +86,7 @@ class Program(commandProcessor, ABC):
                 self._end = True
                 return
         # Connect to clientServerManager
-        self._client_server_manager = qm.createQueueManager(is_local)
+        self._client_server_manager = qm.createQueueManager(self._is_local)
         self._client_server_manager.connect()
         assert hasattr(self._client_server_manager, qm.GET_MAINFRAME_QUEUE)
         self._mainframe_queue = getattr(
@@ -158,3 +160,17 @@ class Program(commandProcessor, ABC):
                     details=[asdict(d) for d in data_list],
                 )
             )
+
+    def addUserFuncs(self, config: typing.Dict[str, typing.Any]):
+        user_funcs = []
+
+        def assignUserFuncCaller(c, k, v):
+            nonlocal user_funcs
+            if c is not None:
+                user_funcs.append(userFuncCaller.UserFuncCaller(**c))
+                c[k] = user_funcs[-1]
+
+        configLoader.dfsConfigDict(
+            config, lambda _1, k, _3: k == USER_FUNC, assignUserFuncCaller
+        )
+        return user_funcs

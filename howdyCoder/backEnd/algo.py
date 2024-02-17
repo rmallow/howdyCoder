@@ -1,39 +1,111 @@
-from ..core.dataStructs import ProgramStatusData, InputData, Modes
 from .actionPool import ActionPool
-from ..core import message as msg
-from ..core import messageKey as msgKey
 from . import constants as con
 from .feed import feed
 from .program import Program
 
+from ..core import message as msg
+from ..core import messageKey as msgKey
+from ..core.dataStructs import (
+    ActionSettings,
+    AlgoSettings,
+    DataSourceSettings,
+    ProgramSettings,
+    InputData,
+    Modes,
+)
+
+
+from . import dataSourceFactory as dF
+from .dataBase import dataBase
+from . import actionFactory as aF
+from .action import Action
 
 from ..commonUtil import mpLogging
-from ..commonUtil.repeatTimer import setInterval
-from ..core.commonGlobals import ALGO_GROUP, BACKTRACK, ProgramTypes
+from ..core.commonGlobals import ALGO_GROUP, BACKTRACK, ProgramTypes, ActionTypeEnum
+from ..core import topoSort
 
+import typing
 import time
+import copy
+from dataclass_wizard import fromdict, asdict
 
 
 class Algo(Program):
     def __init__(
         self,
-        action_pool,
-        feed_obj,
-        config,
-        user_funcs,
+        is_local: bool,
+        settings: ProgramSettings,
         *args,
         **kwargs,
     ):
-        super().__init__(action_pool, config, user_funcs, *args, **kwargs)
-        self.feed_obj: feed = feed_obj
+        super().__init__(is_local, settings, *args, **kwargs)
+        # setup base variables
         self.track = False
         self.feed_last_update_time = 0
-        self.period = feed_obj.period
         self.type_ = ProgramTypes.ALGO
+        self.column_names = []
+
+        # construct sub items
+        self.loadSettings(settings)
 
         self.addCmdFunc(msg.CommandType.ADD_OUTPUT_VIEW, Algo.addOutputView)
         self.addCmdFunc(msg.CommandType.EXPORT, Algo.exportData)
         self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, Algo.addInputData)
+
+        self.start()
+
+    def _loadDataSource(self, data_source_settings: DataSourceSettings) -> dataBase:
+        # use the dataSourceFactory with the type to create the dataSource
+        factory = dF.dataSourceFactory()
+        return factory.create(data_source_settings, data_source_settings.type_)
+
+    def _loadDataSources(
+        self, data_source_settings: typing.Dict[str, DataSourceSettings]
+    ) -> list[dataBase]:
+        dataSources = []
+        for _, config in data_source_settings.items():
+            dataSources.append(self._loadDataSource(config))
+        return dataSources
+
+    def _loadActionPool(
+        self,
+        action_list_settings: typing.Dict[str, ActionSettings],
+        feed,
+        topo_levels: typing.List[typing.List[str]],
+    ) -> list:
+        action_dict: typing.Dict[str, Action] = {}
+        factory = aF.actionFactory()
+        for name, action_settings in action_list_settings.items():
+            creator_type = action_settings.type_
+            if action_settings.aggregate:
+                creator_type = action_settings.aggregate + action_settings.type_
+            action = factory.create(action_settings, creator_type)
+            # if it is an event but not an aggregate then add the name to column names
+            # so it can be selected later
+            if (
+                creator_type == ActionTypeEnum.EVENT.value
+                and not action_settings.aggregate
+            ):
+                self.column_names.append(name)
+            action.feed = feed
+            action_dict[name] = action
+        return ActionPool(action_dict, topo_levels=topo_levels)
+
+    def loadSettings(self, settings: ProgramSettings):
+        func_replaced_config = copy.deepcopy(asdict(settings))
+        self._user_funcs = self.addUserFuncs(func_replaced_config)
+        algo_settings_with_user_funcs: AlgoSettings = fromdict(
+            ProgramSettings, func_replaced_config
+        ).settings
+
+        dataSources = self._loadDataSources(algo_settings_with_user_funcs.data_sources)
+        self.feed_obj: feed = feed(dataSources)
+        self.period = self.feed_obj.period
+
+        topo_levels, _, _ = topoSort.getTopoSort(settings.settings)
+        self.action_pool = self._loadActionPool(
+            algo_settings_with_user_funcs.action_list, self.feed_obj, topo_levels
+        )
 
     def update(self):
         feed_ret_val = self.feed_obj.update()

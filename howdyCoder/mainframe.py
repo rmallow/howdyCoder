@@ -12,8 +12,9 @@ from .commonUtil.repeatTimer import setInterval
 # Back End includes
 from .core import message as msg
 from .core import messageKey as msgKey
-from .backEnd.algoManager import AlgoManager
-from .backEnd.scriptManager import ScriptManager
+from .backEnd.algo import Algo
+from .backEnd.script import Script
+from .backEnd.program import Program
 from .commonUtil import configLoader
 from .backEnd.util.commandProcessor import commandProcessor
 
@@ -46,6 +47,11 @@ UI_SEND_STATUS_CHECK = 1
 
 
 class mainframe(commandProcessor):
+    TYPE_TO_CONSTRUCTOR = {
+        ProgramTypes.ALGO.value: Algo,
+        ProgramTypes.SCRIPT.value: Script,
+    }
+
     def __init__(self, isLocal: bool):
         """
         This is the main initializing function for all of howdyCoder except for the UI
@@ -128,12 +134,9 @@ class mainframe(commandProcessor):
         self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToProgram)
         self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, mainframe.passCommandToProgram)
 
-        # init all managers
-        self.type_to_manager = {
-            ProgramTypes.ALGO.value: AlgoManager(),
-            ProgramTypes.SCRIPT.value: ScriptManager(),
-        }
-        self.all_program_map = {}
+        # not an mp Queue, it's Dill, but we'll survive with this type hint
+        self._all_program_queues: typing.Dict[str, mp.Queue] = {}
+        self._all_settings_map: typing.Dict[str, ProgramSettings] = {}
 
         self.ui_status_check_event = None
         self.item_status_check_event = None
@@ -233,7 +236,7 @@ class mainframe(commandProcessor):
     @setInterval(STATUS_CHECK_TIMER)
     def checkItemStatus(self):
         # Check the status of the current running programs
-        for code, program in self.all_program_map.items():
+        for code, program_queue in self._all_program_queues.items():
             if code in self.process_dict:
                 # algo process was started at one point
                 if (
@@ -248,7 +251,7 @@ class mainframe(commandProcessor):
 
             if code not in self.statusDict and code in self.process_dict:
                 send_time_float = time.time()
-                program.program_queue.put(
+                program_queue.put(
                     msg.message(
                         msg.MessageType.COMMAND,
                         content=msg.CommandType.CHECK_STATUS,
@@ -285,20 +288,14 @@ class mainframe(commandProcessor):
             time.sleep(5)
 
     def addOutputView(self, command, details):
-        if (
-            details.details[ITEM]
-            in self.type_to_manager[ProgramTypes.ALGO.value].programs
-        ):
-            algo = self.type_to_manager[ProgramTypes.ALGO.value].programs[
-                details.details[ITEM]
-            ]
-            algo.program_queue.put(
+        if details.details[ITEM] in self._all_program_queues:
+            self._all_program_queues[details.details[ITEM]].put(
                 msg.message(msg.MessageType.COMMAND, command, details=details.details)
             )
 
     def passCommandToProgram(self, command, details):
-        if details.key.sourceCode in self.all_program_map:
-            self.all_program_map[details.key.sourceCode].program_queue.put(
+        if details.key.sourceCode in self._all_program_queues:
+            self._all_program_queues[details.key.sourceCode].put(
                 msg.message(msg.MessageType.COMMAND, command, details=details.details)
             )
         else:
@@ -317,9 +314,7 @@ class mainframe(commandProcessor):
         self.sendPendingUiMessages()
 
         # ui needs to be told about the current programs
-        self.sendCreated(
-            list(k for v in self.type_to_manager.values() for k in v.programs.keys())
-        )
+        self.sendCreated(list(self._all_program_queues.keys()))
 
         # if we're not already repeatedly calling this function, then call it otherwise continue as normal
         if self.ui_status_check_event is None:
@@ -346,24 +341,18 @@ class mainframe(commandProcessor):
                 self.ui_status_check_event.clear()
 
     def cmdStart(self, _, details=None):
-        # Called by command processor on receiving the start command message
-        if details is None:
-            for code, _ in self.all_program_map.items():
-                self.runProgram(code)
-        else:
-            # run program will check if code exists, and log if not,
-            # but at least check that the message details is a string
-            if isinstance(details.details, str):
-                self.runProgram(details.details)
+        # run program will check if code exists, and log if not,
+        # but at least check that the message details is a string
+        if isinstance(details.details, str):
+            self.runProgram(details.details)
 
     def runProgram(self, code):
-        if code in self.all_program_map:
+        if code in self._all_settings_map:
             if code not in self.process_dict:
-                program = self.all_program_map[code]
-                self.startProgramProcess(code, program)
+                self.startProgramProcess(code)
             # start the process AND then send cmd start
-            if self.all_program_map[code].program_queue is not None:
-                self.all_program_map[code].program_queue.put(
+            if self._all_program_queues[code] is not None:
+                self._all_program_queues[code].put(
                     msg.message(msg.MessageType.COMMAND, msg.CommandType.START)
                 )
             else:
@@ -379,11 +368,20 @@ class mainframe(commandProcessor):
         elif self.item_status_check_event.is_set():
             self.item_status_check_event.clear()
 
-    def startProgramProcess(self, code, program):
-        processName = f"{program.config.type_}-" + str(code)
+    def startProgramProcess(self, code: str):
+        settings = self._all_settings_map[code]
+        processName = f"{settings.type_}-" + str(code)
+        program_queue = self.dill_program_manager.Queue()
+        self._all_program_queues[code] = program_queue
         program_process = dill_mp.Process(
             target=mpLogging.loggedProcess,
-            args=(self.isLocal, code, program.start),
+            args=(
+                self.isLocal,
+                code,
+                self.TYPE_TO_CONSTRUCTOR[settings.type_],
+                settings,
+                program_queue,
+            ),
             name=processName,
             daemon=True,
         )
@@ -392,28 +390,20 @@ class mainframe(commandProcessor):
         program_process.start()
 
     def cmdEnd(self, _, details=None):
-        # Called by command processor on receiving the end command message
-        if details.details is None:
-            for k in list(self.process_dict.keys()):
-                self.endProgram(k)
-        else:
-            if isinstance(details.details, str):
-                self.endProgram(details.details)
+        if isinstance(details.details, str):
+            self.endProgram(details.details)
 
     def endProgram(self, code):
-        if (
-            code in self.process_dict
-            and self.all_program_map[code].program_queue is not None
-        ):
-            self.all_program_map[code].program_queue.put(
+        if code in self.process_dict and self._all_program_queues[code] is not None:
+            self._all_program_queues[code].put(
                 msg.message(msg.MessageType.COMMAND, msg.CommandType.END)
             )
 
     def shutdownProgram(self, code, timeout=2):
         """Send the shutdown message, then try to end process nicely and then if still alive forcibly end it"""
         if code in self.process_dict:
-            if self.all_program_map[code].program_queue is not None:
-                self.all_program_map[code].program_queue.put(
+            if self._all_program_queues[code] is not None:
+                self._all_program_queues[code].put(
                     msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN)
                 )
             if timeout is not None:
@@ -445,20 +435,21 @@ class mainframe(commandProcessor):
                 f"Invalid details to shutdown command in mainframe: {details}"
             )
 
-    def loadProgram(self, program_settings: ProgramSettings) -> None:
-        """Load the algos and assign the queues they need for mainframe communication"""
+    def loadProgramSettings(
+        self, program_settings: ProgramSettings, send_created: bool
+    ) -> None:
+        """Load the program settings but DO NOT create the program and assign queues until started"""
         self.checkModules(program_settings.name, asdict(program_settings))
-        program = self.type_to_manager[program_settings.type_].load(program_settings)
-        program.program_queue = self.dill_program_manager.Queue()
-        self.all_program_map[program_settings.name] = program
+        self._all_settings_map[program_settings.name] = program_settings
 
-        self.sendCreated([program_settings.settings.name])
+        if send_created:
+            self.sendCreated([program_settings.settings.name])
 
     def sendCreated(self, algo_keys_to_send: typing.List[str]):
         created_details = {}
         for key in algo_keys_to_send:
-            if key in self.all_program_map:
-                created_details[key] = self.all_program_map[key].config
+            if key in self._all_settings_map:
+                created_details[key] = self._all_settings_map[key]
         if created_details:
             self.sendToUi(
                 msg.message(
@@ -493,7 +484,7 @@ class mainframe(commandProcessor):
         """Wrapper for creating an algo from a command message"""
         if details.details is not None:
             program_settings = fromdict(ProgramSettings, details.details)
-            self.loadProgram(program_settings)
+            self.loadProgramSettings(program_settings, True)
 
     def installPackages(self, _, details=None):
         """Receive install pacakge command from UI, must send mod status response after"""
@@ -509,5 +500,5 @@ class mainframe(commandProcessor):
                         description=f"Package: {package}, exception: {traceback.format_exc()}",
                     )
             # now that we've installed, redo the module statuses
-            for code, program in self.all_program_map.items():
-                self.checkModules(code, program.config)
+            for code, program_settings in self._all_settings_map.items():
+                self.checkModules(code, asdict(program_settings))
