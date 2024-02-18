@@ -1,4 +1,3 @@
-from .configWindow import ConfigWindow
 from .loggingWindow import loggingWindow
 from .statusWindow import statusWindow
 from .qtUiFiles import ui_mainWindow
@@ -77,13 +76,9 @@ class MainWindow(
         )
         self._ui.actionStatus.triggered.connect(self.statusWindow.show)
 
-        # Create config window
-        self.config_window = ConfigWindow(self)
-
         # Set up signal and slots
 
-        self._ui.actionLoad_Config.triggered.connect(self.config_window.show)
-        self.config_window.accepted.connect(self.loadConfig)
+        self._ui.actionLoad_Config.triggered.connect(self.loadConfig)
         self._ui.controlPage.new_block_widget.ui.createButton.pressed.connect(
             self.newBlockWidgetSelected
         )
@@ -163,7 +158,11 @@ class MainWindow(
 
     @QtCore.Slot()
     def loadConfig(self):
-        self._main_model.addProgramFile(self.config_window.getFile())
+        self._main_model.addProgramFile(
+            QtWidgets.QFileDialog.getOpenFileName(
+                self, "Open Config File", filter="Yaml (*.yml)"
+            )[0]
+        )
 
     @QtCore.Slot()
     def pageChanged(self, _: int):
