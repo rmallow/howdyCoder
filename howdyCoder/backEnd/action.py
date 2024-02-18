@@ -8,6 +8,7 @@ from ..core.commonGlobals import (
     DATA_SET,
     ActionDataType,
     ENUM_DISPLAY,
+    EditorType,
 )
 from ..commonUtil import sparseDictList
 
@@ -52,11 +53,15 @@ class Action:
         self.calcFunc: UserFuncCaller = action_settings.calc_function.user_function
         self.name: str = action_settings.name.lower()
         self.parameters: typing.Dict[str, typing.Any] = {
-            v.name: v.value for v in action_settings.all_parameters.parameters.values()
+            v.name: v.value
+            for v in action_settings.parameters.values()
+            if v.type_ != EditorType.FUNC
         }
-        self.setupFuncs: typing.Dict[
-            str, UserFuncCaller
-        ] = action_settings.all_parameters.setup_functions
+        self.setup_funcs: typing.Dict[str, typing.Any] = {
+            v.name: v.value
+            for v in action_settings.parameters.values()
+            if v.type_ == EditorType.FUNC
+        }
 
         self._calc_internal_setup_functions = (
             action_settings.calc_function.internal_setup_functions
@@ -191,7 +196,7 @@ class Action:
         if self.parameters is None or not isinstance(self.parameters, dict):
             self.parameters = {}
 
-        for key, function_settings in self.setupFuncs.items():
+        for key, function_settings in self.setup_funcs.items():
             self.parameters |= {
                 key: function_settings.user_function(**self.parameters)[0]
             }

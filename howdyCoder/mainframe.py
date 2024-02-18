@@ -1,7 +1,13 @@
 # Local common includes
-from .core.dataStructs import ProgramStatusData, Modes, ProgramSettings
-from .core.commonGlobals import ITEM, LOCAL_AUTH, LOCAL_PORT, ProgramTypes
-from .core.commonGlobals import IMPORTS
+from .core.dataStructs import ProgramStatusData, Modes, ProgramSettings, Parameter
+from .core.commonGlobals import (
+    ITEM,
+    LOCAL_AUTH,
+    LOCAL_PORT,
+    ProgramTypes,
+    EditorType,
+    IMPORTS,
+)
 
 # Common Util includes
 from .commonUtil import mpLogging
@@ -36,8 +42,8 @@ import subprocess
 import sys
 import traceback
 from dataclasses import asdict
-from dataclass_wizard import fromdict
-from itertools import chain
+import dataclass_wizard
+import copy
 
 MAINFRAME_QUEUE_CHECK_TIMER = 0.3
 LOGGING_QUEUE_CHECK_TIMER = 0.5
@@ -133,10 +139,12 @@ class mainframe(commandProcessor):
         self.addCmdFunc(msg.CommandType.INSTALL_PACKAGE, mainframe.installPackages)
         self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToProgram)
         self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, mainframe.passCommandToProgram)
+        self.addCmdFunc(msg.CommandType.SET_GLOBALS, mainframe.setGlobals)
 
         # not an mp Queue, it's Dill, but we'll survive with this type hint
         self._all_program_queues: typing.Dict[str, mp.Queue] = {}
         self._all_settings_map: typing.Dict[str, ProgramSettings] = {}
+        self._all_program_globals: typing.Dict[str, typing.Dict[str, Parameter]] = {}
 
         self.ui_status_check_event = None
         self.item_status_check_event = None
@@ -368,8 +376,29 @@ class mainframe(commandProcessor):
         elif self.item_status_check_event.is_set():
             self.item_status_check_event.clear()
 
-    def startProgramProcess(self, code: str):
+    def getGlobalSubstitutedSettings(self, code: str) -> ProgramSettings:
         settings = self._all_settings_map[code]
+        global_replaced_settings = copy.deepcopy(dataclass_wizard.asdict(settings))
+
+        def substituteGlobal(c, k, v):
+            if code in self._all_program_globals:
+                if "value" in c and c["value"] in self._all_program_globals[code]:
+                    global_param = self._all_program_globals[code][c["value"]]
+                    c["type_"] = global_param.type_
+                    c["value"] = global_param.value
+
+        configLoader.dfsConfigDict(
+            global_replaced_settings,
+            lambda _1, k, v: k == "type_"
+            and (
+                v == EditorType.GLOBAL_PARAMETER.display or v == EditorType.KEY.display,
+            ),
+            substituteGlobal,
+        )
+        return dataclass_wizard.fromdict(ProgramSettings, global_replaced_settings)
+
+    def startProgramProcess(self, code: str):
+        settings = self.getGlobalSubstitutedSettings(code)
         processName = f"{settings.type_}-" + str(code)
         program_queue = self.dill_program_manager.Queue()
         self._all_program_queues[code] = program_queue
@@ -435,15 +464,14 @@ class mainframe(commandProcessor):
                 f"Invalid details to shutdown command in mainframe: {details}"
             )
 
-    def loadProgramSettings(
-        self, program_settings: ProgramSettings, send_created: bool
-    ) -> None:
+    def loadProgramSettings(self, program_settings: ProgramSettings) -> None:
         """Load the program settings but DO NOT create the program and assign queues until started"""
-        self.checkModules(program_settings.name, asdict(program_settings))
+        self.checkModules(
+            program_settings.name, dataclass_wizard.asdict(program_settings)
+        )
         self._all_settings_map[program_settings.name] = program_settings
 
-        if send_created:
-            self.sendCreated([program_settings.settings.name])
+        self.sendCreated([program_settings.settings.name])
 
     def sendCreated(self, algo_keys_to_send: typing.List[str]):
         created_details = {}
@@ -483,8 +511,10 @@ class mainframe(commandProcessor):
     def createCommand(self, _, details=None):
         """Wrapper for creating an algo from a command message"""
         if details.details is not None:
-            program_settings = fromdict(ProgramSettings, details.details)
-            self.loadProgramSettings(program_settings, True)
+            program_settings = dataclass_wizard.fromdict(
+                ProgramSettings, details.details
+            )
+            self.loadProgramSettings(program_settings)
 
     def installPackages(self, _, details=None):
         """Receive install pacakge command from UI, must send mod status response after"""
@@ -502,3 +532,8 @@ class mainframe(commandProcessor):
             # now that we've installed, redo the module statuses
             for code, program_settings in self._all_settings_map.items():
                 self.checkModules(code, asdict(program_settings))
+
+    def setGlobals(self, _, details=None):
+        if details.details is not None:
+            for key, value in details.details.items():
+                self._all_program_globals[key] = {key: dataclass_wizard.fromdict(value)}

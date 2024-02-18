@@ -1,8 +1,8 @@
-from ..core.dataStructs import DataSourceSettings
+from ..core.dataStructs import DataSourceSettings, FunctionSettings
 from .dataBase import dataBase
 
 from ..commonUtil.userFuncCaller import UserFuncCaller
-from ..core.commonGlobals import PASSBACK_DICT
+from ..core.commonGlobals import PASSBACK_DICT, EditorType
 
 import typing
 
@@ -12,9 +12,10 @@ class dataFunc(dataBase):
         super().__init__(data_source_settings, *args, **kwargs)
 
         self.getFunc: UserFuncCaller = data_source_settings.get_function.user_function
-        self.setupFuncs: typing.Dict[str, UserFuncCaller] = {
-            k: v.user_function
-            for k, v in data_source_settings.all_parameters.setup_functions.items()
+        self.setup_funcs: typing.Dict[str, FunctionSettings] = {
+            v.name: v.value
+            for v in data_source_settings.parameters.values()
+            if v.type_ == EditorType.FUNC
         }
         self._internal_setup_functions = (
             data_source_settings.get_function.internal_setup_functions
@@ -38,7 +39,7 @@ class dataFunc(dataBase):
         """
         Calls the setup func and loads the return of the setup func into the parameters
         """
-        for key, function_settings in self.setupFuncs.items():
+        for key, function_settings in self.setup_funcs.items():
             self.parameters |= {
                 key: function_settings.user_function(**self.parameters)[0]
             }

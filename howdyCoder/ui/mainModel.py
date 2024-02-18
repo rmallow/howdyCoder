@@ -206,12 +206,13 @@ class mainModel(commandProcessor, QtCore.QObject):
 
     @QtCore.Slot()
     def addProgram(self, program_settings: ProgramSettings):
-        if self.program_dict.contains(program_settings.name):
-            program_settings.name = getDupeName(
-                program_settings.name, self.program_dict.getNames()
-            )
-            program_settings.settings.name = program_settings.name
-        self.addProgramDict(asdict(program_settings))
+        if program_settings is not None:
+            if self.program_dict.contains(program_settings.name):
+                program_settings.name = getDupeName(
+                    program_settings.name, self.program_dict.getNames()
+                )
+                program_settings.settings.name = program_settings.name
+            self.addProgramDict(asdict(program_settings))
 
     @QtCore.Slot()
     def copyProgram(self, code: str):

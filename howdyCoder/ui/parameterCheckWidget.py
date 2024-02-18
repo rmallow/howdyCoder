@@ -4,6 +4,7 @@ from .util import qtUtil, qtResourceManager
 
 from ..core.dataStructs import Parameter
 from ..core import parameterSingleton
+from ..core.commonGlobals import EditorType
 
 import typing
 
@@ -67,7 +68,11 @@ class ParameterCheckWidget(StartWizardBasePage):
                                 qtResourceManager.GREEN_CHECKMARK,
                             )
                         ),
-                        global_value,
+                        (
+                            global_value.value
+                            if global_value.type_ != EditorType.FUNC.display
+                            else f"function: {global_value.value.name}"
+                        ),
                     )
                 else:
                     self._missing_values = True

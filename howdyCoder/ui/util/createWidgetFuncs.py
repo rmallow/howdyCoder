@@ -191,19 +191,11 @@ def _(data_struct: ItemSettings, parent: QtWidgets.QWidget) -> QtWidgets.QWidget
         or data_struct.type_ == ActionTypeEnum.TRIGGER.value
         or data_struct.type_ == DataSourcesTypeEnum.FUNC.display
     ):
-        if data_struct.all_parameters.parameters:
+        if data_struct.parameters:
             layout.addWidget(
                 createValueLabel(
-                    list(data_struct.all_parameters.parameters.values()),
+                    data_struct.parameters,
                     "Parameters",
-                    w,
-                )
-            )
-        if data_struct.all_parameters.setup_functions:
-            layout.addWidget(
-                createValueLabel(
-                    list(data_struct.all_parameters.setup_functions.values()),
-                    "Setup Functions",
                     w,
                 )
             )
@@ -251,5 +243,5 @@ def _(data_struct: ActionSettings, parent: QtWidgets.QWidget) -> QtWidgets.QWidg
         layout.insertWidget(
             0, createValueLabel([data_struct.calc_function], "Calculating Function", w)
         )
-    layout.addWidget(createValueLabel(data_struct.input_, "Input", w))
+        layout.addWidget(createValueLabel(data_struct.input_, "Input", w))
     return w

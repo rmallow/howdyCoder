@@ -53,8 +53,6 @@ class CreateParametersPage(CreateBasePage):
         layout.addWidget(self._parameter_editor)
         self.setLayout(layout)
 
-        self.createStackedWidgets()
-
     def getEditorByType(self, enum: commonGlobals.EditorType):
         return editableTable.getEditor(
             enum,
@@ -131,7 +129,7 @@ class CreateParametersPage(CreateBasePage):
         """
         if self.getConfig():
             curr = self.getConfig()
-            curr.all_parameters = self._parameter_editor.parameter_model.getData()
+            curr.parameters = self._parameter_editor.parameter_model.getData()
 
     def reset(self) -> None:
         self._parameter_editor.parameter_model.clear()
@@ -139,7 +137,7 @@ class CreateParametersPage(CreateBasePage):
     def loadPage(self) -> None:
         curr = self.getConfig()
         self._parameter_editor.parameter_model.clear()
-        self._parameter_editor.parameter_model.setDataFromSettings(curr.all_parameters)
+        self._parameter_editor.parameter_model.setDataFromSettings(curr.parameters)
         self.setParametersLabel()
         return super().loadPage()
 

@@ -1,55 +1,9 @@
-parameters:
-  sdfdffd:
-    name: sdfdffd
-    type_: Decimal
-    value: 30.001
-  sdfdffd2:
-    name: sdfdffd2
-    type_: Decimal
-    value: 30.001
-  sdfdffd3:
-    name: sdfdffd3
-    type_: Decimal
-    value: 30.001
-  sdfdffd4:
-    name: sdfdffd4
-    type_: Decimal
-    value: 30.001
-  sdfdffd5:
-    name: sdfdffd5
-    type_: Decimal
-    value: 30.001
-  sdfdffd6:
-    name: sdfdffd6
-    type_: Decimal
-    value: 30.001
-  test:
-    name: test
-    type_: String
-    value: '232'
-  test2:
-    name: test2
-    type_: String
-    value: '232'
-  test3:
-    name: test3
-    type_: String
-    value: '232'
-  test4:
-    name: test4
-    type_: String
-    value: '232'
-  test5:
-    name: test5
-    type_: String
-    value: '232'
-  test6:
-    name: test6
-    type_: String
-    value: '232'
-setup_functions:
-  name:
-    code: "def g():\n    pass"
+test_func:
+  name: test_func
+  type_: Function
+  value:
+    _dataclass_parse_type_: FunctionSettings
+    code: "def g():\n    return 'test func value'"
     import_statements: []
     imports: []
     internal_parameters: {}
@@ -57,12 +11,7 @@ setup_functions:
     name: g
     suggested_output: []
     user_function: null
-  testname:
-    code: "def f():\n    pass"
-    import_statements: []
-    imports: []
-    internal_parameters: {}
-    internal_setup_functions: {}
-    name: f
-    suggested_output: []
-    user_function: null
+test_string:
+  name: test_string
+  type_: String
+  value: test value

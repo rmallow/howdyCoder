@@ -4,6 +4,7 @@ import typing
 from enum import Enum
 from dataclasses import dataclass, field, fields
 from dataclass_wizard import JSONWizard, property_wizard, fromdict
+from numbers import Number
 
 
 @dataclass(frozen=True)
@@ -65,6 +66,8 @@ class InputData(JSONWizard, metaclass=property_wizard):
 
 @dataclass
 class FunctionSettings(JSONWizard, metaclass=property_wizard):
+    _dataclass_parse_type_ = "FunctionSettings"
+
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
@@ -94,19 +97,12 @@ class InputSettings(JSONWizard, metaclass=property_wizard):
 class Parameter(JSONWizard, metaclass=property_wizard):
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
+        tag_key = "_dataclass_parse_type_"
+        auto_assign_tags = True
 
     name: str = ""
-    value: typing.Any = None
+    value: str | int | float | FunctionSettings = None
     type_: str = ""
-
-
-@dataclass
-class AllParameters(JSONWizard, metaclass=property_wizard):
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-    parameters: typing.Dict[str, Parameter] = field(default_factory=dict)
-    setup_functions: typing.Dict[str, FunctionSettings] = field(default_factory=dict)
 
 
 @dataclass
@@ -120,7 +116,7 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
     flatten: bool = True
     period: int = 1
     single_shot: bool = False
-    all_parameters: AllParameters = AllParameters()
+    parameters: typing.Dict[str, Parameter] = field(default_factory=dict)
 
     def clear(self):
         self.__init__()
@@ -166,15 +162,11 @@ class DataSourceSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
 
 
 USER_FUNC = "user_function"
-SETUP_FUNCS = "setup_functions"
 
 test_once = True
 if test_once:
     test_once = False
 
-    assert any(
-        field.name == SETUP_FUNCS for field in fields(AllParameters)
-    ), "Changed setup funcs field name without changing string"
     assert any(
         field.name == USER_FUNC for field in fields(FunctionSettings)
     ), "Changed user func field name without changing string"

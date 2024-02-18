@@ -1,4 +1,4 @@
-from ..core.dataStructs import ItemSettings, Parameter, FunctionSettings, AllParameters
+from ..core.dataStructs import ItemSettings, Parameter, FunctionSettings
 from . import pathSelector
 from . import editableTable
 
@@ -98,9 +98,9 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                     suggested.extend(value[ParameterEnum.VALUE].suggested_parameters)
         return suggested
 
-    def getData(self) -> AllParameters:
+    def getData(self) -> typing.Dict[str, Parameter]:
         """Return a dict that is the config of the parameter table"""
-        return_settings = AllParameters()
+        return_parameters = {}
         for value in self.values:
             # Check for type value and name in value, and that Name is a valid string
             if (
@@ -110,20 +110,17 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 and value[ParameterEnum.NAME]
                 and value[ParameterEnum.VALUE] is not None
             ):
-                if value[ParameterEnum.TYPE] == EditorType.FUNC.display:
-                    """If it is a setup func add to that section instead of parameters"""
-                    return_settings.setup_functions[value[ParameterEnum.NAME]] = value[
-                        ParameterEnum.VALUE
-                    ].function_settings
-                else:
-                    """else add to parameter section as normal"""
-                    return_settings.parameters[value[ParameterEnum.NAME]] = Parameter(
-                        value[ParameterEnum.NAME],
-                        value[ParameterEnum.VALUE],
-                        value[ParameterEnum.TYPE],
-                    )
+                return_parameters[value[ParameterEnum.NAME]] = Parameter(
+                    value[ParameterEnum.NAME],
+                    (
+                        value[ParameterEnum.VALUE]
+                        if value[ParameterEnum.TYPE] != EditorType.FUNC.display
+                        else value[ParameterEnum.VALUE].function_settings
+                    ),
+                    value[ParameterEnum.TYPE],
+                )
 
-        return return_settings
+        return return_parameters
 
     def addItemToTable(
         self, name, type_: str, val: typing.Any | str | FunctionSettings
@@ -147,12 +144,9 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 val,
             )
 
-    def setDataFromSettings(self, settings: AllParameters) -> None:
+    def setDataFromSettings(self, settings: typing.Dict[str, Parameter]) -> None:
         self.clear()
-        for name, param_settings in settings.parameters.items():
-            self.addItemToTable(name, param_settings.type_, param_settings.value)
-        for (
-            name,
-            setup_func_settings,
-        ) in settings.setup_functions.items():
-            self.addItemToTable(name, EditorType.FUNC.display, setup_func_settings)
+        for param_settings in settings.values():
+            self.addItemToTable(
+                param_settings.name, param_settings.type_, param_settings.value
+            )

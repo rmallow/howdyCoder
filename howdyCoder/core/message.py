@@ -29,6 +29,7 @@ class CommandType(IntEnum):
     INSTALL_PACKAGE = auto()
     EXPORT = auto()
     ADD_INPUT_DATA = auto()
+    SET_GLOBALS = auto()
 
 
 class UiUpdateType(IntEnum):

@@ -1,8 +1,8 @@
 from ..core.dataStructs import DataSourceSettings
-from .constants import DataSourceTypeEnum, DataSourceReturnEnum
+from .constants import DataSourceReturnEnum
 
 from ..commonUtil import mpLogging
-from ..core.commonGlobals import DATA_GROUP
+from ..core.commonGlobals import DATA_GROUP, EditorType
 
 import abc
 import pandas as pd
@@ -32,13 +32,14 @@ class dataBase(abc.ABC):
         self.upperConstraint = None
         self.lowerConstraint = None
         self.dayFirst: bool = False
-        self.parameters: typing.Dict[typing.Any] = {
-            k: v.value
-            for k, v in data_source_settings.all_parameters.parameters.items()
+        self.parameters: typing.Dict[str, typing.Any] = {
+            v.name: v.value
+            for v in data_source_settings.parameters.values()
+            if v.type_ != EditorType.FUNC
         }
-        self.output: typing.Union[
-            typing.List[str], typing.Dict[str, str]
-        ] = data_source_settings.output
+        self.output: typing.Union[typing.List[str], typing.Dict[str, str]] = (
+            data_source_settings.output
+        )
         self.flatten: bool = data_source_settings.flatten
         self.single_shot: bool = data_source_settings.single_shot
         # Convert data type to enum
