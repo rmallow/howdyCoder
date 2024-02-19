@@ -12,6 +12,7 @@ installer/installer_output/
 installer/HowdyCoder.app/
 installer/HowdyCoder.zip
 installer/data
+data/parameters.yml
 
 # Distribution / packaging
 .Python
