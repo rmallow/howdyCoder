@@ -41,6 +41,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.client_server_manager = None
         self.incomingMessageCount = Counter()
         self.program_dict = ProgramDict()
+        self.program_being_edited = None
         self._config_loader = configLoader.ConfigLoader()
 
         # Connect to clientServerManager
@@ -225,6 +226,11 @@ class mainModel(commandProcessor, QtCore.QObject):
             )
 
     @QtCore.Slot()
+    def addProgramFromWizard(self, program_settings: ProgramSettings):
+        if program_settings is not None and self.program_being_edited is not None:
+            self.program_dict.remove(self.program_being_edited)
+        self.addProgram(program_settings)
+
     def addProgram(self, program_settings: ProgramSettings):
         if program_settings is not None:
             if self.program_dict.contains(program_settings.name):

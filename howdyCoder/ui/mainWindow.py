@@ -108,7 +108,7 @@ class MainWindow(
             lambda: self.changeStackedWidget(self._ui.outputPage)
         )
 
-        self._ui.createPage.addProgram.connect(self._main_model.addProgram)
+        self._ui.createPage.addProgram.connect(self._main_model.addProgramFromWizard)
         self._ui.createPage.addProgram.connect(
             lambda: self.changeStackedWidget(self._ui.controlPage)
         )
@@ -207,10 +207,12 @@ class MainWindow(
             all_items = list(config.settings.action_list.values()) + list(
                 config.settings.data_sources.values()
             )
+
         def match(c, k, v):
             return k == "type_" and (
                 v == EditorType.GLOBAL_PARAMETER.display or v == EditorType.KEY.display
             )
+
         for item in all_items:
             global_params = []
             configLoader.dfsConfigDict(
@@ -271,7 +273,7 @@ class MainWindow(
         self.loadCreatePage(
             widgetData.config.type_, creator_config=copy.deepcopy(widgetData.config)
         )
-        self._main_model.program_dict.remove(code)
+        self._main_model.program_being_edited = code
 
     @QtCore.Slot()
     def creatorTypeWindowFinished(self, result: int):
