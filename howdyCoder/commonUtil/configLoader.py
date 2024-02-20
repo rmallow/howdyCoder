@@ -111,16 +111,21 @@ def dfsConfigDict(config, match, do):
         if isinstance(c, str):
             return
         try:
+            c.items()
+        except AttributeError as _:
+            try:
+                for v in c:
+                    pass
+            except TypeError as _:
+                pass
+            else:
+                for v in c:
+                    dfs(v)
+        else:
             for k, v in c.items():
                 if match(c, k, v):
                     do(c, k, v)
                 else:
                     dfs(v)
-        except AttributeError as _:
-            try:
-                for v in c:
-                    dfs(v)
-            except TypeError as _:
-                pass
 
     dfs(config)

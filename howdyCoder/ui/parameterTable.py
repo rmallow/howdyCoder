@@ -98,10 +98,10 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                     suggested.extend(value[ParameterEnum.VALUE].suggested_parameters)
         return suggested
 
-    def getData(self) -> typing.Dict[str, Parameter]:
-        """Return a dict that is the config of the parameter table"""
-        return_parameters = {}
-        for value in self.values:
+    def getParameterByRow(self, row: int):
+        ret_val = None
+        if row < len(self.values):
+            value = self.values[row]
             # Check for type value and name in value, and that Name is a valid string
             if (
                 ParameterEnum.TYPE in value
@@ -110,7 +110,7 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                 and value[ParameterEnum.NAME]
                 and value[ParameterEnum.VALUE] is not None
             ):
-                return_parameters[value[ParameterEnum.NAME]] = Parameter(
+                ret_val = Parameter(
                     value[ParameterEnum.NAME],
                     (
                         value[ParameterEnum.VALUE]
@@ -119,21 +119,31 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
                     ),
                     value[ParameterEnum.TYPE],
                 )
+        return ret_val
+
+    def getParameterByIndex(self, index: QtCore.QModelIndex):
+        return self.getParameterByRow(index.row())
+
+    def getData(self) -> typing.Dict[str, Parameter]:
+        """Return a dict that is the config of the parameter table"""
+        return_parameters = {}
+        for row in range(len(self.values)):
+            row_parameter = self.getParameterByRow(row)
+            if row_parameter is not None:
+                return_parameters[row_parameter.name] = row_parameter
 
         return return_parameters
 
-    def addItemToTable(
-        self, name, type_: str, val: typing.Any | str | FunctionSettings
-    ):
+    def addItemToTable(self, parameter: Parameter):
         self.appendValue()
         index = self.index(self.rowCount() - 1, getattr(ParameterEnum.NAME, ENUM_VALUE))
-        self.setData(index, name)
+        self.setData(index, parameter.name)
         self.setData(
             index.siblingAtColumn(getattr(ParameterEnum.TYPE, ENUM_VALUE)),
-            type_,
+            parameter.type_,
         )
-        if type_ in editableTable.SELECTOR_TYPES:
-            with_helper_data = helperData.addHelperData(val)
+        if parameter.type_ in editableTable.SELECTOR_TYPES:
+            with_helper_data = helperData.addHelperData(parameter.value)
             with_helper_data.index = index.siblingAtColumn(
                 getattr(ParameterEnum.VALUE, ENUM_VALUE)
             )
@@ -141,12 +151,10 @@ class ParameterTableModel(editableTable.EditableTableModelAddRows):
         else:
             self.setData(
                 index.siblingAtColumn(getattr(ParameterEnum.VALUE, ENUM_VALUE)),
-                val,
+                parameter.value,
             )
 
     def setDataFromSettings(self, settings: typing.Dict[str, Parameter]) -> None:
         self.clear()
         for param_settings in settings.values():
-            self.addItemToTable(
-                param_settings.name, param_settings.type_, param_settings.value
-            )
+            self.addItemToTable(param_settings)

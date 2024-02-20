@@ -13,3 +13,7 @@ def getKey(key_name: str):
 
 def storeKey(key_name: str, key: str):
     keyring.set_password(KEYRING_APP_NAME, key_name, key)
+
+
+def deleteKey(key_name: str):
+    keyring.delete_password(KEYRING_APP_NAME, key_name)

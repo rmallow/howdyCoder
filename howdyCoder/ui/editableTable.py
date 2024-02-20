@@ -124,9 +124,11 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
             editor = getEditor(
                 editor_type,
                 parent,
-                combo_editor_values=getattr(enumKey, ENUM_EDITOR_VALUES, [])
-                if enumKey is not None
-                else [],
+                combo_editor_values=(
+                    getattr(enumKey, ENUM_EDITOR_VALUES, [])
+                    if enumKey is not None
+                    else []
+                ),
                 combo_hide_values=combo_hide_values,
                 func_selector=index.model().func_selector,
                 folder_selector=index.model().folder_selector,
@@ -302,11 +304,7 @@ class EditableTableModel(
             enumKey = self.getEnumKey(index)
             valueKey = self.getValueKey(index)
             old_val = None
-            if (
-                valueKey < len(self.values)
-                and enumKey in self.values[valueKey]
-                and value != self.values[valueKey][enumKey]
-            ):
+            if valueKey < len(self.values) and enumKey in self.values[valueKey]:
                 old_val = self.values[valueKey][enumKey]
             ret_val = self.safeSetValue(valueKey, enumKey, value)
             if (
@@ -328,8 +326,8 @@ class EditableTableModel(
                         if funcIndex in self.selector_indexes:
                             self.selector_indexes.remove(funcIndex)
                         self.closePersistentEditor.emit(funcIndex)
-
-                    self.safeSetValue(valueKey, self.valueEnum, None)
+                    if value != old_val:
+                        self.safeSetValue(valueKey, self.valueEnum, None)
             self.dataChanged.emit(index, index, [QtCore.Qt.DisplayRole])
             return ret_val
         return super().setData(index, value, role)

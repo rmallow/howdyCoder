@@ -55,12 +55,12 @@ class Action:
         self.parameters: typing.Dict[str, typing.Any] = {
             v.name: v.value
             for v in action_settings.parameters.values()
-            if v.type_ != EditorType.FUNC
+            if v.type_ != EditorType.FUNC.display
         }
         self.setup_funcs: typing.Dict[str, typing.Any] = {
             v.name: v.value
             for v in action_settings.parameters.values()
-            if v.type_ == EditorType.FUNC
+            if v.type_ == EditorType.FUNC.display
         }
 
         self._calc_internal_setup_functions = (

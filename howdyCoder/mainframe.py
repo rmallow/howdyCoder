@@ -1,5 +1,11 @@
 # Local common includes
-from .core.dataStructs import ProgramStatusData, Modes, ProgramSettings, Parameter
+from .core.dataStructs import (
+    ProgramStatusData,
+    Modes,
+    ProgramSettings,
+    Parameter,
+    FunctionSettings,
+)
 from .core.commonGlobals import (
     ITEM,
     LOCAL_AUTH,
@@ -385,14 +391,25 @@ class mainframe(commandProcessor):
                 if "value" in c and c["value"] in self._all_program_globals[code]:
                     global_param = self._all_program_globals[code][c["value"]]
                     c["type_"] = global_param.type_
-                    c["value"] = global_param.value
+                    try:
+                        c["value"] = dataclass_wizard.asdict(
+                            global_param.value, cls=FunctionSettings
+                        )
+                        # this value gets lost during this asdict but we still need it for when we go back from dict
+                        c["value"][
+                            "_dataclass_parse_type_"
+                        ] = FunctionSettings._dataclass_parse_type_
+                    except (TypeError, AttributeError) as _:
+                        c["value"] = global_param.value
+
+        def match(c, k, v):
+            return k == "type_" and (
+                v == EditorType.GLOBAL_PARAMETER.display or v == EditorType.KEY.display
+            )
 
         configLoader.dfsConfigDict(
             global_replaced_settings,
-            lambda _1, k, v: k == "type_"
-            and (
-                v == EditorType.GLOBAL_PARAMETER.display or v == EditorType.KEY.display,
-            ),
+            match,
             substituteGlobal,
         )
         return dataclass_wizard.fromdict(ProgramSettings, global_replaced_settings)
@@ -534,6 +551,10 @@ class mainframe(commandProcessor):
                 self.checkModules(code, asdict(program_settings))
 
     def setGlobals(self, _, details=None):
-        if details.details is not None:
-            for key, value in details.details.items():
-                self._all_program_globals[key] = {key: dataclass_wizard.fromdict(value)}
+        if details.key is not None and details.key.sourceCode is not None:
+            self._all_program_globals[details.key.sourceCode] = {}
+            if details.details is not None:
+                for key, value in details.details.items():
+                    self._all_program_globals[details.key.sourceCode][key] = (
+                        dataclass_wizard.fromdict(Parameter, value)
+                    )

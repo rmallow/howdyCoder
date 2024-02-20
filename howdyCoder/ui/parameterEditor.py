@@ -8,6 +8,7 @@ from .util.qtUtil import showKeyWarning
 from .parameterTable import ParameterTableModel
 
 from ..core import commonGlobals
+from ..core.dataStructs import Parameter
 
 import typing
 
@@ -20,6 +21,9 @@ class ParameterEditor(
     QtWidgets.QWidget,
     metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
 ):
+    removedParameter = QtCore.Signal(Parameter)
+    addedParameter = QtCore.Signal(Parameter)
+
     def __init__(self, *args, **kwargs):
         super().__init__("None", *args, **kwargs)
         self.ui = ui_parameterEditor.Ui_ParameterEditor()
@@ -32,11 +36,7 @@ class ParameterEditor(
         )
 
         self.ui.new_parameter_add_button.released.connect(self.addNewParameter)
-        self.ui.remove_parameter_button.released.connect(
-            lambda: self.parameter_model.removeValue(
-                self.ui.all_parameter_table_view.getSelected()
-            )
-        )
+        self.ui.remove_parameter_button.released.connect(self.removeParameter)
 
         self._func_selector = FuncSelector(None, QtCore.Qt.WindowFlags.Dialog)
         self._file_selector = PathSelector(commonGlobals.PathType.FILE, self)
@@ -83,10 +83,17 @@ class ParameterEditor(
             ):
                 if not showKeyWarning():
                     return
-            self.parameter_model.addItemToTable(
+            new_parameter = Parameter(
                 self.ui.new_parameter_name_edit.text(),
-                self.ui.new_parameter_type_combo.currentText(),
                 self.ui.new_parameter_stacked_widget.currentWidget().getInput(),
+                self.ui.new_parameter_type_combo.currentText(),
             )
+            self.parameter_model.addItemToTable(new_parameter)
+            self.addedParameter.emit(new_parameter)
             self.ui.new_parameter_stacked_widget.currentWidget().resetPressed()
             self.ui.new_parameter_name_edit.clear()
+
+    def removeParameter(self):
+        index = self.ui.all_parameter_table_view.getSelected()
+        self.removedParameter.emit(self.parameter_model.getParameterByIndex(index))
+        self.parameter_model.removeValue(index)

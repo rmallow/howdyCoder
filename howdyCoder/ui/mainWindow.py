@@ -207,15 +207,15 @@ class MainWindow(
             all_items = list(config.settings.action_list.values()) + list(
                 config.settings.data_sources.values()
             )
+        def match(c, k, v):
+            return k == "type_" and (
+                v == EditorType.GLOBAL_PARAMETER.display or v == EditorType.KEY.display
+            )
         for item in all_items:
             global_params = []
             configLoader.dfsConfigDict(
                 asdict(item),
-                lambda _1, k, v: k == "type_"
-                and (
-                    v == EditorType.GLOBAL_PARAMETER.display
-                    or v == EditorType.KEY.display
-                ),
+                match,
                 lambda c, _2, v: (global_params.append(fromdict(Parameter, c))),
             )
             if global_params:
@@ -286,6 +286,7 @@ class MainWindow(
     def testFunc(self):
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/crypto_trader.yml")
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/app2.yml")
+        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/global_script.yml")
 
     def refresh(self):
         """Once we receive word back that the program that is trying to be started by the wizard, is in fact started, then we can hide it"""

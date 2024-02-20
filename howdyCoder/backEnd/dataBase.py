@@ -35,7 +35,7 @@ class dataBase(abc.ABC):
         self.parameters: typing.Dict[str, typing.Any] = {
             v.name: v.value
             for v in data_source_settings.parameters.values()
-            if v.type_ != EditorType.FUNC
+            if v.type_ != EditorType.FUNC.display
         }
         self.output: typing.Union[typing.List[str], typing.Dict[str, str]] = (
             data_source_settings.output

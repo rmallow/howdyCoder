@@ -1,15 +1,16 @@
-from ..core.dataStructs import ProgramStatusData, InputData, ProgramSettings
+from ..core.dataStructs import ProgramStatusData, InputData, ProgramSettings, Modes
 from .uiConstants import LOOP_INTERVAL_MSECS
 from .programData import ProgramDict
 
-from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, ProgramTypes
+from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, ProgramTypes, EditorType
 from ..commonUtil import queueManager as qm
 from ..commonUtil.helpers import getStrTime, getDupeName
-from ..commonUtil import mpLogging, configLoader
+from ..commonUtil import mpLogging, configLoader, keyringUtil
 
 from ..core import message as msg
 from ..core import messageKey
 from ..backEnd.util.commandProcessor import commandProcessor
+from ..core import parameterSingleton
 
 import copy
 from dataclass_wizard import asdict, fromdict
@@ -113,8 +114,27 @@ class mainModel(commandProcessor, QtCore.QObject):
                 mpLogging.error("UI Queue is disconnnected.")
                 self.ui_queue = None
 
+    def sendGlobals(self, code: str):
+        globals_with_keys = {}
+        for key, value in parameterSingleton.getParameters().items():
+            globals_with_keys[key] = asdict(value)
+            if value.type_ == EditorType.KEY.display:
+                globals_with_keys[key]["value"] = keyringUtil.getKey(value.name)
+
+        self.messageMainframe(
+            msg.message(
+                msg.MessageType.COMMAND,
+                msg.CommandType.SET_GLOBALS,
+                details=globals_with_keys,
+                key=messageKey.messageKey(code, None),
+            )
+        )
+
     @QtCore.Slot()
     def sendCmdStart(self, code: str):
+        if self.program_dict.getData(code).mode == Modes.STANDBY:
+            self.sendGlobals(code)
+
         self.messageMainframe(
             msg.message(msg.MessageType.COMMAND, msg.CommandType.START, details=code)
         )

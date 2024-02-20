@@ -4,10 +4,13 @@ from .util.qtUtil import showKeyWarning
 from .parameterEditor import ParameterEditor
 
 from ..core import parameterSingleton
-from ..core.commonGlobals import PathType
+from ..core.commonGlobals import EditorType
 from ..core import commonGlobals
+from ..core.dataStructs import Parameter
+from ..commonUtil import keyringUtil
 
 import typing
+import keyring
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
@@ -27,6 +30,42 @@ class GlobalParameterTableModel(parameterTable.ParameterTableModel):
                 flags &= ~QtCore.Qt.ItemFlag.ItemIsEditable
         return flags
 
+    def data(
+        self, index: QtCore.QModelIndex, role: int = QtCore.Qt.DisplayRole
+    ) -> typing.Any:
+        if (
+            index.isValid()
+            and role == QtCore.Qt.DisplayRole
+            and index.siblingAtColumn(parameterTable.ParameterEnum.TYPE.value).isValid()
+            and index.column() == parameterTable.ParameterEnum.VALUE.value
+        ):
+            type_index = index.siblingAtColumn(parameterTable.ParameterEnum.TYPE.value)
+            if (
+                type_index.data(QtCore.Qt.ItemDataRole.DisplayRole)
+                == commonGlobals.EditorType.KEY.display
+            ):
+                return "--- Key Stored in OS Keyring ---"
+        return super().data(index, role)
+
+    def setData(
+        self,
+        index: QtCore.QModelIndex,
+        value: typing.Any,
+        role: int = QtCore.Qt.DisplayRole,
+    ) -> bool:
+        if (
+            index.isValid()
+            and index.siblingAtColumn(parameterTable.ParameterEnum.TYPE.value).isValid()
+            and index.column() == parameterTable.ParameterEnum.VALUE.value
+        ):
+            type_index = index.siblingAtColumn(parameterTable.ParameterEnum.TYPE.value)
+            if (
+                type_index.data(QtCore.Qt.ItemDataRole.DisplayRole)
+                == commonGlobals.EditorType.KEY.display
+            ):
+                value = "--- Key Stored in OS Keyring ---"
+        return super().setData(index, value, role)
+
 
 class GlobalParameterPageWidget(QtWidgets.QWidget):
     def __init__(
@@ -45,6 +84,8 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
                 commonGlobals.EditorType.KEY.display,
             ]
         )
+        self._parameter_editor.removedParameter.connect(self.removedParameter)
+        self._parameter_editor.addedParameter.connect(self.addedParameter)
         self._parameter_editor.parameter_model.dataChanged.connect(
             self.tableDataChanged
         )
@@ -144,3 +185,17 @@ class GlobalParameterPageWidget(QtWidgets.QWidget):
 
     def tableDataChanged(self) -> None:
         pass
+
+    def removedParameter(self, removed_parameter: Parameter):
+        if removed_parameter.type_ == EditorType.KEY.display:
+            try:
+                keyringUtil.deleteKey(removed_parameter.name)
+            except keyring.core.backend.errors.PasswordDeleteError:
+                pass
+
+    def addedParameter(self, added_parameter: Parameter):
+        if added_parameter.type_ == EditorType.KEY.display:
+            try:
+                keyringUtil.storeKey(added_parameter.name, added_parameter.value)
+            except keyring.core.backend.errors.PasswordSetError:
+                pass

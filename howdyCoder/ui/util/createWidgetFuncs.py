@@ -189,6 +189,7 @@ def _(data_struct: ItemSettings, parent: QtWidgets.QWidget) -> QtWidgets.QWidget
     if (
         data_struct.type_ == ActionTypeEnum.EVENT.value
         or data_struct.type_ == ActionTypeEnum.TRIGGER.value
+        or data_struct.type_ == ActionTypeEnum.SCRIPT.value
         or data_struct.type_ == DataSourcesTypeEnum.FUNC.display
     ):
         if data_struct.parameters:
@@ -239,7 +240,10 @@ def _(data_struct: ActionSettings, parent: QtWidgets.QWidget) -> QtWidgets.QWidg
         layout.insertWidget(
             0, createValueLabel([data_struct.output_function], "Output Function", w)
         )
-    if data_struct.type_ == ActionTypeEnum.EVENT.value or ActionTypeEnum.TRIGGER.value:
+    if (
+        data_struct.type_ == ActionTypeEnum.EVENT.value
+        or data_struct.type_ == ActionTypeEnum.TRIGGER.value
+    ):
         layout.insertWidget(
             0, createValueLabel([data_struct.calc_function], "Calculating Function", w)
         )

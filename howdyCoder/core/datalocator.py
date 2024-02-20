@@ -13,6 +13,8 @@ def getDictFromYmlFile(path):
     try:
         with open(path) as file:
             contents = yaml.safe_load(file)
+    except FileNotFoundError:
+        pass
     except OSError:
         assert False, "Error reading yaml file"
     return contents
@@ -56,7 +58,11 @@ def getConfig(group: str) -> typing.Dict[str, str]:
 
 def modifyValue(group: str, section: str, key: str, value: str):
     if group in _config_values:
-        if group in _config_values and section in _config_values[group].config and key in _config_values[group].config[section]:
+        if (
+            group in _config_values
+            and section in _config_values[group].config
+            and key in _config_values[group].config[section]
+        ):
             _config_values[group].config[section][key] = value
         parser = configparser.ConfigParser()
         parser.optionxform = str

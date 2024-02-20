@@ -15,7 +15,7 @@ class dataFunc(dataBase):
         self.setup_funcs: typing.Dict[str, FunctionSettings] = {
             v.name: v.value
             for v in data_source_settings.parameters.values()
-            if v.type_ == EditorType.FUNC
+            if v.type_ == EditorType.FUNC.display
         }
         self._internal_setup_functions = (
             data_source_settings.get_function.internal_setup_functions
