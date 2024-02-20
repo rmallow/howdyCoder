@@ -17,13 +17,14 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QHBoxLayout, QHeaderView,
     QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QTextEdit, QTreeView, QVBoxLayout, QWidget)
+    QSpacerItem, QTextEdit, QTreeView, QVBoxLayout,
+    QWidget)
 
 class Ui_FuncSelectorLibPage(object):
     def setupUi(self, FuncSelectorLibPage):
         if not FuncSelectorLibPage.objectName():
             FuncSelectorLibPage.setObjectName(u"FuncSelectorLibPage")
-        FuncSelectorLibPage.resize(553, 444)
+        FuncSelectorLibPage.resize(877, 580)
         self.verticalLayout = QVBoxLayout(FuncSelectorLibPage)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.widget_2 = QWidget(FuncSelectorLibPage)
@@ -63,10 +64,15 @@ class Ui_FuncSelectorLibPage(object):
 
         self.horizontalLayout_3.addWidget(self.label)
 
-        self.lineEdit = QLineEdit(self.search_box)
-        self.lineEdit.setObjectName(u"lineEdit")
+        self.search_edit = QLineEdit(self.search_box)
+        self.search_edit.setObjectName(u"search_edit")
+        self.search_edit.setMinimumSize(QSize(150, 0))
 
-        self.horizontalLayout_3.addWidget(self.lineEdit)
+        self.horizontalLayout_3.addWidget(self.search_edit)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer)
 
 
         self.verticalLayout.addWidget(self.search_box)

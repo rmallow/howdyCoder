@@ -30,13 +30,21 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
         super().__init__(self.TUTORIAL_RESOURCE_PREFIX, parent, f)
         self._ui = ui_funcSelectorLibPage.Ui_FuncSelectorLibPage()
         self._ui.setupUi(self)
-        self._ui.search_box.hide()
 
         # setup model
-        self._libModel: QtGui.QStandardItemModel = QtGui.QStandardItemModel()
-        self._ui.libView.setModel(self._libModel)
+        self._lib_model = QtGui.QStandardItemModel(self._ui.libView)
+        self._lib_search_model = QtCore.QSortFilterProxyModel(self._ui.libView)
+        self._lib_search_model.setSourceModel(self._lib_model)
+        self._lib_search_model.setRecursiveFilteringEnabled(True)
+        self._lib_search_model.setFilterCaseSensitivity(
+            QtCore.Qt.CaseSensitivity.CaseInsensitive
+        )
+        self._ui.search_edit.textChanged.connect(self.filterChanged)
+
+        self._ui.libView.setModel(self._lib_search_model)
+        self._lib_search_model.rowsInserted.connect(self.alwaysExpand)
         self._ungrouped_item = QtGui.QStandardItem("Ungrouped")
-        self._libModel.appendRow(self._ungrouped_item)
+        self._lib_model.appendRow(self._ungrouped_item)
 
         # connect signal and slots
         self._ui.libraryButton.pressed.connect(self.loadLibrary)
@@ -44,6 +52,15 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
         self._ui.selectButton.pressed.connect(self.validateFunction)
 
         self._selectedIndex: QtCore.QModelIndex = None
+
+    @QtCore.Slot()
+    def filterChanged(self, text: str) -> None:
+        self._lib_search_model.setFilterFixedString(text)
+
+    @QtCore.Slot()
+    def alwaysExpand(self, parent: QtCore.QModelIndex, first: int, last: int) -> None:
+        # Keep the function tree view always expanded
+        self._ui.libView.expandRecursively(parent)
 
     @QtCore.Slot()
     def loadLibrary(self) -> None:
@@ -75,12 +92,13 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
     def addFuncItem(
         self,
         lib_item: QtGui.QStandardItem,
+        function_item_name: str,
         function_settings: FunctionSettings,
     ) -> None:
         """
         Using the function node create the function item
         """
-        function_item = QtGui.QStandardItem(function_settings.name)
+        function_item = QtGui.QStandardItem(function_item_name)
         function_item.setData(function_settings.code, CODE_ROLE)
         function_item.setData(function_settings, SETTINGS_ROLE)
         lib_item.appendRow(function_item)
@@ -116,18 +134,18 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
             # first determine if the library has a group
             group_item = self._ungrouped_item
             if library.group != "":
-                group_list = self._libModel.findItems(library.group)
+                group_list = self._lib_model.findItems(library.group)
                 if len(group_list) > 0:
                     group_item = group_list[0]
                 else:
                     # new group so add it to the model
                     group_item = QtGui.QStandardItem(library.group)
-                    self._libModel.appendRow(group_item)
+                    self._lib_model.appendRow(group_item)
 
             # we have the group now get the functions out of the library
             lib_item = QtGui.QStandardItem(library.name)
-            for func in library.functions:
-                self.addFuncItem(lib_item, func)
+            for key, func in library.functions.items():
+                self.addFuncItem(lib_item, key, func)
 
             # finally add the functions to the group
             group_item.appendRow(lib_item)
@@ -137,8 +155,8 @@ class FuncSelectorLibPage(FuncSelectorPageBase):
         clear the lib model and replace it with what is in the library singleton,
         this is in case somewhere a library has been loaded since last time this func selector was shown
         """
-        self._libModel.clear()
-        self._libModel.appendRow(self._ungrouped_item)
+        self._lib_model.clear()
+        self._lib_model.appendRow(self._ungrouped_item)
         libraries = librarySingleton.getLibraries()
         for lib in libraries:
             self.addLibray(lib)

@@ -70,7 +70,7 @@ class DataSourcesTypeEnum(AdvancedEnum):
     THREADED = 0, "threaded function", False
     FUNC = 1, "function", False
     STREAM = 2, "stream", False
-    INPUT = 3, "user input", False
+    INPUT = 3, "Manual Input", False
     SIM = 4, "sim", True
 
 

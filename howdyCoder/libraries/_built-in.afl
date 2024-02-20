@@ -1,0 +1,23 @@
+functions:
+    Send Prompt to Chat GPT:
+        code: "def send_prompt_to_openai(data_set, api_key, model):\n    url = 'https://api.openai.com/v1/chat/completions'\n\
+            \    headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}\n\
+            \    data = {'model': model, 'messages': [{'role': 'system', 'content':\
+            \ 'You are a helpful assistant.'}, {'role': 'user', 'content': data_set['prompt'][0]}]}\n\
+            \    response = requests.post(url, headers=headers, data=json.dumps(data))\n\
+            \    if response.status_code == 200:\n        response_json = response.json()\n\
+            \        return response_json['choices'][0]['message']['content']\n    else:\n\
+            \        return None"
+        import_statements:
+        - import json
+        - import requests
+        imports:
+        - json
+        - requests
+        internal_parameters: {}
+        internal_setup_functions: {}
+        name: send_prompt_to_openai
+        suggested_output: []
+        user_function: null
+group: built-in
+name: built-in

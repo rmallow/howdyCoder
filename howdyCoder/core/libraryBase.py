@@ -22,7 +22,7 @@ from dataclass_wizard import asdict, fromdict
 class Library:
     name: str
     group: str
-    functions: typing.List[FunctionSettings]
+    functions: typing.Dict[str, FunctionSettings]
 
 
 def functionCompiles(function_string: str, file_path: str) -> bool:
@@ -109,14 +109,14 @@ def loadLibraryAfl(file_path: str):
         lib = Library(
             config.name,
             config.group,
-            [
-                function_setting
-                for function_setting in config.functions
+            {
+                key: function_setting
+                for key, function_setting in config.functions.items()
                 if functionCompiles(
                     function_setting.code,
                     file_path,
                 )
-            ],
+            },
         )
     return lib
 
@@ -127,13 +127,13 @@ def saveToLibrary(
     name: str = "",
     group: str = "",
 ):
-    settings_to_save = Library(name, group, [])
+    settings_to_save = Library(name, group, {})
 
     if res := getConfigFromFile(file_path, warning_if_not_exist=False):
         settings_to_save = fromdict(Library, res)
     if pathlib.Path(file_path).parent.exists():
         with open(file_path, "w") as file:
-            settings_to_save.functions.append(function_config)
+            settings_to_save.functions[function_config.name] = function_config
             yaml.dump(asdict(settings_to_save), file, default_flow_style=False)
 
 
@@ -148,7 +148,7 @@ def pyToAfl(
 ):
     lib = loadLibraryPy(py_file_path)
     func_settings = next(
-        function for function in lib.functions if function.name == specific_function
+        function for function in lib.functions.values() if function.name == specific_function
     )
     if internal_setup_functions is not None:
         func_settings.internal_setup_functions = internal_setup_functions

@@ -115,10 +115,13 @@ class CreateBuiltInAction(
 
     def save(self) -> None:
         curr_settings: ActionSettings = self.parent_page.getConfig()
-        curr_settings.calc_function = librarySingleton.getInternalLibrary().functions[0]
-        curr_settings.calc_function.internal_parameters[
-            VARIABLE_TEXT_LIST_ARG_NAME
-        ] = self._ui.variable_edit.getVariableText()
+        # to be changed when there are more than one built in, ie Calculator
+        curr_settings.calc_function = librarySingleton.getInternalLibrary().functions[
+            "Text Merger"
+        ]
+        curr_settings.calc_function.internal_parameters[VARIABLE_TEXT_LIST_ARG_NAME] = (
+            self._ui.variable_edit.getVariableText()
+        )
         curr_settings.input_.clear()
         for row in range(self._selected_input_table_model.rowCount()):
             input_settings = InputSettings()

@@ -15,6 +15,7 @@ PY_TO_AFL_ACTION = "pyToAfl"
 
 
 def main():
+    # TODO: Review before running as Library functions was changed List -> Dict
     parser = argparse.ArgumentParser(description="Arguments for library utility script")
     parser.add_argument("action", choices=[PY_TO_AFL_ACTION])
     parser.add_argument("-py", dest="py_file_path")
