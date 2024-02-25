@@ -1,5 +1,5 @@
 from ..core.commonGlobals import InputType
-from ..core.dataStructs import InputData
+from ..core.dataStructs import SourceData
 
 from .inputGetter import InputGetterBase, MousePosGetter, AudioGetter
 
@@ -29,7 +29,7 @@ class InputBox(QtWidgets.QWidget):
         InputType.NUMBER: lambda obj: obj.setValue(0.0),
     }
 
-    inputEntered = QtCore.Signal(InputData)
+    inputEntered = QtCore.Signal(SourceData)
 
     def __init__(
         self,
@@ -97,7 +97,7 @@ class InputBox(QtWidgets.QWidget):
         val = self.getInput()
         if val is not None:
             self.inputEntered.emit(
-                InputData(code="", data_source_name=self._name, val=val)
+                SourceData(code="", data_source_name=self._name, val=val)
             )
 
     @QtCore.Slot()
@@ -105,6 +105,6 @@ class InputBox(QtWidgets.QWidget):
         self._resetter(self._input_widget)
 
     @QtCore.Slot()
-    def inputEnteredWrapper(self, input_data: InputData):
+    def inputEnteredWrapper(self, input_data: SourceData):
         input_data.data_source_name = self._name
         self.inputEntered.emit(input_data)

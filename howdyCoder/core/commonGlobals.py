@@ -65,13 +65,13 @@ class ProgramTypes(str, Enum):
 class DataSourcesTypeEnum(AdvancedEnum):
     """For indexing to work, all hides go to end"""
 
-    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY} {ENUM_HIDE}"
+    _init_ = f"{ENUM_VALUE} {ENUM_DISPLAY}"
 
-    THREADED = 0, "threaded function", False
-    FUNC = 1, "function", False
-    STREAM = 2, "stream", False
-    INPUT = 3, "Manual Input", False
-    SIM = 4, "sim", True
+    THREADED = 0, "Threaded function"
+    FUNC = 1, "Function"
+    STREAM = 2, "Stream"
+    INPUT = 3, "Manual Input"
+    FILE = 4, "File"
 
 
 class ActionTypeEnum(Enum):

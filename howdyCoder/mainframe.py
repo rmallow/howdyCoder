@@ -144,7 +144,7 @@ class mainframe(commandProcessor):
         self.addCmdFunc(msg.CommandType.CREATE, mainframe.createCommand)
         self.addCmdFunc(msg.CommandType.INSTALL_PACKAGE, mainframe.installPackages)
         self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToProgram)
-        self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, mainframe.passCommandToProgram)
+        self.addCmdFunc(msg.CommandType.ADD_SOURCE_DATA, mainframe.passCommandToProgram)
         self.addCmdFunc(msg.CommandType.SET_GLOBALS, mainframe.setGlobals)
 
         # not an mp Queue, it's Dill, but we'll survive with this type hint

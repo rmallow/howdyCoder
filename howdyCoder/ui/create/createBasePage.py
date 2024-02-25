@@ -149,3 +149,36 @@ class CreateBasePage(
         self.suggested_validity = (
             ItemValidity.VALID if all_found else ItemValidity.WARNING
         )
+
+
+class PagePassThrough(CreateBasePage):
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        # set after we create UI
+        self.stacked_widget = None
+
+    @abstractmethod
+    def getWidgetForStack(self):
+        return None
+
+    def loadPage(self) -> None:
+        super().loadPage()
+        if widget := self.getWidgetForStack():
+            self.stacked_widget.setCurrentWidget(widget)
+            self.stacked_widget.currentWidget().loadPage()
+
+    def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
+        return self.stacked_widget.currentWidget().validate()
+
+    def reset(self) -> None:
+        self.stacked_widget.currentWidget().reset()
+
+    def save(self) -> None:
+        self.stacked_widget.currentWidget().save()
+
+    def getTutorialClasses(self) -> typing.List:
+        return self.stacked_widget.currentWidget().getTutorialClasses()

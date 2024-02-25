@@ -1,4 +1,4 @@
-from ..core.dataStructs import ProgramStatusData, InputData, ProgramSettings, Modes
+from ..core.dataStructs import ProgramStatusData, SourceData, ProgramSettings, Modes
 from .uiConstants import LOOP_INTERVAL_MSECS
 from .programData import ProgramDict
 
@@ -310,11 +310,11 @@ class mainModel(commandProcessor, QtCore.QObject):
             else:
                 self._export_mapping_cache[code].popleft()
 
-    def inputEntered(self, input_data: InputData):
+    def inputEntered(self, input_data: SourceData):
         self.messageMainframe(
             msg.message(
                 msg.MessageType.COMMAND,
-                msg.CommandType.ADD_INPUT_DATA,
+                msg.CommandType.ADD_SOURCE_DATA,
                 details=asdict(input_data),
                 key=msg.messageKey(input_data.code, None),
             )

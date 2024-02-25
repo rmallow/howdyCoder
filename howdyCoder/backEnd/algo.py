@@ -10,7 +10,7 @@ from ..core.dataStructs import (
     AlgoSettings,
     DataSourceSettings,
     ProgramSettings,
-    InputData,
+    SourceData,
     Modes,
 )
 
@@ -50,7 +50,7 @@ class Algo(Program):
 
         self.addCmdFunc(msg.CommandType.ADD_OUTPUT_VIEW, Algo.addOutputView)
         self.addCmdFunc(msg.CommandType.EXPORT, Algo.exportData)
-        self.addCmdFunc(msg.CommandType.ADD_INPUT_DATA, Algo.addInputData)
+        self.addCmdFunc(msg.CommandType.ADD_SOURCE_DATA, Algo.addSourceData)
 
         self.start()
 
@@ -189,7 +189,7 @@ class Algo(Program):
         super().cmdStart(command, details)
         self.feed_obj.started()
 
-    def addInputData(self, _, details=None):
+    def addSourceData(self, _, details=None):
         if details is not None:
-            input_data = InputData(**details)
-            self.feed_obj.addInputData(input_data.data_source_name, input_data.val)
+            input_data = SourceData(**details)
+            self.feed_obj.addSourceData(input_data.data_source_name, input_data.val)

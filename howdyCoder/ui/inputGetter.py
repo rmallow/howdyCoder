@@ -5,7 +5,7 @@ from .uiConstants import GUI_REFRESH_INTERVAL
 from .tutorialOverlay import AbstractTutorialClass
 
 from ..commonUtil import openAIUtil
-from ..core.dataStructs import InputData
+from ..core.dataStructs import SourceData
 
 from abc import abstractmethod
 import typing
@@ -25,7 +25,7 @@ class InputGetterBase(
     HIDE_ENTER = False
     HIDE_RESET = False
 
-    inputEntered = QtCore.Signal(InputData)
+    inputEntered = QtCore.Signal(SourceData)
 
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
@@ -75,7 +75,7 @@ class MousePosGetter(InputGetterBase):
             and self.y is not None
         ):
             self._last_check_time = time.time()
-            self.inputEntered.emit(InputData(val=(self.x, self.y)))
+            self.inputEntered.emit(SourceData(val=(self.x, self.y)))
         return super().keyPressEvent(event)
 
     def getTutorialClasses(self) -> typing.List:
@@ -162,7 +162,7 @@ class AudioGetter(InputGetterBase):
         self._ui.transcribed_text.setPlainText(transcribed_text["text"])
         self._ui.transcribing_status.setText("DONE TRANSCRIBING")
         if self._ui.active_check.isChecked():
-            self.inputEntered.emit(InputData(val=transcribed_text["text"]))
+            self.inputEntered.emit(SourceData(val=transcribed_text["text"]))
         os.remove(self.filename)
 
     def clear(self):
@@ -172,7 +172,7 @@ class AudioGetter(InputGetterBase):
     def value(self):
         if self._ui.transcribed_text.toPlainText():
             self.inputEntered.emit(
-                InputData(val=self._ui.transcribed_text.toPlainText())
+                SourceData(val=self._ui.transcribed_text.toPlainText())
             )
             self.clear()
 

@@ -4,7 +4,7 @@ import typing
 from collections import deque
 
 
-class dataInput(dataBase):
+class DataExternal(dataBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._data_queue = deque()

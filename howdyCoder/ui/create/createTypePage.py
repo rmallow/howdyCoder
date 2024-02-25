@@ -135,16 +135,22 @@ class CreateDataSourceTypePage(CreateTypePage):
     TYPE_DESCRIPTION = {
         DataSourcesTypeEnum.FUNC.display: """
     Use a given function call as the source of the data. \n
+    This function can be AI generated based on a description you provide for what you need. \n
     On the next page you can choose what function to use.
     """,
         #        DataSourcesTypeEnum.THREADED.display: """
         #    A more advanced version of Func data source. \n
         #    Only necessary if the function would normally be used in a multithreaded environment.
         #    """,
+        DataSourcesTypeEnum.FILE.display: """
+    Takes a file as the source of the data. This data source will only run once for the data in the file. \n
+    The supported file types are: csv (.csv), excel (.xlsx), and text (.txt). \n
+    If the file you want to load is not currently supported you can use a Function Data Source and ask AI to generate a function for your desired file type.
+    """,
         DataSourcesTypeEnum.INPUT.display: """
     Take user input data as the source of the data. \n
     When this option is used, after the program is created, a window can be opened that has the selected input option for inputting user data. \n
-    Useful for if you need to tell the program dynamically your own data.
+    Useful for if you need to dynamically tell the program your own data.
     """,
     }
     PAGE_KEY = PageKeys.DATA_SOURCE_TYPE
@@ -167,7 +173,7 @@ class CreateDataSourceTypePage(CreateTypePage):
     def typeSelected(self, row: int) -> None:
         super().typeSelected(row)
         current_type = self._ui.type_view.item(row).text()
-        if current_type == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY, ""):
+        if current_type == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY, "") or current_type == getattr(DataSourcesTypeEnum.FILE, ENUM_DISPLAY, ""):
             self.setSkipPages.emit([PageKeys.PARAMETERS, PageKeys.SETTINGS])
         else:
             self.setSkipPages.emit([])

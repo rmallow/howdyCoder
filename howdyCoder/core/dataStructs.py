@@ -55,7 +55,7 @@ class ProgramStatusData:
 
 
 @dataclass
-class InputData(JSONWizard, metaclass=property_wizard):
+class SourceData(JSONWizard, metaclass=property_wizard):
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 

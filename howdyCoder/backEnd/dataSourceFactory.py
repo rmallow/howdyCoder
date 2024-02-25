@@ -1,9 +1,8 @@
 from .dataBase import dataBase
-from .dataSim import dataSim
 from .dataFunc import dataFunc
 from .dataStream import dataStream
 from .dataThreaded import dataThreaded
-from .dataInput import dataInput
+from .dataExternal import DataExternal
 
 from ..core.commonGlobals import DataSourcesTypeEnum
 
@@ -13,11 +12,11 @@ Create a data source based on the passed in cretor type and configuration dict
 """
 
 _DATA_SOURCE_FACTORY_TYPES = {
-    DataSourcesTypeEnum.SIM.display: dataSim,
-    DataSourcesTypeEnum.STREAM.display: dataStream,
-    DataSourcesTypeEnum.FUNC.display: dataFunc,
-    DataSourcesTypeEnum.THREADED.display: dataThreaded,
-    DataSourcesTypeEnum.INPUT.display: dataInput,
+    DataSourcesTypeEnum.FILE.display.lower(): DataExternal,
+    DataSourcesTypeEnum.STREAM.display.lower(): dataStream,
+    DataSourcesTypeEnum.FUNC.display.lower(): dataFunc,
+    DataSourcesTypeEnum.THREADED.display.lower(): dataThreaded,
+    DataSourcesTypeEnum.INPUT.display.lower(): DataExternal,
 }
 
 

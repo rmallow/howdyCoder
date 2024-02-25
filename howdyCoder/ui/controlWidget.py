@@ -1,4 +1,4 @@
-from ..core.dataStructs import InputData, Modes
+from ..core.dataStructs import SourceData, Modes
 from .newBlockWidget import NewBlockWidget
 from .programStatusWidget import ProgramStatusWidget
 from .programData import ProgramDict, ProgramWidgetData
@@ -58,7 +58,7 @@ class ControlWidget(
     editProgram = QtCore.Signal(str)
     copyProgram = QtCore.Signal(str)
     exportData = QtCore.Signal(str)
-    inputEntered = QtCore.Signal(InputData)
+    inputEntered = QtCore.Signal(SourceData)
 
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)
@@ -198,7 +198,7 @@ class ControlWidget(
             self._algo_input_windows[uid].activateWindow()
 
     @QtCore.Slot()
-    def inputPassThrough(self, input_data: InputData, code: str):
+    def inputPassThrough(self, input_data: SourceData, code: str):
         input_data.code = code
         self.inputEntered.emit(input_data)
 

@@ -27,7 +27,7 @@ class PathSelector(SelectorBase):
         if self._path_type == PathType.FOLDER:
             path = QtWidgets.QFileDialog.getExistingDirectory()
         elif self._path_type == PathType.FILE:
-            path = QtWidgets.QFileDialog.getSaveFileName(
+            path = QtWidgets.QFileDialog.getOpenFileName(
                 options=QtWidgets.QFileDialog.Option.DontConfirmOverwrite
             )[0]
         if path:

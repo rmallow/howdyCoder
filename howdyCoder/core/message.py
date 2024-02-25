@@ -28,7 +28,7 @@ class CommandType(IntEnum):
     CHECK_MODULES = auto()
     INSTALL_PACKAGE = auto()
     EXPORT = auto()
-    ADD_INPUT_DATA = auto()
+    ADD_SOURCE_DATA = auto()
     SET_GLOBALS = auto()
 
 
