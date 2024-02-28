@@ -33,7 +33,7 @@ class Ui_FileDataSourceSettings(object):
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.label_7 = QLabel(self.sheet_select_box)
         self.label_7.setObjectName(u"label_7")
-        self.label_7.setAlignment(Qt.AlignCenter)
+        self.label_7.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.horizontalLayout_3.addWidget(self.label_7)
 

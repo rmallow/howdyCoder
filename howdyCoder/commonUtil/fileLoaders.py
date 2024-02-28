@@ -2,10 +2,10 @@ import csv
 import pathlib
 import typing
 
-import pandas as pd
+import python_calamine
 
 
-def loadCSV(file: typing.IO) -> typing.List[typing.List[str]]:
+def loadCSV(file: typing.IO) -> typing.List[typing.List[typing.Any]]:
     ret_rows = []
     try:
         reader = csv.reader(file)
@@ -16,12 +16,14 @@ def loadCSV(file: typing.IO) -> typing.List[typing.List[str]]:
     return ret_rows
 
 
-def loadExcel(file: typing.IO) -> pd.DataFrame:
-    ret = pd.DataFrame()
+def loadExcel(
+    file: typing.IO,
+) -> typing.Dict[str, typing.List[typing.List[typing.Any]]]:
+    ret_sheets = {}
     try:
-        ret = pd.read_excel(
-            file, sheet_name=None, engine="calamine", header=None, index_col=None
-        )
-    except Exception as e:
+        reader = python_calamine.CalamineWorkbook.from_filelike(file)
+        for name in reader.sheet_names:
+            ret_sheets[name] = reader.get_sheet_by_name(name).to_python()
+    except python_calamine.CalamineError as _:
         pass
-    return ret
+    return ret_sheets

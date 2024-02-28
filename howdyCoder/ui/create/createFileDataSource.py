@@ -2,7 +2,7 @@ from ...core.dataStructs import ItemSettings, DataSourceSettings
 from .createBasePage import ItemValidity, CreateBasePage
 from ..qtUiFiles import ui_createFileDataSource
 from .fileDataSourceSettings import FileDataSourceSettings
-from .customHeaderModels import CustomHeaderStandardModel, CustomHeaderPandaModel
+from .customHeaderModels import CustomHeaderStandardModel, CustomHeaderLOLModel
 
 from ..tutorialOverlay import AbstractTutorialClass
 from ..util import abstractQt, helperData
@@ -11,17 +11,12 @@ from ..pathSelector import PathSelector
 from ..util import expander
 
 
-from ...commonUtil import helpers, astUtil, fileLoaders
+from ...commonUtil import helpers, fileLoaders
 from ...core.commonGlobals import (
-    ENUM_DISPLAY,
-    DATA_SOURCES,
     PathType,
-    DataSourcesTypeEnum,
-    InputType,
 )
 import typing
 import pathlib
-import pandas as pd
 
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -76,8 +71,8 @@ class CreateFileDataSource(
         self._standard_model = CustomHeaderStandardModel()
         self._standard_model.dataChanged.connect(self.setExampleHeaders)
 
-        self._panda_model = CustomHeaderPandaModel()
-        self._panda_model.dataChanged.connect(self.setExampleHeaders)
+        self._lol_model = CustomHeaderLOLModel()
+        self._lol_model.dataChanged.connect(self.setExampleHeaders)
 
         self._abs_path: pathlib.Path = None
         self._current_file_type: str = ""
@@ -102,7 +97,7 @@ class CreateFileDataSource(
 
     def reset(self) -> None:
         self._standard_model.clear()
-        self._panda_model.clear()
+        self._lol_model.clear()
         self._settings_widget.reset()
         self._file_selector_widget.reset()
 
@@ -152,7 +147,7 @@ class CreateFileDataSource(
             self.setExcelSettings()
 
     def sheetSettingsChanged(self):
-        self._panda_model.clear()
+        self._lol_model.clear()
         self._secondary_key = self._settings_widget.getSheetSelected()
         self.setExcelDataToModel()
 
@@ -201,7 +196,7 @@ class CreateFileDataSource(
 
     def setExcelDataToModel(self):
         if self._secondary_key in self._file_data:
-            self._panda_model.setDataFrame(self._file_data[self._secondary_key])
+            self._lol_model.setTable(self._file_data[self._secondary_key])
         self.setExcelHeaders()
         self.setExcelSettings()
 
@@ -252,14 +247,14 @@ class CreateFileDataSource(
         self.setExcelHeaders()
         self.setExcelSettings()
 
-    def setupExcel(self, data: typing.Dict[str, pd.DataFrame]):
+    def setupExcel(self, data: typing.Dict[str, typing.List[typing.List[typing.Any]]]):
         self._settings_widget.showSheetSettings(True)
         self._settings_widget.setSheetsAvailable(data.keys())
         if self._secondary_key not in data:
             self._secondary_key = next(iter(data.keys()))
         self._settings_widget.setSheetSelected(self._secondary_key)
-        self._panda_model.clear()
-        self._ui.file_view.setModel(self._panda_model)
+        self._lol_model.clear()
+        self._ui.file_view.setModel(self._lol_model)
         self.setExcelDataToModel()
 
 
