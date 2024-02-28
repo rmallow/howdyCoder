@@ -11,8 +11,7 @@ class CustomHeaderStandardModel(QtGui.QStandardItemModel):
         self._custom_header_is_first_row = False
 
     def addCustomHeader(
-        self,
-        data_in_rows: bool,
+        self, data_in_rows: bool, override_headers: typing.List[str] = None
     ) -> None:
         if not self._custom_header_added:
             self._custom_header_added = True
@@ -22,10 +21,16 @@ class CustomHeaderStandardModel(QtGui.QStandardItemModel):
                 else QtCore.Qt.Orientation.Horizontal
             )
             count = self.rowCount() if data_in_rows else self.columnCount()
-            header_str_items = [
-                QtGui.QStandardItem(str(self.headerData(x, orientation)))
-                for x in range(count)
-            ]
+            header_str_items = []
+            if override_headers is not None and len(override_headers) == count:
+                header_str_items = [
+                    QtGui.QStandardItem(header) for header in override_headers
+                ]
+            else:
+                header_str_items = [
+                    QtGui.QStandardItem(str(self.headerData(x, orientation)))
+                    for x in range(count)
+                ]
             if data_in_rows:
                 self.insertColumn(0, header_str_items)
             else:
@@ -94,8 +99,7 @@ class CustomHeaderPandaModel(QtCore.QAbstractTableModel):
         self._headers_by_orientation[QtCore.Qt.Orientation.Vertical] = header_strs
 
     def addCustomHeader(
-        self,
-        data_in_rows: bool,
+        self, data_in_rows: bool, override_headers: typing.List[str] = None
     ) -> None:
         if not self._custom_header_added:
             self._custom_header_added = True
@@ -104,7 +108,12 @@ class CustomHeaderPandaModel(QtCore.QAbstractTableModel):
                 if data_in_rows
                 else QtCore.Qt.Orientation.Horizontal
             )
-            self._custom_header_strs = self._headers_by_orientation[orientation][:]
+            if override_headers is not None and len(override_headers) == len(
+                self._headers_by_orientation[orientation]
+            ):
+                self._custom_header_strs = override_headers[:]
+            else:
+                self._custom_header_strs = self._headers_by_orientation[orientation][:]
             self._custom_header_is_first_row = not data_in_rows
 
     def removeCustomHeader(self) -> None:

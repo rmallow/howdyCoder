@@ -85,6 +85,7 @@ class CreateFileDataSource(
         self._custom_header_is_first_row = False
         self._secondary_key: str = ""
         self._file_data = None
+        self._override_headers = []
 
     def loadPage(self) -> None:
         curr: DataSourceSettings = self.parent_page.getConfig()
@@ -92,6 +93,8 @@ class CreateFileDataSource(
             self._settings_widget.setCustomHeader(curr.custom_headers)
             self._settings_widget.setDataInRows(curr.data_in_rows)
             self._secondary_key = curr.secondary_key
+            self._override_headers = curr.output
+            self._file_selector_widget.updateText(curr.key)
             self.loadFile(curr.key)
 
     def validate(self) -> typing.Dict[QtWidgets.QWidget | str, ItemValidity]:
@@ -115,10 +118,10 @@ class CreateFileDataSource(
         return []
 
     def fileSelected(self, path_data: helperData.PathWithHelperData) -> None:
+        self._settings_widget.reset()
         self.loadFile(path_data.path)
 
     def loadFile(self, path_str: str) -> None:
-        self._settings_widget.reset()
         self._abs_path = pathlib.Path(path_str).resolve()
         if not self._abs_path.is_file():
             self._ui.file_status_label.setText(
@@ -154,10 +157,14 @@ class CreateFileDataSource(
         self.setExcelDataToModel()
 
     def setExcelSettings(self):
-        if self._settings_widget.getCustomHeaderSet():
+        if (
+            self._settings_widget.getCustomHeaderSet()
+            and self._ui.file_view.model() is not None
+        ):
             self._ui.file_view.model().addCustomHeader(
-                self._settings_widget.getDataInRows()
+                self._settings_widget.getDataInRows(), self._override_headers
             )
+            self._override_headers = []
 
         self._ui.file_view.horizontalHeader().setProperty(
             "highlightHeader", not self._settings_widget.getDataInRows()
@@ -236,6 +243,7 @@ class CreateFileDataSource(
 
     def setupCsv(self, data: typing.List[typing.List[str]]):
         self._standard_model.clear()
+        self._secondary_key = ""
         self._ui.file_view.setModel(self._standard_model)
         for row in data:
             self._ui.file_view.model().appendRow(

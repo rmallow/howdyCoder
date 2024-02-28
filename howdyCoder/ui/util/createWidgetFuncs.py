@@ -222,6 +222,19 @@ def _(data_struct: DataSourceSettings, parent: QtWidgets.QWidget) -> QtWidgets.Q
         layout.insertWidget(
             0, createValueLabel(data_struct.input_type, "Input Type", w)
         )
+    if data_struct.type_ == DataSourcesTypeEnum.FILE.display:
+        # reverse order
+        layout.insertWidget(
+            0, createValueLabel(data_struct.data_in_rows, "Data In Rows", w)
+        )
+        layout.insertWidget(
+            0, createValueLabel(data_struct.custom_headers, "Custom Headers", w)
+        )
+        if data_struct.secondary_key:
+            layout.insertWidget(
+                0, createValueLabel(data_struct.secondary_key, "Sheet Name", w)
+            )
+        layout.insertWidget(0, createValueLabel(data_struct.key, "File Path", w))
     return w
 
 
