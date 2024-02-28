@@ -156,6 +156,10 @@ class DataSourceSettings(ItemSettings, JSONWizard, metaclass=property_wizard):
     get_function: FunctionSettings | None = None
     input_type: str = ""
     key: str = ""
+    secondary_key: str = ""
+    # DS File Only
+    data_in_rows: bool = False
+    custom_headers: bool = False
 
     def isDataSource(self):
         return True

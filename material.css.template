@@ -1260,6 +1260,13 @@ QHeaderView::section:horizontal {
 
 }
 
+QHeaderView[highlightHeader=true]::section {
+  background-color: {{primaryColor|opacity(0.2)}};
+  selection-background-color: {{primaryColor|opacity(0.2)}};
+  color: {{secondaryTextColor}};
+  selection-color: {{secondaryTextColor}}; /* For Windows */
+}
+
 /*  ------------------------------------------------------------------------  */
 /*  QLCDNumber  */
 

@@ -114,6 +114,9 @@
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
+     <property name="class" stdset="0">
+      <string>big</string>
+     </property>
      <widget class="QWidget" name="scrollAreaWidgetContents">
       <property name="geometry">
        <rect>

@@ -289,6 +289,7 @@ class MainWindow(
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/crypto_trader.yml")
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/app2.yml")
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/global_script.yml")
+        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/file_algo_test.yml")
 
     def refresh(self):
         """Once we receive word back that the program that is trying to be started by the wizard, is in fact started, then we can hide it"""

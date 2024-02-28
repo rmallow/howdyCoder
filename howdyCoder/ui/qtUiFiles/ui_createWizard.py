@@ -133,6 +133,7 @@ class Ui_CreateWizard(object):
     def retranslateUi(self, CreateWizard):
         CreateWizard.setWindowTitle(QCoreApplication.translate("CreateWizard", u"createWizard", None))
         self.exitButton.setText(QCoreApplication.translate("CreateWizard", u"Exit Creator", None))
+        self.scrollArea.setProperty("class", QCoreApplication.translate("CreateWizard", u"big", None))
         self.backButton.setText(QCoreApplication.translate("CreateWizard", u"Back", None))
         self.nextButton.setText(QCoreApplication.translate("CreateWizard", u"Next", None))
     # retranslateUi

@@ -15,8 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHeaderView, QLabel, QSizePolicy,
-    QTableView, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QLabel,
+    QSizePolicy, QVBoxLayout, QWidget)
+
+from ..fileTableView import FileTableView
 
 class Ui_CreateFileDataSource(object):
     def setupUi(self, CreateFileDataSource):
@@ -41,6 +43,11 @@ class Ui_CreateFileDataSource(object):
 
         self.file_status_label = QLabel(CreateFileDataSource)
         self.file_status_label.setObjectName(u"file_status_label")
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.file_status_label.sizePolicy().hasHeightForWidth())
+        self.file_status_label.setSizePolicy(sizePolicy)
         font1 = QFont()
         font1.setPointSize(24)
         self.file_status_label.setFont(font1)
@@ -54,11 +61,20 @@ class Ui_CreateFileDataSource(object):
 
         self.verticalLayout.addWidget(self.output_label)
 
-        self.file_view = QTableView(CreateFileDataSource)
+        self.file_view_box = QWidget(CreateFileDataSource)
+        self.file_view_box.setObjectName(u"file_view_box")
+        self.horizontalLayout = QHBoxLayout(self.file_view_box)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.file_view = FileTableView(self.file_view_box)
         self.file_view.setObjectName(u"file_view")
-        self.file_view.verticalHeader().setHighlightSections(False)
+        self.file_view.horizontalHeader().setVisible(True)
+        self.file_view.verticalHeader().setVisible(True)
+        self.file_view.verticalHeader().setHighlightSections(True)
 
-        self.verticalLayout.addWidget(self.file_view)
+        self.horizontalLayout.addWidget(self.file_view)
+
+
+        self.verticalLayout.addWidget(self.file_view_box)
 
 
         self.retranslateUi(CreateFileDataSource)
@@ -70,6 +86,6 @@ class Ui_CreateFileDataSource(object):
         CreateFileDataSource.setWindowTitle(QCoreApplication.translate("CreateFileDataSource", u"CreateFileDataSource", None))
         self.top_label.setText(QCoreApplication.translate("CreateFileDataSource", u"Select File", None))
         self.file_status_label.setText("")
-        self.output_label.setText(QCoreApplication.translate("CreateFileDataSource", u"Select Output", None))
+        self.output_label.setText(QCoreApplication.translate("CreateFileDataSource", u"View Data", None))
     # retranslateUi
 

@@ -1,6 +1,6 @@
 multiprocess==0.70.15
 aenum==3.1.15
-pandas==2.0.3
+pandas==2.2.1
 PyYAML==6.0.1
 PySide6-Essentials==6.5.2
 matplotlib==3.7.2
@@ -11,3 +11,4 @@ qt-material==2.14
 PyAutoGUI==0.9.54
 soundfile==0.12.1
 sounddevice==0.4.6
+python-calamine==0.1.7

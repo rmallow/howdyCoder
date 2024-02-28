@@ -44,18 +44,18 @@ class HorizontalExpander(QtWidgets.QWidget):
         self.mainLayout.addWidget(self.contentArea)
         self.setLayout(self.mainLayout)
 
-        def start_animation(checked):
-            arrow_type = QtCore.Qt.DownArrow if checked else QtCore.Qt.RightArrow
-            direction = (
-                QtCore.QAbstractAnimation.Forward
-                if checked
-                else QtCore.QAbstractAnimation.Backward
-            )
-            self.toggleButton.setArrowType(arrow_type)
-            self.toggleAnimation.setDirection(direction)
-            self.toggleAnimation.start()
+        self.toggleButton.clicked.connect(self.startAnimation)
 
-        self.toggleButton.clicked.connect(start_animation)
+    def startAnimation(self, checked):
+        arrow_type = QtCore.Qt.DownArrow if checked else QtCore.Qt.RightArrow
+        direction = (
+            QtCore.QAbstractAnimation.Forward
+            if checked
+            else QtCore.QAbstractAnimation.Backward
+        )
+        self.toggleButton.setArrowType(arrow_type)
+        self.toggleAnimation.setDirection(direction)
+        self.toggleAnimation.start()
 
     def setContentLayout(self, contentLayout):
         self.contentArea.destroy()
