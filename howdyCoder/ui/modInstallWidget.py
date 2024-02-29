@@ -34,7 +34,7 @@ class ModInstallWidget(StartWizardBasePage):
         self._table_model.removeRows(0, self._table_model.rowCount())
         self._all_installed = True
 
-    def updateTable(self, modules):
+    def updateValues(self, modules):
         self.reset()
         # do first loop so all of the uninstalled modules are grouped
         for status_type in [False, True]:

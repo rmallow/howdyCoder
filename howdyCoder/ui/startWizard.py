@@ -9,7 +9,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class StartWizard(QtWidgets.QDialog):
-    STATUS_TEXTS = ["Parameter Check", "Module Check"]
+    STATUS_TEXTS = ["Parameter Check", "File Check", "Module Check"]
 
     finishedWizard = QtCore.Signal()
 
@@ -32,6 +32,7 @@ class StartWizard(QtWidgets.QDialog):
 
         self._page_order: typing.List[StartWizardBasePage] = [
             self.ui.parameter_check_widget,
+            self.ui.file_check_widget,
             self.ui.module_install_widget,
         ]
         assert len(self.STATUS_TEXTS) == len(

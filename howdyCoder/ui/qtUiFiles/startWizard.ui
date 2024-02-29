@@ -25,6 +25,11 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>15</pointsize>
+         </font>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -37,6 +42,9 @@
         <property name="midLineWidth">
          <number>0</number>
         </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
         <property name="wordWrap">
          <bool>true</bool>
         </property>
@@ -45,9 +53,10 @@
       <item>
        <widget class="QStackedWidget" name="stacked_widget">
         <property name="currentIndex">
-         <number>2</number>
+         <number>1</number>
         </property>
         <widget class="ModInstallWidget" name="module_install_widget"/>
+        <widget class="FileCheckWidget" name="file_check_widget"/>
         <widget class="ParameterCheckWidget" name="parameter_check_widget"/>
         <widget class="QWidget" name="launch_widget">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -118,6 +127,12 @@
    <class>ParameterCheckWidget</class>
    <extends>QWidget</extends>
    <header>..parameterCheckWidget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FileCheckWidget</class>
+   <extends>QWidget</extends>
+   <header>..fileCheckWidget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

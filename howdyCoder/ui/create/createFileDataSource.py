@@ -100,6 +100,7 @@ class CreateFileDataSource(
         self._lol_model.clear()
         self._settings_widget.reset()
         self._file_selector_widget.reset()
+        self._ui.file_status_label.setText("")
 
     def save(self) -> None:
         curr: DataSourceSettings = self.parent_page.getConfig()
@@ -118,6 +119,7 @@ class CreateFileDataSource(
 
     def loadFile(self, path_str: str) -> None:
         self._abs_path = pathlib.Path(path_str).resolve()
+        self._ui.file_status_label.setText("")
         if not self._abs_path.is_file():
             self._ui.file_status_label.setText(
                 f"File at path: {str(self._abs_path)} could not be found."

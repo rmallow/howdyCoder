@@ -12,9 +12,7 @@ from .util import abstractQt
 # import name page for find children to connect signal
 from .create.createNamePage import CreateNamePage
 
-from ..core.dataStructs import Modes, ProgramSettings, Parameter
-from ..core.commonGlobals import EditorType, ProgramTypes
-from ..commonUtil import configLoader
+from ..core.dataStructs import Modes, ProgramSettings
 
 import copy
 import typing
@@ -134,11 +132,19 @@ class MainWindow(
         )
 
         self._start_wizard = StartWizard(self)
-        self._main_model.moduleStatusChangedSignal.connect(self.moduleStatusChanged)
         self._start_wizard.ui.module_install_widget.installPackagesSignal.connect(
             self._main_model.sendInstallPackagesCommand
         )
         self._start_wizard.finishedWizard.connect(self.startWizardFinished)
+        self._main_model.startWizardModuleCheck.connect(
+            self._start_wizard.ui.module_install_widget.updateValues
+        )
+        self._main_model.startWizardGlobalCheck.connect(
+            self._start_wizard.ui.parameter_check_widget.updateValues
+        )
+        self._main_model.startWizardFileCheck.connect(
+            self._start_wizard.ui.file_check_widget.updateValues
+        )
 
         self.creator_type_window = None
 
@@ -180,8 +186,7 @@ class MainWindow(
                 self.openStartWizard(code)
 
     def openStartWizard(self, code: str):
-        self.checkModules(code)
-        self.checkGlobalParameters(code)
+        self._main_model.startWizardChecks(code)
         self._start_wizard.startWizard(code)
 
     @QtCore.Slot()
@@ -193,50 +198,9 @@ class MainWindow(
         if file_path := QtWidgets.QFileDialog.getSaveFileName(filter="CSV (*.csv)")[0]:
             self._main_model.exportData(code, file_path)
 
-    def checkModules(self, code=None):
-        modules = self._main_model.getModules(code)
-        self._start_wizard.ui.module_install_widget.updateTable(modules)
-
-    def checkGlobalParameters(self, code: str) -> None:
-        config = self._main_model.program_dict.getData(code).config
-        item_globals: typing.Dict[str, Parameter] = {}
-        all_items = []
-        if config.type_ == ProgramTypes.SCRIPT:
-            all_items = [config.settings.action]
-        else:
-            all_items = list(config.settings.action_list.values()) + list(
-                config.settings.data_sources.values()
-            )
-
-        def match(c, k, v):
-            return k == "type_" and (
-                v == EditorType.GLOBAL_PARAMETER.display or v == EditorType.KEY.display
-            )
-
-        for item in all_items:
-            global_params = []
-            configLoader.dfsConfigDict(
-                asdict(item),
-                match,
-                lambda c, _2, v: (global_params.append(fromdict(Parameter, c))),
-            )
-            if global_params:
-                item_globals[item.name] = global_params
-        self._start_wizard.ui.parameter_check_widget.updateValues(item_globals)
-
     @QtCore.Slot()
     def startWizardFinished(self):
         self._main_model.sendCmdStart(self._start_wizard.current_code)
-
-    @QtCore.Slot()
-    def moduleStatusChanged(self):
-        """If the module status has changed and the window is visible, it's because we tried an install"""
-        if not self._start_wizard.isHidden():
-            self._start_wizard.ui.module_install_widget.updateTable(
-                self._main_model.getModules(
-                    self._start_wizard.ui.module_install_widget.current_code
-                ),
-            )
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         button_response = QtWidgets.QMessageBox.question(

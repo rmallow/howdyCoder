@@ -10,3 +10,8 @@ class StartWizardBasePage(QtWidgets.QWidget):
 
     def startPage(self):
         pass
+
+    @QtCore.Slot()
+    def updateValues(self, *args, **kwargs):
+        """Pages will use this for interfacing with the main model, which will process the info for them"""
+        pass

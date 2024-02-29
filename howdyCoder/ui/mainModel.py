@@ -1,8 +1,20 @@
-from ..core.dataStructs import ProgramStatusData, SourceData, ProgramSettings, Modes
+from ..core.dataStructs import (
+    ProgramStatusData,
+    SourceData,
+    ProgramSettings,
+    Modes,
+    Parameter,
+)
 from .uiConstants import LOOP_INTERVAL_MSECS
 from .programData import ProgramDict
 
-from ..core.commonGlobals import RECEIVE_TIME, MAINFRAME, ProgramTypes, EditorType
+from ..core.commonGlobals import (
+    RECEIVE_TIME,
+    MAINFRAME,
+    ProgramTypes,
+    EditorType,
+    DataSourcesTypeEnum,
+)
 from ..commonUtil import queueManager as qm
 from ..commonUtil.helpers import getStrTime, getDupeName
 from ..commonUtil import mpLogging, configLoader, keyringUtil
@@ -17,6 +29,8 @@ from dataclass_wizard import asdict, fromdict
 from collections import deque, Counter, defaultdict
 import time
 import typing
+from pathlib import Path
+from itertools import chain
 
 from PySide6 import QtCore
 
@@ -32,7 +46,9 @@ class mainModel(commandProcessor, QtCore.QObject):
     updateStatusSignal = QtCore.Signal(msg.message)
     updateColumnsSignal = QtCore.Signal(msg.message)
     updateSTDSignal = QtCore.Signal(msg.message)
-    moduleStatusChangedSignal = QtCore.Signal()
+    startWizardModuleCheck = QtCore.Signal(object)
+    startWizardGlobalCheck = QtCore.Signal(object)
+    startWizardFileCheck = QtCore.Signal(object)
 
     def __init__(self, isLocal: bool, parent=None):
         super().__init__(parent)
@@ -43,6 +59,8 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.program_dict = ProgramDict()
         self.program_being_edited = None
         self._config_loader = configLoader.ConfigLoader()
+
+        self._is_local = isLocal
 
         # Connect to clientServerManager
         self.client_server_manager = qm.createQueueManager(isLocal)
@@ -256,7 +274,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         """Mainframes wants us to know what modules have been found/not found"""
         self.trackMessage(details)
         self._module_status[details.details[0]] = details.details[1]
-        self.moduleStatusChangedSignal.emit()
+        self.startWizardModuleCheck.emit(details.details[1][:])
 
     def getModules(self, code=None):
         module_status = []
@@ -326,3 +344,84 @@ class mainModel(commandProcessor, QtCore.QObject):
         """
         self.trackMessage(details)
         self.updateSTDSignal.emit(details)
+
+    def startWizardChecks(self, code: str) -> None:
+        self.checkGlobalParameters(code)
+        self.checkFiles(code)
+        self.checkModules(code)
+
+    def checkModules(self, code=None):
+        modules = self.getModules(code)
+        self.startWizardModuleCheck.emit(modules)
+
+    def checkGlobalParameters(self, code: str) -> None:
+        config = self.program_dict.getData(code).config
+        item_globals: typing.Dict[str, typing.List[Parameter]] = {}
+        all_items = []
+        if config.type_ == ProgramTypes.SCRIPT:
+            all_items = [config.settings.action]
+        else:
+            all_items = chain(
+                config.settings.action_list.values(),
+                config.settings.data_sources.values(),
+            )
+
+        def match(c, k, v):
+            return k == "type_" and (
+                v == EditorType.GLOBAL_PARAMETER.display or v == EditorType.KEY.display
+            )
+
+        for item in all_items:
+            global_params = []
+            configLoader.dfsConfigDict(
+                asdict(item),
+                match,
+                lambda c, _2, v: (global_params.append(fromdict(Parameter, c))),
+            )
+            if global_params:
+                item_globals[item.name] = global_params
+        self.startWizardGlobalCheck.emit(item_globals)
+
+    def checkFiles(self, code):
+        """Get list of files, send list of files that exist and then load the files that needed to be loaded
+        TODO: combine config parsing, this function and global check do very similar actions, can be combined
+        """
+        config = self.program_dict.getData(code).config
+        item_files: typing.Dict[str, typing.List[Parameter]] = {}
+        all_items = []
+        if config.type_ == ProgramTypes.SCRIPT:
+            all_items = [config.settings.action]
+        else:
+            all_items = chain(
+                config.settings.action_list.values(),
+                config.settings.data_sources.values(),
+            )
+
+        def match(c, k, v):
+            return k == "type_" and (
+                v == EditorType.FILE.display or v == EditorType.FOLDER.display
+            )
+
+        for item in all_items:
+            if item.isDataSource() and item.type_ == DataSourcesTypeEnum.FILE.display:
+                # we're storing it as a parameter as all other files are like this
+                item_files[item.name] = [Parameter(name="Data Source", value=item.key)]
+            else:
+                files = []
+                configLoader.dfsConfigDict(
+                    asdict(item),
+                    match,
+                    lambda c, _2, v: (files.append(fromdict(Parameter, c))),
+                )
+                if files:
+                    item_files[item.name] = files
+
+        file_exists: typing.Dict[str, typing.List[typing.Tuple[str, str, bool]]] = {}
+        for item_name, file_param_list in item_files.items():
+            file_exists[item_name] = []
+            for file_param in file_param_list:
+                p = Path(file_param.value)
+                file_exists[item_name].append(
+                    (file_param.name, file_param.value, p.exists())
+                )
+        self.startWizardFileCheck.emit(file_exists)

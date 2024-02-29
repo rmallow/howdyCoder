@@ -15,10 +15,12 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
-    QSpacerItem, QStackedWidget, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QHBoxLayout,
+    QLabel, QListWidget, QListWidgetItem, QPushButton,
+    QSizePolicy, QSpacerItem, QStackedWidget, QVBoxLayout,
+    QWidget)
 
+from ..fileCheckWidget import FileCheckWidget
 from ..modInstallWidget import ModInstallWidget
 from ..parameterCheckWidget import ParameterCheckWidget
 
@@ -36,10 +38,14 @@ class Ui_StartWizard(object):
         self.page_status_list_widget = QListWidget(self.widget)
         self.page_status_list_widget.setObjectName(u"page_status_list_widget")
         self.page_status_list_widget.setMaximumSize(QSize(150, 16777215))
+        font = QFont()
+        font.setPointSize(15)
+        self.page_status_list_widget.setFont(font)
         self.page_status_list_widget.setFrameShape(QFrame.NoFrame)
         self.page_status_list_widget.setFrameShadow(QFrame.Plain)
         self.page_status_list_widget.setLineWidth(0)
         self.page_status_list_widget.setMidLineWidth(0)
+        self.page_status_list_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.page_status_list_widget.setWordWrap(True)
 
         self.horizontalLayout_2.addWidget(self.page_status_list_widget)
@@ -49,6 +55,9 @@ class Ui_StartWizard(object):
         self.module_install_widget = ModInstallWidget()
         self.module_install_widget.setObjectName(u"module_install_widget")
         self.stacked_widget.addWidget(self.module_install_widget)
+        self.file_check_widget = FileCheckWidget()
+        self.file_check_widget.setObjectName(u"file_check_widget")
+        self.stacked_widget.addWidget(self.file_check_widget)
         self.parameter_check_widget = ParameterCheckWidget()
         self.parameter_check_widget.setObjectName(u"parameter_check_widget")
         self.stacked_widget.addWidget(self.parameter_check_widget)
@@ -58,9 +67,9 @@ class Ui_StartWizard(object):
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.launch_label = QLabel(self.launch_widget)
         self.launch_label.setObjectName(u"launch_label")
-        font = QFont()
-        font.setPointSize(40)
-        self.launch_label.setFont(font)
+        font1 = QFont()
+        font1.setPointSize(40)
+        self.launch_label.setFont(font1)
         self.launch_label.setAlignment(Qt.AlignCenter)
 
         self.horizontalLayout_3.addWidget(self.launch_label)
@@ -92,7 +101,7 @@ class Ui_StartWizard(object):
 
         self.retranslateUi(StartWizard)
 
-        self.stacked_widget.setCurrentIndex(2)
+        self.stacked_widget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(StartWizard)
