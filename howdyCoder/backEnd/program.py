@@ -68,7 +68,6 @@ class Program(commandProcessor, ABC):
                 message: msg.message = self._program_queue.get()
                 if message and isinstance(message, msg.message):
                     if message.isMessageList():
-                        print(f"Received message list {time.time()}")
                         for m in message.content:
                             self.processMessage(m)
                     else:

@@ -33,9 +33,6 @@ from .backEnd.util.commandProcessor import commandProcessor
 # Multi/Asyncio/Threading includes
 import multiprocessing as mp
 
-# multiprocess is Dill version of multiprocessing
-import multiprocess as dill_mp
-
 import threading
 
 # python lib includes
@@ -85,9 +82,6 @@ class mainframe(commandProcessor):
         # Set up multiprocessing items
         self.process_dict = {}
         self.statusDict = {}
-
-        # This manager is for providing dill queues for the program processes
-        self.dill_program_manager = dill_mp.Manager()
 
         # Set up port and auth for managers
         port = None
@@ -202,7 +196,6 @@ class mainframe(commandProcessor):
             message = self.mainframe_queue.get()
             if isinstance(message, msg.message):
                 if message.isMessageList():
-                    print(f"Got message list: {time.time()}")
                     self._batch_process_messages = True
                     self._message_list_batch.clear()
                     for m in message.content:
@@ -449,9 +442,9 @@ class mainframe(commandProcessor):
     def startProgramProcess(self, code: str):
         settings = self.getGlobalSubstitutedSettings(code)
         processName = f"{settings.type_}-" + str(code)
-        program_queue = self.dill_program_manager.Queue()
+        program_queue = mp.Queue()
         self._all_program_queues[code] = program_queue
-        program_process = dill_mp.Process(
+        program_process = mp.Process(
             target=mpLogging.loggedProcess,
             args=(
                 self.isLocal,

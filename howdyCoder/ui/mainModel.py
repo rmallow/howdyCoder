@@ -453,14 +453,13 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.launchSequenceResponse.emit(file_exists)
 
     def loadFiles(self):
-        print(f"Load files started {time.time()}")
         files_to_load = []
         config = self.program_dict.getData(self._start_wizard_code).config
         if config.type_ == ProgramTypes.ALGO:
             for ds in config.settings.data_sources.values():
                 if ds.type_ == DataSourcesTypeEnum.FILE.display:
                     files_to_load.append(ds.key)
-        # If there are no files to load then just proceed normally, otherwise start a thread to load filesx
+        # If there are no files to load then just proceed normally, otherwise start a thread to load files
         if files_to_load:
             runnable = genericWorker.GenericRunnable(
                 self._current_wizard_attempt,
@@ -506,7 +505,6 @@ class mainModel(commandProcessor, QtCore.QObject):
             for data_source_name, data_source_data in self._loaded_file_data[
                 code
             ].items():
-                print(f"Pre Convert List {time.time()}")
                 message_list.append(
                     msg.message(
                         msg.MessageType.COMMAND,
@@ -514,7 +512,7 @@ class mainModel(commandProcessor, QtCore.QObject):
                         {
                             "code": code,
                             "data_source_name": data_source_name,
-                            "data_source_data": data_source_data,
+                            "val": data_source_data,
                         },
                         # details=asdict(
                         #    SourceData(code, data_source_name, data_source_data)
@@ -522,11 +520,9 @@ class mainModel(commandProcessor, QtCore.QObject):
                         key=msg.messageKey(code, None),
                     )
                 )
-            print(f"Post convert {time.time()}")
             self.messageMainframe(
                 msg.message(
                     msg.MessageType.MESSAGE_LIST,
                     message_list,
                 )
             )
-            print(f"Sent list {time.time()}")
