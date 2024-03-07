@@ -70,3 +70,11 @@ PROGRESS_BAR_COMPLETED_COLOR_STR = "#00ff00"
 PROGRESS_BAR_COMPLETED_COLOR = QColorConstants.Green
 PROGRESS_BAR_FAILED_COLOR_STR = "#ff0000"
 PROGRESS_BAR_FAILED_COLOR = QColorConstants.Red
+
+
+class LaunchSequenceSteps(Enum):
+    CHECK_GLOBALS = 0
+    CHECK_FILES = auto()
+    CHECK_MODULES = auto()
+    LOAD_FILES = auto()
+    LAUNCH = auto()

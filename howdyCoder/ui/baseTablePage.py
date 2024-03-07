@@ -29,12 +29,6 @@ class BaseTablePage(StartWizardBasePage):
         return super().resizeEvent(event)
 
     def reset(self):
-        self._no_values = True
+        self._no_values = False
         self._missing_values = False
         self._table_model.removeRows(0, self._ui.table.model().rowCount())
-
-    def startPage(self):
-        if self._no_values:
-            self.pageFinished.emit()
-        elif self._missing_values:
-            self.setOk.emit(False)

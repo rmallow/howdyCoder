@@ -51,6 +51,7 @@ class Ui_CreateFileDataSource(object):
         font1 = QFont()
         font1.setPointSize(24)
         self.file_status_label.setFont(font1)
+        self.file_status_label.setStyleSheet(u"color: red;")
 
         self.verticalLayout.addWidget(self.file_status_label)
 

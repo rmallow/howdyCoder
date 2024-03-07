@@ -21,9 +21,6 @@ import pathlib
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
-CSV_EXT = ".csv"
-EXCEL_EXT_LIST = [".xlsx", ".xlsm", ".xls", ".xlsb", ".ods"]
-
 
 class CreateFileDataSource(
     AbstractTutorialClass,
@@ -120,27 +117,33 @@ class CreateFileDataSource(
     def loadFile(self, path_str: str) -> None:
         self._abs_path = pathlib.Path(path_str).resolve()
         self._ui.file_status_label.setText("")
+        self._file_data = None
         if not self._abs_path.is_file():
             self._ui.file_status_label.setText(
                 f"File at path: {str(self._abs_path)} could not be found."
             )
         else:
-            if not any(self._abs_path.suffix == file_type for file_type in LOADERS):
+            if not fileLoaders.canLoadFile(self._abs_path):
                 self._ui.file_status_label.setText(
                     f"Loading file of type: {self._abs_path.suffix} not currently supported"
                 )
             else:
                 self._current_file_type = self._abs_path.suffix
+                data = None
                 try:
-                    open_format = "r" + (
-                        "b" if self._current_file_type in EXCEL_EXT_LIST else ""
+                    data = fileLoaders.loadFile(
+                        self._abs_path, pass_through_exception=True
                     )
-                    with self._abs_path.open(open_format) as file:
-                        self._file_data = LOADERS[self._abs_path.suffix](file)
-                        OUTPUT_SETUP[self._abs_path.suffix](self, self._file_data)
                 except IOError as e:
                     self._ui.file_status_label.setText(
                         f"Could not open the file at path: {str(self._abs_path)} because {e.strerror}"
+                    )
+                if data is not None:
+                    self._file_data = data
+                    OUTPUT_SETUP[self._abs_path.suffix](self, self._file_data)
+                else:
+                    self._ui.file_status_label.setText(
+                        f"Error while attempting to load the file at path: {str(self._abs_path)}"
                     )
 
     def headerSettingsChanged(self):
@@ -260,9 +263,6 @@ class CreateFileDataSource(
         self.setExcelDataToModel()
 
 
-OUTPUT_SETUP = {k: CreateFileDataSource.setupExcel for k in EXCEL_EXT_LIST} | {
-    CSV_EXT: CreateFileDataSource.setupCsv
-}
-LOADERS = {CSV_EXT: fileLoaders.loadCSV} | {
-    k: fileLoaders.loadExcel for k in EXCEL_EXT_LIST
-}
+OUTPUT_SETUP = {
+    k: CreateFileDataSource.setupExcel for k in fileLoaders.EXCEL_EXT_LIST
+} | {fileLoaders.CSV_EXT: CreateFileDataSource.setupCsv}

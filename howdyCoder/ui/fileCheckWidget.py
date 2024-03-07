@@ -54,3 +54,4 @@ class FileCheckWidget(BaseTablePage):
                 self._table_model.appendRow(
                     [item_name, file_name, file_path, file_exists_item]
                 )
+        self.checkPage(self._no_values, self._missing_values)

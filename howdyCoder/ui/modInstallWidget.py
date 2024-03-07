@@ -33,6 +33,7 @@ class ModInstallWidget(StartWizardBasePage):
         self._ui.install_label.setText("")
         self._table_model.removeRows(0, self._table_model.rowCount())
         self._all_installed = True
+        self._first_time = True
 
     def updateValues(self, modules):
         self.reset()
@@ -59,6 +60,10 @@ class ModInstallWidget(StartWizardBasePage):
         self._ui.install_label.setText(
             ALL_INSTALLED if self._all_installed else MISSING_MODULES
         )
+        if self._first_time:
+            # if it's the first time updating this page and all is installed then just skip
+            self.checkPage(self._all_installed, False)
+            self._first_time = False
 
     def installPressed(self):
         self._ui.tableView.setCurrentIndex(self._table_model.index(0, 0))
@@ -74,9 +79,3 @@ class ModInstallWidget(StartWizardBasePage):
                     self._table_model.item(row, 2).data(QtCore.Qt.DisplayRole)
                 )
         self.installPackagesSignal.emit(packages)
-
-    def startPage(self):
-        if self._all_installed:
-            self.pageFinished.emit()
-        else:
-            self.setOk.emit(False)

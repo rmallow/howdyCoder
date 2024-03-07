@@ -75,6 +75,18 @@ class Ui_StartWizard(object):
         self.horizontalLayout_3.addWidget(self.launch_label)
 
         self.stacked_widget.addWidget(self.launch_widget)
+        self.load_file_widget = QWidget()
+        self.load_file_widget.setObjectName(u"load_file_widget")
+        self.horizontalLayout_4 = QHBoxLayout(self.load_file_widget)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.load_file_label = QLabel(self.load_file_widget)
+        self.load_file_label.setObjectName(u"load_file_label")
+        self.load_file_label.setFont(font1)
+        self.load_file_label.setAlignment(Qt.AlignCenter)
+
+        self.horizontalLayout_4.addWidget(self.load_file_label)
+
+        self.stacked_widget.addWidget(self.load_file_widget)
 
         self.horizontalLayout_2.addWidget(self.stacked_widget)
 
@@ -101,7 +113,7 @@ class Ui_StartWizard(object):
 
         self.retranslateUi(StartWizard)
 
-        self.stacked_widget.setCurrentIndex(1)
+        self.stacked_widget.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(StartWizard)
@@ -110,6 +122,7 @@ class Ui_StartWizard(object):
     def retranslateUi(self, StartWizard):
         StartWizard.setWindowTitle(QCoreApplication.translate("StartWizard", u"Start Wizard", None))
         self.launch_label.setText(QCoreApplication.translate("StartWizard", u"<html><head/><body><p>All checks passed.</p><p>Launching Program...</p></body></html>", None))
+        self.load_file_label.setText(QCoreApplication.translate("StartWizard", u"Loading Files...", None))
         self.ok_button.setText(QCoreApplication.translate("StartWizard", u"Override", None))
     # retranslateUi
 

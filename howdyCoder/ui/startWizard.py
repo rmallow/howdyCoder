@@ -3,15 +3,38 @@ from .startWizardBasePage import StartWizardBasePage
 
 from .util import qtResourceManager, nonNativeQMessageBox
 
+from .uiConstants import LaunchSequenceSteps
+
 import typing
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class StartWizard(QtWidgets.QDialog):
-    STATUS_TEXTS = ["Parameter Check", "File Check", "Module Check"]
 
-    finishedWizard = QtCore.Signal()
+    LOAD_FILE_LABEL = (
+        ("<html><head/><body><p>All checks passed.</p><p><span>" + "\U0001F4C2")
+        + " </span>Loading Files...<span>"
+        + "\U0001F4C4"
+        + " </span></p></body></html>"
+    )
+
+    LAUNCH_SEQUENCE_LABEL = (
+        ("<html><head/><body><p>All checks passed.</p><p><span>" + "\U0001F680")
+        + " </span>Launching Program...   <span>"
+        + "\U0001F680"
+        + " </span></p></body></html>"
+    )
+
+    STATUS_TEXTS = [
+        "Parameter Check",
+        "File Check",
+        "Module Check",
+        "Loading Files",
+        "LAUNCH SEQUENCE INITIATED",
+    ]
+
+    setLaunchStep = QtCore.Signal(LaunchSequenceSteps)
 
     OK_TEXT = "Ok"
     OVERRIDE_TEXT = "Override"
@@ -21,26 +44,22 @@ class StartWizard(QtWidgets.QDialog):
         self.setModal(True)
         self.ui = ui_startWizard.Ui_StartWizard()
         self.ui.setupUi(self)
-        self.ui.launch_label.setText(
-            "<html><head/><body><p>All checks passed.</p><p><span>"
-            + "\U0001F680"
-            + " </span>Launching Program...   <span>"
-            + "\U0001F680"
-            + " </span></p></body></html>",
-        )
+        self.ui.launch_label.setText(self.LAUNCH_SEQUENCE_LABEL)
+        self.ui.load_file_label.setText(self.LOAD_FILE_LABEL)
         self.ui.ok_button.setText(self.OK_TEXT)
 
         self._page_order: typing.List[StartWizardBasePage] = [
             self.ui.parameter_check_widget,
             self.ui.file_check_widget,
             self.ui.module_install_widget,
+            self.ui.load_file_widget,
+            self.ui.launch_widget,
         ]
-        assert len(self.STATUS_TEXTS) == len(
-            self._page_order
-        ), "Must have status for each page"
+
         for p in self._page_order:
-            p.setOk.connect(self.setOk)
-            p.pageFinished.connect(self.okPressed)
+            if isinstance(p, StartWizardBasePage):
+                p.setOk.connect(self.setOk)
+                p.pageFinished.connect(self.okPressed)
         self._page_index = 0
 
         self.current_code = ""
@@ -48,11 +67,24 @@ class StartWizard(QtWidgets.QDialog):
         self.ui.page_status_list_widget.setStyleSheet("background-color: #3b4045")
         self.hide()
 
+        """Sanity tests"""
+        assert len(self.STATUS_TEXTS) == len(
+            self._page_order
+        ), "Must have status for each page"
+        assert len(LaunchSequenceSteps) == len(
+            self._page_order
+        ), "Must have page for each launch step"
+
     @QtCore.Slot()
     def setOk(self, ok_button_value):
         self.ui.ok_button.setText(
             self.OK_TEXT if ok_button_value else self.OVERRIDE_TEXT
         )
+
+    def nextPage(self):
+        if self._page_index < len(self._page_order):
+            self._page_index += 1
+            self.startCurrentPage()
 
     def okPressed(self):
         if self._page_index < len(self._page_order):
@@ -84,24 +116,7 @@ class StartWizard(QtWidgets.QDialog):
                     )
                 else:
                     return
-            self._page_index += 1
-            if self._page_index == len(self._page_order):
-                self.ui.ok_button.hide()
-                self.ui.page_status_list_widget.addItem(
-                    QtWidgets.QListWidgetItem(
-                        QtGui.QIcon(
-                            self.style().standardPixmap(
-                                QtWidgets.QStyle.StandardPixmap.SP_ToolBarHorizontalExtensionButton
-                            )
-                        ),
-                        "LAUNCH SEQUENCE INITIATED",
-                        listview=self.ui.page_status_list_widget,
-                    )
-                )
-                self.ui.stacked_widget.setCurrentWidget(self.ui.launch_widget)
-                self.finishedWizard.emit()
-            else:
-                self.startCurrentPage()
+            self.nextPage()
 
     def startWizard(self, code: str):
         self.current_code = code
@@ -113,6 +128,9 @@ class StartWizard(QtWidgets.QDialog):
 
     def startCurrentPage(self):
         self.ui.ok_button.setText(self.OK_TEXT)
+        self.ui.ok_button.setEnabled(False)
+        if self._page_index >= LaunchSequenceSteps.LOAD_FILES.value:
+            self.ui.ok_button.hide()
         self.ui.page_status_list_widget.addItem(
             QtWidgets.QListWidgetItem(
                 QtGui.QIcon(
@@ -125,4 +143,19 @@ class StartWizard(QtWidgets.QDialog):
             )
         )
         self.ui.stacked_widget.setCurrentWidget(self._page_order[self._page_index])
-        self.ui.stacked_widget.currentWidget().startPage()
+        try:
+            self.ui.stacked_widget.currentWidget().startPage()
+        except AttributeError:
+            pass
+        self.setLaunchStep.emit(LaunchSequenceSteps(self._page_index))
+
+    @QtCore.Slot()
+    def receiveLaunchSequenceResponse(self, response_value: typing.Any) -> None:
+        self.ui.ok_button.setEnabled(True)
+        if self._page_index >= LaunchSequenceSteps.LOAD_FILES.value:
+            self.nextPage()
+        else:
+            try:
+                self.ui.stacked_widget.currentWidget().updateValues(response_value)
+            except AttributeError:
+                pass

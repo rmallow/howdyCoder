@@ -11,6 +11,12 @@ class StartWizardBasePage(QtWidgets.QWidget):
     def startPage(self):
         pass
 
+    def checkPage(self, skip_page, set_override):
+        if skip_page:
+            self.pageFinished.emit()
+        elif set_override:
+            self.setOk.emit(False)
+
     @QtCore.Slot()
     def updateValues(self, *args, **kwargs):
         """Pages will use this for interfacing with the main model, which will process the info for them"""

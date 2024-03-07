@@ -5,8 +5,9 @@ from ..core.dataStructs import (
     Modes,
     Parameter,
 )
-from .uiConstants import LOOP_INTERVAL_MSECS
+from .uiConstants import LOOP_INTERVAL_MSECS, LaunchSequenceSteps
 from .programData import ProgramDict
+from .util import genericWorker
 
 from ..core.commonGlobals import (
     RECEIVE_TIME,
@@ -17,7 +18,7 @@ from ..core.commonGlobals import (
 )
 from ..commonUtil import queueManager as qm
 from ..commonUtil.helpers import getStrTime, getDupeName
-from ..commonUtil import mpLogging, configLoader, keyringUtil
+from ..commonUtil import mpLogging, configLoader, keyringUtil, fileLoaders
 
 from ..core import message as msg
 from ..core import messageKey
@@ -46,9 +47,7 @@ class mainModel(commandProcessor, QtCore.QObject):
     updateStatusSignal = QtCore.Signal(msg.message)
     updateColumnsSignal = QtCore.Signal(msg.message)
     updateSTDSignal = QtCore.Signal(msg.message)
-    startWizardModuleCheck = QtCore.Signal(object)
-    startWizardGlobalCheck = QtCore.Signal(object)
-    startWizardFileCheck = QtCore.Signal(object)
+    launchSequenceResponse = QtCore.Signal(object)
 
     def __init__(self, isLocal: bool, parent=None):
         super().__init__(parent)
@@ -99,6 +98,11 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.checkQueue)
         self.timer.start(LOOP_INTERVAL_MSECS)
+
+        self._start_wizard_code: str = None
+        self._current_wizard_attempt = 1
+        """Loaded file will be stored by code, then by DS name"""
+        self._loaded_file_data: typing.Dict[str, typing.Dict[str, typing.Any]] = {}
 
     @QtCore.Slot()
     def messageMainframe(self, message):
@@ -274,7 +278,11 @@ class mainModel(commandProcessor, QtCore.QObject):
         """Mainframes wants us to know what modules have been found/not found"""
         self.trackMessage(details)
         self._module_status[details.details[0]] = details.details[1]
-        self.startWizardModuleCheck.emit(details.details[1][:])
+        if (
+            self._start_wizard_code is not None
+            and details.details[0] == self._start_wizard_code
+        ):
+            self.launchSequenceResponse.emit(details.details[1][:])
 
     def getModules(self, code=None):
         module_status = []
@@ -345,17 +353,32 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.trackMessage(details)
         self.updateSTDSignal.emit(details)
 
-    def startWizardChecks(self, code: str) -> None:
-        self.checkGlobalParameters(code)
-        self.checkFiles(code)
-        self.checkModules(code)
+    def startWizard(self, code: str) -> None:
+        self._current_wizard_attempt += 1
+        self._start_wizard_code = code
 
-    def checkModules(self, code=None):
-        modules = self.getModules(code)
-        self.startWizardModuleCheck.emit(modules)
+    def setLaunchStep(self, launch_sequence_step):
+        if launch_sequence_step == LaunchSequenceSteps.CHECK_GLOBALS:
+            self.checkGlobalParameters()
+        elif launch_sequence_step == LaunchSequenceSteps.CHECK_FILES:
+            self.checkFiles()
+        elif launch_sequence_step == LaunchSequenceSteps.CHECK_MODULES:
+            self.checkModules()
+        elif launch_sequence_step == LaunchSequenceSteps.LOAD_FILES:
+            self.loadFiles()
+        elif launch_sequence_step == LaunchSequenceSteps.LAUNCH:
+            self.sendCmdStart(self._start_wizard_code)
 
-    def checkGlobalParameters(self, code: str) -> None:
-        config = self.program_dict.getData(code).config
+    @QtCore.Slot()
+    def startWizardClosed(self):
+        self._start_wizard_code = None
+
+    def checkModules(self):
+        modules = self.getModules(self._start_wizard_code)
+        self.launchSequenceResponse.emit(modules)
+
+    def checkGlobalParameters(self) -> None:
+        config = self.program_dict.getData(self._start_wizard_code).config
         item_globals: typing.Dict[str, typing.List[Parameter]] = {}
         all_items = []
         if config.type_ == ProgramTypes.SCRIPT:
@@ -380,13 +403,13 @@ class mainModel(commandProcessor, QtCore.QObject):
             )
             if global_params:
                 item_globals[item.name] = global_params
-        self.startWizardGlobalCheck.emit(item_globals)
+        self.launchSequenceResponse.emit(item_globals)
 
-    def checkFiles(self, code):
+    def checkFiles(self):
         """Get list of files, send list of files that exist and then load the files that needed to be loaded
         TODO: combine config parsing, this function and global check do very similar actions, can be combined
         """
-        config = self.program_dict.getData(code).config
+        config = self.program_dict.getData(self._start_wizard_code).config
         item_files: typing.Dict[str, typing.List[Parameter]] = {}
         all_items = []
         if config.type_ == ProgramTypes.SCRIPT:
@@ -424,4 +447,51 @@ class mainModel(commandProcessor, QtCore.QObject):
                 file_exists[item_name].append(
                     (file_param.name, file_param.value, p.exists())
                 )
-        self.startWizardFileCheck.emit(file_exists)
+        self.launchSequenceResponse.emit(file_exists)
+
+    def loadFiles(self):
+        files_to_load = []
+        config = self.program_dict.getData(self._start_wizard_code).config
+        if config.type_ == ProgramTypes.ALGO:
+            for ds in config.settings.data_sources.values():
+                if ds.type_ == DataSourcesTypeEnum.FILE.display:
+                    files_to_load.append(ds.key)
+        # If there are no files to load then just proceed normally, otherwise start a thread to load filesx
+        if files_to_load:
+            runnable = genericWorker.GenericRunnable(
+                self._current_wizard_attempt,
+                fileLoaders.loadFileList,
+                files_to_load,
+            )
+            runnable.signals.finished.connect(self.loadFilesFinished)
+            QtCore.QThreadPool.globalInstance().start(
+                runnable, self._current_wizard_attempt
+            )
+        else:
+            self.launchSequenceResponse.emit(True)
+
+    def loadFilesFinished(self, response: genericWorker.RunnableReturn):
+        """This will be called from another thread"""
+        if (
+            response is not None
+            and response.id_ == self._current_wizard_attempt
+            and response.value
+        ):
+            self._loaded_file_data[self._start_wizard_code] = {}
+            file_path_to_data_map = response.value
+            config = self.program_dict.getData(self._start_wizard_code).config
+            for ds in config.settings.data_sources.values():
+                if (
+                    ds.type_ == DataSourcesTypeEnum.FILE.display
+                    and ds.key in file_path_to_data_map
+                ):
+                    value = file_path_to_data_map[ds.key]
+                    # if there is a secondary key, try to access the value and reassign it
+                    if ds.secondary_key:
+                        try:
+                            value = file_path_to_data_map[ds.key][ds.secondary_key]
+                        except (TypeError, KeyError) as _:
+                            pass
+                    self._loaded_file_data[self._start_wizard_code][ds.name] = value
+
+        self.launchSequenceResponse.emit(True)

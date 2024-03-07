@@ -53,7 +53,7 @@
       <item>
        <widget class="QStackedWidget" name="stacked_widget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>4</number>
         </property>
         <widget class="ModInstallWidget" name="module_install_widget"/>
         <widget class="FileCheckWidget" name="file_check_widget"/>
@@ -69,6 +69,25 @@
             </property>
             <property name="text">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All checks passed.&lt;/p&gt;&lt;p&gt;Launching Program...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="load_file_widget">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="load_file_label">
+            <property name="font">
+             <font>
+              <pointsize>40</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Loading Files...</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

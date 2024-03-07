@@ -59,3 +59,4 @@ class ParameterCheckWidget(BaseTablePage):
                 self._table_model.appendRow(
                     [item_name, param_name, global_name, global_value_item]
                 )
+        self.checkPage(self._no_values, self._missing_values)

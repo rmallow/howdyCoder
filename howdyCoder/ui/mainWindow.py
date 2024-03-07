@@ -135,16 +135,11 @@ class MainWindow(
         self._start_wizard.ui.module_install_widget.installPackagesSignal.connect(
             self._main_model.sendInstallPackagesCommand
         )
-        self._start_wizard.finishedWizard.connect(self.startWizardFinished)
-        self._main_model.startWizardModuleCheck.connect(
-            self._start_wizard.ui.module_install_widget.updateValues
+        self._start_wizard.setLaunchStep.connect(self._main_model.setLaunchStep)
+        self._main_model.launchSequenceResponse.connect(
+            self._start_wizard.receiveLaunchSequenceResponse
         )
-        self._main_model.startWizardGlobalCheck.connect(
-            self._start_wizard.ui.parameter_check_widget.updateValues
-        )
-        self._main_model.startWizardFileCheck.connect(
-            self._start_wizard.ui.file_check_widget.updateValues
-        )
+        self._start_wizard.finished.connect(self._main_model.startWizardClosed)
 
         self.creator_type_window = None
 
@@ -186,7 +181,7 @@ class MainWindow(
                 self.openStartWizard(code)
 
     def openStartWizard(self, code: str):
-        self._main_model.startWizardChecks(code)
+        self._main_model.startWizard(code)
         self._start_wizard.startWizard(code)
 
     @QtCore.Slot()
@@ -197,10 +192,6 @@ class MainWindow(
     def algoExportControlBox(self, code):
         if file_path := QtWidgets.QFileDialog.getSaveFileName(filter="CSV (*.csv)")[0]:
             self._main_model.exportData(code, file_path)
-
-    @QtCore.Slot()
-    def startWizardFinished(self):
-        self._main_model.sendCmdStart(self._start_wizard.current_code)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         button_response = QtWidgets.QMessageBox.question(
@@ -266,3 +257,4 @@ class MainWindow(
             == Modes.STARTED
         ):
             self._start_wizard.hide()
+            self._main_model.startWizardClosed()
