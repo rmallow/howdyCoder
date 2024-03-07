@@ -64,14 +64,19 @@ class Program(commandProcessor, ABC):
             # spamming this with commands
             while not self._end and not self._program_queue.empty():
                 # Use the command processor way of handling command messages
-                command_message = self._program_queue.get()
-                if (
-                    command_message
-                    and command_message.messageType == msg.MessageType.COMMAND
-                ):
-                    self.processCommand(
-                        command_message.content, details=command_message.details
-                    )
+
+                message: msg.message = self._program_queue.get()
+                if message and isinstance(message, msg.message):
+                    if message.isMessageList():
+                        print(f"Received message list {time.time()}")
+                        for m in message.content:
+                            self.processMessage(m)
+                    else:
+                        self.processMessage(message)
+
+    def processMessage(self, message: msg.message):
+        if message and message.isCommand():
+            self.processCommand(message.content, details=message.details)
 
     def start(self):
         # call user funcs setup now that we are in our own process

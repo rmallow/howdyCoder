@@ -115,7 +115,7 @@ class MainWindow(
         self._ui.controlPage.exportData.connect(self.algoExportControlBox)
         self._ui.controlPage.editProgram.connect(self.editProgramConfig)
         self._ui.controlPage.copyProgram.connect(self._main_model.copyProgram)
-        self._ui.controlPage.inputEntered.connect(self._main_model.inputEntered)
+        self._ui.controlPage.inputEntered.connect(self._main_model.sendSourceData)
         self._main_model.program_dict.dataChanged.connect(
             self._ui.controlPage.compareDataToCurrentWidgets
         )
@@ -245,6 +245,7 @@ class MainWindow(
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/app2.yml")
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/global_script.yml")
         self._main_model.addProgramFile(r"/Users/rmallow/Desktop/file_algo_test.yml")
+        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/test_big_file.yml")
 
     def refresh(self):
         """Once we receive word back that the program that is trying to be started by the wizard, is in fact started, then we can hide it"""

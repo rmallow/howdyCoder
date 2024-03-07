@@ -50,6 +50,7 @@ import traceback
 from dataclasses import asdict
 import dataclass_wizard
 import copy
+from collections import defaultdict
 
 MAINFRAME_QUEUE_CHECK_TIMER = 0.3
 LOGGING_QUEUE_CHECK_TIMER = 0.5
@@ -157,6 +158,8 @@ class mainframe(commandProcessor):
 
         self._is_running = True
 
+        self._message_list_batch = defaultdict(list)
+
         mpLogging.info("Finished initializing mainframe")
 
     def sendToUi(self, message):
@@ -198,25 +201,37 @@ class mainframe(commandProcessor):
         while self._is_running and not self.mainframe_queue.empty():
             message = self.mainframe_queue.get()
             if isinstance(message, msg.message):
-                if message.isCommand():
-                    self.processCommand(message.content, details=message)
-                elif message.isUIUpdate():
-                    if message.content == msg.UiUpdateType.STATUS:
-                        # Extra handling for status, adding back time and removing from status dict
-                        # we want to do this, removing from the dict, even if uiQueue is not present
-                        code = message.key.sourceCode
-                        if code in self.statusDict:
-                            del self.statusDict[code]
-                            data = ProgramStatusData(**message.details)
-                            data.back_time = getStrTime(time.time())
-                            message.details = asdict(data)
-                        else:
-                            mpLogging.error(
-                                "Trying to remove code from status dict that isn't present",
-                                description=f"Code: {code}",
-                            )
-                            continue
-                    self.sendToUi(message)
+                if message.isMessageList():
+                    print(f"Got message list: {time.time()}")
+                    self._batch_process_messages = True
+                    self._message_list_batch.clear()
+                    for m in message.content:
+                        self.processMessage(m)
+                    self.processBatch()
+                    self._batch_process_messages = False
+                else:
+                    self.processMessage(message)
+
+    def processMessage(self, message: msg.message) -> None:
+        if message.isCommand():
+            self.processCommand(message.content, details=message)
+        elif message.isUIUpdate():
+            if message.content == msg.UiUpdateType.STATUS:
+                # Extra handling for status, adding back time and removing from status dict
+                # we want to do this, removing from the dict, even if uiQueue is not present
+                code = message.key.sourceCode
+                if code in self.statusDict:
+                    del self.statusDict[code]
+                    data = ProgramStatusData(**message.details)
+                    data.back_time = getStrTime(time.time())
+                    message.details = asdict(data)
+                else:
+                    mpLogging.error(
+                        "Trying to remove code from status dict that isn't present",
+                        description=f"Code: {code}",
+                    )
+                    return
+            self.sendToUi(message)
 
     @setInterval(LOGGING_QUEUE_CHECK_TIMER)
     def checkLoggingQueue(self):
@@ -308,14 +323,31 @@ class mainframe(commandProcessor):
             )
 
     def passCommandToProgram(self, command, details):
+        """If we are processing a whole batch, we'll wait until we have all the messages and send at once"""
         if details.key.sourceCode in self._all_program_queues:
-            self._all_program_queues[details.key.sourceCode].put(
-                msg.message(msg.MessageType.COMMAND, command, details=details.details)
+            pass_through_message = msg.message(
+                msg.MessageType.COMMAND, command, details=details.details
             )
+            if self._batch_process_messages:
+                self._message_list_batch[details.key.sourceCode].append(
+                    pass_through_message
+                )
+            else:
+                if details.key.sourceCode in self._all_program_queues:
+                    self._all_program_queues[details.key.sourceCode].put(
+                        pass_through_message
+                    )
         else:
             mpLogging.warning(
                 f"Attempted to pass command to program, but didn't find code {details.key.sourceCode}"
             )
+
+    def processBatch(self):
+        for code, message_list in self._message_list_batch.items():
+            self._all_program_queues[code].put(
+                msg.message(msg.MessageType.MESSAGE_LIST, message_list)
+            )
+        self._message_list_batch.clear()
 
     def sendStartupData(self, _1, _2):
         mpLogging.info("Sending startup data to the UI that was connected")

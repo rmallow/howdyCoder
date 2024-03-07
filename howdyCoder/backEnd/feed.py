@@ -55,7 +55,7 @@ class feed:
                             ds_return,
                             data_source.code,
                             data_source.flatten,
-                            data_source.output[0],
+                            data_source.output,
                         ]
                     )
 
@@ -64,7 +64,7 @@ class feed:
             # find the longest
             self.newCalcLength = 1
             for x in range(len(ret_vals)):
-                ds_ret, _, flatten, first_output = ret_vals[x]
+                ds_ret, _, flatten, output_list = ret_vals[x]
                 try:
                     """
                     data source return values can either be multi column in forms of dict
@@ -72,8 +72,8 @@ class feed:
                     key in the dict, there can be no multi column output that doens't come from the ds in dict
                     """
                     ds_ret.values()
-                except AttributeError as e:
-                    ds_ret = {first_output: ds_ret}
+                except AttributeError as _:
+                    ds_ret = {output_list[0]: ds_ret}
                     ret_vals[x][0] = ds_ret
                 if flatten:
                     for v in ds_ret.values():

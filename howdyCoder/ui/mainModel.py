@@ -192,6 +192,9 @@ class mainModel(commandProcessor, QtCore.QObject):
         data = ProgramStatusData(**details.details)
         if data.columns:
             self.updateColumnsSignal.emit(details)
+        current_data = self.program_dict.getData(details.key.sourceCode)
+        if data.mode == Modes.STARTED and current_data.mode == Modes.STANDBY:
+            self.programJustStarted(details.key.sourceCode)
         self.updateStatusSignal.emit(details)
         self.program_dict.updateProgramStatus(details.key.sourceCode, data)
 
@@ -336,7 +339,7 @@ class mainModel(commandProcessor, QtCore.QObject):
             else:
                 self._export_mapping_cache[code].popleft()
 
-    def inputEntered(self, input_data: SourceData):
+    def sendSourceData(self, input_data: SourceData):
         self.messageMainframe(
             msg.message(
                 msg.MessageType.COMMAND,
@@ -450,6 +453,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         self.launchSequenceResponse.emit(file_exists)
 
     def loadFiles(self):
+        print(f"Load files started {time.time()}")
         files_to_load = []
         config = self.program_dict.getData(self._start_wizard_code).config
         if config.type_ == ProgramTypes.ALGO:
@@ -495,3 +499,34 @@ class mainModel(commandProcessor, QtCore.QObject):
                     self._loaded_file_data[self._start_wizard_code][ds.name] = value
 
         self.launchSequenceResponse.emit(True)
+
+    def programJustStarted(self, code: str) -> None:
+        if code in self._loaded_file_data and self._loaded_file_data[code]:
+            message_list = []
+            for data_source_name, data_source_data in self._loaded_file_data[
+                code
+            ].items():
+                print(f"Pre Convert List {time.time()}")
+                message_list.append(
+                    msg.message(
+                        msg.MessageType.COMMAND,
+                        msg.CommandType.ADD_SOURCE_DATA,
+                        {
+                            "code": code,
+                            "data_source_name": data_source_name,
+                            "data_source_data": data_source_data,
+                        },
+                        # details=asdict(
+                        #    SourceData(code, data_source_name, data_source_data)
+                        # ),
+                        key=msg.messageKey(code, None),
+                    )
+                )
+            print(f"Post convert {time.time()}")
+            self.messageMainframe(
+                msg.message(
+                    msg.MessageType.MESSAGE_LIST,
+                    message_list,
+                )
+            )
+            print(f"Sent list {time.time()}")

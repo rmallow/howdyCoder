@@ -136,7 +136,7 @@ class CreateStandardDataSource(
             self.setSuggestedOutput()
         elif self._data_source_type == DataSourcesTypeEnum.INPUT:
             """Nothing more to do with settings, but make sure that we keep output to name of data source"""
-            output_strings = [self.getConfig().name]
+            output_strings = [self.parent_page.getConfig().name]
         if (
             self._data_source_type != DataSourcesTypeEnum.FUNC
             and self._data_source_type != DataSourcesTypeEnum.THREADED

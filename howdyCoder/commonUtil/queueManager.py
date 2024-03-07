@@ -5,7 +5,7 @@ from ..core.commonGlobals import LOCAL_AUTH, LOCAL_PORT
 # multiprocess is dill wherhas multiprocessing is python built in
 # Choosing SyncManger over BaseManager as this manager will also supply the program
 # but those will not be acessible by outside connections
-from multiprocess.managers import BaseManager
+from multiprocessing.managers import BaseManager
 
 
 class QueueManager(BaseManager):
