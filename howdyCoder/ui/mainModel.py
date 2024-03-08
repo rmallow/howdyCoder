@@ -454,17 +454,20 @@ class mainModel(commandProcessor, QtCore.QObject):
 
     def loadFiles(self):
         files_to_load = []
+        skip_first = []
         config = self.program_dict.getData(self._start_wizard_code).config
         if config.type_ == ProgramTypes.ALGO:
             for ds in config.settings.data_sources.values():
                 if ds.type_ == DataSourcesTypeEnum.FILE.display:
                     files_to_load.append(ds.key)
+                    skip_first.append(not ds.custom_headers)
         # If there are no files to load then just proceed normally, otherwise start a thread to load files
         if files_to_load:
             runnable = genericWorker.GenericRunnable(
                 self._current_wizard_attempt,
                 fileLoaders.loadFileList,
                 files_to_load,
+                skip_first,
             )
             runnable.signals.finished.connect(self.loadFilesFinished)
             QtCore.QThreadPool.globalInstance().start(

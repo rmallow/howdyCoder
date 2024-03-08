@@ -6,6 +6,50 @@ import csv
 from collections import defaultdict
 
 
+def isDictOrList(data):
+    if isinstance(data, str):
+        return False
+    try:
+        len(data)
+    except AttributeError:
+        return False
+    return True
+
+
+def determienMaxLenOfData(data, flatten, transpose):
+    """
+    potential data 		    	- 		len
+    not flatten                 -       1
+    num/str/any non iter	    -		1
+    dict of iter/non iter 	    -		len(iter/non iter)
+    list of iter/non iter 		-		len(list) if tranpose else len(iter/non iter)
+
+    a string is iterable but not something we want to iterate so also ignore that
+    """
+    max_len = 1
+    if flatten and not isinstance(data, str):
+        final_iter = data
+        try:
+            len(data)
+        except TypeError as _:
+            return 1
+        else:
+            # it's some iterable value, check if dictionary
+            try:
+                final_iter = data.values()
+            except AttributeError as _:
+                # at this point it must be a list
+                if transpose:
+                    return len(data)
+
+        for v in final_iter:
+            try:
+                max_len = max(max_len, len(v))
+            except TypeError as _:
+                pass
+    return max_len
+
+
 @dataclass(frozen=True)
 class SparseData:
     index: int
@@ -91,24 +135,92 @@ class SparseDictList(dict):
     def getFirstListLength(self) -> int:
         return len(next(iter(self.values())))
 
-    def appendDataList(self, data_list: typing.List) -> None:
+    def appendDataList(self, data_list: typing.List) -> int:
         max_len = 1 if data_list else 0
-        for data, code, flatten, _ in data_list:
-            for key, value in data.items():
-                valid_key = f"{code}-{key}" if code else key
-                if valid_key not in self:
-                    self[valid_key] = []
-                if isinstance(value, list) and flatten:
-                    max_len = max(max_len, len(value))
-                    for x in range(len(value)):
+        # first determine the max_len of the data_list
+        for data, _1, flatten, transpose, _2 in data_list:
+            max_len = max(max_len, determienMaxLenOfData(data, flatten, transpose))
+
+        def getRealKeyAndCheck(code, key):
+            valid_key = f"{code}-{key}" if code else key
+            if valid_key not in self:
+                self[valid_key] = []
+            return valid_key
+
+        # now that we have the max len, we can use that for setting index
+        # remember, if max len is 10, but one list only has 5 data points, its indexes will be: 9, 8, 7, 6, 5
+        for data, code, flatten, transpose, output_list in data_list:
+            if isDictOrList(data):
+                try:
+                    data.items()
+                except AttributeError as _:
+                    # must be a list
+                    all_sub_lists = all(
+                        isinstance(v, list) or isinstance(v, tuple) for v in data
+                    )
+                    if all_sub_lists and transpose and flatten:
+                        n = len(data)
+                        for row in range(n):
+                            for col in range(len(data[row])):
+                                valid_key = getRealKeyAndCheck(
+                                    code, output_list[col % len(output_list)]
+                                )
+                                self[valid_key].append(
+                                    SparseData(
+                                        self.longest_list + max_len - n + x,
+                                        data[row][col],
+                                    )
+                                )
+                    elif all_sub_lists and not transpose and flatten:
+                        for row in range(len(data)):
+                            valid_key = getRealKeyAndCheck(
+                                code, output_list[row % len(output_list)]
+                            )
+                            n = len(data[row])
+                            for col in range(n):
+                                self[valid_key].append(
+                                    SparseData(
+                                        self.longest_list + max_len - n + x,
+                                        data[row][col],
+                                    )
+                                )
+                    elif flatten:
+                        valid_key = getRealKeyAndCheck(code, output_list[0])
+                        n = len(data)
+                        for x in range(n):
+                            self[valid_key].append(
+                                SparseData(self.longest_list + max_len - n + x, data[x])
+                            )
+                    else:
+                        valid_key = getRealKeyAndCheck(code, output_list[0])
                         self[valid_key].append(
-                            SparseData(self.longest_list + x, value[x])
+                            SparseData(self.longest_list + max_len - 1, data)
                         )
                 else:
-                    self[valid_key].append(
-                        SparseData(self.longest_list + max_len - 1, value)
-                    )
+                    # must be a dict
+                    for key, value in data.items():
+                        valid_key = getRealKeyAndCheck(code, key)
+                        if isinstance(value, list) and flatten:
+                            n = len(value)
+                            for x in range(n):
+                                self[valid_key].append(
+                                    SparseData(
+                                        self.longest_list + max_len - n + x,
+                                        value[x],
+                                    )
+                                )
+                        else:
+                            self[valid_key].append(
+                                SparseData(self.longest_list + max_len - 1, value)
+                            )
+            else:
+                # not a dict or list, base case
+                valid_key = getRealKeyAndCheck(code, output_list[0])
+                self[valid_key].append(
+                    SparseData(self.longest_list + max_len - 1, data)
+                )
         self.longest_list += max_len
+        return max_len
 
     def appendData(self, key: str, index: int, value: typing.Any):
         if key not in self:

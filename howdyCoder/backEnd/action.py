@@ -70,6 +70,7 @@ class Action:
         self.is_first: bool = True
         self.aggregate: bool = action_settings.aggregate
         self.flatten: bool = action_settings.flatten
+        self.transpose: bool = action_settings.transpose
         self.single_shot: bool = action_settings.single_shot
         self.feed: feedModule.feed = None
         self.just_started = False

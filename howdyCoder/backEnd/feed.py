@@ -55,32 +55,14 @@ class feed:
                             ds_return,
                             data_source.code,
                             data_source.flatten,
+                            data_source.transpose,
                             data_source.output,
                         ]
                     )
 
         self.newCalcLength = 0
         if ret_vals:
-            # find the longest
-            self.newCalcLength = 1
-            for x in range(len(ret_vals)):
-                ds_ret, _, flatten, output_list = ret_vals[x]
-                try:
-                    """
-                    data source return values can either be multi column in forms of dict
-                    or single column in form of anything else, in which case the first output string is assigned as the
-                    key in the dict, there can be no multi column output that doens't come from the ds in dict
-                    """
-                    ds_ret.values()
-                except AttributeError as _:
-                    ds_ret = {output_list[0]: ds_ret}
-                    ret_vals[x][0] = ds_ret
-                if flatten:
-                    for v in ds_ret.values():
-                        if isinstance(v, list):
-                            self.newCalcLength = max(len(v), self.newCalcLength)
-
-            self.data.appendDataList(ret_vals)
+            self.newCalcLength = self.data.appendDataList(ret_vals)
         return FeedRetValues.VALID_VALUES if ret_vals else FeedRetValues.NO_VALID_VALUES
 
     def clear(self) -> None:

@@ -26,8 +26,8 @@ class dataBase(abc.ABC):
         self.code: str = data_source_settings.name
         self.key: str = data_source_settings.key
         self.period: int = data_source_settings.period
-        # TODO: Adding back in dataSim
-        # self.indexName: str = indexName
+        self.transpose: bool = data_source_settings.transpose
+
         self.columnFilter: typing.List[str] = None
         self.upperConstraint = None
         self.lowerConstraint = None
@@ -42,18 +42,7 @@ class dataBase(abc.ABC):
         )
         self.flatten: bool = data_source_settings.flatten
         self.single_shot: bool = data_source_settings.single_shot
-        # Convert data type to enum
-        """ TODO: this dataType is actually type of data NOT type of data source
-        if dataType is not None:
-            try:
-                self.dataType: DataSourceTypeEnum = DataSourceTypeEnum[dataType]
-            except ValueError:
-                mpLogging.warning(
-                    "Failed setting data type",
-                    description=f"Data Type: {dataType}",
-                    group=DATA_GROUP,
-                )
-        """
+
         self.end: bool = False
         self.newCycle: bool = False
         if self.columnFilter is not None and len(self.columnFilter) > 0:
@@ -141,7 +130,7 @@ class dataBase(abc.ABC):
     @abc.abstractmethod
     def loadData(self):
         """
-        abstract method, sets up data getting object as needed, i.e. dataSim loading data into dataFrame
+        abstract method, sets up data getting object as needed, i.e. loading data into dataFrame
         """
         return
 

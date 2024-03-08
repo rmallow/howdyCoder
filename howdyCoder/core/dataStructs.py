@@ -116,6 +116,7 @@ class ItemSettings(JSONWizard, metaclass=property_wizard):
     flatten: bool = True
     period: int = 1
     single_shot: bool = False
+    transpose: bool = False
     parameters: typing.Dict[str, Parameter] = field(default_factory=dict)
 
     def clear(self):
