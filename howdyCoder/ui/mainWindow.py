@@ -175,7 +175,7 @@ class MainWindow(
     def algoStartControlBox(self, code):
         data = self._main_model.program_dict.getData(code)
         if data is not None:
-            if data.mode == Modes.STARTED:
+            if data.mode == Modes.RUNNING:
                 self._main_model.sendCmdEnd(code)
             else:
                 self.openStartWizard(code)
@@ -255,7 +255,7 @@ class MainWindow(
             and self._main_model.program_dict.getData(
                 self._start_wizard.current_code
             ).mode
-            == Modes.STARTED
+            == Modes.RUNNING
         ):
             self._start_wizard.hide()
             self._main_model.startWizardClosed()

@@ -1,9 +1,12 @@
-from .dataBase import dataBase
+from .dataBase import DataBase
 
 from ..commonUtil.sparseDictList import SparseDictList
 from ..commonUtil import mpLogging
 from ..core.commonGlobals import DATA_GROUP
+from ..core.dataStructs import Modes
 from .constants import FeedRetValues
+
+# from viztracer import log_sparse
 
 import typing
 
@@ -15,7 +18,7 @@ class feed:
     appending functions for pandas data
     """
 
-    def __init__(self, dataSources: list[dataBase]):
+    def __init__(self, dataSources: list[DataBase]):
         self.dataSources = dataSources
         self.data_source_mapping = {
             data_source.code: data_source for data_source in self.dataSources
@@ -37,6 +40,7 @@ class feed:
         self.newCalcLength = 0
         self.end = False
 
+    # @log_sparse
     def update(self) -> FeedRetValues:
         """
         Gather up all of the data source return values
@@ -45,20 +49,19 @@ class feed:
         """
         ret_vals = []
         for data_source in self.dataSources:
-            if data_source.readyToGet():
-                # DS get Data should return a dict, so this is a safe check
-                if ds_return := data_source.getData():
-                    # we need to append to an intermediary for indexing
-                    # has to be alist instead of tuple as we could reassign
-                    ret_vals.append(
-                        [
-                            ds_return,
-                            data_source.code,
-                            data_source.flatten,
-                            data_source.transpose,
-                            data_source.output,
-                        ]
-                    )
+            ds_return = data_source.getData()
+            if ds_return is not None:
+                # we need to append to an intermediary for indexing
+                # has to be alist instead of tuple as we could reassign
+                ret_vals.append(
+                    [
+                        ds_return,
+                        data_source.code,
+                        data_source.flatten,
+                        not data_source.data_in_rows,
+                        data_source.output,
+                    ]
+                )
 
         self.newCalcLength = 0
         if ret_vals:
@@ -107,8 +110,7 @@ class feed:
 
     def started(self):
         for data_source in self.dataSources:
-            data_source.just_started = True
-            data_source.loadData()
+            data_source.changeMode(Modes.RUNNING)
 
     def addSourceData(self, data_source_code: str, data: typing.Any):
         if data_source_code in self.data_source_mapping:

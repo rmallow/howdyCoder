@@ -51,10 +51,39 @@ def listToFormattedString(label: str, str_list: typing.List[str]) -> str:
 
 
 def getDupeName(
-    name: str, name_container, copy_label: str = "_copy_", starting_number: int = 1
+    name: str,
+    name_container,
+    copy_label: str = "copy",
+    starting_number: int = 1,
+    sub_blank_name=False,
 ) -> str:
     """Sure it should be a binary search, but why bother"""
+    if sub_blank_name and not name:
+        name = "blank_name"
+    if name not in name_container:
+        return name
     x = starting_number
-    while f"{name}{copy_label}{x}" in (name_container):
+    while f"{name}_{copy_label}_{x}" in (name_container):
         x += 1
-    return f"{name}_copy_{x}"
+    return f"{name}_{copy_label}_{x}"
+
+
+def deDupeList(
+    name_list: typing.List[str],
+    copy_label: str = "copy",
+    starting_number: int = 1,
+    sub_blank_name: bool = False,
+):
+    name_set = set()
+    res = []
+    for name in name_list:
+        new_name = getDupeName(
+            name,
+            name_set,
+            copy_label=copy_label,
+            starting_number=starting_number,
+            sub_blank_name=sub_blank_name,
+        )
+        name_set.add(new_name)
+        res.append(new_name)
+    return res

@@ -43,7 +43,8 @@ LOGGING_LEVEL_TO_ICON = {
 
 COLOR_MAP = {
     Modes.STANDBY: QtCore.Qt.GlobalColor.gray,
-    Modes.STARTED: QtCore.Qt.GlobalColor.green,
+    Modes.RUNNING: QtCore.Qt.GlobalColor.green,
+    Modes.FINISHED: QtCore.Qt.GlobalColor.green,
     Modes.STOPPED: QtCore.Qt.GlobalColor.red,
 }
 
@@ -92,7 +93,7 @@ class ProgramStatusWidget(
         self.ui.runtime_value.setText(helpers.getStrElapsedTime(self.data.runtime))
         self.ui.shutdown_button.setEnabled(self.data.mode != Modes.STANDBY)
         self.ui.start_button.setText(
-            "Stop" if self.data.mode == Modes.STARTED else "Start"
+            "Stop" if self.data.mode == Modes.RUNNING else "Start"
         )
         self.updateLogging()
 
@@ -141,7 +142,7 @@ class ProgramStatusWidget(
             context_actions.append(ContextResultType.EXPORT)
             if self._input_found:
                 context_actions.append(ContextResultType.INPUT)
-        if self.data.mode != Modes.STARTED:
+        if self.data.mode != Modes.RUNNING:
             context_actions.append(ContextResultType.REMOVE)
         if self.data.mode == Modes.STANDBY:
             context_actions.append(ContextResultType.EDIT)

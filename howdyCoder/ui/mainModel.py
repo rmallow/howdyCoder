@@ -193,7 +193,7 @@ class mainModel(commandProcessor, QtCore.QObject):
         if data.columns:
             self.updateColumnsSignal.emit(details)
         current_data = self.program_dict.getData(details.key.sourceCode)
-        if data.mode == Modes.STARTED and current_data.mode == Modes.STANDBY:
+        if data.mode == Modes.RUNNING and current_data.mode == Modes.STANDBY:
             self.programJustStarted(details.key.sourceCode)
         self.updateStatusSignal.emit(details)
         self.program_dict.updateProgramStatus(details.key.sourceCode, data)

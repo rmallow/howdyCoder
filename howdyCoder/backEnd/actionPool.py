@@ -1,7 +1,7 @@
 from .action import Action
 
 from ..core.commonGlobals import ActionTypeEnum, ENUM_DISPLAY, ENUM_VALUE
-from ..core.dataStructs import STDOutErrData
+from ..core.dataStructs import STDOutErrData, Modes
 from ..commonUtil.helpers import findEnumByAttribute
 
 import typing
@@ -57,5 +57,4 @@ class ActionPool:
     def started(self):
         for action_list in self._all_actions:
             for action in action_list:
-                action.just_started = True
-                action.setup()
+                action.changeMode(Modes.RUNNING)

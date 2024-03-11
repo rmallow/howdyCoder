@@ -50,7 +50,7 @@ def determienMaxLenOfData(data, flatten, transpose):
     return max_len
 
 
-@dataclass(frozen=True)
+@dataclass()
 class SparseData:
     index: int
     value: Any
@@ -75,6 +75,11 @@ class SparseDictList(dict):
         if hasattr(self, "longest_list") and len(self[key]) > self.longest_list:
             self.longest_list = len(self[key])
 
+    """
+    TODO
+    Experimenting with removing these for speed issues
+    Removed on 3/11/2024
+    If no error, remove later.
     def __getattribute__(self, name: str) -> Any:
         if name == "index":
             if self.indexKey is not None:
@@ -85,12 +90,13 @@ class SparseDictList(dict):
             return super().__getattribute__(name)
 
     def __getstate__(self):
-        """because we overrided __getattribute__ we must explicitly define these for pickling"""
+        #because we overrided __getattribute__ we must explicitly define these for pickling
         return self.__dict__
 
     def __setstate__(self, d):
-        """because we overrided __getattribute__ we must explicitly define these for pickling"""
+        #because we overrided __getattribute__ we must explicitly define these for pickling
         self.__dict__.update(d)
+    """
 
     def setIndex(self, indexKey: str) -> None:
         if indexKey in self:
@@ -99,6 +105,7 @@ class SparseDictList(dict):
             self.indexKey = None
 
     def getNthKey(self, index: int = 0) -> Any:
+        # For large dict list, very slow, consider storing keys
         if index < 0:
             index += len(self)
         for i, key in enumerate(self):
@@ -136,6 +143,15 @@ class SparseDictList(dict):
         return len(next(iter(self.values())))
 
     def appendDataList(self, data_list: typing.List) -> int:
+        """
+        For inserting 3.5m data points, this function takes < 10s on avg.
+        Slowest parts (happens each data point):
+            1. Creating dataclasses
+            2. Appending to the list
+            3. Access internal map
+        If necessary could be improved in the future by not storing each individual data point as a dataclass
+        i.e. could store lists of data points with their indexes
+        """
         max_len = 1 if data_list else 0
         # first determine the max_len of the data_list
         for data, _1, flatten, transpose, _2 in data_list:
@@ -154,45 +170,46 @@ class SparseDictList(dict):
                 try:
                     data.items()
                 except AttributeError as _:
-                    # must be a list
+                    # top level structure must be a list
+                    true_output_list = [
+                        getRealKeyAndCheck(code, o) for o in output_list
+                    ]
                     all_sub_lists = all(
                         isinstance(v, list) or isinstance(v, tuple) for v in data
                     )
                     if all_sub_lists and transpose and flatten:
                         n = len(data)
                         for row in range(n):
-                            for col in range(len(data[row])):
-                                valid_key = getRealKeyAndCheck(
-                                    code, output_list[col % len(output_list)]
-                                )
+                            for col in range(
+                                min(len(data[row]), len(true_output_list))
+                            ):
+                                valid_key = true_output_list[col]
                                 self[valid_key].append(
                                     SparseData(
-                                        self.longest_list + max_len - n + x,
+                                        self.longest_list + max_len - n + row,
                                         data[row][col],
                                     )
                                 )
                     elif all_sub_lists and not transpose and flatten:
-                        for row in range(len(data)):
-                            valid_key = getRealKeyAndCheck(
-                                code, output_list[row % len(output_list)]
-                            )
+                        for row in range(min(len(data), len(true_output_list))):
+                            valid_key = true_output_list[row]
                             n = len(data[row])
                             for col in range(n):
                                 self[valid_key].append(
                                     SparseData(
-                                        self.longest_list + max_len - n + x,
+                                        self.longest_list + max_len - n + col,
                                         data[row][col],
                                     )
                                 )
                     elif flatten:
-                        valid_key = getRealKeyAndCheck(code, output_list[0])
+                        valid_key = true_output_list[0]
                         n = len(data)
                         for x in range(n):
                             self[valid_key].append(
                                 SparseData(self.longest_list + max_len - n + x, data[x])
                             )
                     else:
-                        valid_key = getRealKeyAndCheck(code, output_list[0])
+                        valid_key = true_output_list[0]
                         self[valid_key].append(
                             SparseData(self.longest_list + max_len - 1, data)
                         )

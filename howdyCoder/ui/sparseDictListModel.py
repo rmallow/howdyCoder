@@ -43,15 +43,7 @@ class SparseDictListModel(QtCore.QAbstractTableModel):
             if orientation == QtCore.Qt.Horizontal:
                 return self.dictList.getNthKey(section)
             else:
-                if self.dictList.index is not None:
-                    try:
-                        return self.dataList.index[section].strftime(
-                            "%m/%d/%Y, %H:%M:%S"
-                        )
-                    except AttributeError:
-                        return self.dataList.index[section]
-                else:
-                    return section
+                return section
         return None
 
     def appendData(self, data: SparseDictList) -> None:

@@ -1,8 +1,9 @@
-from ..core.dataStructs import DataSourceSettings
 from .constants import DataSourceReturnEnum
 
+from ..core.dataStructs import DataSourceSettings, Modes
 from ..commonUtil import mpLogging
 from ..core.commonGlobals import DATA_GROUP, EditorType
+from ..core.modeHandler import ModeHandler
 
 import abc
 import pandas as pd
@@ -10,7 +11,7 @@ import typing
 import time
 
 
-class dataBase(abc.ABC):
+class DataBase(ModeHandler):
     """
     Base class for data importers for algos
     """
@@ -21,12 +22,12 @@ class dataBase(abc.ABC):
         *args,
         **kwargs,
     ):
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
         self.code: str = data_source_settings.name
         self.key: str = data_source_settings.key
         self.period: int = data_source_settings.period
-        self.transpose: bool = data_source_settings.transpose
+        self.data_in_rows: bool = data_source_settings.data_in_rows
 
         self.columnFilter: typing.List[str] = None
         self.upperConstraint = None
@@ -52,7 +53,6 @@ class dataBase(abc.ABC):
         else:
             self.columnFilter = None
         self.last_time = 0
-        self.just_started = True
 
     def dataModifications(self, raw_data: typing.Any) -> dict:
         """
@@ -120,12 +120,21 @@ class dataBase(abc.ABC):
             )
             return None
 
-    @abc.abstractmethod
     def getData(self):
+        """Call child class get if ready to get and change mode afterward if singleshot"""
+        ret_val = None
+        if self.readyToGet():
+            ret_val = self._getData()
+        if self.single_shot and self.getMode() == Modes.RUNNING:
+            self.changeMode(Modes.FINISHED)
+        return ret_val
+
+    @abc.abstractmethod
+    def _getData(self):
         """
-        abstract method that is normally passed to feeds to get data
+        abstract method implemented by base class for actually getting the data
         """
-        return
+        pass
 
     @abc.abstractmethod
     def loadData(self):
@@ -135,11 +144,10 @@ class dataBase(abc.ABC):
         return
 
     def readyToGet(self):
-        if (not self.single_shot and time.time() - self.last_time > self.period) or (
-            self.single_shot and self.just_started
+        if self.getMode() == Modes.RUNNING and (
+            time.time() - self.last_time > self.period or self.single_shot
         ):
             self.last_time = time.time()
-            self.just_started = False
             return True
         return False
 
@@ -149,3 +157,7 @@ class dataBase(abc.ABC):
             description=f"Code: {self.code} with period: {self.period}",
             group=DATA_GROUP,
         )
+
+    def onRunning(self, old_mode: Modes) -> None:
+        super().onRunning(old_mode)
+        self.loadData()

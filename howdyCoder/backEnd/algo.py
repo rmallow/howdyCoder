@@ -16,7 +16,7 @@ from ..core.dataStructs import (
 
 
 from . import dataSourceFactory as dF
-from .dataBase import dataBase
+from .dataBase import DataBase
 from . import actionFactory as aF
 from .action import Action
 
@@ -54,14 +54,14 @@ class Algo(Program):
 
         self.start()
 
-    def _loadDataSource(self, data_source_settings: DataSourceSettings) -> dataBase:
+    def _loadDataSource(self, data_source_settings: DataSourceSettings) -> DataBase:
         # use the dataSourceFactory with the type to create the dataSource
         factory = dF.dataSourceFactory()
         return factory.create(data_source_settings, data_source_settings.type_)
 
     def _loadDataSources(
         self, data_source_settings: typing.Dict[str, DataSourceSettings]
-    ) -> list[dataBase]:
+    ) -> list[DataBase]:
         dataSources = []
         for _, config in data_source_settings.items():
             dataSources.append(self._loadDataSource(config))

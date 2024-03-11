@@ -1,5 +1,5 @@
 from ..core.dataStructs import DataSourceSettings, FunctionSettings
-from .dataBase import dataBase
+from .dataBase import DataBase
 
 from ..commonUtil.userFuncCaller import UserFuncCaller
 from ..core.commonGlobals import PASSBACK_DICT, EditorType
@@ -7,7 +7,7 @@ from ..core.commonGlobals import PASSBACK_DICT, EditorType
 import typing
 
 
-class dataFunc(dataBase):
+class dataFunc(DataBase):
     def __init__(self, data_source_settings: DataSourceSettings, *args, **kwargs):
         super().__init__(data_source_settings, *args, **kwargs)
 
@@ -25,7 +25,7 @@ class dataFunc(dataBase):
         passback_dict = {}
         self.parameters[PASSBACK_DICT] = passback_dict
 
-    def getData(self) -> dict:
+    def _getData(self) -> dict:
         """
         Called by fees to get Data
 

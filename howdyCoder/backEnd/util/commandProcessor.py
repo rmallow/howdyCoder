@@ -63,7 +63,7 @@ class commandProcessor(multiBase):
 
     def _cmdStart(self, command, details=None):
         """intro for command, handles mode"""
-        self._current_mode = Modes.STARTED
+        self._current_mode = Modes.RUNNING
         self.cmdStart(command, details=details)
 
     def cmdEnd(self, command, details=None):

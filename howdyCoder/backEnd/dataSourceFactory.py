@@ -1,4 +1,4 @@
-from .dataBase import dataBase
+from .dataBase import DataBase
 from .dataFunc import dataFunc
 from .dataStream import dataStream
 from .dataThreaded import dataThreaded
@@ -21,7 +21,7 @@ _DATA_SOURCE_FACTORY_TYPES = {
 
 
 class dataSourceFactory:
-    def create(self, config: dict, creatorType: str) -> dataBase:
+    def create(self, config: dict, creatorType: str) -> DataBase:
         dataSourceCreator = self._getCreator(creatorType)
         return dataSourceCreator(config)
 

@@ -337,9 +337,10 @@ class mainframe(commandProcessor):
 
     def processBatch(self):
         for code, message_list in self._message_list_batch.items():
-            self._all_program_queues[code].put(
-                msg.message(msg.MessageType.MESSAGE_LIST, message_list)
-            )
+            if code in self._all_program_queues:
+                self._all_program_queues[code].put(
+                    msg.message(msg.MessageType.MESSAGE_LIST, message_list)
+                )
         self._message_list_batch.clear()
 
     def sendStartupData(self, _1, _2):

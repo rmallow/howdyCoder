@@ -1,4 +1,5 @@
-from ..core.dataStructs import ActionSettings, InputSettings
+from ..core.dataStructs import ActionSettings, InputSettings, Modes
+from ..core.modeHandler import ModeHandler
 from . import feed as feedModule
 
 from ..commonUtil.userFuncCaller import UserFuncCaller
@@ -38,7 +39,7 @@ def findData(feed: feedModule.feed, col: str) -> typing.List[sparseDictList.Spar
     return None
 
 
-class Action:
+class Action(ModeHandler):
     """
     Base virtual class for actions used by action pool
     """
@@ -49,6 +50,7 @@ class Action:
         *args,
         **kwargs,
     ):
+        super().__init__(*args, **kwargs)
         self.actionType: str = action_settings.type_
         self.calcFunc: UserFuncCaller = action_settings.calc_function.user_function
         self.name: str = action_settings.name.lower()
@@ -70,10 +72,8 @@ class Action:
         self.is_first: bool = True
         self.aggregate: bool = action_settings.aggregate
         self.flatten: bool = action_settings.flatten
-        self.transpose: bool = action_settings.transpose
         self.single_shot: bool = action_settings.single_shot
         self.feed: feedModule.feed = None
-        self.just_started = False
 
         # some actions might not take any input from the feed
         self.input_info_map: typing.Dict[str, InputSettings] = {
@@ -115,13 +115,17 @@ class Action:
                 yield val, stdout_str, stderr_str, index
 
     def update(self):
-        if self.just_started or not self.single_shot:
-            self.just_started = False
+        ret_out, ret_err = [], []
+        if self.getMode() == Modes.RUNNING:
             self.parameters[FIRST] = self.is_first
             self.is_first = False
             _, stdout_str, stderr_str = self.calcFunc(**self.parameters)
-            return [stdout_str], [stderr_str]
-        return [], []
+            ret_out, ret_err = [stdout_str], [stderr_str]
+
+        if self.single_shot and self.getMode() == Modes.RUNNING:
+            self.changeMode(Modes.FINISHED)
+
+        return ret_out, ret_err
 
     def checkInput(self) -> typing.Tuple[str, int]:
         """
@@ -192,8 +196,9 @@ class Action:
             self.dataSet = temp_data_set
         self.parameters[DATA_SET] = self.dataSet
 
-    def setup(self):
+    def onRunning(self, old_mode: Modes) -> None:
         """Called on action initialization, this setup function is supplied from the config"""
+        super().onRunning(old_mode)
         if self.parameters is None or not isinstance(self.parameters, dict):
             self.parameters = {}
 

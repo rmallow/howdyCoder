@@ -19,7 +19,7 @@ class dataThreaded(dataFunc):
         self.getterThread = None
         self.threadStarted = False
 
-    def getData(self) -> dict:
+    def _getData(self) -> dict:
         self.getDataLogging()
         if not self.threadStarted:
             self.outputQueue = queue.Queue()

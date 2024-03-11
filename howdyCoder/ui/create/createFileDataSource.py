@@ -104,7 +104,9 @@ class CreateFileDataSource(
         curr.key = str(self._abs_path)
         curr.custom_headers = self._settings_widget.getCustomHeaderSet()
         curr.data_in_rows = self._settings_widget.getDataInRows()
-        curr.output = self.getHeaders()
+        curr.output = helpers.deDupeList(
+            self.getHeaders(), copy_label="dupe", starting_number=1, sub_blank_name=True
+        )
         curr.secondary_key = self._secondary_key
 
     def getTutorialClasses(self) -> typing.List:

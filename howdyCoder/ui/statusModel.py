@@ -38,7 +38,7 @@ class statusModel(QtGui.QStandardItemModel):
 
         # Set the status color based on the presence of certain fields in details
         statusColor = QtCore.Qt.red
-        if code == MAINFRAME or ProgramStatusData(**msg.details).mode == Modes.STARTED:
+        if code == MAINFRAME or ProgramStatusData(**msg.details).mode == Modes.RUNNING:
             statusColor = QtCore.Qt.green
         codeItem.setBackground(QtGui.QBrush(statusColor))
 

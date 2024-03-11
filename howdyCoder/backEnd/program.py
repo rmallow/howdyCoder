@@ -104,7 +104,7 @@ class Program(commandProcessor, ABC):
         self.keepAlive()
 
     def populateProgramStatusData(self, details, status_data: ProgramStatusData):
-        if self._current_mode == Modes.STARTED and self._last_status is not None:
+        if self._current_mode == Modes.RUNNING and self._last_status is not None:
             self._run_time += time.time() - self._last_status
         self._last_status = time.time()
         status_data.receive_time = time.time()
@@ -140,7 +140,7 @@ class Program(commandProcessor, ABC):
 
     @setInterval(1)
     def _update(self):
-        if self._current_mode == Modes.STARTED:
+        if self._current_mode == Modes.RUNNING:
             self.update()
 
     @abstractmethod
