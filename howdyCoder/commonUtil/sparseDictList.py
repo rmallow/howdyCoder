@@ -149,8 +149,9 @@ class SparseDictList(dict):
             1. Creating dataclasses
             2. Appending to the list
             3. Access internal map
-        If necessary could be improved in the future by not storing each individual data point as a dataclass
-        i.e. could store lists of data points with their indexes
+        Potential Improvement:
+            Instead of having sparse data, have two lists, one for indexes and other for values
+            Creating dataclass has a lot of overhead
         """
         max_len = 1 if data_list else 0
         # first determine the max_len of the data_list
