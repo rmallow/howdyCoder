@@ -4,6 +4,7 @@ from ..core.dataStructs import (
     ProgramSettings,
     Modes,
     Parameter,
+    createSourceDataDict,
 )
 from .uiConstants import LOOP_INTERVAL_MSECS, LaunchSequenceSteps
 from .programData import ProgramDict
@@ -22,7 +23,7 @@ from ..commonUtil import mpLogging, configLoader, keyringUtil, fileLoaders
 
 from ..core import message as msg
 from ..core import messageKey
-from ..backEnd.util.commandProcessor import commandProcessor
+from ..core.commandProcessor import commandProcessor
 from ..core import parameterSingleton
 
 import copy
@@ -85,15 +86,15 @@ class mainModel(commandProcessor, QtCore.QObject):
         """
         Add CommandProcessor Handlers, most of these will just track and emit a signal
         """
-        self.addCmdFunc(msg.UiUpdateType.ALGO, mainModel.handleBlockUpdate)
-        self.addCmdFunc(msg.UiUpdateType.LOGGING, mainModel.handleLoggingUpdate)
-        self.addCmdFunc(msg.UiUpdateType.STATUS, mainModel.handleUIStatus)
-        self.addCmdFunc(msg.UiUpdateType.STARTUP, mainModel.handleStartup)
-        self.addCmdFunc(msg.UiUpdateType.CREATED, mainModel.handleCreated)
-        self.addCmdFunc(msg.UiUpdateType.MOD_STATUS, mainModel.handleModStatus)
-        self.addCmdFunc(msg.UiUpdateType.EXPORT, mainModel.handleExport)
-        self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, mainModel.checkStatus)
-        self.addCmdFunc(msg.UiUpdateType.STD_OUT_ERR, mainModel.handleSTDUpdate)
+        self.addCmdFunc(msg.UiUpdateType.ALGO, self.handleBlockUpdate)
+        self.addCmdFunc(msg.UiUpdateType.LOGGING, self.handleLoggingUpdate)
+        self.addCmdFunc(msg.UiUpdateType.STATUS, self.handleUIStatus)
+        self.addCmdFunc(msg.UiUpdateType.STARTUP, self.handleStartup)
+        self.addCmdFunc(msg.UiUpdateType.CREATED, self.handleCreated)
+        self.addCmdFunc(msg.UiUpdateType.MOD_STATUS, self.handleModStatus)
+        self.addCmdFunc(msg.UiUpdateType.EXPORT, self.handleExport)
+        self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, self.checkStatus)
+        self.addCmdFunc(msg.UiUpdateType.STD_OUT_ERR, self.handleSTDUpdate)
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.checkQueue)
@@ -127,11 +128,11 @@ class mainModel(commandProcessor, QtCore.QObject):
                 while not self.ui_queue.empty():
                     m: msg.message = self.ui_queue.get()
                     if not m.isMessageList():
-                        self.processCommand(m.content, details=m)
+                        self.processCommand(m)
                     else:
-                        for msgIter in m.content:
-                            if msgIter.content is not None:
-                                self.processCommand(msgIter.content, details=msgIter)
+                        for msg_iter in m.content:
+                            if msg_iter.content is not None:
+                                self.processCommand(msg_iter)
             except (BrokenPipeError, EOFError, ConnectionResetError) as e:
                 # This will happen when the server process has ended, we no longer need to keep checking
                 mpLogging.error("UI Queue is disconnnected.")
@@ -158,14 +159,27 @@ class mainModel(commandProcessor, QtCore.QObject):
         if self.program_dict.getData(code).mode == Modes.STANDBY:
             self.sendGlobals(code)
 
-        self.messageMainframe(
-            msg.message(msg.MessageType.COMMAND, msg.CommandType.START, details=code)
-        )
+        self.commandChildMode(code, Modes.RUNNING)
 
     @QtCore.Slot()
-    def sendCmdEnd(self, code: str):
+    def commandChildEnd(self, code: str):
+        self.commandChildMode(code, Modes.STOPPED)
+
+    def commandMainframeMode(self, mode: Modes):
         self.messageMainframe(
-            msg.message(msg.MessageType.COMMAND, msg.CommandType.END, details=code)
+            msg.message(
+                msg.MessageType.COMMAND, msg.CommandType.CHANGE_MODE, details=mode
+            )
+        )
+
+    def commandChildMode(self, code: str, mode: Modes):
+        self.messageMainframe(
+            msg.message(
+                msg.MessageType.COMMAND,
+                msg.CommandType.CHANGE_CHILD_MODE,
+                details=mode,
+                key=msg.messageKey(code, None),
+            )
         )
 
     def trackMessage(self, message: msg.message):
@@ -184,49 +198,49 @@ class mainModel(commandProcessor, QtCore.QObject):
             )
         )
 
-    def handleUIStatus(self, _, details: msg.message = None):
+    def handleUIStatus(self, command_message: msg.message):
         """
         If the message is status type need to do special processing
         """
-        self.trackMessage(details)
-        data = ProgramStatusData(**details.details)
+        self.trackMessage(command_message)
+        data = ProgramStatusData(**command_message.details)
         if data.columns:
-            self.updateColumnsSignal.emit(details)
-        current_data = self.program_dict.getData(details.key.sourceCode)
+            self.updateColumnsSignal.emit(command_message)
+        current_data = self.program_dict.getData(command_message.key.sourceCode)
         if data.mode == Modes.RUNNING and current_data.mode == Modes.STANDBY:
-            self.programJustStarted(details.key.sourceCode)
-        self.updateStatusSignal.emit(details)
-        self.program_dict.updateProgramStatus(details.key.sourceCode, data)
+            self.programJustStarted(command_message.key.sourceCode)
+        self.updateStatusSignal.emit(command_message)
+        self.program_dict.updateProgramStatus(command_message.key.sourceCode, data)
 
-    def handleBlockUpdate(self, _, details: msg.message = None):
+    def handleBlockUpdate(self, command_message: msg.message):
         """
         Called by commandProcessor on UiUpdateType.ALGO
         """
-        self.trackMessage(details)
-        self.updateOutputSignal.emit(details)
+        self.trackMessage(command_message)
+        self.updateOutputSignal.emit(command_message)
 
-    def handleLoggingUpdate(self, _, details: msg.message = None):
+    def handleLoggingUpdate(self, command_message: msg.message):
         """
         Called by commandProcessor on UiUpdateType.LOGGING
         """
-        self.trackMessage(details)
+        self.trackMessage(command_message)
         self.program_dict.updateProgramLogging(
-            details.details.get(mpLogging.MP_KEY, ""), details.details
+            command_message.details.get(mpLogging.MP_KEY, ""), command_message.details
         )
-        self.updateLoggingSignal.emit(details)
+        self.updateLoggingSignal.emit(command_message)
 
-    def handleStartup(self, _, details: msg.message = None):
+    def handleStartup(self, command_message: msg.message):
         """
         Called by commandProcessor on UiUpdateType.STARTUP
         """
-        self.trackMessage(details)
+        self.trackMessage(command_message)
 
-    def checkStatus(self, _, details=None):
+    def checkStatus(self, command_message: msg.message):
         """
         Called by commandProcessor on CommandType.CHECK_UI_STATUS
         """
-        self.trackMessage(details)
-        self.messageMainframe(details)
+        self.trackMessage(command_message)
+        self.messageMainframe(command_message)
 
     def addProgramFile(self, program_config_file_path: str):
         """This will only verify that the file is found, and can be turned into a dict, doesn't determine valid file"""
@@ -271,21 +285,21 @@ class mainModel(commandProcessor, QtCore.QObject):
             copied_settings = copy.deepcopy(program_data.config)
             self.addProgram(copied_settings)
 
-    def handleCreated(self, _, details: msg.message = None):
+    def handleCreated(self, command_message: msg.message):
         """Mainframe wants us to know this item was created"""
-        self.trackMessage(details)
-        for k, v in details.details.items():
+        self.trackMessage(command_message)
+        for k, v in command_message.details.items():
             self.program_dict.addProgram(k, v)
 
-    def handleModStatus(self, _, details: msg.message = None):
+    def handleModStatus(self, command_message: msg.message):
         """Mainframes wants us to know what modules have been found/not found"""
-        self.trackMessage(details)
-        self._module_status[details.details[0]] = details.details[1]
+        self.trackMessage(command_message)
+        self._module_status[command_message.details[0]] = command_message.details[1]
         if (
             self._start_wizard_code is not None
-            and details.details[0] == self._start_wizard_code
+            and command_message.details[0] == self._start_wizard_code
         ):
-            self.launchSequenceResponse.emit(details.details[1][:])
+            self.launchSequenceResponse.emit(command_message.details[1][:])
 
     def getModules(self, code=None):
         module_status = []
@@ -308,30 +322,29 @@ class mainModel(commandProcessor, QtCore.QObject):
         )
 
     def shutdownProgram(self, code):
-        self.messageMainframe(
-            msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN, details=code)
-        )
+        self.commandChildMode(code, Modes.STANDBY)
 
     def shutdown(self):
-        self.messageMainframe(
-            msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN)
-        )
+        self.commandMainframeMode(Modes.STANDBY)
 
     def exportData(self, code, file_path):
         self._export_mapping_cache[code].append(file_path)
         self.messageMainframe(
-            msg.message(
-                msg.MessageType.COMMAND,
-                msg.CommandType.EXPORT,
-                key=msg.messageKey(code, None),
+            msg.commandToChildWrapper(
+                code,
+                msg.message(
+                    msg.MessageType.COMMAND,
+                    msg.CommandType.EXPORT,
+                    key=msg.messageKey(code, None),
+                ),
             )
         )
 
-    def handleExport(self, _, details: msg.message = None):
-        code = details.key.sourceCode
+    def handleExport(self, command_message: msg.message):
+        code = command_message.key.sourceCode
         if self._export_mapping_cache[code]:
             try:
-                details.details.writeToCsv(self._export_mapping_cache[code][0])
+                command_message.details.writeToCsv(self._export_mapping_cache[code][0])
             except AttributeError as _:
                 mpLogging.error(
                     "Sparse Dict List not passed in export Ui Update message details"
@@ -341,20 +354,25 @@ class mainModel(commandProcessor, QtCore.QObject):
 
     def sendSourceData(self, input_data: SourceData):
         self.messageMainframe(
-            msg.message(
-                msg.MessageType.COMMAND,
-                msg.CommandType.ADD_SOURCE_DATA,
-                details=asdict(input_data),
-                key=msg.messageKey(input_data.code, None),
+            msg.commandToChildWrapper(
+                input_data.code,
+                msg.message(
+                    msg.MessageType.COMMAND,
+                    msg.CommandType.ADD_SOURCE_DATA,
+                    details=createSourceDataDict(
+                        input_data.code, input_data.data_source_name, input_data.val
+                    ),
+                    key=msg.messageKey(input_data.code, None),
+                ),
             )
         )
 
-    def handleSTDUpdate(self, _, details: msg.message = None):
+    def handleSTDUpdate(self, command_message: msg.message):
         """
         Called by commandProcessor on UiUpdateType.STD_OUT_ERR
         """
-        self.trackMessage(details)
-        self.updateSTDSignal.emit(details)
+        self.trackMessage(command_message)
+        self.updateSTDSignal.emit(command_message)
 
     def startWizard(self, code: str) -> None:
         self._current_wizard_attempt += 1
@@ -509,18 +527,16 @@ class mainModel(commandProcessor, QtCore.QObject):
                 code
             ].items():
                 message_list.append(
-                    msg.message(
-                        msg.MessageType.COMMAND,
-                        msg.CommandType.ADD_SOURCE_DATA,
-                        {
-                            "code": code,
-                            "data_source_name": data_source_name,
-                            "val": data_source_data,
-                        },
-                        # details=asdict(
-                        #    SourceData(code, data_source_name, data_source_data)
-                        # ),
-                        key=msg.messageKey(code, None),
+                    msg.commandToChildWrapper(
+                        code,
+                        msg.message(
+                            msg.MessageType.COMMAND,
+                            msg.CommandType.ADD_SOURCE_DATA,
+                            details=createSourceDataDict(
+                                code, data_source_name, data_source_data
+                            ),
+                            key=msg.messageKey(code, None),
+                        ),
                     )
                 )
             self.messageMainframe(

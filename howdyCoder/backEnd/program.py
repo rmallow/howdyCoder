@@ -13,7 +13,7 @@ from ..core.dataStructs import USER_FUNC
 from ..commonUtil import userFuncCaller
 from ..commonUtil import configLoader
 
-from .util.commandProcessor import commandProcessor
+from ..core.commandProcessor import commandProcessor
 
 from abc import ABC, abstractmethod
 import time
@@ -46,7 +46,7 @@ class Program(commandProcessor, ABC):
         self.check_program_status_event: threading.Event = None
         self.feed_update_event: threading.Event = None
 
-        self.addCmdFunc(msg.CommandType.CHECK_STATUS, Program.checkStatus)
+        self.addCmdFunc(msg.CommandType.CHECK_STATUS, self.checkStatus)
 
     def keepAlive(self):
         while not self._end:
@@ -75,7 +75,7 @@ class Program(commandProcessor, ABC):
 
     def processMessage(self, message: msg.message):
         if message and message.isCommand():
-            self.processCommand(message.content, details=message.details)
+            self.processCommand(message)
 
     def start(self):
         # call user funcs setup now that we are in our own process
@@ -104,12 +104,12 @@ class Program(commandProcessor, ABC):
         self.keepAlive()
 
     def populateProgramStatusData(self, details, status_data: ProgramStatusData):
-        if self._current_mode == Modes.RUNNING and self._last_status is not None:
+        if self.getMode() == Modes.RUNNING and self._last_status is not None:
             self._run_time += time.time() - self._last_status
         self._last_status = time.time()
         status_data.receive_time = time.time()
         status_data.runtime = self._run_time
-        status_data.mode = self._current_mode
+        status_data.mode = self.getMode()
 
         if details is not None and isinstance(details, dict):
             status_data.send_time = ProgramStatusData(**details).send_time
@@ -129,28 +129,28 @@ class Program(commandProcessor, ABC):
     def populateTypeSpecificStatusData(self, details, status_data):
         pass
 
-    def checkStatus(self, _, details):
+    def checkStatus(self, command_message: msg.message):
         """
         Aside from special cases like COLUMNS, the details on this message will be displayed on the status window
         """
         status_data = self.getStatusDataInstance()
-        self.populateProgramStatusData(details, status_data)
-        self.populateTypeSpecificStatusData(details, status_data)
+        self.populateProgramStatusData(command_message.details, status_data)
+        self.populateTypeSpecificStatusData(command_message.details, status_data)
         self.sendStatusData(status_data)
 
     @setInterval(1)
     def _update(self):
-        if self._current_mode == Modes.RUNNING:
+        if self.getMode() == Modes.RUNNING:
             self.update()
 
     @abstractmethod
     def update(self):
         pass
 
-    def cmdStart(self, command, details=None):
+    def onRunning(self, old_mode: Modes):
         self.action_pool.started()
 
-    def cmdShutdown(self, command, details=None):
+    def onStandby(self, command, details=None):
         self._end = True
 
     def doActions(self):

@@ -92,10 +92,14 @@ class mainOutputViewModel(QtCore.QObject):
             selection_settings[TYPE] == outputTypesEnum.TABLE.value
             or selection_settings[TYPE] == outputTypesEnum.GRAPH.value
         ):
-            m = msg.message(
-                msg.MessageType.COMMAND,
-                msg.CommandType.ADD_OUTPUT_VIEW,
-                details=selection_settings,
+            m = msg.commandToChildWrapper(
+                selection_settings[ITEM],
+                msg.message(
+                    msg.MessageType.COMMAND,
+                    msg.CommandType.ADD_OUTPUT_VIEW,
+                    details=selection_settings,
+                    key=msg.messageKey(selection_settings[ITEM], None),
+                ),
             )
 
             self.addOutputViewSignal.emit(m)

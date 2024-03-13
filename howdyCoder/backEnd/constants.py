@@ -1,30 +1,21 @@
-from .util.nameMatchEnum import nameMatchEnum
-from enum import Enum
+from enum import Enum, auto
 
 """
 ----------------------------
-DATA SOURCE CLASS CONSTATNTS
+DATA SOURCE CONSTATNTS
 ----------------------------
 """
 
 
-class DataSourceReturnEnum(nameMatchEnum):
-    NO_DATA = 0
-    END_DATA = 1
-    OUTSIDE_CONSTRAINT = 2
+"""
+----------------------------
+FEED CONSTATNTS
+----------------------------
+"""
 
 
 class FeedRetValues(Enum):
-    VALID_VALUES = 0
-    NO_VALID_VALUES = 1
-
-
-"""
-----------------------------
-FEED CONSTANTS
-----------------------------
-"""
-
-INSUF_DATA = "insufData"
-
-COL_NF = "colNF"
+    VALID_VALUES = auto()
+    NO_VALID_VALUES = auto()
+    ALL_DS_FINISHED = auto()
+    RESET_FEED = auto()

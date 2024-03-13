@@ -20,6 +20,7 @@ from .commonUtil import mpLogging
 from .commonUtil.helpers import getStrTime
 from .commonUtil import queueManager as qm
 from .commonUtil.repeatTimer import setInterval
+from .commonUtil import sizeSafeMpQueue
 
 # Back End includes
 from .core import message as msg
@@ -28,7 +29,7 @@ from .backEnd.algo import Algo
 from .backEnd.script import Script
 from .backEnd.program import Program
 from .commonUtil import configLoader
-from .backEnd.util.commandProcessor import commandProcessor
+from .core.commandProcessor import commandProcessor
 
 # Multi/Asyncio/Threading includes
 import multiprocessing as mp
@@ -106,7 +107,7 @@ class mainframe(commandProcessor):
         )
         # This queue is complicated as it's used both by local processes, that won't  be going through manager to get it
         # But it will also be used by objects that are only going to be acessing it by manager
-        self.mainframe_queue = mp.Queue(-1)
+        self.mainframe_queue = sizeSafeMpQueue.SizeSafeMpQueue(-1)
         qm.QueueManager.register(
             qm.GET_MAINFRAME_QUEUE, callable=lambda: self.mainframe_queue
         )
@@ -133,14 +134,12 @@ class mainframe(commandProcessor):
         self.ui_last_time = None
 
         # add commands for processor
-        self.addCmdFunc(msg.CommandType.ADD_OUTPUT_VIEW, mainframe.addOutputView)
-        self.addCmdFunc(msg.CommandType.UI_STARTUP, mainframe.sendStartupData)
-        self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, mainframe.sendStatusCheck)
-        self.addCmdFunc(msg.CommandType.CREATE, mainframe.createCommand)
-        self.addCmdFunc(msg.CommandType.INSTALL_PACKAGE, mainframe.installPackages)
-        self.addCmdFunc(msg.CommandType.EXPORT, mainframe.passCommandToProgram)
-        self.addCmdFunc(msg.CommandType.ADD_SOURCE_DATA, mainframe.passCommandToProgram)
-        self.addCmdFunc(msg.CommandType.SET_GLOBALS, mainframe.setGlobals)
+        self.addCmdFunc(msg.CommandType.UI_STARTUP, self.sendStartupData)
+        self.addCmdFunc(msg.CommandType.CHECK_UI_STATUS, self.sendStatusCheck)
+        self.addCmdFunc(msg.CommandType.CREATE, self.createCommand)
+        self.addCmdFunc(msg.CommandType.INSTALL_PACKAGE, self.installPackages)
+        self.addCmdFunc(msg.CommandType.SET_GLOBALS, self.setGlobals)
+        self.addCmdFunc(msg.CommandType.CHANGE_CHILD_MODE, self.cmdChangeChildMode)
 
         # not an mp Queue, it's Dill, but we'll survive with this type hint
         self._all_program_queues: typing.Dict[str, mp.Queue] = {}
@@ -193,21 +192,23 @@ class mainframe(commandProcessor):
         run the function again on a predetermined timer
         """
         while self._is_running and not self.mainframe_queue.empty():
-            message = self.mainframe_queue.get()
-            if isinstance(message, msg.message):
-                if message.isMessageList():
-                    self._batch_process_messages = True
-                    self._message_list_batch.clear()
-                    for m in message.content:
-                        self.processMessage(m)
-                    self.processBatch()
-                    self._batch_process_messages = False
-                else:
-                    self.processMessage(message)
+            n = self.mainframe_queue.qsize()
+            self.startBatch()
+            for _ in range(n):
+                if not self._is_running or self.mainframe_queue.empty():
+                    break
+                message = self.mainframe_queue.get()
+                if isinstance(message, msg.message):
+                    if message.isMessageList():
+                        for m in message.content:
+                            self.processMessage(m)
+                    else:
+                        self.processMessage(message)
+            self.processBatch()
 
     def processMessage(self, message: msg.message) -> None:
         if message.isCommand():
-            self.processCommand(message.content, details=message)
+            self.processCommand(message)
         elif message.isUIUpdate():
             if message.content == msg.UiUpdateType.STATUS:
                 # Extra handling for status, adding back time and removing from status dict
@@ -239,7 +240,7 @@ class mainframe(commandProcessor):
                 )
                 self.sendToUi(uiLoggingMessage)
 
-    def sendStatusCheck(self, _1, _2=None):
+    def sendStatusCheck(self, _: msg.message):
         self.ui_last_time = time.time()
         if not self.ui_connected:
             # So we got a status message back after we thought the ui was disconnected, so start it back up again
@@ -309,41 +310,13 @@ class mainframe(commandProcessor):
             """Keep the non daemon thread open"""
             time.sleep(5)
 
-    def addOutputView(self, command, details):
-        if details.details[ITEM] in self._all_program_queues:
-            self._all_program_queues[details.details[ITEM]].put(
-                msg.message(msg.MessageType.COMMAND, command, details=details.details)
-            )
+    def getChildPutFunc(self, code: str):
+        """Used by command processor to know where to send message"""
+        if code in self._all_program_queues:
+            return self._all_program_queues[code].put
+        return None
 
-    def passCommandToProgram(self, command, details):
-        """If we are processing a whole batch, we'll wait until we have all the messages and send at once"""
-        if details.key.sourceCode in self._all_program_queues:
-            pass_through_message = msg.message(
-                msg.MessageType.COMMAND, command, details=details.details
-            )
-            if self._batch_process_messages:
-                self._message_list_batch[details.key.sourceCode].append(
-                    pass_through_message
-                )
-            else:
-                if details.key.sourceCode in self._all_program_queues:
-                    self._all_program_queues[details.key.sourceCode].put(
-                        pass_through_message
-                    )
-        else:
-            mpLogging.warning(
-                f"Attempted to pass command to program, but didn't find code {details.key.sourceCode}"
-            )
-
-    def processBatch(self):
-        for code, message_list in self._message_list_batch.items():
-            if code in self._all_program_queues:
-                self._all_program_queues[code].put(
-                    msg.message(msg.MessageType.MESSAGE_LIST, message_list)
-                )
-        self._message_list_batch.clear()
-
-    def sendStartupData(self, _1, _2):
+    def sendStartupData(self, _: msg.message):
         mpLogging.info("Sending startup data to the UI that was connected")
         self.ui_connected = True
 
@@ -380,21 +353,13 @@ class mainframe(commandProcessor):
             elif self.ui_status_check_event.is_set():
                 self.ui_status_check_event.clear()
 
-    def cmdStart(self, _, details=None):
-        # run program will check if code exists, and log if not,
-        # but at least check that the message details is a string
-        if isinstance(details.details, str):
-            self.runProgram(details.details)
-
     def runProgram(self, code):
         if code in self._all_settings_map:
             if code not in self.process_dict:
                 self.startProgramProcess(code)
             # start the process AND then send cmd start
             if self._all_program_queues[code] is not None:
-                self._all_program_queues[code].put(
-                    msg.message(msg.MessageType.COMMAND, msg.CommandType.START)
-                )
+                self.changeProgramMode(code, Modes.RUNNING)
             else:
                 mpLogging.error(
                     f"Got start message for program with a process that exists but no valid queue"
@@ -461,23 +426,29 @@ class mainframe(commandProcessor):
         self.process_dict[code] = program_process
         program_process.start()
 
-    def cmdEnd(self, _, details=None):
-        if isinstance(details.details, str):
-            self.endProgram(details.details)
+    def changeProgramMode(self, code: str, mode: Modes):
+        if (
+            code in self.process_dict
+            and code in self._all_program_queues
+            and self._all_program_queues[code] is not None
+        ):
+            self._all_program_queues[code].put(
+                msg.message(
+                    msg.MessageType.COMMAND, msg.CommandType.CHANGE_MODE, details=mode
+                )
+            )
+
+    def onStopped(self, old_mode: Modes):
+        for k in list(self.process_dict.keys()):
+            self.endProgram(k)
 
     def endProgram(self, code):
-        if code in self.process_dict and self._all_program_queues[code] is not None:
-            self._all_program_queues[code].put(
-                msg.message(msg.MessageType.COMMAND, msg.CommandType.END)
-            )
+        self.changeProgramMode(code, Modes.STOPPED)
 
     def shutdownProgram(self, code, timeout=2):
         """Send the shutdown message, then try to end process nicely and then if still alive forcibly end it"""
         if code in self.process_dict:
-            if self._all_program_queues[code] is not None:
-                self._all_program_queues[code].put(
-                    msg.message(msg.MessageType.COMMAND, msg.CommandType.SHUTDOWN)
-                )
+            self.changeProgramMode(code, Modes.STANDBY)
             if timeout is not None:
                 self.process_dict[code].join(timeout)
             if self.process_dict[code].is_alive():
@@ -492,20 +463,11 @@ class mainframe(commandProcessor):
             )
         )
 
-    def cmdShutdown(self, _, details=None):
+    def onStandby(self, old_mode: Modes):
         """End the programs first and then shutdown"""
-        if details.details is None:
-            self.cmdEnd(None, details)
-            for k in list(self.process_dict.keys()):
-                self.shutdownProgram(k)
-            self._is_running = False
-        elif isinstance(details.details, str):
-            self.endProgram(details.details)
-            self.shutdownProgram(details.details)
-        else:
-            mpLogging.error(
-                f"Invalid details to shutdown command in mainframe: {details}"
-            )
+        for k in list(self.process_dict.keys()):
+            self.shutdownProgram(k)
+        self._is_running = False
 
     def loadProgramSettings(self, program_settings: ProgramSettings) -> None:
         """Load the program settings but DO NOT create the program and assign queues until started"""
@@ -551,18 +513,18 @@ class mainframe(commandProcessor):
             )
         )
 
-    def createCommand(self, _, details=None):
+    def createCommand(self, command_message: msg.message):
         """Wrapper for creating an algo from a command message"""
-        if details.details is not None:
+        if command_message.details is not None:
             program_settings = dataclass_wizard.fromdict(
-                ProgramSettings, details.details
+                ProgramSettings, command_message.details
             )
             self.loadProgramSettings(program_settings)
 
-    def installPackages(self, _, details=None):
+    def installPackages(self, command_message: msg.message):
         """Receive install pacakge command from UI, must send mod status response after"""
-        if details.details is not None:
-            for package in details.details:
+        if command_message.details is not None:
+            for package in command_message.details:
                 try:
                     subprocess.check_call(
                         [sys.executable, "-m", "pip", "install", package]
@@ -576,11 +538,22 @@ class mainframe(commandProcessor):
             for code, program_settings in self._all_settings_map.items():
                 self.checkModules(code, asdict(program_settings))
 
-    def setGlobals(self, _, details=None):
-        if details.key is not None and details.key.sourceCode is not None:
-            self._all_program_globals[details.key.sourceCode] = {}
-            if details.details is not None:
-                for key, value in details.details.items():
-                    self._all_program_globals[details.key.sourceCode][key] = (
+    def setGlobals(self, command_message: msg.message):
+        if (
+            command_message.key is not None
+            and command_message.key.sourceCode is not None
+        ):
+            self._all_program_globals[command_message.key.sourceCode] = {}
+            if command_message.details is not None:
+                for key, value in command_message.details.items():
+                    self._all_program_globals[command_message.key.sourceCode][key] = (
                         dataclass_wizard.fromdict(Parameter, value)
                     )
+
+    def cmdChangeChildMode(self, command_message: msg.message):
+        if command_message.details == Modes.RUNNING:
+            self.runProgram(command_message.key.sourceCode)
+        elif command_message.details == Modes.STOPPED:
+            self.endProgram(command_message.key.sourceCode)
+        elif command_message.details == Modes.STANDBY:
+            self.shutdownProgram(command_message.key.sourceCode)

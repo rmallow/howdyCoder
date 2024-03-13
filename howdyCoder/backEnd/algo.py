@@ -48,9 +48,9 @@ class Algo(Program):
         # construct sub items
         self.loadSettings(settings)
 
-        self.addCmdFunc(msg.CommandType.ADD_OUTPUT_VIEW, Algo.addOutputView)
-        self.addCmdFunc(msg.CommandType.EXPORT, Algo.exportData)
-        self.addCmdFunc(msg.CommandType.ADD_SOURCE_DATA, Algo.addSourceData)
+        self.addCmdFunc(msg.CommandType.ADD_OUTPUT_VIEW, self.addOutputView)
+        self.addCmdFunc(msg.CommandType.EXPORT, self.exportData)
+        self.addCmdFunc(msg.CommandType.ADD_SOURCE_DATA, self.addSourceData)
 
         self.start()
 
@@ -117,14 +117,9 @@ class Algo(Program):
                     self.sendCombinedData()
             elif feed_ret_val == con.FeedRetValues.NO_VALID_VALUES:
                 pass
-            elif feed_ret_val == con.DataSourceReturnEnum.OUTSIDE_CONSTRAINT:
-                self.clear()
-            elif feed_ret_val == con.DataSourceReturnEnum.NO_DATA:
-                # Want to do nothing and process potential algos messages
-                pass
-            elif feed_ret_val != con.DataSourceReturnEnum.END_DATA:
+            elif feed_ret_val == con.FeedRetValues.ALL_DS_FINISHED:
                 # Feed is at end of data so don't want to keep calling it
-                self._current_mode = Modes.STOPPED
+                self.changeMode(Modes.FINISHED)
             else:
                 # Feeds should not be returning None, issue a warning and stop updating
                 mpLogging.warning(
@@ -132,19 +127,20 @@ class Algo(Program):
                     group=ALGO_GROUP,
                     description="Return recognized enum value for feed status",
                 )
-                self._current_mode = Modes.STOPPED
+                self.changeMode(Modes.STOPPED)
 
-    def clear(self):
-        self.feed_obj.clear()
-
-    def addOutputView(self, _, details=None):
+    def addOutputView(self, command_message: msg.message):
         self.track = True
         # can only backtrack if data already exists
         if self.feed_obj.data is not None:
-            if details and BACKTRACK in details and details[BACKTRACK] != 0:
+            if (
+                command_message.details
+                and BACKTRACK in command_message.details
+                and command_message.details[BACKTRACK] != 0
+            ):
                 # if backtrack is present and is not 0 then send back to mainframed
                 # the desired amount of data
-                backtrack_length = details[BACKTRACK]
+                backtrack_length = command_message.details[BACKTRACK]
                 if backtrack_length == -1:
                     # if back track is -1 then send all of the data available
                     backtrack_length = self.feed_obj.getDataLength()
@@ -165,7 +161,7 @@ class Algo(Program):
         )
         self._mainframe_queue.put(m)
 
-    def populateTypeSpecificStatusData(self, details, status_data):
+    def populateTypeSpecificStatusData(self, _, status_data):
         """
         Aside from special cases like COLUMNS, the details on this message will be displayed on the status window
         """
@@ -175,7 +171,7 @@ class Algo(Program):
             self.feed_obj.calcData.keys()
         )
 
-    def exportData(self, _, details):
+    def exportData(self, _: msg.message):
         self._mainframe_queue.put(
             msg.message(
                 msg.MessageType.UI_UPDATE,
@@ -185,11 +181,11 @@ class Algo(Program):
             )
         )
 
-    def cmdStart(self, command, details=None):
-        super().cmdStart(command, details)
+    def onRunning(self, old_mode: Modes):
+        super().onRunning(old_mode)
         self.feed_obj.started()
 
-    def addSourceData(self, _, details=None):
-        if details is not None:
-            input_data = SourceData(**details)
+    def addSourceData(self, command_message: msg.message):
+        if command_message.details is not None:
+            input_data = SourceData(**command_message.details)
             self.feed_obj.addSourceData(input_data.data_source_name, input_data.val)

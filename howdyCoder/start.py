@@ -59,5 +59,3 @@ def start():
         else:
             # if ui is present we will allow the ui to run it
             howdyCoder.start(isLocal)
-    elif args.server:
-        main.cmdStart(None)

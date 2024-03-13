@@ -1,10 +1,19 @@
 from .dataStructs import Modes
+from ..commonUtil.multiBase import multiBase
 
 from abc import ABC, abstractmethod
 
 
-class ModeHandler(ABC):
+class ModeHandler(multiBase):
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._mode_func_map = {
+            Modes.STANDBY: self.onStandby,
+            Modes.RUNNING: self.onRunning,
+            Modes.FINISHED: self.onFinished,
+            Modes.STOPPED: self.onStopped,
+        }
+        assert all(m in self._mode_func_map for m in Modes), "Missing Mode Handlers"
         self._mode = Modes.STANDBY
 
     def onStandby(self, old_mode: Modes) -> None:
@@ -23,17 +32,7 @@ class ModeHandler(ABC):
         assert new_mode != self._mode, "Tried to change mode to current mode"
         old_mode = self._mode
         self._mode = new_mode
-        self.MODE_FUNC_MAP[self._mode](self, old_mode)
+        self._mode_func_map[self._mode](old_mode)
 
     def getMode(self) -> Modes:
         return self._mode
-
-    MODE_FUNC_MAP = {
-        Modes.STANDBY: onStandby,
-        Modes.RUNNING: onRunning,
-        Modes.FINISHED: onFinished,
-        Modes.STOPPED: onStopped,
-    }
-
-
-assert all(m in ModeHandler.MODE_FUNC_MAP for m in Modes), "Missing Mode Handlers"

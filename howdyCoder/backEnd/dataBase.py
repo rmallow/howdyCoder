@@ -1,5 +1,3 @@
-from .constants import DataSourceReturnEnum
-
 from ..core.dataStructs import DataSourceSettings, Modes
 from ..commonUtil import mpLogging
 from ..core.commonGlobals import DATA_GROUP, EditorType
@@ -83,42 +81,6 @@ class DataBase(ModeHandler):
                 raw_data = {name.lower(): raw_data}
 
         return raw_data
-
-    def hasConstraints(self) -> bool:
-        """
-        Checks if the dataBase has constraints
-
-        @returns: bool of if it has constraints
-        """
-        return self.lowerConstraint is not None and self.upperConstraint is not None
-
-    def checkConstraint(self, data: pd.DataFrame) -> DataSourceReturnEnum:
-        """
-        checks data index based on upper lower constraints
-
-        @param: data - pandas dataframe with index that can be compared to constraints
-
-        @return: if outside of constraint it will return constants.DataSourceReturnEnum.OUTSIDE_CONSTRAINT
-                     otherwise return None
-        """
-        # if data is not pandas or comparison to index doesn't work this will except
-        # as this could be called every get Data want to log the except
-        try:
-            if (
-                data.index[0] < self.lowerConstraint
-                or data.index[-1] > self.upperConstraint
-            ):
-                return DataSourceReturnEnum.OUTSIDE_CONSTRAINT
-            else:
-                return None
-        except Exception:
-            mpLogging.warning(
-                "Exception in check constraint, check constraints were set correctly",
-                group=DATA_GROUP,
-                description=f"Lower constraint: {self.lowerConstraint} \
-                                  Upper Constraint: {self.upperConstraint}",
-            )
-            return None
 
     def getData(self):
         """Call child class get if ready to get and change mode afterward if singleshot"""

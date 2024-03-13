@@ -15,10 +15,9 @@ class MessageType(IntEnum):
 
 class CommandType(IntEnum):
     # general commands
-    START = max(e.value for e in MessageType) + 1
-    END = auto()
-    SHUTDOWN = auto()
-    CLEAR = auto()
+    CHANGE_MODE = auto()
+    CHANGE_CHILD_MODE = auto()
+    SEND_COMMAND_TO_CHILD = auto()
     # specific use case commands
     ADD_OUTPUT_VIEW = auto()
     CHECK_STATUS = auto()
@@ -84,3 +83,12 @@ class message:
 
     def isMessageList(self):
         return self.messageType == MessageType.MESSAGE_LIST
+
+
+def commandToChildWrapper(code: typing.Any, inner_m: message):
+    return message(
+        MessageType.COMMAND,
+        CommandType.SEND_COMMAND_TO_CHILD,
+        inner_m,
+        key=messageKey(code, None),
+    )

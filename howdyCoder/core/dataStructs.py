@@ -3,6 +3,7 @@ from .commonGlobals import KEY, MAPPING, ACTION_LIST, DATA_SOURCES, ProgramTypes
 import typing
 from enum import Enum
 from dataclasses import dataclass, field, fields
+import dataclasses
 from dataclass_wizard import JSONWizard, property_wizard, fromdict
 from numbers import Number
 
@@ -62,6 +63,22 @@ class SourceData(JSONWizard, metaclass=property_wizard):
     code: str = ""
     data_source_name: str = ""
     val: typing.Any = None
+
+
+"""
+For sending/recieving Source Data, using regular dc or dc wizard as dict is super slow for large data
+so create the dict regularly.
+Then using SourceData(**dict_insance) is not slow so this is fine 
+"""
+CODE = "code"
+DS_NAME_FIELD = "data_source_name"
+VAL = "val"
+field_names = [f.name for f in dataclasses.fields(SourceData)]
+assert all(v in field_names for v in [CODE, DS_NAME_FIELD, VAL])
+
+
+def createSourceDataDict(code: str, ds_name: str, val: typing.Any):
+    return {CODE: code, DS_NAME_FIELD: ds_name, VAL: val}
 
 
 @dataclass

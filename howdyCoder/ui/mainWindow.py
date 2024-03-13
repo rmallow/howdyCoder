@@ -176,7 +176,7 @@ class MainWindow(
         data = self._main_model.program_dict.getData(code)
         if data is not None:
             if data.mode == Modes.RUNNING:
-                self._main_model.sendCmdEnd(code)
+                self._main_model.commandChildEnd(code)
             else:
                 self.openStartWizard(code)
 
