@@ -157,6 +157,8 @@ class FuncSelectorCodePage(FuncSelectorPageBase):
             )
 
     def updateData(self) -> None:
+        cur_val = openAIUtil.testValidKeySet()
+        self.ui.prompt_box.setVisible(cur_val)
         self.ui.codeEdit.clear()
         self._current_function_settings = FunctionSettings()
         self.ui.prompt_text_edit.clear()
