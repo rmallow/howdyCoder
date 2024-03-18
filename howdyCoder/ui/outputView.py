@@ -10,7 +10,9 @@ class outputView(
     AbstractTutorialClass,
     StayOnTopInFocus,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     def __new__(self, *args, **kwargs):
         abstractQt.handleAbstractMethods(self)

@@ -27,7 +27,6 @@ class DataBase(ModeHandler):
         self.period: int = data_source_settings.period
         self.data_in_rows: bool = data_source_settings.data_in_rows
 
-        self.columnFilter: typing.List[str] = None
         self.upperConstraint = None
         self.lowerConstraint = None
         self.dayFirst: bool = False
@@ -44,12 +43,6 @@ class DataBase(ModeHandler):
 
         self.end: bool = False
         self.newCycle: bool = False
-        if self.columnFilter is not None and len(self.columnFilter) > 0:
-            # convert columnFilter to all lowercase
-            # convert columnFilter to set for fast lookup
-            self.columnFilter = set([column.lower() for column in self.columnFilter])
-        else:
-            self.columnFilter = None
         self.last_time = 0
 
     def dataModifications(self, raw_data: typing.Any) -> dict:
@@ -64,11 +57,6 @@ class DataBase(ModeHandler):
             try:
                 raw_data = {k.lower(): v for k, v in raw_data.items()}
 
-                if self.columnFilter is not None:
-                    # Must use list here as we're going to be deleting while iterating
-                    for col in list(raw_data.keys()):
-                        if col not in self.columnFilter:
-                            del raw_data[col]
             except AttributeError as _:
                 # the return value from the data source function wasn't a dict
                 # this isn't an error, so we convert the singular value (hopefully str or num) or list into a dict

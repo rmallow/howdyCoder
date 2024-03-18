@@ -24,7 +24,9 @@ SELECTED_REQUIRES_NEW_COLUMN = 1
 class CreateBuiltInAction(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     def __init__(self, *args, **kwargs):
         super().__init__("None", *args, **kwargs)

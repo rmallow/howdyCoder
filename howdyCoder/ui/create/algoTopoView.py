@@ -218,7 +218,9 @@ class AlgoTopoScene(QtWidgets.QGraphicsScene):
 class AlgoTopoView(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     TUTORIAL_RESOURCE_PREFIX = "None"
 

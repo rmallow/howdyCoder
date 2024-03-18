@@ -25,7 +25,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 class MainWindow(
     AbstractTutorialClass,
     QtWidgets.QMainWindow,
-    metaclass=abstractQt.getAbstactQtResolver(
+    metaclass=abstractQt.getAbstractQtResolver(
         QtWidgets.QMainWindow, AbstractTutorialClass
     ),
 ):
@@ -155,8 +155,6 @@ class MainWindow(
         self._timer.timeout.connect(self.refresh)
         self._timer.start(GUI_REFRESH_INTERVAL)
 
-        self.testFunc()
-
     @QtCore.Slot()
     def loadConfig(self):
         self._main_model.addProgramFile(
@@ -239,13 +237,6 @@ class MainWindow(
         self._ui.stackedWidget.currentWidget().leaveMainPage()
         self._ui.stackedWidget.setCurrentWidget(new_widget)
         self._ui.stackedWidget.currentWidget().loadMainPage()
-
-    def testFunc(self):
-        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/crypto_trader.yml")
-        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/app2.yml")
-        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/global_script.yml")
-        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/file_algo_test.yml")
-        self._main_model.addProgramFile(r"/Users/rmallow/Desktop/test_big_file.yml")
 
     def refresh(self):
         """Once we receive word back that the program that is trying to be started by the wizard, is in fact started, then we can hide it"""

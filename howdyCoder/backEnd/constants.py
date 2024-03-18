@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import IntFlag, auto
 
 """
 ----------------------------
@@ -14,8 +14,8 @@ FEED CONSTATNTS
 """
 
 
-class FeedRetValues(Enum):
+class FeedRetFlag(IntFlag):
+    NO_VALID_VALUES = 0
     VALID_VALUES = auto()
-    NO_VALID_VALUES = auto()
     ALL_DS_FINISHED = auto()
     RESET_FEED = auto()

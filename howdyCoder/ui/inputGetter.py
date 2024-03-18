@@ -20,7 +20,9 @@ import pyautogui
 class InputGetterBase(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     HIDE_ENTER = False
     HIDE_RESET = False

@@ -111,23 +111,13 @@ class Algo(Program):
         feed_ret_val = self.feed_obj.update()
         self.feed_last_update_time = time.time()
         if feed_ret_val is not None:
-            if feed_ret_val == con.FeedRetValues.VALID_VALUES:
+            if feed_ret_val & con.FeedRetFlag.VALID_VALUES:
                 self.doActions()
                 if self.track:
                     self.sendCombinedData()
-            elif feed_ret_val == con.FeedRetValues.NO_VALID_VALUES:
-                pass
-            elif feed_ret_val == con.FeedRetValues.ALL_DS_FINISHED:
+            if feed_ret_val & con.FeedRetFlag.ALL_DS_FINISHED:
                 # Feed is at end of data so don't want to keep calling it
                 self.changeMode(Modes.FINISHED)
-            else:
-                # Feeds should not be returning None, issue a warning and stop updating
-                mpLogging.warning(
-                    f"Algo {self.code} eceived invalid return value from feed",
-                    group=ALGO_GROUP,
-                    description="Return recognized enum value for feed status",
-                )
-                self.changeMode(Modes.STOPPED)
 
     def addOutputView(self, command_message: msg.message):
         self.track = True

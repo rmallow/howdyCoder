@@ -27,7 +27,9 @@ OUTPUT_VIEW_TYPE_TO_VIEW_CLASS = {
 class mainOutputView(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     TUTORIAL_RESOURCE_PREFIX = "MainOutputView"
 

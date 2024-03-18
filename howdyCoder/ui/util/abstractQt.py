@@ -4,7 +4,7 @@ from functools import cache
 
 
 @cache
-def getAbstactQtResolver(base_qt_class: QtCore.QObject, base_abstract_class=ABC):
+def getAbstractQtResolver(base_qt_class: QtCore.QObject, base_abstract_class=ABC):
     class _ShibokenObjectTypeFence(type(base_qt_class)):
         pass
 
@@ -27,7 +27,7 @@ def handleAbstractMethods(cls):
 
 # Example Widget, add the __new__ function check the abstract methods
 class AbstractWidget(
-    QtWidgets.QWidget, metaclass=getAbstactQtResolver(QtWidgets.QWidget)
+    QtWidgets.QWidget, metaclass=getAbstractQtResolver(QtWidgets.QWidget)
 ):
     def __new__(self, *args, **kwargs):
         handleAbstractMethods(self)

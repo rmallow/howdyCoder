@@ -29,7 +29,6 @@ class ModeHandler(multiBase):
         pass
 
     def changeMode(self, new_mode: Modes):
-        assert new_mode != self._mode, "Tried to change mode to current mode"
         old_mode = self._mode
         self._mode = new_mode
         self._mode_func_map[self._mode](old_mode)

@@ -4,7 +4,7 @@ from ..commonUtil.sparseDictList import SparseDictList
 from ..commonUtil import mpLogging
 from ..core.commonGlobals import DATA_GROUP
 from ..core.dataStructs import Modes
-from .constants import FeedRetValues
+from .constants import FeedRetFlag
 
 # from viztracer import log_sparse
 
@@ -41,13 +41,14 @@ class feed:
         self.end = False
 
     # @log_sparse
-    def update(self) -> FeedRetValues:
+    def update(self) -> FeedRetFlag:
         """
         Gather up all of the data source return values
         Determine the longest, based on flattening or not, if no data source have flatten the longest is 1
         Append the ret vals from the data sources to data
         """
         ret_vals = []
+        all_finished = True
         for data_source in self.dataSources:
             ds_return = data_source.getData()
             if ds_return is not None:
@@ -62,11 +63,16 @@ class feed:
                         data_source.output,
                     ]
                 )
+            all_finished &= data_source.getMode() == Modes.FINISHED
 
         self.newCalcLength = 0
         if ret_vals:
             self.newCalcLength = self.data.appendDataList(ret_vals)
-        return FeedRetValues.VALID_VALUES if ret_vals else FeedRetValues.NO_VALID_VALUES
+
+        ret_flag = FeedRetFlag.VALID_VALUES if ret_vals else FeedRetFlag.NO_VALID_VALUES
+        if all_finished:
+            ret_flag |= FeedRetFlag.ALL_DS_FINISHED
+        return ret_flag
 
     def clear(self) -> None:
         self.data = SparseDictList()

@@ -29,7 +29,9 @@ class CreateWidget(
     AbstractTutorialClass,
     MainWindowPageBase,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     addProgram = QtCore.Signal(ProgramSettings)
 

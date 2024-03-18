@@ -15,7 +15,9 @@ from PySide6 import QtWidgets, QtCore
 class outputSelect(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
     selectionFinished = QtCore.Signal(object)
@@ -166,17 +168,17 @@ class outputSelect(
     @QtCore.Slot()
     def settingsSelected(self):
         if self.areSettingsValid():
-            self.selectionSettings[
-                PERIOD
-            ] = self._selectSettingsUI.periodSpinBox.value()
+            self.selectionSettings[PERIOD] = (
+                self._selectSettingsUI.periodSpinBox.value()
+            )
             self.selectionSettings[BACKTRACK] = min(
                 self.selectionSettings[PERIOD],
                 self._selectSettingsUI.backtrackSpinBox.value(),
             )
             if self.selectionSettings[TYPE] == outputTypesEnum.GRAPH.value:
-                self.selectionSettings[
-                    GRAPH_SETTINGS
-                ] = self.graphSettingsWidget.getSettings()
+                self.selectionSettings[GRAPH_SETTINGS] = (
+                    self.graphSettingsWidget.getSettings()
+                )
             self.selectionFinished.emit(self.selectionSettings)
 
     def areSettingsValid(self):

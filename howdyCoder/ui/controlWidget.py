@@ -49,7 +49,9 @@ class ControlWidget(
     AbstractTutorialClass,
     MainWindowPageBase,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     TUTORIAL_RESOURCE_PREFIX = "None"
 

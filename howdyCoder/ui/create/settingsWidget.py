@@ -17,7 +17,7 @@ from PySide6 import QtWidgets, QtCore
 class SettingsWidgetBase(
     ABC,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, ABC),
+    metaclass=abstractQt.getAbstractQtResolver(QtWidgets.QWidget, ABC),
 ):
     def __init__(
         self,

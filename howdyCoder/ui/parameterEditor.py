@@ -19,7 +19,9 @@ from PySide6 import QtWidgets, QtCore, QtGui
 class ParameterEditor(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     removedParameter = QtCore.Signal(Parameter)
     addedParameter = QtCore.Signal(Parameter)

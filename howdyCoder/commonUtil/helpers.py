@@ -57,15 +57,23 @@ def getDupeName(
     starting_number: int = 1,
     sub_blank_name=False,
 ) -> str:
-    """Sure it should be a binary search, but why bother"""
     if sub_blank_name and not name:
         name = "blank_name"
     if name not in name_container:
         return name
     x = starting_number
-    while f"{name}_{copy_label}_{x}" in (name_container):
-        x += 1
-    return f"{name}_{copy_label}_{x}"
+    while True:
+        dupe_name = f"{name}_{copy_label}_{x}"
+        if dupe_name not in name_container:
+            return dupe_name
+        left, right = starting_number, len(name_container)
+        while left <= right:
+            mid = (left + right) // 2
+            if f"{name}_{copy_label}_{mid}" in name_container:
+                left = mid + 1
+            else:
+                right = mid - 1
+        x = left
 
 
 def deDupeList(

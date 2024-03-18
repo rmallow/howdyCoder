@@ -9,7 +9,7 @@ HIGHLIGHT_ROLE = QtCore.Qt.UserRole + 10  # arbitrary
 
 class HighlightBaseModel(
     QtGui.QStandardItemModel,
-    metaclass=abstractQt.getAbstactQtResolver(QtGui.QStandardItemModel),
+    metaclass=abstractQt.getAbstractQtResolver(QtGui.QStandardItemModel),
 ):
     """
     QStandardItemModel that colors specified indexes for trees

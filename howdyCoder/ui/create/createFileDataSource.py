@@ -25,7 +25,9 @@ from PySide6 import QtWidgets, QtCore, QtGui
 class CreateFileDataSource(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
 
     TUTORIAL_RESOURCE_PREFIX_FUNC = "CreateSettingsDataSource"

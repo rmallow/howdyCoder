@@ -66,7 +66,6 @@ class SparseDictList(dict):
 
     def __init__(self):
         super().__init__()
-        self.indexKey = None
         self.longest_list = 0
 
     def __setitem__(self, key: str, value: Any) -> Any:
@@ -74,35 +73,6 @@ class SparseDictList(dict):
         # without this hasattr check there is some weird pickling issues
         if hasattr(self, "longest_list") and len(self[key]) > self.longest_list:
             self.longest_list = len(self[key])
-
-    """
-    TODO
-    Experimenting with removing these for speed issues
-    Removed on 3/11/2024
-    If no error, remove later.
-    def __getattribute__(self, name: str) -> Any:
-        if name == "index":
-            if self.indexKey is not None:
-                return self[self.indexKey]
-            else:
-                return None
-        else:
-            return super().__getattribute__(name)
-
-    def __getstate__(self):
-        #because we overrided __getattribute__ we must explicitly define these for pickling
-        return self.__dict__
-
-    def __setstate__(self, d):
-        #because we overrided __getattribute__ we must explicitly define these for pickling
-        self.__dict__.update(d)
-    """
-
-    def setIndex(self, indexKey: str) -> None:
-        if indexKey in self:
-            self.indexKey = indexKey
-        else:
-            self.indexKey = None
 
     def getNthKey(self, index: int = 0) -> Any:
         # For large dict list, very slow, consider storing keys
@@ -159,7 +129,7 @@ class SparseDictList(dict):
             max_len = max(max_len, determienMaxLenOfData(data, flatten, transpose))
 
         def getRealKeyAndCheck(code, key):
-            valid_key = f"{code}-{key}" if code else key
+            valid_key = (f"{code}-{key}" if code else key).lower()
             if valid_key not in self:
                 self[valid_key] = []
             return valid_key

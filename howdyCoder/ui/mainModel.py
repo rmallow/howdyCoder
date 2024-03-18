@@ -539,6 +539,19 @@ class mainModel(commandProcessor, QtCore.QObject):
                         ),
                     )
                 )
+                message_list.append(
+                    msg.commandToChildWrapper(
+                        code,
+                        msg.message(
+                            msg.MessageType.COMMAND,
+                            msg.CommandType.ADD_SOURCE_DATA,
+                            details=createSourceDataDict(
+                                code, data_source_name, None
+                            ),
+                            key=msg.messageKey(code, None),
+                        ),
+                    )
+                )
             self.messageMainframe(
                 msg.message(
                     msg.MessageType.MESSAGE_LIST,

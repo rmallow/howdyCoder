@@ -9,7 +9,9 @@ from PySide6 import QtWidgets, QtCore
 class SelectorBase(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     itemSelected = QtCore.Signal(object)
 

@@ -2,7 +2,7 @@ from .funcSelector import FuncSelector
 from .pathSelector import PathSelector
 from .selectorWidget import SelectorWidget
 
-from .util.abstractQt import getAbstactQtResolver, handleAbstractMethods
+from .util.abstractQt import getAbstractQtResolver, handleAbstractMethods
 from .util import qtUtil
 from .util.helperData import (
     HelperData,
@@ -163,7 +163,7 @@ class EditableTableDelegate(QtWidgets.QStyledItemDelegate):
 
 class EditableTableModel(
     QtCore.QAbstractTableModel,
-    metaclass=getAbstactQtResolver(QtCore.QAbstractTableModel),
+    metaclass=getAbstractQtResolver(QtCore.QAbstractTableModel),
 ):
     """
     Base class for Editable Tables, standardizes modifying values in tables

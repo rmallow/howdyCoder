@@ -83,7 +83,9 @@ CREATE_WIZARD_ITEM_TYPE_TO_SETTING_STRUCT: typing.Dict[CreateWizardItemType, obj
 class CreateWizard(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     # we are actually emitting a dict, but PySide6 has an error with dict Signals, so change to object
     addItem = QtCore.Signal(ItemSettings)
@@ -110,9 +112,9 @@ class CreateWizard(
         self._ui.createWidgetBox.setLayout(self._createWidgetBoxLayout)
 
         self._current_create_widgets_list: typing.List[CreateBasePage] = []
-        self._all_create_widget_lists: typing.Dict[
-            str, typing.List[CreateBasePage]
-        ] = {}
+        self._all_create_widget_lists: typing.Dict[str, typing.List[CreateBasePage]] = (
+            {}
+        )
 
         self._current_exit_page: PageKeys = PageKeys.NO_PAGE
         self._creator_type: CreateWizardItemType = None

@@ -12,7 +12,9 @@ from PySide6 import QtWidgets, QtCore
 class NewBlockWidget(
     AbstractTutorialClass,
     QtWidgets.QWidget,
-    metaclass=abstractQt.getAbstactQtResolver(QtWidgets.QWidget, AbstractTutorialClass),
+    metaclass=abstractQt.getAbstractQtResolver(
+        QtWidgets.QWidget, AbstractTutorialClass
+    ),
 ):
     TUTORIAL_RESOURCE_PREFIX = "NewBlockWidget"
 
