@@ -135,6 +135,12 @@ class CreateWizard(
 
         self.createAllPages()
 
+    def resizeEvent(self, event: QtGui.QResizeEvent):
+        if event.size().height() < 500:
+            self._ui.progress_steps_box.hide()
+        else:
+            self._ui.progress_steps_box.show()
+
     def createAllPages(self):
         for type_, widget_class_list in CREATE_WIZARD_ITEM_TYPE_TO_PAGES.items():
             self._all_create_widget_lists[type_] = []
@@ -255,6 +261,7 @@ class CreateWizard(
             )
             self._ui.progressSteps.goTo(new_index)
             self._current_index = new_index
+            self._ui.scrollArea.verticalScrollBar().setValue(0)
             self.setButtonText()
 
     @QtCore.Slot()

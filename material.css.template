@@ -875,40 +875,30 @@ QScrolLBar:vertical {
 /*  ------------------------------------------------------------------------  */
 /*  QScrollBar-Big  */
 
-QScrollBar.big:horizontal {
-  border: 0;
-  background: {{secondaryColor}};
-  height: {{36|density(density_scale)}}px;
+QScrollArea[scrollBarSize="big"] > QWidget > QScrollBar {
+  background: #0f0f0f;
+  border-radius: 10px;
 }
 
-QScrollBar.big:vertical {
-  border: 0;
-  background: {{secondaryColor}};
-  width: {{36|density(density_scale)}}px;
+QScrollArea[scrollBarSize="big"] > QWidget > QScrollBar:horizontal {
+  height: 20px;
 }
 
-QScrollBar.big::handle,
-QScrollBar.big::handle:vertical:hover,
-QScrollBar.big::handle:horizontal:hover {
+QScrollArea[scrollBarSize="big"] > QWidget > QScrollBar:vertical {
+  width: 20px;
+}
+
+QScrollArea[scrollBarSize="big"] > QWidget > QScrollBar::handle,
+QScrollArea[scrollBarSize="big"] > QWidget > QScrollBar::handle:vertical:hover,
+QScrollArea[scrollBarSize="big"] > QWidget > QScrollBar::handle:horizontal:hover {
   background: {{primaryColor}};
+  border-radius: 10px;
 }
 
-QScrollBar.big::handle:horizontal {
-  min-width: {{24|density(density_scale)}}px;
-}
 
-QScrollBar.big::handle:vertical {
-  min-height: {{24|density(density_scale)}}px;
-}
-
-QScrollBar.big::add-line:vertical,
-QScrollBar.big::sub-line:vertical,
-QScrollBar.big::add-line:horizontal,
-QScrollBar.big::sub-line:horizontal {
-  border: 0;
-  background: transparent;
-  width: 0px;
-  height: 0px;
+QScrollArea[scrollBarSize="big"] > QWidget > QScrollBar::handle:vertical:hover,
+QScrollArea[scrollBarSize="big"] > QWidget > QScrollBar::handle:horizontal:hover {
+  background: {{primaryColor|opacity(0.8)}};
 }
 
 /*  ------------------------------------------------------------------------  */

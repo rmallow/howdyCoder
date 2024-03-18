@@ -36,7 +36,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QWidget" name="progress_steps_box" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
@@ -114,7 +114,7 @@
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
-     <property name="class" stdset="0">
+     <property name="scrollBarSize" stdset="0">
       <string>big</string>
      </property>
      <widget class="QWidget" name="scrollAreaWidgetContents">

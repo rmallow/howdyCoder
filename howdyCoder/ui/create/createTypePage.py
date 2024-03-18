@@ -43,7 +43,7 @@ class CreateTypePage(CreateBasePage):
         self._ui.sub_type_view.currentRowChanged.connect(self.subTypeSelected)
         self._ui.type_view.setCurrentRow(-1)
         self._ui.sub_type_view.setCurrentRow(-1)
-        self._ui.sub_type_wrapper.hide()
+        self._ui.sub_type_box.hide()
 
     @QtCore.Slot()
     def subTypeSelected(self, row: int) -> None:
@@ -173,7 +173,9 @@ class CreateDataSourceTypePage(CreateTypePage):
     def typeSelected(self, row: int) -> None:
         super().typeSelected(row)
         current_type = self._ui.type_view.item(row).text()
-        if current_type == getattr(DataSourcesTypeEnum.INPUT, ENUM_DISPLAY, "") or current_type == getattr(DataSourcesTypeEnum.FILE, ENUM_DISPLAY, ""):
+        if current_type == getattr(
+            DataSourcesTypeEnum.INPUT, ENUM_DISPLAY, ""
+        ) or current_type == getattr(DataSourcesTypeEnum.FILE, ENUM_DISPLAY, ""):
             self.setSkipPages.emit([PageKeys.PARAMETERS, PageKeys.SETTINGS])
         else:
             self.setSkipPages.emit([])
