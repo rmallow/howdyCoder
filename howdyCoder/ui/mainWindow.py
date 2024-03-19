@@ -4,10 +4,10 @@ from .qtUiFiles import ui_mainWindow
 from .mainModel import mainModel
 from .startWizard import StartWizard
 from .tutorialOverlay import AbstractTutorialClass
-from .create.creatorTypeWindow import CreatorTypeWindow
 from .uiConstants import GUI_REFRESH_INTERVAL
 
 from .util import abstractQt
+from .util import nonNativeQMessageBox
 
 # import name page for find children to connect signal
 from .create.createNamePage import CreateNamePage
@@ -116,8 +116,6 @@ class MainWindow(
         )
         self._start_wizard.finished.connect(self._main_model.startWizardClosed)
 
-        self.creator_type_window = None
-
         self.resize(QtGui.QGuiApplication.primaryScreen().availableSize())
         self._ui.tab_widget.setCurrentWidget(self._ui.control_page)
         self._current_tab_index: int = 0
@@ -180,17 +178,33 @@ class MainWindow(
 
     @QtCore.Slot()
     def newBlockWidgetSelected(self):
+        """
         if self.creator_type_window is None:
-            self.creator_type_window = CreatorTypeWindow(self)
-            self.creator_type_window.finished.connect(self.creatorTypeWindowFinished)
+            self.creator_type_window = CreatorTypeWidget(self)
+            self.creator_type_window.finished.connect(self.CreatorTypeWidgetFinished)
         self.creator_type_window.reset()
         self.creator_type_window.open()
+        """
 
     def loadCreatePage(
         self, creator_type: str, creator_config: ProgramSettings | None = None
     ):
-        self._ui.create_page.setCurrentProgramType(creator_type, creator_config)
-        self._ui.tab_widget.setCurrentWidget(self._ui.create_page)
+        message_box = nonNativeQMessageBox.NonNativeQMessageBox(self)
+        message_box.setText("Erase Current Work")
+        info_text = "Are you sure want to erase your current creator work?\n"
+        message_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        message_box.setInformativeText(info_text)
+        message_box.setStandardButtons(
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+        )
+        message_box.setDefaultButton(QtWidgets.QMessageBox.No)
+        message_box.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
+        if (
+            not self._ui.create_page.isCurrentlyInUse()
+            or message_box.exec() == QtWidgets.QMessageBox.Yes
+        ):
+            self._ui.create_page.setCurrentProgramType(creator_type, creator_config)
+            self._ui.tab_widget.setCurrentWidget(self._ui.create_page)
 
     @QtCore.Slot()
     def editProgramConfig(self, code: str) -> None:
@@ -199,11 +213,6 @@ class MainWindow(
             widgetData.config.type_, creator_config=copy.deepcopy(widgetData.config)
         )
         self._main_model.program_being_edited = code
-
-    @QtCore.Slot()
-    def creatorTypeWindowFinished(self, result: int):
-        if result == QtWidgets.QDialog.DialogCode.Accepted:
-            self.loadCreatePage(self.creator_type_window.getTypeSelected())
 
     def changeTab(self, new_index: int):
         self._ui.tab_widget.widget(self._current_tab_index).leaveMainPage()

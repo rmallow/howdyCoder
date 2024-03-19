@@ -227,7 +227,7 @@ class AlgoTopoView(
     openWizard = QtCore.Signal(ItemSettings)
     addItem = QtCore.Signal(ItemSettings)
     editItem = QtCore.Signal(ItemSettings)
-    finished = QtCore.Signal(str)
+    topoFinished = QtCore.Signal(str)
     # remove by item settings so we know if ds or not
     removeItem = QtCore.Signal(ItemSettings)
 
@@ -268,7 +268,7 @@ class AlgoTopoView(
             lambda: self.copyItemMenu(self.scene.current_selected_item)
         )
         self._ui.finishButton.released.connect(
-            lambda: self.finished.emit(self._ui.nameEdit.text())
+            lambda: self.topoFinished.emit(self._ui.nameEdit.text())
         )
         self._ui.nameEdit.textChanged.connect(self.noBlankName)
 

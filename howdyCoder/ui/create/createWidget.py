@@ -60,7 +60,10 @@ class CreateWidget(
         self._ui.algoTopoView.addItem.connect(self.addItemToSettings)
         self._ui.algoTopoView.removeItem.connect(self.removeItem)
         self._ui.algoTopoView.editItem.connect(self.editItem)
-        self._ui.algoTopoView.finished.connect(self.finished)
+        self._ui.algoTopoView.topoFinished.connect(self.topoFinished)
+
+        self._ui.creatorTypeWidget.selectionFinished.connect(self.creatorTypeSelected)
+        self._ui.stackedWidget.setCurrentWidget(self._ui.creatorTypeWidget)
 
     def setCurrentProgramType(
         self, type_: str, creator_settings: ProgramSettings | None
@@ -102,16 +105,16 @@ class CreateWidget(
         """
         copied_settings = copy.deepcopy(item_settings)
         if self._creator_type == ProgramTypes.SCRIPT:
+            settings = None
             if item_settings is not None:
-                self.addProgram.emit(
+                settings = ProgramSettings(
                     ProgramSettings(
                         self._creator_type.value,
                         copied_settings.name,
                         ScriptSettings(copied_settings, copied_settings.name),
                     )
                 )
-            else:
-                self.addProgram.emit(None)
+            self.creationDone(settings)
         else:
             if item_settings is not None:
                 if self._editing_item:
@@ -121,10 +124,14 @@ class CreateWidget(
         self._editing_item = None
 
     @QtCore.Slot()
-    def finished(self, program_name):
+    def topoFinished(self, program_name):
         self.current_settings.name = program_name
         self.current_settings.settings.name = self.current_settings.name
-        self.addProgram.emit(self.current_settings)
+        self.creationDone(self.current_settings)
+
+    def creationDone(self, settings: ProgramSettings):
+        self.addProgram.emit(settings)
+        self._ui.stackedWidget.setCurrentWidget(self._ui.creatorTypeWidget)
 
     @QtCore.Slot()
     def addItemToSettings(self, item_settings: ItemSettings):
@@ -162,6 +169,14 @@ class CreateWidget(
             self._ui.algoTopoView.scene,
         )
         self._ui.stackedWidget.setCurrentWidget(self._ui.createWizard)
+
+    def creatorTypeSelected(self):
+        self.setCurrentProgramType(self._ui.creatorTypeWidget.getTypeSelected(), None)
+        self._ui.creatorTypeWidget.reset()
+
+    def isCurrentlyInUse(self) -> bool:
+        """If we're on the initial selection page we're not currently in use"""
+        return self._ui.stackedWidget.currentWidget() != self._ui.creatorTypeWidget
 
     def loadMainPage(self):
         pass

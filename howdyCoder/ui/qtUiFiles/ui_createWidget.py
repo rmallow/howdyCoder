@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (QApplication, QSizePolicy, QStackedWidget, QVBoxL
 
 from ..create.algoTopoView import AlgoTopoView
 from ..create.createWizard import CreateWizard
+from ..create.creatorTypeWidget import CreatorTypeWidget
 
 class Ui_CreateWidget(object):
     def setupUi(self, CreateWidget):
@@ -40,6 +41,9 @@ class Ui_CreateWidget(object):
         self.createWizard = CreateWizard()
         self.createWizard.setObjectName(u"createWizard")
         self.stackedWidget.addWidget(self.createWizard)
+        self.creatorTypeWidget = CreatorTypeWidget()
+        self.creatorTypeWidget.setObjectName(u"creatorTypeWidget")
+        self.stackedWidget.addWidget(self.creatorTypeWidget)
         self.algoTopoView = AlgoTopoView()
         self.algoTopoView.setObjectName(u"algoTopoView")
         self.stackedWidget.addWidget(self.algoTopoView)

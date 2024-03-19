@@ -38,6 +38,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <widget class="CreateWizard" name="createWizard"/>
+     <widget class="CreatorTypeWidget" name="creatorTypeWidget"/>
      <widget class="AlgoTopoView" name="algoTopoView"/>
     </widget>
    </item>
@@ -54,6 +55,12 @@
    <class>AlgoTopoView</class>
    <extends>QWidget</extends>
    <header>..create.algoTopoView</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CreatorTypeWidget</class>
+   <extends>QWidget</extends>
+   <header>..create.creatorTypeWidget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
