@@ -16,14 +16,12 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QMainWindow, QPushButton,
-    QSizePolicy, QStackedWidget, QStatusBar, QToolBar,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QMainWindow, QSizePolicy, QStatusBar,
+    QTabWidget, QToolBar, QVBoxLayout, QWidget)
 
 from ..controlWidget import ControlWidget
 from ..create.createWidget import CreateWidget
 from ..globalParameterPage import GlobalParameterPage
-from ..mainOutputView import mainOutputView
 from . import res_rc
 
 class Ui_HowdyCoder(object):
@@ -76,40 +74,25 @@ class Ui_HowdyCoder(object):
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.return_to_dashboard_button = QPushButton(self.centralwidget)
-        self.return_to_dashboard_button.setObjectName(u"return_to_dashboard_button")
-
-        self.verticalLayout.addWidget(self.return_to_dashboard_button)
-
-        self.widget = QWidget(self.centralwidget)
-        self.widget.setObjectName(u"widget")
-        self.horizontalLayout = QHBoxLayout(self.widget)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 4)
-        self.stackedWidget = QStackedWidget(self.widget)
-        self.stackedWidget.setObjectName(u"stackedWidget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy1.setHorizontalStretch(6)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
-        self.stackedWidget.setSizePolicy(sizePolicy1)
-        self.controlPage = ControlWidget()
-        self.controlPage.setObjectName(u"controlPage")
-        self.stackedWidget.addWidget(self.controlPage)
+        self.tab_widget = QTabWidget(self.centralwidget)
+        self.tab_widget.setObjectName(u"tab_widget")
+        font = QFont()
+        font.setPointSize(13)
+        font.setBold(False)
+        self.tab_widget.setFont(font)
+        self.tab_widget.setTabsClosable(True)
+        self.tab_widget.setProperty("borderedTabButtons", True)
+        self.control_page = ControlWidget()
+        self.control_page.setObjectName(u"control_page")
+        self.tab_widget.addTab(self.control_page, "")
         self.global_parameter_page = GlobalParameterPage()
         self.global_parameter_page.setObjectName(u"global_parameter_page")
-        self.stackedWidget.addWidget(self.global_parameter_page)
-        self.createPage = CreateWidget()
-        self.createPage.setObjectName(u"createPage")
-        self.stackedWidget.addWidget(self.createPage)
-        self.outputPage = mainOutputView()
-        self.outputPage.setObjectName(u"outputPage")
-        self.stackedWidget.addWidget(self.outputPage)
+        self.tab_widget.addTab(self.global_parameter_page, "")
+        self.create_page = CreateWidget()
+        self.create_page.setObjectName(u"create_page")
+        self.tab_widget.addTab(self.create_page, "")
 
-        self.horizontalLayout.addWidget(self.stackedWidget)
-
-
-        self.verticalLayout.addWidget(self.widget)
+        self.verticalLayout.addWidget(self.tab_widget)
 
         HowdyCoder.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(HowdyCoder)
@@ -123,17 +106,15 @@ class Ui_HowdyCoder(object):
         self.toolBar.setFloatable(False)
         HowdyCoder.addToolBar(Qt.TopToolBarArea, self.toolBar)
 
-        self.toolBar.addAction(self.action_output)
         self.toolBar.addAction(self.actionStatus)
         self.toolBar.addAction(self.actionLoad_Config)
         self.toolBar.addAction(self.actionLogging)
-        self.toolBar.addAction(self.action_parameter_and_key)
         self.toolBar.addAction(self.invisible_action)
         self.toolBar.addAction(self.action_help_menu)
 
         self.retranslateUi(HowdyCoder)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.tab_widget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(HowdyCoder)
@@ -157,7 +138,9 @@ class Ui_HowdyCoder(object):
         self.action_parameter_and_key.setToolTip(QCoreApplication.translate("HowdyCoder", u"Parameters and Keys", None))
 #endif // QT_CONFIG(tooltip)
         self.action_output.setText(QCoreApplication.translate("HowdyCoder", u"View Output", None))
-        self.return_to_dashboard_button.setText(QCoreApplication.translate("HowdyCoder", u"Return to Dashboard", None))
+        self.tab_widget.setTabText(self.tab_widget.indexOf(self.control_page), QCoreApplication.translate("HowdyCoder", u"Dashboard", None))
+        self.tab_widget.setTabText(self.tab_widget.indexOf(self.global_parameter_page), QCoreApplication.translate("HowdyCoder", u"Parameters", None))
+        self.tab_widget.setTabText(self.tab_widget.indexOf(self.create_page), QCoreApplication.translate("HowdyCoder", u"Create", None))
         self.toolBar.setWindowTitle(QCoreApplication.translate("HowdyCoder", u"toolBar", None))
     # retranslateUi
 

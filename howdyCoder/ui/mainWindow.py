@@ -47,18 +47,6 @@ class MainWindow(
         self._main_model = mainModel(isLocal, parent=self)
 
         # setup signal and slots for output tab
-        self._main_model.updateOutputSignal.connect(
-            self._ui.outputPage.mainOutputViewModel.receiveData
-        )
-        self._main_model.updateColumnsSignal.connect(
-            self._ui.outputPage.mainOutputViewModel.receiveColumns
-        )
-        self._main_model.updateSTDSignal.connect(
-            self._ui.outputPage.mainOutputViewModel.receiveSTD
-        )
-        self._ui.outputPage.mainOutputViewModel.addOutputViewSignal.connect(
-            self._main_model.messageMainframe
-        )
 
         # Create and connect logging window
         self.loggingWindow = loggingWindow(self)
@@ -77,7 +65,7 @@ class MainWindow(
         # Set up signal and slots
 
         self._ui.actionLoad_Config.triggered.connect(self.loadConfig)
-        self._ui.controlPage.new_block_widget.ui.createButton.pressed.connect(
+        self._ui.control_page.new_block_widget.ui.createButton.pressed.connect(
             self.newBlockWidgetSelected
         )
 
@@ -102,34 +90,21 @@ class MainWindow(
             )
         )
 
-        self._ui.action_output.triggered.connect(
-            lambda: self.changeStackedWidget(self._ui.outputPage)
+        self._ui.create_page.addProgram.connect(self._main_model.addProgramFromWizard)
+        self._ui.create_page.addProgram.connect(
+            lambda: self._ui.tab_widget.setCurrentWidget(self._ui.control_page)
+        )
+        self._ui.control_page.startProgram.connect(self.algoStartControlBox)
+        self._ui.control_page.shutdownProgram.connect(self.algoShutdownControlBox)
+        self._ui.control_page.exportData.connect(self.algoExportControlBox)
+        self._ui.control_page.editProgram.connect(self.editProgramConfig)
+        self._ui.control_page.copyProgram.connect(self._main_model.copyProgram)
+        self._ui.control_page.inputEntered.connect(self._main_model.sendSourceData)
+        self._main_model.program_dict.dataChanged.connect(
+            self._ui.control_page.compareDataToCurrentWidgets
         )
 
-        self._ui.createPage.addProgram.connect(self._main_model.addProgramFromWizard)
-        self._ui.createPage.addProgram.connect(
-            lambda: self.changeStackedWidget(self._ui.controlPage)
-        )
-        self._ui.controlPage.startProgram.connect(self.algoStartControlBox)
-        self._ui.controlPage.shutdownProgram.connect(self.algoShutdownControlBox)
-        self._ui.controlPage.exportData.connect(self.algoExportControlBox)
-        self._ui.controlPage.editProgram.connect(self.editProgramConfig)
-        self._ui.controlPage.copyProgram.connect(self._main_model.copyProgram)
-        self._ui.controlPage.inputEntered.connect(self._main_model.sendSourceData)
-        self._main_model.program_dict.dataChanged.connect(
-            self._ui.controlPage.compareDataToCurrentWidgets
-        )
-        self._main_model.program_dict.dataChanged.connect(
-            self._ui.outputPage.mainOutputViewModel.dataChanged
-        )
-        self._ui.controlPage.program_dict = self._main_model.program_dict
-        self._ui.outputPage.mainOutputViewModel.program_dict = (
-            self._main_model.program_dict
-        )
-        self._ui.stackedWidget.currentChanged.connect(self.pageChanged)
-        self._ui.return_to_dashboard_button.released.connect(
-            lambda: self.changeStackedWidget(self._ui.controlPage)
-        )
+        self._ui.control_page.program_dict = self._main_model.program_dict
 
         self._start_wizard = StartWizard(self)
         self._start_wizard.ui.module_install_widget.installPackagesSignal.connect(
@@ -143,12 +118,15 @@ class MainWindow(
 
         self.creator_type_window = None
 
-        self._ui.action_parameter_and_key.triggered.connect(
-            lambda: self.changeStackedWidget(self._ui.global_parameter_page)
-        )
-
         self.resize(QtGui.QGuiApplication.primaryScreen().availableSize())
-        self._ui.stackedWidget.setCurrentWidget(self._ui.controlPage)
+        self._ui.tab_widget.setCurrentWidget(self._ui.control_page)
+        self._current_tab_index: int = 0
+        self._ui.tab_widget.currentChanged.connect(self.changeTab)
+        for i in range(self._ui.tab_widget.count()):
+            for pos in QtWidgets.QTabBar.ButtonPosition:
+                if b := self._ui.tab_widget.tabBar().tabButton(i, pos):
+                    b.hide()
+
         self.show()
 
         self._timer = QtCore.QTimer(self)
@@ -161,12 +139,6 @@ class MainWindow(
             QtWidgets.QFileDialog.getOpenFileName(
                 self, "Open Config File", filter="Yaml (*.yml)"
             )[0]
-        )
-
-    @QtCore.Slot()
-    def pageChanged(self, _: int):
-        self._ui.return_to_dashboard_button.setHidden(
-            self._ui.stackedWidget.currentWidget() == self._ui.controlPage
         )
 
     @QtCore.Slot()
@@ -204,7 +176,7 @@ class MainWindow(
             event.ignore()
 
     def getTutorialClasses(self) -> typing.List:
-        return [self] + self._ui.stackedWidget.currentWidget().getTutorialClasses()
+        return [self] + self._ui.tab_widget.currentWidget().getTutorialClasses()
 
     @QtCore.Slot()
     def newBlockWidgetSelected(self):
@@ -217,8 +189,8 @@ class MainWindow(
     def loadCreatePage(
         self, creator_type: str, creator_config: ProgramSettings | None = None
     ):
-        self._ui.createPage.setCurrentProgramType(creator_type, creator_config)
-        self._ui.stackedWidget.setCurrentWidget(self._ui.createPage)
+        self._ui.create_page.setCurrentProgramType(creator_type, creator_config)
+        self._ui.tab_widget.setCurrentWidget(self._ui.create_page)
 
     @QtCore.Slot()
     def editProgramConfig(self, code: str) -> None:
@@ -233,10 +205,10 @@ class MainWindow(
         if result == QtWidgets.QDialog.DialogCode.Accepted:
             self.loadCreatePage(self.creator_type_window.getTypeSelected())
 
-    def changeStackedWidget(self, new_widget: QtWidgets.QWidget):
-        self._ui.stackedWidget.currentWidget().leaveMainPage()
-        self._ui.stackedWidget.setCurrentWidget(new_widget)
-        self._ui.stackedWidget.currentWidget().loadMainPage()
+    def changeTab(self, new_index: int):
+        self._ui.tab_widget.widget(self._current_tab_index).leaveMainPage()
+        self._current_tab_index = new_index
+        self._ui.tab_widget.currentWidget().loadMainPage()
 
     def refresh(self):
         """Once we receive word back that the program that is trying to be started by the wizard, is in fact started, then we can hide it"""

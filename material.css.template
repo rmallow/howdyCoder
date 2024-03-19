@@ -446,6 +446,42 @@ QTabBar::close-button:hover {
 }
 
 /*  ------------------------------------------------------------------------  */
+/*  QTabBar > borderedTabButtons */
+
+QTabWidget[borderedTabButtons=true]::tab-bar {
+  font-weight: normal;
+  left: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+QTabWidget[borderedTabButtons=true] > QTabBar {
+  font-size: 30pt;
+  line-height: 40px;
+}
+
+QTabWidget[borderedTabButtons=true] > QTabBar::tab {
+  color: {{secondaryTextColor}};
+  border: 0px;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+  border-radius: 5px;
+  margin: 5px;
+  padding-top: 10px;
+  border-color: rgb(97, 97, 97);
+}
+
+QTabWidget[borderedTabButtons=true] > QTabBar::tab:hover {
+  color: {{secondaryTextColor|opacity(0.7)}};
+  border-color: rgba(97, 97, 97, 0.7);
+}
+
+QTabWidget[borderedTabButtons=true] > QTabBar::tab:selected {
+  color: {{primaryColor}};
+  border-color: {{primaryColor}};
+}
+
+/*  ------------------------------------------------------------------------  */
 /*  QGroupBox  */
 
 QGroupBox {

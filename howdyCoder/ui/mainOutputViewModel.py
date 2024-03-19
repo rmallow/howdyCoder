@@ -17,7 +17,7 @@ from dataclass_wizard import fromlist
 from PySide6 import QtGui, QtCore
 
 
-class mainOutputViewModel(QtCore.QObject):
+class MainOutputViewModel(QtCore.QObject):
     addOutputViewSignal = QtCore.Signal(msg.message)
 
     def __init__(self, parent=None):

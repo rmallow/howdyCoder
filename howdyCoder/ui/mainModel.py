@@ -9,6 +9,7 @@ from ..core.dataStructs import (
 from .uiConstants import LOOP_INTERVAL_MSECS, LaunchSequenceSteps
 from .programData import ProgramDict
 from .util import genericWorker
+from .mainOutputViewModel import MainOutputViewModel
 
 from ..core.commonGlobals import (
     RECEIVE_TIME,
@@ -104,6 +105,15 @@ class mainModel(commandProcessor, QtCore.QObject):
         self._current_wizard_attempt = 1
         """Loaded file will be stored by code, then by DS name"""
         self._loaded_file_data: typing.Dict[str, typing.Dict[str, typing.Any]] = {}
+
+        """Set up output view model"""
+        self._main_output_view_model = MainOutputViewModel(self)
+        self.updateOutputSignal.connect(self._main_output_view_model.receiveData)
+        self.updateColumnsSignal.connect(self._main_output_view_model.receiveColumns)
+        self.updateSTDSignal.connect(self._main_output_view_model.receiveSTD)
+        self._main_output_view_model.addOutputViewSignal.connect(self.messageMainframe)
+        self.program_dict.dataChanged.connect(self._main_output_view_model.dataChanged)
+        self._main_output_view_model.program_dict = self.program_dict
 
     @QtCore.Slot()
     def messageMainframe(self, message):
@@ -545,9 +555,7 @@ class mainModel(commandProcessor, QtCore.QObject):
                         msg.message(
                             msg.MessageType.COMMAND,
                             msg.CommandType.ADD_SOURCE_DATA,
-                            details=createSourceDataDict(
-                                code, data_source_name, None
-                            ),
+                            details=createSourceDataDict(code, data_source_name, None),
                             key=msg.messageKey(code, None),
                         ),
                     )
